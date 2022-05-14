@@ -1,0 +1,104 @@
+<template lang="slm">
+div
+	.fill-w.padding-l.error v-if="error"
+		p git log --graph extension encountered an unexpected error. Sorry! If you want to help fixing this, open up the VSCode Dev Console, copy the relevant error messages and paste it alongside reproduction steps as a new issue on [[TODO]].
+		button.btn @click="error=''" Hide
+		p Error summary: {{ error }}
+	MainView
+</template>
+
+<script lang="coffee">
+import MainView from './views/MainView.vue'
+import store from './store.coffee'
+
+export default
+	components: { MainView }	
+	setup: ->
+		error: store.error
+</script>
+
+<style src="./vscode.css"></style>
+
+<style lang="stylus">
+*
+	box-sizing border-box
+.flex
+	display flex
+	min-height 0
+	min-width 0
+.flex-1
+	flex 1
+.col
+	@extend .flex
+	flex-direction column
+.row
+	@extend .flex
+	flex-direction row
+.justify-center
+	@extend .flex
+	justify-content safe center
+.align-center
+	@extend .flex
+	align-items safe center
+.center
+	@extend .justify-center, .align-center
+.fill-w
+	width 100%
+.fill-h
+	height 100%
+.fill
+	@extend .fill-w, .fill-h
+.gap-5
+	gap 5px
+.gap-10
+	gap 10px
+.gap-20
+	gap 20px
+.padding
+	padding: 0.5vmax
+.padding-l
+	padding: 1vh 1vw
+.padding-xl
+	padding: 3vmax
+.error
+	color darkred
+button
+	appearance none
+	background initial
+	border initial
+	padding initial
+	text-align initial
+	font inherit
+	color inherit // FF bug
+	user-select none
+.btn, input[type="submit"], input[type="reset"], input[type="button"]
+	display inline-flex
+	align-items center
+	white-space pre-wrap
+	padding 0px 10px
+	line-height 1.8em
+	text-decoration none
+	color var(--vscode-button-foreground)
+	background var(--vscode-button-background)
+	border 1px solid var(--vscode-button-background)
+	box-shadow 1px 1px 2px 1px #bbb
+	&:enabled
+		&:hover
+			background var(--vscode-button-hoverBackground)
+			border-color var(--vscode-button-hoverBackground)
+			outline 0
+		&:active
+			opacity 0.7
+			border-width 3px 0 0 2px
+	&:disabled
+		// background-color var(--color-disabled)
+		// border-color grey
+		color grey
+		pointer-events auto // allow title popup
+
+</style>
+
+<style lang="stylus" scoped>
+.error
+	background lightyellow
+</style>

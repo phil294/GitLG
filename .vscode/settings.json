@@ -1,0 +1,26 @@
+{
+    "errorLens.enabled": true,
+    "errorLens.enabledDiagnosticLevels": [
+        "error"
+    ],
+    "todohighlight.isCaseSensitive": false,
+    "todohighlight.keywordsPattern": "(todo|fixme)",
+    "todohighlight.defaultStyle": {
+        "backgroundColor": "darkgreen",
+        "color": "yellow"
+    },
+    "todohighlight.include": [
+        "**/*.html",
+        "**/*.css",
+        "**/*.sh",
+        "**/*.coffee"
+    ],
+    "todohighlight.exclude": [
+        "**/node_modules/**",
+        "**/dist/**",
+        "**/build/**",
+        "**/*.min.*",
+        "**/*.map",
+        "**/.git/**"
+    ]
+}

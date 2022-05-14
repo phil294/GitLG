@@ -1,0 +1,24 @@
+{
+  "name": "web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "vue": "^3.2.13"
+  },
+  "devDependencies": {
+    "@vue/cli": "^5.0.4",
+    "@vue/cli-service": "~5.0.0",
+    "coffee-loader": "^1.0.0",
+    "coffeescript": ">= 2.0.0",
+    "slm": "^2.0.0",
+    "slm-loader": "^1.0.0-beta.2",
+    "stylus": "^0.55.0",
+    "stylus-loader": "^6.1.0",
+    "vue-cli-plugin-coffee": "~1.0.0",
+    "vue-slm-lang-loader": "^1.0.0"
+  }
+}

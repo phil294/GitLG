@@ -1,0 +1,5 @@
+.vscode/.history
+node_modules
+*.js
+dist
+web-dist

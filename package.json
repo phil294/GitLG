@@ -1,0 +1,38 @@
+{
+	"name": "git-log--graph",
+	"description": "git log --graph, an interactive Git Graph frontend",
+	"version": "0.0.1",
+	"publisher": "phil294",
+	"private": false,
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/phil294/git-log--graph-vscode"
+	},
+	"engines": {
+		"vscode": "^1.47.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:git-log--graph.start"
+	],
+	"main": "./src/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "git-log--graph.start",
+				"title": "Open graph view",
+				"category": "git log --graph"
+			}
+		]
+	},
+	"scripts": {},
+	"devDependencies": {
+		"@types/node": "^12.12.0",
+		"@types/vscode": "^1.47.0",
+		"@types/vscode-webview": "^1.57.0",
+		"coffeescript": "^2.7.0"
+	}
+}
