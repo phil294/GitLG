@@ -1,4 +1,5 @@
 vscode = require 'vscode'
+git = require './git'
 
 EXT_NAME = 'git log --graph'
 VIEW_ID = 'git-log--graph'
@@ -9,10 +10,16 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 
 		view.onDidReceiveMessage (message) =>
 			switch message.command
-				when 'ready'
-					view.postMessage command: 'commits', data: [
-						'bar'
-					]
+				when 'git'
+					try
+						payload = data: await git.exec message.args, vscode.workspace.workspaceFolders[0]?.uri.path
+					catch e
+						payload = error: e
+					view.postMessage {
+						command: 'response'
+						id: message.id
+						payload
+					}
 
 		get_uri = (###* @type {string[]} ### ...path_segments) =>
 			view.asWebviewUri vscode.Uri.joinPath context.extensionUri, ...path_segments

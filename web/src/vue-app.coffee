@@ -1,8 +1,11 @@
 import store from './store.coffee'
 import { createApp } from 'vue'
 import App from './App.vue'
+import PromiseForm from './components/PromiseForm.vue'
 
 app = createApp(App)
+
+app.component 'promise-form', PromiseForm
 
 console_error = console.error
 handle_error = (###* @type {any} ### e) =>

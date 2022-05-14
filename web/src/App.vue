@@ -17,9 +17,69 @@ export default
 		error: store.error
 </script>
 
-<style src="./vscode.css"></style>
-
 <style lang="stylus">
+:root {
+	--container-padding: 20px;
+	--input-padding-vertical: 6px;
+	--input-padding-horizontal: 4px;
+	--input-margin-vertical: 4px;
+	--input-margin-horizontal: 0;
+}
+
+body {
+	padding: 0 var(--container-padding);
+	color: var(--vscode-foreground);
+	font-size: var(--vscode-font-size);
+	font-weight: var(--vscode-font-weight);
+	font-family: var(--vscode-font-family);
+	background-color: var(--vscode-editor-background);
+}
+
+ol, ul {
+	padding-left: var(--container-padding);
+}
+
+body > *, form > * {
+	margin-block-start: var(--input-margin-vertical);
+	margin-block-end: var(--input-margin-vertical);
+}
+
+*:focus {
+	outline-color: var(--vscode-focusBorder) !important;
+}
+
+a {
+	color: var(--vscode-textLink-foreground);
+}
+
+a:hover, a:active {
+	color: var(--vscode-textLink-activeForeground);
+}
+
+code {
+	font-size: var(--vscode-editor-font-size);
+	font-family: var(--vscode-editor-font-family);
+}
+
+input:not([type='checkbox']), textarea {
+	display: block;
+	width: 100%;
+	border: none;
+	// font-family: var(--vscode-font-family);
+	font-family: monospace;
+	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
+	color: var(--vscode-input-foreground);
+	outline-color: var(--vscode-input-border);
+	background-color: var(--vscode-input-background);
+}
+
+input::placeholder,
+textarea::placeholder {
+	color: var(--vscode-input-placeholderForeground);
+}
+
+
+
 *
 	box-sizing border-box
 .flex
@@ -71,17 +131,18 @@ button
 	font inherit
 	color inherit // FF bug
 	user-select none
+	cursor pointer
 .btn, input[type="submit"], input[type="reset"], input[type="button"]
 	display inline-flex
 	align-items center
 	white-space pre-wrap
-	padding 0px 10px
+	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
 	line-height 1.8em
 	text-decoration none
 	color var(--vscode-button-foreground)
 	background var(--vscode-button-background)
 	border 1px solid var(--vscode-button-background)
-	box-shadow 1px 1px 2px 1px #bbb
+	// box-shadow 1px 1px 2px 1px #bbb
 	&:enabled
 		&:hover
 			background var(--vscode-button-hoverBackground)
@@ -95,7 +156,11 @@ button
 		// border-color grey
 		color grey
 		pointer-events auto // allow title popup
-
+.btn.btn-2
+	color var(--vscode-button-secondaryForeground)
+	background var(--vscode-button-secondaryBackground)
+.btn.btn-2:hover
+	background var(--vscode-button-secondaryHoverBackground)
 </style>
 
 <style lang="stylus" scoped>
