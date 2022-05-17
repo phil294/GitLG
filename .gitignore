@@ -3,3 +3,4 @@ node_modules
 *.js
 dist
 web-dist
+*.ttf

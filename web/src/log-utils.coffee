@@ -58,6 +58,7 @@ parse = (data, separator) =>
 			v_w_char = vis[i-1] # not yet in commits[] as iteration is rtl
 			v_ne = commits[line_no-1]?.vis[i+1]
 			v_nee = commits[line_no-1]?.vis[i+2]
+			v_e = commits[line_no]?.vis[i+1]
 			v_ee = commits[line_no]?.vis[i+2]
 			switch char
 				when '*'
@@ -89,7 +90,7 @@ parse = (data, separator) =>
 					if v_ne?.char == '*'
 						ref = v_ne?.ref
 					else if v_ne?.char == '|'
-						if v_nee?.char == '/'
+						if v_nee?.char == '/' or v_nee?.char == '_'
 							ref = v_nee?.ref
 						else
 							ref = v_ne?.ref
@@ -100,7 +101,9 @@ parse = (data, separator) =>
 					else
 						throw new Error 'no neighbor found for / at line ' + line_no
 				when '\\'
-					if v_w_char == '|'
+					if v_e?.char == '|'
+						ref = v_e?.ref
+					else if v_w_char == '|'
 						# right before (chronologically) a merge commit (which would be at v_nw)
 						if v_nw?.char != '*'
 							# TODO keep? 
@@ -108,10 +111,13 @@ parse = (data, separator) =>
 						# we can't know the actual branch yet (if it even still exists at all), the last branch
 						# commit is somewhere further down.
 						ref = new_virtual_branch()
-					else if v_nw?.char == '|'
+					else if v_nw?.char == '|' or v_nw?.char == '\\'
 						ref = v_nw?.ref
-					else if v_nw?.char == '\\'
-						ref = v_nw?.ref
+					else if v_nw?.char == '.' or v_nw?.char == '-'
+						k = i - 2
+						while (match = commits[line_no-1].vis[k])?.char == '-'
+							k--
+						ref = match.ref
 					else if v_nw?.char == '.' and commits[line_no-1]?.vis[i-2].char == '-'
 						ref = commits[line_no-1]?.vis[i-3].ref
 					else

@@ -34,7 +34,7 @@ body {
 	background-color: var(--vscode-editor-background);
 }
 
-ol, ul {
+ol, ul, *[role=list] {
 	padding-left: var(--container-padding);
 }
 
@@ -112,6 +112,8 @@ body, html
 	gap 5px
 .gap-10
 	gap 10px
+.col-gap-10
+	col-gap 10px
 .gap-20
 	gap 20px
 .padding
