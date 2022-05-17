@@ -146,11 +146,9 @@ ul
 			> .datetime
 				font-size 12px
 			> .subject
-				> .refs
-					> .ref
-						font-size 12px
-						padding 0 0 4px 13px
-						font-style italic
-						line-height 7px
-						z-index 1
+				> .ref
+					padding 2px 4px
+					font-style italic
+					font-weight bold
+					display inline
 </style>
