@@ -65,7 +65,16 @@ parse = (data, separator) =>
 					if branch
 						###* @type {string} ###
 						ref = branch
-						# TODO: update previous lines accordingly since branch start from above
+						if v_nw?.char == '\\'
+							# This is branch tip but in previous above lines, this branch
+							# was already on display for merging without its actual name known.
+							# Fix these lines (min 1) now
+							k = line_no - 1
+							while (matches = commits[k]?.vis.filter (v) => v.ref == v_nw?.ref)?.length
+								for match from matches or []
+									match.ref = branch
+								k--
+							_virtual_branch_i--
 					else if v_n?.ref
 						ref = v_n?.ref
 					else if v_nw?.char == '\\'
