@@ -113,7 +113,7 @@ body, html
 .gap-10
 	gap 10px
 .col-gap-10
-	col-gap 10px
+	column-gap 10px
 .gap-20
 	gap 20px
 .padding
