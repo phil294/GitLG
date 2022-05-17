@@ -25,13 +25,6 @@ store =
 		vscode.postMessage { command: 'git', args, id }
 		resp = await answer
 		resp.data or throw resp.error
-	#
-	###* @param args {string} ###
-	do_log: (args) =>
-		store.commits.value = []
-		data = await store.do_git args
-		store.commits.value = data.split '\n'
-	commits: ref []
 
 window.addEventListener 'message', ({ data: message }) =>
 	switch message.command

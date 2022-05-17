@@ -1,10 +1,10 @@
 <template lang="slm">
-div
+#vue-app
 	.fill-w.padding-l.error v-if="error"
 		p git log --graph extension encountered an unexpected error. Sorry! If you want to help fixing this, open up the VSCode Dev Console, copy the relevant error messages and paste it alongside reproduction steps as a new issue on [[TODO]].
 		button.btn @click="error=''" Hide
 		p Error summary: {{ error }}
-	MainView
+	main-view
 </template>
 
 <script lang="coffee">
@@ -27,7 +27,6 @@ export default
 }
 
 body {
-	padding: 0 var(--container-padding);
 	color: var(--vscode-foreground);
 	font-size: var(--vscode-font-size);
 	font-weight: var(--vscode-font-weight);
@@ -37,11 +36,6 @@ body {
 
 ol, ul {
 	padding-left: var(--container-padding);
-}
-
-body > *, form > * {
-	margin-block-start: var(--input-margin-vertical);
-	margin-block-end: var(--input-margin-vertical);
 }
 
 *:focus {
@@ -79,6 +73,10 @@ textarea::placeholder {
 }
 
 
+body, html
+	margin 0
+	padding 0
+
 
 *
 	box-sizing border-box
@@ -88,6 +86,8 @@ textarea::placeholder {
 	min-width 0
 .flex-1
 	flex 1
+.flex-noshrink
+	flex-shrink 0
 .col
 	@extend .flex
 	flex-direction column
@@ -132,6 +132,7 @@ button
 	color inherit // FF bug
 	user-select none
 	cursor pointer
+	color var(--vscode-gitDecoration-modifiedResourceForeground)
 .btn, input[type="submit"], input[type="reset"], input[type="button"]
 	display inline-flex
 	align-items center
@@ -164,6 +165,9 @@ button
 </style>
 
 <style lang="stylus" scoped>
+#vue-app
+	height 100vh
+	width 100vw
 .error
 	background lightyellow
 </style>

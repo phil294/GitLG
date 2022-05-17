@@ -22,5 +22,9 @@
         "**/*.min.*",
         "**/*.map",
         "**/.git/**"
+    ],
+    "cSpell.words": [
+        "oneline",
+        "scroller"
     ]
 }

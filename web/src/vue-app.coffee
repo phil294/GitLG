@@ -2,10 +2,13 @@ import store from './store.coffee'
 import { createApp } from 'vue'
 import App from './App.vue'
 import PromiseForm from './components/PromiseForm.vue'
+import { RecycleScroller } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 app = createApp(App)
 
 app.component 'promise-form', PromiseForm
+app.component 'recycle-scroller', RecycleScroller
 
 console_error = console.error
 handle_error = (###* @type {any} ### e) =>
