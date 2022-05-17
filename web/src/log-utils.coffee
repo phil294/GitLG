@@ -67,14 +67,16 @@ parse = (data, separator) =>
 						ref = branch
 						if v_nw?.char == '\\'
 							# This is branch tip but in previous above lines, this branch
-							# was already on display for merging without its actual name known.
+							# was already on display for merging without its actual name known (virtual substitute).
 							# Fix these lines (min 1) now
+							wrong_ref = v_nw?.ref or ''
 							k = line_no - 1
-							while (matches = commits[k]?.vis.filter (v) => v.ref == v_nw?.ref)?.length
+							while (matches = commits[k]?.vis.filter (v) => v.ref == wrong_ref)?.length
 								for match from matches or []
 									match.ref = branch
 								k--
 							_virtual_branch_i--
+							all_refs.delete wrong_ref
 					else if v_n?.ref
 						ref = v_n?.ref
 					else if v_nw?.char == '\\'
