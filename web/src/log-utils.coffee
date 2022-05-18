@@ -1,3 +1,43 @@
+import colors from "./colors.coffee"
+
+# todo colors const
+###*
+# @typedef {{
+#	name: string
+#	color: colors[number] | undefined
+# }} GitRef
+# @typedef {GitRef & {
+#	virtual?: boolean
+# }} Branch
+###
+
+###*
+# @typedef {{
+#	i: number
+#	vis: {
+#		char: string
+#		branch: Branch | null
+#	}[]
+#	hash: string
+#	author_name: string
+#	author_email: string
+#	datetime?: string
+#	refs: GitRef[]
+#	subject: string
+# }} Commit
+###
+
+branch_sort = (###* @type Branch ### a, ###* @type Branch ### b) =>
+	a_is_tag = a.name.startsWith("tag: ")
+	b_is_tag = b.name.startsWith("tag: ")
+	# prefer branch over tag/stash
+	Number(a_is_tag or not a.name.startsWith("refs/")) - Number(b_is_tag or not b.name.startsWith("refs/")) or
+		# prefer tag over stash
+		Number(b_is_tag) - Number(a_is_tag) or
+		# prefer local branch over remote branch
+		a.name.indexOf("/") - b.name.indexOf("/")
+
+#
 ###*
 # @returns all known branches *from that data* (branches outside are invisible) and the very
 # data transformed into commits. A commit is git commit info and its vis
@@ -8,13 +48,28 @@
 ###
 parse = (data, separator) =>
 	lines = data.split '\n'
-	_virtual_branch_i = 0
+
 	#
-	###* @type {{ vis: {char: string, branch: string|null}[], hash: string, author_name: string, author_email: string, timestamp: number, refs: string[], subject: string }[]} ###
+	###* @type {Branch[]} ###
+	branches = []
+	#
+	###* @returns {Branch} ###
+	new_branch = (###* @type string ### branch_name) =>
+		branch =
+			name: branch_name
+			color: colors[branches.length % (colors.length - 1)]
+		branches.push branch
+		branch
+	new_virtual_branch = =>
+		branch = new_branch ''
+		branch.virtual = true
+		branch
+
+
+	#
+	###* @type {Commit[]} ###
 	commits = []
-	#
-	###* @type { Set<string> } ###
-	all_branches = new Set
+	
 	vis_max_length = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare: ###'-', '.']
 	for line, line_no in lines
@@ -26,33 +81,40 @@ parse = (data, separator) =>
 		[ vis_str = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = line.split separator
 		if vis_str.at(-1) != ' '
 			throw new Error "unknown syntax at line " + line_no
-		# ["master", "origin/master", "tag: xyz"]
+		#
+		###* @type {Branch[]} ###
 		refs = refs_csv
 			.split ', '
+			# map to ["master", "origin/master", "tag: xyz"]
 			.map (r) => r.split(' -> ')[1] or r
 			.filter Boolean
-			.sort (a, b) =>
-				a_is_tag = a.startsWith("tag: ")
-				b_is_tag = b.startsWith("tag: ")
-				# prefer branch over tag/stash
-				Number(a_is_tag or not a.startsWith("refs/")) - Number(b_is_tag or not b.startsWith("refs/")) or
-					# prefer tag over stash
-					Number(b_is_tag) - Number(a_is_tag) or
-					# prefer local branch over remote branch
-					a.indexOf("/") - b.indexOf("/")
+			.map (name) =>
+				name: name
+				color: undefined
+			.sort branch_sort
 		branch_tips = refs
-			.filter (r) => not r.startsWith("tag: ") and not r.startsWith("refs/")
-		branch_tip = branch_tips[0]
-		new_virtual_branch = =>
-			'virtual_branch_' + (++_virtual_branch_i)
+			.filter (r) => not r.name.startsWith("tag: ") and not r.name.startsWith("refs/")
+		branch_tip =
+			if branch_tips[0]
+				branch_tips[0].color = new_branch(branch_tips[0].name).color
+				branch_tips[0]
+			else undefined
+
 		#
 		###* @type {typeof graph_chars} ### # TODO with graph_chars as const, and without typeof no error?? should be error when case '*' becomes case '*MMM'
 		vis = vis_str.trimEnd().split('')
 		vis_max_length = Math.max(vis_max_length, vis.length)
 		if vis.some (v) => not graph_chars.includes(v)
 			throw new Error "unknown visuals syntax at line " + line_no
-		commits[line_no] = { vis: [], hash, author_name, author_email, timestamp: Number(timestamp)*1000, refs, subject }
+		datetime =
+			if timestamp
+				new Date(Number(timestamp) * 1000).toISOString().slice(0,19).replace("T"," ")
+			else undefined
+		commits[line_no] = { i: line_no, vis: [], hash, author_name, author_email, datetime, refs, subject }
 		for char, i in vis by -1
+			#
+			###* @type {Branch | null | undefined } ###
+			branch = undefined
 			v_n = commits[line_no-1]?.vis[i]
 			v_nw = commits[line_no-1]?.vis[i-1]
 			v_w_char = vis[i-1] # not yet in commits[] as iteration is rtl
@@ -64,20 +126,19 @@ parse = (data, separator) =>
 				# todo refactor / check these for duplicate code
 				when '*'
 					if branch_tip
-						###* @type {string} ###
 						branch = branch_tip
 						if v_nw?.char == '\\'
 							# This is branch tip but in previous above lines, this branch
 							# was already on display for merging without its actual name known (virtual substitute).
 							# Fix these lines (min 1) now
-							wrong_branch = v_nw?.branch or ''
+							wrong_branch = v_nw?.branch
+							if not wrong_branch then throw new Error "wrong branch missing at line " + line_no
 							k = line_no - 1
 							while (matches = commits[k]?.vis.filter (v) => v.branch == wrong_branch)?.length
 								for match from matches or []
 									match.branch = branch
 								k--
-							_virtual_branch_i--
-							all_branches.delete wrong_branch
+							branches.splice branches.indexOf(wrong_branch), 1
 					else if v_n?.branch
 						branch = v_n?.branch
 					else if v_nw?.char == '\\'
@@ -137,10 +198,16 @@ parse = (data, separator) =>
 					branch = null
 			if branch == undefined
 				throw new Error 'unexpected undefined branch at line ' + line_no
-			if branch != null
-				all_branches.add branch
-			commits[line_no].vis[i] = { char, branch }
-	branches = [...all_branches]
+			commits[line_no].vis[i] = {
+				char
+				branch
+			}
+	
+	branches = branches
+		.filter (branch) =>
+			not branch.virtual
+		.sort branch_sort
+		.slice(0, 350)
 	{ commits, branches, vis_max_length }
 
 export { parse }

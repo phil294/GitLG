@@ -9,24 +9,25 @@
 		| {{ log_error }}
 	ul#branches.row.align-center
 		li.ref.visible v-for="branch of visible_branches"
-			button :style="branch.style" @click="scroll_to_branch_tip(branch)"
+			/ todo duplicate stuff
+			button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
 				| {{ branch.name }}
 		li.show-invisible_branches v-if="invisible_branches.length"
 			button @click="show_invisible_branches = ! show_invisible_branches"
-				| show all >>
+				| Show all >>
 		template v-if="show_invisible_branches"
 			li.ref.invisible v-for="branch of invisible_branches"
-				button :style="branch.style" @click="scroll_to_branch_tip(branch)"
+				button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
 					| {{ branch.name }}
 			li Click on any of the branch names to scroll to the tip of it.
 	recycle-scroller#commits.scroller.fill-w.flex-1 role="list" :items="commits" :item-size="scroll_item_height" v-slot="{ item: commit }" key-field="i" :buffer="scroll_pixel_buffer" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref"
 		.row.commit
 			.vis :style="vis_style"
-				span v-for="v of commit.vis" :style="v.style"
+				span v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined"
 					| {{ v.char }}
 			.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
 				.subject.flex-1
-					.ref v-for="ref of commit.refs" :style="ref.style"
+					.ref v-for="ref of commit.refs" :style="{color:ref.color}"
 						| {{ ref.name }}
 					span {{ commit.subject }}
 				.author.flex-noshrink {{ commit.author_name }}

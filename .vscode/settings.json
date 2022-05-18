@@ -24,6 +24,7 @@
         "**/.git/**"
     ],
     "cSpell.words": [
+        "datetime",
         "oneline",
         "reflog",
         "scroller",

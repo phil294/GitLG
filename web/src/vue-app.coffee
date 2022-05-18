@@ -13,7 +13,7 @@ app.component 'recycle-scroller', RecycleScroller
 console_error = console.error
 handle_error = (###* @type {any} ### e) =>
     console_error e
-    show_error_message "git log --graph extension encountered an unexpected error. Sorry! Error summary: " + (e.message or e.msg or e.data or e.body or e.stack or e.status or e.name or e.toString?() or try JSON.stringify(e))
+    show_error_message "git log --graph extension encountered an unexpected error. Sorry! Error summary: " + (e.message or e.msg or e.data or e.body or e.stack or e.status or e.name or e.toString?() or try JSON.stringify(e)) + ". For details, see VSCode developer console"
 app.config.errorHandler = handle_error
 app.config.warnHandler = handle_error
 window.onerror = handle_error
