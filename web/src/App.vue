@@ -1,20 +1,14 @@
 <template lang="slm">
 #vue-app
-	.fill-w.padding-l.error v-if="error"
-		p git log --graph extension encountered an unexpected error. Sorry! If you want to help fixing this, open up the VSCode Dev Console, copy the relevant error messages and paste it alongside reproduction steps as a new issue on [[TODO]].
-		button.btn @click="error=''" Hide
-		p Error summary: {{ error }}
 	main-view
 </template>
 
 <script lang="coffee">
 import MainView from './views/MainView.vue'
-import store from './store.coffee'
 
 export default
 	components: { MainView }	
 	setup: ->
-		error: store.error
 </script>
 
 <style lang="stylus">

@@ -15,7 +15,6 @@ callbacks = {}
 id = 0
 
 store =
-	error: ref ''
 	#
 	###* @param args {string} ###
 	do_git: (args) =>
@@ -25,6 +24,14 @@ store =
 		vscode.postMessage { command: 'git', args, id }
 		resp = await answer
 		resp.data or throw resp.error
+	#
+	###* @param msg {string} ###
+	show_information_message: (msg) =>
+		vscode.postMessage { command: 'show-information-message', msg }
+	#
+	###* @param msg {string} ###
+	show_error_message: (msg) =>
+		vscode.postMessage { command: 'show-error-message', msg }
 
 window.addEventListener 'message', ({ data: message }) =>
 	switch message.command

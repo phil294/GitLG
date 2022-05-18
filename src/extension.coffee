@@ -19,6 +19,10 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						id: message.id
 						payload
 					}
+				when 'show-error-message'
+					vscode.window.showErrorMessage message.msg
+				when 'show-information-message'
+					vscode.window.showInformationMessage message.msg
 
 		get_uri = (###* @type {string[]} ### ...path_segments) =>
 			view.asWebviewUri vscode.Uri.joinPath context.extensionUri, ...path_segments
