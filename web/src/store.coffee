@@ -1,5 +1,3 @@
-import { ref } from 'vue'
-
 #
 ###* @type {import('vscode-webview').WebviewApi<unknown>} ###
 vscode = acquireVsCodeApi?() or
@@ -14,24 +12,23 @@ vscode = acquireVsCodeApi?() or
 callbacks = {}
 id = 0
 
-store =
-	#
-	###* @param args {string} ###
-	do_git: (args) =>
-		answer = new Promise (ok) =>
-			callbacks[++id] = (data) =>
-				ok data
-		vscode.postMessage { command: 'git', args, id }
-		resp = await answer
-		resp.data or throw resp.error
-	#
-	###* @param msg {string} ###
-	show_information_message: (msg) =>
-		vscode.postMessage { command: 'show-information-message', msg }
-	#
-	###* @param msg {string} ###
-	show_error_message: (msg) =>
-		vscode.postMessage { command: 'show-error-message', msg }
+#
+###* @param args {string} ###
+export git = (args) =>
+	answer = new Promise (ok) =>
+		callbacks[++id] = (data) =>
+			ok data
+	vscode.postMessage { command: 'git', args, id }
+	resp = await answer
+	resp.data or throw resp.error
+#
+###* @param msg {string} ###
+export show_information_message = (msg) =>
+	vscode.postMessage { command: 'show-information-message', msg }
+#
+###* @param msg {string} ###
+export show_error_message = (msg) =>
+	vscode.postMessage { command: 'show-error-message', msg }
 
 window.addEventListener 'message', ({ data: message }) =>
 	switch message.command
@@ -42,5 +39,3 @@ window.addEventListener 'message', ({ data: message }) =>
 				delete callbacks[message.id]
 			else
 				throw new Error "unhandled response id: " + JSON.stringify(message)
-
-export default store

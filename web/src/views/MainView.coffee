@@ -1,20 +1,15 @@
-import store from '../store.coffee'
+import { git, show_error_message } from '../store.coffee'
 import colors from '../colors.coffee'
 import * as log_utils from '../log-utils.coffee'
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 export default
 	setup: ->
 		log_args = ref "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)"
 		log_error = ref ''
 		commits = ref []
-		# perhaps rename to branches? depending on what this actually shows some day
 		branches = ref []
-		show_invisible_branches = ref false
 		vis_style = ref ''
-		commits_scroller_ref = ref null
-		scroll_pixel_buffer = 200 # 200 is also the default
-		scroll_item_height = 18
 
 		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git ###
 		do_log = =>
@@ -23,7 +18,7 @@ export default
 			sep = '^%^%^%^%^'
 			args = log_args.value.replace(" --pretty=VSCode", " --pretty=format:'#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s'")
 			try
-				data = await store.do_git args
+				data = await git args
 			catch e
 				console.warn e
 				log_error.value = JSON.stringify e, null, 4
@@ -58,10 +53,14 @@ export default
 		
 		do_log()
 
+		show_invisible_branches = ref false
+
 		commit_clicked = (commit) =>
 			show_invisible_branches.value = false
 			alert "clicked commit #{commit.subject}"
 
+		scroll_pixel_buffer = 200 # 200 is also the default
+		scroll_item_height = 18
 		visible_commits = ref []
 		visible_commits_debouncer = 0
 		commits_scroller_updated = (start_index, end_index) =>
@@ -84,12 +83,13 @@ export default
 			branches.value.filter (branch) =>
 				not visible_branches.value.includes branch
 		
+		commits_scroller_ref = ref null
 		scroll_to_branch_tip = (branch) =>
 			first_branch_commit_i = commits.value.findIndex (commit) =>
 				# Only applicable if virtual_branches excluded as these don't have a tip. Otherwise, vis would need to be traversed
 				commit.refs.some (ref) => ref.name == branch.name
 			if first_branch_commit_i == -1
-				return store.show_error_message "No commit found for branch #{branch.name}. No idea why :/"
+				return show_error_message "No commit found for branch #{branch.name}. No idea why :/"
 			commits_scroller_ref.value.scrollToItem first_branch_commit_i
 			show_invisible_branches.value = false
 		
