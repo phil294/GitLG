@@ -13,7 +13,10 @@ callbacks = {}
 id = 0
 
 #
-###* @param args {string} ###
+###*
+# @param args {string}
+# @returns {Promise<string>}
+###
 export git = (args) =>
 	answer = new Promise (ok) =>
 		callbacks[++id] = (data) =>

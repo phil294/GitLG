@@ -96,6 +96,8 @@ body, html
 	align-items safe center
 .center
 	@extend .justify-center, .align-center
+.justify-flex-end
+	justify-content flex-end
 .fill-w
 	width 100%
 .fill-h
@@ -118,6 +120,8 @@ body, html
 	padding: 3vmax
 .error
 	color darkred
+.grey
+	color grey
 button
 	appearance none
 	background initial

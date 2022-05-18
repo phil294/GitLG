@@ -24,6 +24,11 @@ import colors from "./colors.coffee"
 #	datetime?: string
 #	refs: GitRef[]
 #	subject: string
+#	stats?: {
+#		files_changed?: number
+#		insertions?: number
+#		deletions?: number
+#	}
 # }} Commit
 ###
 

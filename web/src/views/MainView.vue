@@ -7,33 +7,44 @@
 	pre.padding-l v-if="log_error"
 		| Command failed: 
 		| {{ log_error }}
-	ul#branches.row.align-center
-		li.ref.visible v-for="branch of visible_branches"
-			/ todo duplicate stuff
-			button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
-				| {{ branch.name }}
-		li.show-invisible_branches v-if="invisible_branches.length"
-			button @click="show_invisible_branches = ! show_invisible_branches"
-				| Show all >>
-		template v-if="show_invisible_branches"
-			li.ref.invisible v-for="branch of invisible_branches"
-				button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
-					| {{ branch.name }}
-			li Click on any of the branch names to scroll to the tip of it.
-	recycle-scroller#commits.scroller.fill-w.flex-1 role="list" :items="commits" :item-size="scroll_item_height" v-slot="{ item: commit }" key-field="i" :buffer="scroll_pixel_buffer" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref"
-		.row.commit
-			.vis :style="vis_style"
-				span v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined"
-					| {{ v.char }}
-			.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
-				.subject.flex-1
-					.ref v-for="ref of commit.refs" :style="{color:ref.color}"
-						| {{ ref.name }}
-					span {{ commit.subject }}
-				.author.flex-noshrink {{ commit.author_name }}
-				.datetime.flex-noshrink {{ commit.datetime }}
-				button
-					.hash.flex-noshrink {{ commit.hash }}
+	.row.flex-1
+		#log.col.flex-1
+			ul#branches.row.align-center
+				li.ref.visible.active v-for="branch of visible_branches"
+					/ todo duplicate stuff
+					button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
+						| {{ branch.name }}
+				li.show-invisible_branches v-if="invisible_branches.length"
+					button @click="show_invisible_branches = ! show_invisible_branches"
+						| Show all >>
+				template v-if="show_invisible_branches"
+					li.ref.invisible v-for="branch of invisible_branches"
+						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
+							| {{ branch.name }}
+					li Click on any of the branch names to scroll to the tip of it.
+			recycle-scroller#commits.scroller.fill-w.flex-1 role="list" :items="commits" :item-size="scroll_item_height" v-slot="{ item: commit }" key-field="i" :buffer="scroll_pixel_buffer" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref"
+				.row.commit :class="commit === active_commit ? 'active' : null"
+					.vis :style="vis_style"
+						span v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined"
+							| {{ v.char }}
+					.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
+						.subject.flex-1
+							.ref v-for="ref of commit.refs" :style="{color:ref.color}"
+								| {{ ref.name }}
+							span {{ commit.subject }}
+						.author.flex-noshrink {{ commit.author_name }}
+						.stats.flex-noshrink.row.align-center.justify-flex-end.gap-5 v-if="commit.stats"
+							.changes title="Changed lines in amount of files"
+								span: strong {{ commit.stats.insertions + commit.stats.deletions }}
+								span.grey  in 
+								span.grey {{ commit.stats.files_changed }}
+							progress :value="commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)" title="Ratio insertions / deletions"
+						.datetime.flex-noshrink {{ commit.datetime }}
+						button
+							.hash.flex-noshrink {{ commit.hash }}
+		#active-commit.active.flex-noshrink.padding
+			pre v-if="active_commit"
+				h2.summary {{ active_commit.summary }}
 </template>
 
 <script lang="coffee" src="./MainView.coffee"></script>
@@ -61,11 +72,11 @@ ul
 	top 5px
 	z-index 2
 	flex-wrap wrap
-	> .ref.visible
-		box-shadow 0 0 3px 0px gold
+.active
+	box-shadow 0 0 3px 0px gold
 #commits
 	.commit
-		--h 18px
+		--h 22px
 		height var(--h)
 		line-height var(--h)
 		.vis
@@ -84,6 +95,27 @@ ul
 				color grey
 			> .datetime
 				font-size 12px
-			// > .subject
-			// 	> .ref
+			.stats
+				width 120px
+				> progress
+					width 30px
+					height 3px
+
+					// somehow both definitions are necessary?
+					color #009900
+					background-color darkred
+					&::-webkit-progress-bar
+						background-color darkred
+					&::-webkit-progress-value
+						background-color #009900
+#active-commit
+	width 350px
+	h2.summary
+		white-space pre
+		overflow hidden
+		text-overflow ellipsis
+</style>
+<style lang="stylus">
+.vue-recycle-scroller__item-view.hover > .commit
+	background #323232
 </style>

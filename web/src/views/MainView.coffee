@@ -29,18 +29,14 @@ export default
 			parsed = parse data, sep
 			commits.value = parsed.commits
 			branches.value = parsed.branches
-			vis_style.value = 'min-width': "min(50vw, #{parsed.vis_max_length}em"
+			vis_style.value = 'min-width': "min(50vw, #{parsed.vis_max_length/2}em)"
 		
 		do_log()
 
 		show_invisible_branches = ref false
 
-		commit_clicked = (###* @type {Commit} ### commit) =>
-			show_invisible_branches.value = false
-			alert "clicked commit #{commit.subject}"
-
 		scroll_pixel_buffer = 200 # 200 is also the default
-		scroll_item_height = 18
+		scroll_item_height = 22
 		#
 		###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
@@ -55,6 +51,25 @@ export default
 			visible_commits_debouncer = window.setTimeout (=>
 				visible_commits.value = commits.value.slice(start_index, end_index)
 			), 170
+
+		watch visible_commits, =>
+			visible_cp = [...visible_commits.value] # to avoid race conditions
+				.filter (commit) => not commit.stats
+			if not visible_cp.length then return
+			data = await git "show --format='' --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
+			for line, i in data.trim().split('\n')
+				stat = files_changed: 0, insertions: 0, deletions: 0
+				#  3 files changed, 87 insertions(+), 70 deletions(-)
+				for stmt from line.trim().split(', ')
+					words = stmt.split(' ')
+					if words[1].startsWith 'file'
+						stat.files_changed = Number(words[0])
+					else if words[1].startsWith 'insertion'
+						stat.insertions = Number(words[0])
+					else if words[1].startsWith 'deletion'
+						stat.deletions = Number(words[0])
+				visible_cp[i].stats = stat
+
 
 		visible_branches = computed =>
 			[...new Set(visible_commits.value
@@ -78,6 +93,13 @@ export default
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			show_invisible_branches.value = false
 		
+		#
+		###* @type {Ref<Commit | null>} ###
+		active_commit = ref null
+		commit_clicked = (###* @type {Commit} ### commit) =>
+			show_invisible_branches.value = false
+			active_commit.value = commit
+		
 		{
 			commits
 			branches # todo: if omitting this, no error is shown in webview, but in local serve it is??
@@ -94,4 +116,5 @@ export default
 			scroll_to_branch_tip
 			scroll_pixel_buffer
 			scroll_item_height
+			active_commit
 		}
