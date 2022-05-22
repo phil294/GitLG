@@ -5,6 +5,9 @@ form @submit.prevent="submit" enctype="multipart/form-data"
 		legend
 			slot name="legend"
 		slot
+	slot name="loading"
+		p v-if="loading"
+			| Loading...
 </template>
 
 <script lang="coffee">

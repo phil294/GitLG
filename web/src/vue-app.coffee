@@ -2,13 +2,17 @@ import { show_error_message, show_information_message } from './store.coffee'
 import { createApp } from 'vue'
 import App from './App.vue'
 import PromiseForm from './components/PromiseForm.vue'
+import Popup from './components/Popup.vue'
+import moveable from './directives/moveable'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
 app = createApp(App)
 
 app.component 'promise-form', PromiseForm
+app.component 'popup', Popup
 app.component 'recycle-scroller', RecycleScroller
+app.directive 'moveable', moveable
 
 console_error = console.error
 handle_error = (###* @type {any} ### e) =>
