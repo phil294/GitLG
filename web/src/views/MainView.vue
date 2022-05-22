@@ -19,8 +19,8 @@
 						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
 							| {{ branch.name }}
 					li Click on any of the branch names to scroll to the tip of it.
-			recycle-scroller#commits.scroller.fill-w.flex-1 role="list" :items="commits" :item-size="scroll_item_height" v-slot="{ item: commit }" key-field="i" :buffer="scroll_pixel_buffer" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref"
-				.row.commit :class="commit === active_commit ? 'active' : null"
+			recycle-scroller#commits.scroller.fill-w.flex-1 role="list" :items="commits" :item-size="scroll_item_height" v-slot="{ item: commit }" key-field="i" :buffer="scroll_pixel_buffer" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
+				.row.commit :class="commit === selected_commit ? 'active' : null"
 					.vis :style="vis_style"
 						span v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined"
 							| {{ v.char }}
