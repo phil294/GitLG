@@ -1,12 +1,8 @@
-<template lang="slm">
+1<template lang="slm">
 #main-view.fill.col
-	promise-form#log-input.fill-w.row.center.gap-10 :action="do_log"
-		code git 
-		input v-model="log_args"
-		button →
-	pre.padding-l v-if="log_error"
-		| Command failed: 
-		| {{ log_error }}
+	details
+		summary Configure...
+		git-input args="log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)" :options="[ { name: '--reflog', default: false } ]" hide_result="" :action="run_log" ref="git_input_ref"
 	.row.flex-1
 		#log.col.flex-1
 			ul#branches.row.align-center
@@ -49,9 +45,12 @@
 <script lang="coffee" src="./MainView.coffee"></script>
 
 <style lang="stylus">
-#log-input
-	input
-		padding 0 7px
+details
+	margin 0 0 0 10px
+	color grey
+	&[open]
+		color unset
+		padding 10px
 .ref
 	background black
 	font-weight bold

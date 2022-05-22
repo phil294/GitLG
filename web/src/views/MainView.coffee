@@ -8,8 +8,6 @@ import GitInputModel from './GitInput.coffee'
 export default
 	components: { SelectedCommit, GitInput }
 	setup: ->
-		log_args = ref "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)"
-		log_error = ref ''
 		#
 		###* @type {Ref<Commit[]>} ###
 		commits = ref []
@@ -17,19 +15,28 @@ export default
 		###* @type {Ref<Branch[]>} ###
 		branches = ref []
 		vis_style = ref {}
+		#
+		###* @type {Ref<Commit | null>} ###
+		selected_commit = ref null
+		#
+		###* @type {Ref<GitInputModel | null>} ###
+		git_input_ref = ref null
+		#
+		###* @type {Ref<any | null>} ###
+		commits_scroller_ref = ref null
 
-		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git ###
 		do_log = =>
-			log_error.value = ''
-			commits.value = []
+			git_input_ref.value?.execute()
+
+		onMounted do_log
+
+		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
+		This function exists so we can modify the args before sending to git, otherwise
+		GitInput would have done the git call ###
+		run_log = (###* @type string ### args) =>
 			sep = '^%^%^%^%^'
-			args = log_args.value.replace(" --pretty=VSCode", " --pretty=format:'#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s'")
-			try
-				data = await git args
-			catch e
-				console.warn e
-				log_error.value = JSON.stringify e, null, 4
-				return
+			args = args.replace(" --pretty=VSCode", " --pretty=format:'#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s'")
+			data = await git args # error will be handled by GitInput
 			parsed = parse data, sep
 			commits.value = parsed.commits
 			branches.value = parsed.branches
@@ -40,7 +47,7 @@ export default
 		show_invisible_branches = ref false
 
 		scroll_pixel_buffer = 200 # 200 is also the default
-		scroll_item_height = 22
+		scroll_item_height = 22 # must be synced with css (v-bind doesn't work with coffee)
 		#
 		###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
@@ -84,10 +91,7 @@ export default
 		invisible_branches = computed =>
 			branches.value.filter (branch) =>
 				not visible_branches.value.includes branch
-		
-		#
-		###* @type {Ref<any | null>} ###
-		commits_scroller_ref = ref null
+
 		scroll_to_branch_tip = (###* @type Branch ### branch) =>
 			first_branch_commit_i = commits.value.findIndex (commit) =>
 				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
@@ -103,11 +107,11 @@ export default
 		
 		{
 			commits
-			branches # todo: if omitting this, no error is shown in webview, but in local serve it is??
+			branches
 			vis_style
+			git_input_ref
+			run_log
 			do_log
-			log_args
-			log_error
 			commit_clicked
 			commits_scroller_updated
 			show_invisible_branches

@@ -45,9 +45,11 @@ a:hover, a:active {
 }
 
 code {
-	font-size: var(--vscode-editor-font-size);
 	font-family: var(--vscode-editor-font-family);
 }
+
+details
+	cursor pointer
 
 input:not([type='checkbox']), textarea {
 	display: block;
@@ -82,6 +84,8 @@ body, html
 	flex 1
 .flex-noshrink
 	flex-shrink 0
+.wrap
+	flex-wrap wrap
 .col
 	@extend .flex
 	flex-direction column
@@ -136,9 +140,10 @@ button
 .btn, input[type="submit"], input[type="reset"], input[type="button"]
 	display inline-flex
 	align-items center
-	white-space pre-wrap
-	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
-	line-height 1.8em
+	white-space pre
+	height 24px
+	line-height 24px
+	padding 3px 5px
 	text-decoration none
 	color var(--vscode-button-foreground)
 	background var(--vscode-button-background)
