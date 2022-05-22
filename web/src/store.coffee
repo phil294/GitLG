@@ -1,11 +1,4 @@
-#
-###* @type {import('vscode-webview').WebviewApi<unknown>} ###
-vscode = acquireVsCodeApi?() or
-	# fallback for developing in browser
-	postMessage: ({ command }) =>
-		console.log "post message #{command}"
-	getState: =>
-	setState: (_) => _
+vscode = acquireVsCodeApi()
 
 #
 ###* @type {{[id: number]: (data: any) => void }} ###
@@ -23,7 +16,7 @@ export git = (args) =>
 			ok data
 	vscode.postMessage { command: 'git', args, id }
 	resp = await answer
-	resp.data or throw resp.error
+	resp.data ? throw resp.error
 #
 ###* @param msg {string} ###
 export show_information_message = (msg) =>

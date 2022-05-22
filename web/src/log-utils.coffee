@@ -5,6 +5,7 @@ import colors from "./colors.coffee"
 # @typedef {{
 #	name: string
 #	color: colors[number] | undefined
+#	type: "tag" | "stash" | "branch"
 # }} GitRef
 # @typedef {GitRef & {
 #	virtual?: boolean
@@ -32,7 +33,7 @@ import colors from "./colors.coffee"
 # }} Commit
 ###
 
-branch_sort = (###* @type Branch ### a, ###* @type Branch ### b) =>
+git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 	a_is_tag = a.name.startsWith("tag: ")
 	b_is_tag = b.name.startsWith("tag: ")
 	# prefer branch over tag/stash
@@ -60,11 +61,11 @@ parse = (data, separator) =>
 	#
 	###* @returns {Branch} ###
 	new_branch = (###* @type string ### branch_name) =>
-		branch =
+		branches.push
 			name: branch_name
-			color: colors[branches.length % (colors.length - 1)]
-		branches.push branch
-		branch
+			color: undefined
+			type: "branch"
+		branches[branches.length - 1]
 	new_virtual_branch = =>
 		branch = new_branch ''
 		branch.virtual = true
@@ -86,23 +87,29 @@ parse = (data, separator) =>
 		[ vis_str = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = line.split separator
 		if vis_str.at(-1) != ' '
 			throw new Error "unknown syntax at line " + line_no
-		#
-		###* @type {Branch[]} ###
 		refs = refs_csv
 			.split ', '
 			# map to ["master", "origin/master", "tag: xyz"]
 			.map (r) => r.split(' -> ')[1] or r
 			.filter Boolean
 			.map (name) =>
-				name: name
-				color: undefined
-			.sort branch_sort
+				###* @type {GitRef} ###
+				ref =
+					name: name
+					color: undefined
+					type:
+						if name.startsWith("tag: ") then "tag"
+						else if name.startsWith("refs/") then "stash"
+						else "branch"
+				ref
+			.sort git_ref_sort
 		branch_tips = refs
-			.filter (r) => not r.name.startsWith("tag: ") and not r.name.startsWith("refs/")
+			.filter (r) => r.type == "branch"
 		branch_tip =
 			if branch_tips[0]
-				branch_tips[0].color = new_branch(branch_tips[0].name).color
-				branch_tips[0]
+				as_branch = new_branch(branch_tips[0].name)
+				refs[refs.indexOf(branch_tips[0])] = as_branch
+				as_branch
 			else undefined
 
 		#
@@ -207,12 +214,18 @@ parse = (data, separator) =>
 				char
 				branch
 			}
+
+	for branch, i in branches
+		# cannot do this at creation because branches list is not fixed before this (see wrong_branch)
+		branch.color = colors[i % (colors.length - 1)]
 	
 	branches = branches
 		.filter (branch) =>
+			# these exist in vis (with colors), but don't mention them
 			not branch.virtual
-		.sort branch_sort
+		.sort git_ref_sort
 		.slice(0, 350)
+
 	{ commits, branches, vis_max_length }
 
 export { parse }
