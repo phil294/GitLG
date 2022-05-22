@@ -1,7 +1,6 @@
 import Vue from 'vue'
 
-#
-###*
+``###*
 @type {Vue.DirectiveHook<HTMLElement>}
 Make element movable. Does not have to be the directive el itself.
 Side effect: This makes the element become position absolute permanently.
