@@ -2,5 +2,5 @@
 set -e
 yarn coffee -c src/*.coffee &
 pushd web
-yarn build
+yarn build "$@"
 popd
