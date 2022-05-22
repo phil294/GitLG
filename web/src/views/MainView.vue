@@ -5,7 +5,8 @@
 		git-input args="log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)" :options="[ { name: '--reflog', default: false } ]" hide_result="" :action="run_log" ref="git_input_ref"
 	.row.flex-1
 		#log.col.flex-1
-			ul#branches.row.align-center
+			button.btn.refresh @click="do_log()" ⟳
+			ul#branches.row.align-center.wrap
 				li.ref.visible.active v-for="branch of visible_branches"
 					/ todo duplicate stuff
 					button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
@@ -64,17 +65,28 @@ details
 ul
 	list-style none
 	margin 0
+#log
+	position relative
+.btn.refresh
+	position absolute
+	top 0
+	right 0
+	z-index 3
+	padding 0 2px
+	font-size 22px
 #branches
 	margin 5px 0
 	position sticky
 	top 5px
 	z-index 2
-	flex-wrap wrap
 .active
 	box-shadow 0 0 3px 0px gold
-#commits
+#commits.scroller
+	&:focus
+		// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
+		outline none
 	.commit
-		--h 22px
+		--h 22px // must be synced with JS
 		height var(--h)
 		line-height var(--h)
 		.vis
