@@ -1,6 +1,7 @@
 import colors from "./colors.coffee"
 
 # todo colors const
+
 ###*
 # @typedef {{
 #	name: string
@@ -43,8 +44,7 @@ git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 		# prefer local branch over remote branch
 		a.name.indexOf("/") - b.name.indexOf("/")
 
-#
-###*
+``###*
 # @returns all known branches *from that data* (branches outside are invisible) and the very
 # data transformed into commits. A commit is git commit info and its vis
 # (git graph visual representation branch lines). This vis-branch association
