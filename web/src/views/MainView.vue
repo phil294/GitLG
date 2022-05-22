@@ -35,7 +35,7 @@
 								span: strong {{ commit.stats.insertions + commit.stats.deletions }}
 								span.grey  in 
 								span.grey {{ commit.stats.files_changed }}
-							progress :value="commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)" title="Ratio insertions / deletions"
+							progress :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
 						button
 							.hash.flex-noshrink {{ commit.hash }}
