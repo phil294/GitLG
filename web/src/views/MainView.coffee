@@ -38,11 +38,16 @@ export default
 			args = args.replace(" --pretty=VSCode", " --pretty=format:'#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s'")
 			data = await git args # error will be handled by GitInput
 			parsed = parse data, sep
+			first_visible_commit_i = commits.value.indexOf(visible_commits.value[0])
 			commits.value = parsed.commits
 			branches.value = parsed.branches
 			vis_style.value = 'min-width': "min(50vw, #{parsed.vis_max_length/2}em)"
-		
-		do_log()
+			if selected_commit.value
+				selected_commit.value = (commits.value.find (commit) =>
+					commit.hash == selected_commit.value?.hash) or null
+			await new Promise (ok) => setTimeout(ok, 0)
+			commits_scroller_ref.value?.scrollToItem first_visible_commit_i
+
 
 		show_invisible_branches = ref false
 
