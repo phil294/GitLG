@@ -42,9 +42,8 @@
 						.datetime.flex-noshrink {{ commit.datetime }}
 						button
 							.hash.flex-noshrink {{ commit.hash }}
-		#active-commit.active.flex-noshrink.padding
-			pre v-if="active_commit"
-				h2.summary {{ active_commit.summary }}
+		#selected-commit.flex-noshrink
+			selected-commit.active.padding v-if="selected_commit" :commit="selected_commit" @change="do_log()"
 </template>
 
 <script lang="coffee" src="./MainView.coffee"></script>
@@ -108,12 +107,8 @@ ul
 						background-color darkred
 					&::-webkit-progress-value
 						background-color #009900
-#active-commit
+#selected-commit
 	width 350px
-	h2.summary
-		white-space pre
-		overflow hidden
-		text-overflow ellipsis
 </style>
 <style lang="stylus">
 .vue-recycle-scroller__item-view.hover > .commit

@@ -1,8 +1,12 @@
 import { git, show_error_message } from '../store.coffee'
 import { parse, Branch, Commit } from '../log-utils.coffee'
-import { ref, Ref, computed, watch } from 'vue'
+import { ref, Ref, computed, watch, onMounted } from 'vue'
+import SelectedCommit from './SelectedCommit.vue'
+import GitInput from './GitInput.vue'
+import GitInputModel from './GitInput.coffee'
 
 export default
+	components: { SelectedCommit, GitInput }
 	setup: ->
 		log_args = ref "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)"
 		log_error = ref ''
@@ -93,12 +97,9 @@ export default
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			show_invisible_branches.value = false
 		
-		#
-		###* @type {Ref<Commit | null>} ###
-		active_commit = ref null
 		commit_clicked = (###* @type {Commit} ### commit) =>
 			show_invisible_branches.value = false
-			active_commit.value = commit
+			selected_commit.value = commit
 		
 		{
 			commits
@@ -116,5 +117,5 @@ export default
 			scroll_to_branch_tip
 			scroll_pixel_buffer
 			scroll_item_height
-			active_commit
+			selected_commit
 		}
