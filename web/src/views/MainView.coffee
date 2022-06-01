@@ -70,7 +70,7 @@ export default
 
 		watch visible_commits, =>
 			visible_cp = [...visible_commits.value] # to avoid race conditions
-				.filter (commit) => not commit.stats
+				.filter (commit) => commit.hash and not commit.stats
 			if not visible_cp.length then return
 			data = await git "show --format='' --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
 			for line, i in data.trim().split('\n')
