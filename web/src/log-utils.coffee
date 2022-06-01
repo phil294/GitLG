@@ -2,18 +2,17 @@ import colors from "./colors.coffee"
 
 # todo colors const
 
-###*
+``###*
 # @typedef {{
 #	name: string
 #	color: colors[number] | undefined
 #	type: "tag" | "stash" | "branch"
 # }} GitRef
 # @typedef {GitRef & {
+#	type: "branch"
 #	virtual?: boolean
 # }} Branch
-###
-
-###*
+#
 # @typedef {{
 #	i: number
 #	vis: {
@@ -55,11 +54,9 @@ git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 parse = (data, separator) =>
 	lines = data.split '\n'
 
-	#
-	###* @type {Branch[]} ###
+	``###* @type {Branch[]} ###
 	branches = []
-	#
-	###* @returns {Branch} ###
+	``###* @returns {Branch} ###
 	new_branch = (###* @type string ### branch_name) =>
 		branches.push
 			name: branch_name
@@ -72,8 +69,7 @@ parse = (data, separator) =>
 		branch
 
 
-	#
-	###* @type {Commit[]} ###
+	``###* @type {Commit[]} ###
 	commits = []
 	
 	vis_max_length = 0
@@ -112,8 +108,7 @@ parse = (data, separator) =>
 				as_branch
 			else undefined
 
-		#
-		###* @type {typeof graph_chars} ### # TODO with graph_chars as const, and without typeof no error?? should be error when case '*' becomes case '*MMM'
+		``###* @type {typeof graph_chars} ### # TODO with graph_chars as const, and without typeof no error?? should be error when case '*' becomes case '*MMM'
 		vis = vis_str.trimEnd().split('')
 		vis_max_length = Math.max(vis_max_length, vis.length)
 		if vis.some (v) => not graph_chars.includes(v)
@@ -124,8 +119,7 @@ parse = (data, separator) =>
 			else undefined
 		commits[line_no] = { i: line_no, vis: [], hash, author_name, author_email, datetime, refs, subject }
 		for char, i in vis by -1
-			#
-			###* @type {Branch | null | undefined } ###
+			``###* @type {Branch | null | undefined } ###
 			branch = undefined
 			v_n = commits[line_no-1]?.vis[i]
 			v_nw = commits[line_no-1]?.vis[i-1]
@@ -221,7 +215,7 @@ parse = (data, separator) =>
 	
 	branches = branches
 		.filter (branch) =>
-			# these exist in vis (with colors), but don't mention them
+			# these exist in vis (with colors), but don't mention them in the listing
 			not branch.virtual
 		.sort git_ref_sort
 		.slice(0, 350)

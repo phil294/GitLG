@@ -13,7 +13,6 @@ form @submit.prevent="submit" enctype="multipart/form-data"
 <script lang="coffee">
 export default
 	props:
-		#
 		###*
 		# The callback for a successful form submit. If it returns a Promise,
 		# it will be visually awaited before the form gets editable again.

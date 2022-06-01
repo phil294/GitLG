@@ -15,9 +15,11 @@ export git = (args) =>
 	vscode.postMessage { command: 'git', args, id }
 	resp = await answer
 	resp.data ? throw resp.error
+
 ``###* @param msg {string} ###
 export show_information_message = (msg) =>
 	vscode.postMessage { command: 'show-information-message', msg }
+
 ``###* @param msg {string} ###
 export show_error_message = (msg) =>
 	vscode.postMessage { command: 'show-error-message', msg }

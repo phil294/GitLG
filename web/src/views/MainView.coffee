@@ -8,21 +8,16 @@ import GitInputModel from './GitInput.coffee'
 export default
 	components: { SelectedCommit, GitInput }
 	setup: ->
-		#
-		###* @type {Ref<Commit[]>} ###
+		``###* @type {Ref<Commit[]>} ###
 		commits = ref []
-		#
-		###* @type {Ref<Branch[]>} ###
+		``###* @type {Ref<Branch[]>} ###
 		branches = ref []
 		vis_style = ref {}
-		#
-		###* @type {Ref<Commit | null>} ###
+		``###* @type {Ref<Commit | null>} ###
 		selected_commit = ref null
-		#
-		###* @type {Ref<GitInputModel | null>} ###
+		``###* @type {Ref<GitInputModel | null>} ###
 		git_input_ref = ref null
-		#
-		###* @type {Ref<any | null>} ###
+		``###* @type {Ref<any | null>} ###
 		commits_scroller_ref = ref null
 
 		do_log = =>
@@ -53,8 +48,7 @@ export default
 
 		scroll_pixel_buffer = 200 # 200 is also the default
 		scroll_item_height = 22 # must be synced with css (v-bind doesn't work with coffee)
-		#
-		###* @type {Ref<Commit[]>} ###
+		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
 		visible_commits_debouncer = 0
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>
