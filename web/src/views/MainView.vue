@@ -39,7 +39,7 @@
 								span: strong {{ commit.stats.insertions + commit.stats.deletions }}
 								span.grey  in 
 								span.grey {{ commit.stats.files_changed }}
-							progress :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
+							progress.diff :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
 						button
 							.hash.flex-noshrink {{ commit.hash }}
@@ -123,19 +123,9 @@ ul#branches
 				font-size 12px
 			.stats
 				width 120px
-				> progress
-					width 30px
-					height 3px
-
-					// somehow both definitions are necessary?
-					color #009900
-					background-color darkred
-					&::-webkit-progress-bar
-						background-color darkred
-					&::-webkit-progress-value
-						background-color #009900
 #selected-commit
 	width 350px
+	overflow auto
 </style>
 <style lang="stylus">
 .vue-recycle-scroller__item-view.hover > .commit

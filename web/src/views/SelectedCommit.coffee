@@ -26,14 +26,18 @@ export default defineComponent
 				args.value = null
 				emit 'change' # todo this is actually independent of keep_open :/
 
-		``###* @type {Ref<string[][]>} ###
+		``###* @type {Ref<{path:string,insertions:number,deletions:number}[]>} ###
 		changed_files = ref []
 		watchEffect =>
 			changed_files.value = (await git "diff --numstat --format='' #{props.commit.hash} #{props.commit.hash}~1")
-				.split('\n').map((l) => l.split('\t'))
+				.split('\n').map((l) =>
+					split = l.split('\t')
+					path: split[2]
+					insertions: Number split[0]
+					deletions: Number split[1])
 		
-		show_diff = (###* @type string ### file) =>
-			open_diff props.commit.hash, file[2]
+		show_diff = (###* @type string ### filepath) =>
+			open_diff props.commit.hash, filepath
 
 		{
 			args

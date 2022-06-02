@@ -32,8 +32,10 @@ div
 	h3 Changed files:
 	ul.changed-files
 		li v-for="file of changed_files"
-			button @click="show_diff(file)"
-				| {{ file }}
+			button.row.center.gap-5 @click="show_diff(file.path)"
+				.change-count {{ file.insertions + file.deletions }}
+				progress.diff :value="(file.insertions / (file.insertions + file.deletions)) || 0" title="Ratio insertions / deletions"
+				.flex-1 {{ file.path }}
 	
 	popup v-if="args" @close="args=null"
 		.selected-input
@@ -56,5 +58,11 @@ div
 .selected-input
 	width: clamp(200px, 50vw, 50vw)
 .changed-files
-	font-family monospace
+	padding 0
+	white-space pre
+	overflow auto
+	.change-count
+		font-family monospace
+		text-align right
+		width 2rem
 </style>

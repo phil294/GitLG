@@ -167,6 +167,18 @@ button
 	background var(--vscode-button-secondaryBackground)
 .btn.btn-2:hover
 	background var(--vscode-button-secondaryHoverBackground)
+
+progress.diff
+	width 30px
+	height 3px
+
+	// somehow both definitions are necessary?
+	color #009900
+	background-color darkred
+	&::-webkit-progress-bar
+		background-color darkred
+	&::-webkit-progress-value
+		background-color #009900
 </style>
 
 <style lang="stylus" scoped>
