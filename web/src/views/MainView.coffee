@@ -12,6 +12,9 @@ export default
 		commits = ref []
 		``###* @type {Ref<Branch[]>} ###
 		branches = ref []
+		# this is either a branch name or HEAD in which case it will simply not be shown
+		# which is also not necessary because HEAD is then also visible as a branch tip.
+		head_branch = ref ''
 		vis_style = ref {}
 		``###* @type {Ref<Commit | null>} ###
 		selected_commit = ref null
@@ -41,6 +44,7 @@ export default
 					commit.hash == selected_commit.value?.hash) or null
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem first_visible_commit_i
+			head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
 
 
 		show_invisible_branches = ref false
@@ -107,6 +111,7 @@ export default
 			commits
 			branches
 			vis_style
+			head_branch
 			git_input_ref
 			run_log
 			do_log

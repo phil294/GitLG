@@ -9,7 +9,7 @@
 			p v-if="!commits.length"
 				| No commits found
 			ul#branches.row.align-center.wrap
-				li.ref.visible.active v-for="branch of visible_branches"
+				li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch}"
 					/ todo duplicate stuff
 					button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
 						| {{ branch.name }}
@@ -17,7 +17,7 @@
 					button @click="show_invisible_branches = ! show_invisible_branches"
 						| Show all >>
 				template v-if="show_invisible_branches"
-					li.ref.invisible v-for="branch of invisible_branches"
+					li.ref.branch.invisible v-for="branch of invisible_branches"
 						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
 							| {{ branch.name }}
 					li Click on any of the branch names to scroll to the tip of it.
@@ -28,8 +28,9 @@
 							| {{ v.char }}
 					.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
 						.subject.flex-1
-							.ref v-for="ref of commit.refs" :style="{color:ref.color}"
-								| {{ ref.name }}
+							.ref v-for="ref of commit.refs" :class="{is_head:ref.name===head_branch}"
+								div :style="{color:ref.color}"
+									| {{ ref.name }}
 							span {{ commit.subject }}
 						.author.flex-noshrink {{ commit.author_name }}
 						.stats.flex-noshrink.row.align-center.justify-flex-end.gap-5 v-if="commit.stats"
@@ -64,6 +65,8 @@ details
 	border 1px solid #505050
 	border-radius 7px
 	white-space pre
+	&.is_head:after
+		content: ' (HEAD)'
 ul
 	list-style none
 	margin 0
@@ -76,7 +79,7 @@ ul
 	z-index 3
 	padding 0 2px
 	font-size 22px
-#branches
+ul#branches
 	margin 5px 0
 	position sticky
 	top 5px
