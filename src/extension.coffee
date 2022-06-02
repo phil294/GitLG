@@ -12,6 +12,10 @@ git = (###* @type string ### args) =>
 	stdout
 
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
+	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider 'git-show',
+		provideTextDocumentContent: (uri) ->
+			git "show #{uri.path}"
+
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
 		view = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist'), vscode.Uri.joinPath(context.extensionUri, 'media') ] }).webview
 
@@ -40,6 +44,11 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 					h => context.globalState.get d
 				when 'set-config'
 					h => context.globalState.update d.key, d.value
+				when 'open-diff'
+					h =>
+						uri_1 = vscode.Uri.parse "git-show:#{d.hash}~1:#{d.filename}"
+						uri_2 = vscode.Uri.parse "git-show:#{d.hash}:#{d.filename}"
+						vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} @#{d.hash}"
 
 		get_uri = (###* @type {string[]} ### ...path_segments) =>
 			view.asWebviewUri vscode.Uri.joinPath context.extensionUri, ...path_segments

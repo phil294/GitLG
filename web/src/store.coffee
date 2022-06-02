@@ -32,6 +32,7 @@ send_message = (###* @type string ### command, ###* @type any ### data) =>
 	if resp.error then throw resp.error
 	resp.data
 
+``###* @return {Promise<string>} ###
 export git = (###* @type string ### args) =>
 	(await send_message 'git', args).trim()
 export show_information_message = (###* @type string ### msg) =>
@@ -42,3 +43,5 @@ export get_config = (###* @type string ### key) =>
 	send_message 'get-config', key
 export set_config = (###* @type string ### key, ###* @type any ### value) =>
 	send_message 'set-config', { key, value }
+export open_diff = (###* @type string ### hash, ###* @type string ### filename) =>
+	send_message 'open-diff', { hash, filename }

@@ -29,6 +29,12 @@ div
 		button.btn @click="args = { title: 'Revert commit', args: 'revert $1', params: [commit.hash], options: [ { name: '--no-commit', default: false } ] }"
 			| ⎌&nbsp;&nbsp;&nbsp;Revert
 	
+	h3 Changed files:
+	ul.changed-files
+		li v-for="file of changed_files"
+			button @click="show_diff(file)"
+				| {{ file }}
+	
 	popup v-if="args" @close="args=null"
 		.selected-input
 			p Execute Git command
@@ -49,4 +55,6 @@ div
 		text-overflow ellipsis
 .selected-input
 	width: clamp(200px, 50vw, 50vw)
+.changed-files
+	font-family monospace
 </style>

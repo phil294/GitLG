@@ -1,6 +1,6 @@
-import { git } from '../store.coffee'
+import { git, open_diff } from '../store.coffee'
 import { Commit } from '../log-utils.coffee'
-import { ref, Ref, computed, defineComponent } from 'vue'
+import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
 import GitInput from './GitInput.vue'
 
 export default defineComponent
@@ -26,14 +26,20 @@ export default defineComponent
 				args.value = null
 				emit 'change' # todo this is actually independent of keep_open :/
 
-		do_git = (###* @type string ### args) =>
-			await git args
-			emit 'change'
+		``###* @type {Ref<string[][]>} ###
+		changed_files = ref []
+		watchEffect =>
+			changed_files.value = (await git "diff --numstat --format='' #{props.commit.hash} #{props.commit.hash}~1")
+				.split('\n').map((l) => l.split('\t'))
+		
+		show_diff = (###* @type string ### file) =>
+			open_diff props.commit.hash, file[2]
 
 		{
 			args
 			branch_tips
 			git_execute_success
 			keep_open
-			do_git
+			changed_files
+			show_diff
 		}
