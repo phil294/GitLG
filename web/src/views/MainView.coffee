@@ -105,9 +105,13 @@ export default
 			visible_cp = [...visible_commits.value] # to avoid race conditions
 				.filter (commit) => commit.hash and not commit.stats
 			if not visible_cp.length then return
-			data = await git "show --format='' --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
+			data = await git "show --format='%h' --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
 			return if not data
-			for line, i in data.split('\n')
+			hash = ''
+			for line from data.split('\n').filter(Boolean)
+				if not line.startsWith ' '
+					hash = line
+					continue
 				stat = files_changed: 0, insertions: 0, deletions: 0
 				#  3 files changed, 87 insertions(+), 70 deletions(-)
 				for stmt from line.trim().split(', ')
@@ -118,7 +122,7 @@ export default
 						stat.insertions = Number(words[0])
 					else if words[1].startsWith 'deletion'
 						stat.deletions = Number(words[0])
-				visible_cp[i].stats = stat
+				visible_cp[visible_cp.findIndex((cp)=>cp.hash==hash)].stats = stat
 
 
 		visible_branches = computed =>
