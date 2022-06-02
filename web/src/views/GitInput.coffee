@@ -94,8 +94,10 @@ export default defineComponent
 					error.value = "Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n\n" + e.stdout
 				else if e.stdout
 					error.value = (JSON.stringify e, null, 4).replaceAll('\\n', '\n')
-				else
+				else if e.stderr
 					error.value = e.stderr.replaceAll('\\n', '\n')
+				else
+					error.value = e
 
 		do =>
 			await get_saved()
