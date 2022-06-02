@@ -90,7 +90,8 @@ export default
 				.filter (commit) => commit.hash and not commit.stats
 			if not visible_cp.length then return
 			data = await git "show --format='' --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
-			for line, i in data.trim().split('\n')
+			return if not data
+			for line, i in data.split('\n')
 				stat = files_changed: 0, insertions: 0, deletions: 0
 				#  3 files changed, 87 insertions(+), 70 deletions(-)
 				for stmt from line.trim().split(', ')
