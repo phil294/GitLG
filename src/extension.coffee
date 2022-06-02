@@ -1,7 +1,15 @@
 vscode = require 'vscode'
-git = require './git'
+util = require('util')
+exec = util.promisify(require('child_process').exec)
 
 EXT_NAME = 'git log --graph'
+
+git = (###* @type string ### args) =>
+	{ stdout, stderr } = await exec 'git ' + args,
+		cwd: vscode.workspace.workspaceFolders?[0].uri.path # todo or settings, and choosable
+		# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format is 538 MB or 7.4 MB for the first 15k commits
+		maxBuffer: 1024 * 1024 * 35
+	stdout
 
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
@@ -10,6 +18,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		``###* @typedef {{ command: 'response', data?: any, error?: any, id: number }} MsgResponse ###
 		``###* @typedef {{ command: string, data: any, id: number }} MsgRequest ###
 		view.onDidReceiveMessage (###* @type MsgRequest ### message) =>
+			d = message.data
 			h = (###* @type {() => any} ### func) =>
 				``###* @type MsgResponse ###
 				resp =
@@ -22,15 +31,15 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				view.postMessage resp
 			switch message.command
 				when 'git'
-					h => git.exec message.data, vscode.workspace.workspaceFolders[0]?.uri.path # todo or settings, and choosable
+					h => git d
 				when 'show-error-message'
-					h => vscode.window.showErrorMessage message.data
+					h => vscode.window.showErrorMessage d
 				when 'show-information-message'
-					h => vscode.window.showInformationMessage message.data
+					h => vscode.window.showInformationMessage d
 				when 'get-config'
-					h => context.globalState.get message.data
+					h => context.globalState.get d
 				when 'set-config'
-					h => context.globalState.update message.data.key, message.data.value
+					h => context.globalState.update d.key, d.value
 
 		get_uri = (###* @type {string[]} ### ...path_segments) =>
 			view.asWebviewUri vscode.Uri.joinPath context.extensionUri, ...path_segments
