@@ -1,14 +1,21 @@
 <template lang="slm">
 div.col.gap-10
+	h4 {{ title }}
 	promise-form :action="execute"
 		.row.align-center.gap-10
 			code git 
 			input.command v-model="command"
+		.input-controls.justify-flex-end.align-center.gap-10
+			div v-if="text_changed"
+				| Edited
+			button.btn.btn-2 type="button" v-if="text_changed" @click="reset_command()"
+				| ↺ Reset
+			div v-if="is_saved && ! has_unsaved_changes"
+				| Saved
+			button.btn.btn-2 type="button" v-if="has_unsaved_changes" @click="save()"
+				| 🖫 Save
 		button.btn
 			| ✓ Execute
-	.align-center v-if="text_changed"
-		button.btn.btn-2 @click="reset_command()"
-			| ↺ Reset
 	.error-response.padding-l v-if="error"
 		| Command failed: 
 		| {{ error }}
@@ -17,8 +24,6 @@ div.col.gap-10
 		| {{ data }}
 	div v-if="options.length"
 		div Common options
-		div v-if="text_changed"
-			| You have edited the text input by hand. Options toggling is disabled. Reset if desired.
 		ul.options
 			li v-for="option of options" :class="{changed: option.value !== option.default}"
 				label.row.align-center.gap-5

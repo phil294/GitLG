@@ -1,5 +1,11 @@
-import { git } from '../store.coffee'
-import { ref, computed, defineComponent, reactive, watchEffect } from 'vue'
+import { git, get_config, set_config } from '../store.coffee'
+import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
+
+``###* @typedef {{
+# 	name: string
+#	default: boolean
+#	value?: boolean
+# }} GitOption ###
 
 export default defineComponent
 	props:
@@ -7,12 +13,7 @@ export default defineComponent
 			type: String
 			required: true
 		options:
-			###*
-			# @type {() => {
-			# 	name: string
-			#	default: boolean
-			# }[]}
-			###
+			###* @type {() => GitOption[]} ###
 			type: Array
 			default: => []
 		action:
@@ -26,28 +27,58 @@ export default defineComponent
 		immediate:
 			type: Boolean
 			default: false
+		title:
+			# also serves as a config key
+			type: String
+			required: true
 	emits: [ 'success' ]
+	###*
+	# To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
+	# both editable, the former modifying the latter but being locked when the latter is changed by hand.
+	# `saved_config` stores a snapshot of both.
+	###
 	setup: (props, { emit }) ->
+		###* @type {GitOption[]} ###
 		options = reactive props.options.map (option) => {
 			...option
 			value: option.default
 		}
-		options_cli = computed =>
-			options
-				.map ({ name, value }) =>
-					if value
-						name
-					else ''
-				.join(' ')
+		to_cli = (###* @type {GitOption[]} ### options = []) =>
+			(props.args + " " + options.map ({ name, value }) =>
+				if value
+					name
+				else ''
+			.join(' ')).trim()
 		constructed_command = computed =>
-			(props.args + " " + options_cli.value).trim()
+			to_cli options
 		command = ref ''
+		``###* @type {Ref<{ options: GitOption[], command: string } | null>} ###
+		saved_config = ref null
+		is_saved = computed =>
+			!! saved_config.value?.command
+		has_unsaved_changes = computed =>
+			saved_config.value?.command != command.value
+		config_key = "git input config " + props.title
+		get_saved = =>
+			saved_config.value = (await get_config config_key) or null
+			if saved_config.value
+				Object.assign options, saved_config.value.options
+				# because modifying `options` this will have changed `command`
+				# via watchEffect, we need to wait before overwriting it
+				await nextTick()
+				command.value = saved_config.value.command
+		save = =>
+			new_saved =
+				options: options
+				command: command.value
+			await set_config config_key, JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
+			saved_config.value = new_saved
 		reset_command = =>
 			command.value = constructed_command.value
 		watchEffect reset_command
 		text_changed = computed =>
 			command.value != constructed_command.value
-		
+
 		data = ref ''
 		error = ref ''
 		execute = =>
@@ -66,8 +97,10 @@ export default defineComponent
 				else
 					error.value = e.stderr.replaceAll('\\n', '\n')
 
-		if props.immediate
-			execute()
+		do =>
+			await get_saved()
+			if props.immediate
+				execute()
 
 		{
 			command
@@ -77,4 +110,7 @@ export default defineComponent
 			execute
 			error
 			data
+			is_saved
+			has_unsaved_changes
+			save
 		}

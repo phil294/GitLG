@@ -2,7 +2,7 @@
 #main-view.fill.col
 	details
 		summary Configure...
-		git-input args="log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)" :options="[ { name: '--reflog', default: false } ]" hide_result="" :action="run_log" :immediate="true" ref="git_input_ref"
+		git-input args="log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)" :options="[ { name: '--reflog', default: false } ]" title="Git Log" hide_result="" :action="run_log" :immediate="true" ref="git_input_ref"
 	.row.flex-1
 		#log.col.flex-1
 			button.btn.refresh @click="do_log()" ⟳
