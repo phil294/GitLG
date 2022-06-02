@@ -6,6 +6,8 @@
 	.row.flex-1
 		#log.col.flex-1
 			button.btn.refresh @click="do_log()" ⟳
+			p v-if="!commits.length"
+				| No commits found
 			ul#branches.row.align-center.wrap
 				li.ref.visible.active v-for="branch of visible_branches"
 					/ todo duplicate stuff
