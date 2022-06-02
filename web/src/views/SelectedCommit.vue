@@ -9,24 +9,24 @@ div
 				h3 :style="{color:branch_tip.color}"
 					| {{ branch_tip.name }}
 				.row.gap-5.wrap
-					button.btn @click="args = { title: 'Checkout branch', args: 'checkout '+branch_tip.name, immediate: true }"
+					button.btn @click="args = { title: 'Checkout branch', args: 'checkout $1', params: [branch_tip.name], immediate: true }"
 						| →&nbsp;&nbsp;&nbsp;Checkout
-					button.btn @click="args = { title: 'Merge branch', args: 'merge '+branch_tip.name, options: [ { name: '--no-commit', default: false } ] }"
+					button.btn @click="args = { title: 'Merge branch', args: 'merge $1', params: [branch_tip.name], options: [ { name: '--no-commit', default: false } ] }"
 						| ⛙&nbsp;&nbsp;&nbsp;Merge
-					button.btn @click="args = { title: 'Rename branch', args: 'branch -m '+branch_tip.name+' NEW_NAME_HERE' }"
+					button.btn @click="args = { title: 'Rename branch', args: 'branch -m $1 $2', params: [branch_tip.name, 'NEW_BRANCH_NAME'] }"
 						| ✎&nbsp;&nbsp;&nbsp;Rename
-					button.btn @click="args = { title: 'Delete branch', args: 'branch -d '+branch_tip.name, options: [ { name: '--force', default: false } ] }"
+					button.btn @click="args = { title: 'Delete branch', args: 'branch -d $1', params: [branch_tip.name], options: [ { name: '--force', default: false } ] }"
 						| 🗑&nbsp;&nbsp;&nbsp;Delete
 
 	h3 This commit:
 	.row.gap-5.wrap
-		button.btn @click="args = { title: 'Checkout commit', args: 'checkout '+commit.hash, immediate: true }"
+		button.btn @click="args = { title: 'Checkout commit', args: 'checkout $1', params: [commit.hash], immediate: true }"
 			| →&nbsp;&nbsp;&nbsp;Checkout
-		button.btn @click="args = { title: 'Create branch', args: 'branch NEW_BRANCH_NAME '+commit.hash }"
+		button.btn @click="args = { title: 'Create branch', args: 'branch $1 $2', params: ['NEW_BRANCH_NAME', commit.hash] }"
 			| +&nbsp;&nbsp;&nbsp;Create branch
-		button.btn @click="args = { title: 'Cherry pick commit', args: 'cherry-pick '+commit.hash, options: [ { name: '--no-commit', default: false } ] }"
+		button.btn @click="args = { title: 'Cherry pick commit', args: 'cherry-pick $1', params: [commit.hash], options: [ { name: '--no-commit', default: false } ] }"
 			| 𖣣&nbsp;&nbsp;&nbsp;Cherry pick
-		button.btn @click="args = { title: 'Revert commit', args: 'revert '+commit.hash, options: [ { name: '--no-commit', default: false } ] }"
+		button.btn @click="args = { title: 'Revert commit', args: 'revert $1', params: [commit.hash], options: [ { name: '--no-commit', default: false } ] }"
 			| ⎌&nbsp;&nbsp;&nbsp;Revert
 	
 	popup v-if="args" @close="args=null"

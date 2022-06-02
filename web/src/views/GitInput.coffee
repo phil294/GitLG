@@ -16,6 +16,10 @@ export default defineComponent
 			###* @type {() => GitOption[]} ###
 			type: Array
 			default: => []
+		params:
+			###* @type {() => string[]} ###
+			type: Array
+			default: => []
 		action:
 			# TODO: somehow impossible to get both validation and type support with coffee JSDoc
 			# (no casting possible), no matter how. Runtime validation is more important
@@ -36,6 +40,7 @@ export default defineComponent
 	# To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
 	# both editable, the former modifying the latter but being locked when the latter is changed by hand.
 	# `saved_config` stores a snapshot of both.
+	# `params` is never saved and user-edited only.
 	###
 	setup: (props, { emit }) ->
 		###* @type {GitOption[]} ###
@@ -43,6 +48,7 @@ export default defineComponent
 			...option
 			value: option.default
 		}
+		params = reactive props.params
 		to_cli = (###* @type {GitOption[]} ### options = []) =>
 			(props.args + " " + options.map ({ name, value }) =>
 				if value
@@ -84,7 +90,11 @@ export default defineComponent
 		execute = =>
 			error.value = ''
 			try
-				result = await props.action command.value
+				cmd = command.value
+				i = 0
+				while (pos = cmd.indexOf('$'+ ++i)) > -1
+					cmd = cmd.slice(0, pos) + params[i-1] + cmd.slice(pos + 2)
+				result = await props.action cmd
 				if not props.hide_result
 					data.value = result
 				emit 'success', result
@@ -107,6 +117,7 @@ export default defineComponent
 		{
 			command
 			options
+			params
 			reset_command
 			text_changed
 			execute

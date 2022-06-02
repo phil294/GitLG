@@ -1,7 +1,7 @@
 <template lang="slm">
 div.col.gap-10
 	h4 {{ title }}
-	promise-form :action="execute"
+	promise-form.col.gap-5 :action="execute"
 		.row.align-center.gap-10
 			code git 
 			input.command v-model="command"
@@ -14,8 +14,13 @@ div.col.gap-10
 				| Saved
 			button.btn.btn-2 type="button" v-if="has_unsaved_changes" @click="save()"
 				| 🖫 Save
-		button.btn
-			| ✓ Execute
+		.param v-for="(param, i) in params"
+			label.row.align-center.gap-5
+				| Param \${{ i+1 }}
+				input v-model="params[i]"
+		div
+			button.btn
+				| ✓ Execute
 	.error-response.padding-l v-if="error"
 		| Command failed: 
 		| {{ error }}
@@ -39,6 +44,8 @@ div.col.gap-10
 		border-left 2px solid #bc9550 // like vscode settings ui
 .error-response, .success-response
 	white-space pre-wrap
+.param
+	white-space pre
 .error-response
 	color #e53c3c
 </style>
