@@ -1,6 +1,6 @@
 <template lang="slm">
 div
-	h2.summary {{ commit.subject }}
+	h2.summary :title="commit.subject" {{ commit.subject }}
 	
 	div v-if="branch_tips.length"
 		h3 Branches:
@@ -18,7 +18,7 @@ div
 					button.btn @click="args = { title: 'Delete branch', args: 'branch -d $1', params: [branch_tip.name], options: [ { name: '--force', default: false } ] }"
 						| 🗑&nbsp;&nbsp;&nbsp;Delete
 
-	h3 This commit:
+	h3 This commit {{ commit.hash }}:
 	.row.gap-5.wrap
 		button.btn @click="args = { title: 'Checkout commit', args: 'checkout $1', params: [commit.hash], immediate: true }"
 			| →&nbsp;&nbsp;&nbsp;Checkout
