@@ -14,7 +14,7 @@ git = (###* @type string ### args) =>
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider 'git-show',
 		provideTextDocumentContent: (uri) ->
-			(try await git "show #{uri.path}") or ''
+			(try await git "show '#{uri.path}'") or ''
 
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
 		view = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist'), vscode.Uri.joinPath(context.extensionUri, 'media') ] }).webview
