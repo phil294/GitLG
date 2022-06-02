@@ -30,6 +30,7 @@ export default
 			sep = '^%^%^%^%^'
 			args = args.replace(" --pretty=VSCode", " --pretty=format:'#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s'")
 			data = await git args # error will be handled by GitInput
+			return if not data
 			parsed = parse data, sep
 			first_visible_commit_i = commits.value.indexOf(visible_commits.value[0])
 			commits.value = parsed.commits
