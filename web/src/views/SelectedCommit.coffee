@@ -33,8 +33,8 @@ export default defineComponent
 				.split('\n').map((l) =>
 					split = l.split('\t')
 					path: split[2]
-					insertions: Number split[0]
-					deletions: Number split[1])
+					insertions: Number split[1]
+					deletions: Number split[0])
 		
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath
