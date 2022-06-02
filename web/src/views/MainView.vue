@@ -85,9 +85,9 @@ input#txt-filter
 	top 0
 	right 50px
 	z-index 3
-    width 425px
-    font-size 12px
-    border 2px solid orange
+	width 425px
+	font-size 12px
+	border 2px solid orange
 ul#branches
 	margin 5px 0
 	position sticky
