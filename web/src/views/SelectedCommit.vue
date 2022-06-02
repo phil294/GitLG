@@ -30,11 +30,12 @@ div
 			| ⎌&nbsp;&nbsp;&nbsp;Revert
 	
 	popup v-if="args" @close="args=null"
-		p Execute Git command
-		git-input v-bind="args" @success="git_execute_success()"
-		label.row.align-center.gap-5
-			input type="checkbox" v-model="keep_open"
-			| Keep window open after success
+		.selected-input
+			p Execute Git command
+			git-input v-bind="args" @success="git_execute_success()"
+			label.row.align-center.gap-5
+				input type="checkbox" v-model="keep_open"
+				| Keep window open after success
 </template>
 
 <script lang="coffee" src="./SelectedCommit.coffee"></script>
@@ -46,6 +47,6 @@ div
 		white-space pre
 		overflow hidden
 		text-overflow ellipsis
-.popup
+.selected-input
 	width: clamp(200px, 50vw, 50vw)
 </style>
