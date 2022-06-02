@@ -23,6 +23,9 @@ export default defineComponent
 		hide_result:
 			type: Boolean
 			default: false
+		immediate:
+			type: Boolean
+			default: false
 	emits: [ 'success' ]
 	setup: (props, { emit }) ->
 		options = reactive props.options.map (option) => {
@@ -38,15 +41,12 @@ export default defineComponent
 				.join(' ')
 		constructed_command = computed =>
 			(props.args + " " + options_cli.value).trim()
-		default_command = constructed_command.value
 		command = ref ''
 		reset_command = =>
 			command.value = constructed_command.value
 		watchEffect reset_command
 		text_changed = computed =>
 			command.value != constructed_command.value
-		changed = computed =>
-			command.value != default_command
 		
 		data = ref ''
 		error = ref ''
@@ -66,12 +66,13 @@ export default defineComponent
 				else
 					error.value = e.stderr.replaceAll('\\n', '\n')
 
+		if props.immediate
+			execute()
 
 		{
 			command
 			options
 			reset_command
-			changed
 			text_changed
 			execute
 			error

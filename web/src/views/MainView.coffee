@@ -23,8 +23,6 @@ export default
 		do_log = =>
 			git_input_ref.value?.execute()
 
-		onMounted do_log
-
 		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
 		This function exists so we can modify the args before sending to git, otherwise
 		GitInput would have done the git call ###

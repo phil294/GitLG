@@ -1,6 +1,6 @@
 import { git } from '../store.coffee'
 import { Commit } from '../log-utils.coffee'
-import { ref, computed, defineComponent } from 'vue'
+import { ref, Ref, computed, defineComponent } from 'vue'
 import GitInput from './GitInput.vue'
 
 export default defineComponent
@@ -12,6 +12,7 @@ export default defineComponent
 			type: Object
 			required: true
 	setup: (props, { emit }) ->
+		``###* @type {Ref<any>} ### # TODO import type from gitinput coffee somehow
 		args = ref null
 		
 		branch_tips = computed =>
