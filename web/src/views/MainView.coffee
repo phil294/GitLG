@@ -1,6 +1,6 @@
 import { git, show_error_message } from '../store.coffee'
 import { parse, Branch, Commit } from '../log-utils.coffee'
-import { ref, Ref, computed, watch, onMounted } from 'vue'
+import { ref, Ref, computed, watch } from 'vue'
 import SelectedCommit from './SelectedCommit.vue'
 import GitInput from './GitInput.vue'
 import GitInputModel from './GitInput.coffee'
@@ -8,8 +8,6 @@ import GitInputModel from './GitInput.coffee'
 export default
 	components: { SelectedCommit, GitInput }
 	setup: ->
-		``###* @type {Ref<Commit[]>} ###
-		commits = ref []
 		``###* @type {Ref<Branch[]>} ###
 		branches = ref []
 		# this is either a branch name or HEAD in which case it will simply not be shown
@@ -26,6 +24,28 @@ export default
 		do_log = =>
 			git_input_ref.value?.execute()
 
+		``###* @type {Ref<Commit[]>} ###
+		returned_commits = ref []
+		``###* @type {Ref<string | null>} ###
+		txt_filter = ref null
+		``###* @type {Ref<HTMLElement | null>} ###
+		txt_filter_ref = ref null
+		commits = computed =>
+			if txt_filter.value == null
+				return returned_commits.value
+			returned_commits.value.filter (commit) =>
+				["subject", "hash", "author_name", "author_email"].some (prop) =>
+					#@ts-ignore
+					commit[prop].toLowerCase().includes(txt_filter.value?.toLowerCase())
+		document.addEventListener 'keyup', (e) =>
+			if e.ctrlKey and e.key == 'f'
+				if txt_filter.value == null
+					txt_filter.value = ''
+					await new Promise (ok) => setTimeout(ok, 0)
+					txt_filter_ref.value?.focus()
+				else
+					txt_filter.value = null
+
 		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
 		This function exists so we can modify the args before sending to git, otherwise
 		GitInput would have done the git call ###
@@ -36,7 +56,7 @@ export default
 			return if not data
 			parsed = parse data, sep
 			first_visible_commit_i = commits.value.indexOf(visible_commits.value[0])
-			commits.value = parsed.commits
+			returned_commits.value = parsed.commits
 			branches.value = parsed.branches
 			vis_style.value = 'min-width': "min(50vw, #{parsed.vis_max_length/2}em)"
 			if selected_commit.value
@@ -125,4 +145,6 @@ export default
 			scroll_pixel_buffer
 			scroll_item_height
 			selected_commit
+			txt_filter
+			txt_filter_ref
 		}

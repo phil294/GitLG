@@ -5,7 +5,8 @@
 		git-input args="log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)" :options="[ { name: '--reflog', default: false } ]" title="Git Log" hide_result="" :action="run_log" :immediate="true" ref="git_input_ref"
 	.row.flex-1
 		#log.col.flex-1
-			button.btn.refresh @click="do_log()" ⟳
+			button#refresh.btn @click="do_log()" ⟳
+			input#txt-filter v-if="txt_filter!==null" v-model="txt_filter" placeholder="Type to search for commit summary, hash, author" ref="txt_filter_ref"
 			p v-if="!commits.length"
 				| No commits found
 			ul#branches.row.align-center.wrap
@@ -72,13 +73,21 @@ ul
 	margin 0
 #log
 	position relative
-.btn.refresh
+#refresh.btn
 	position absolute
 	top 0
 	right 0
 	z-index 3
 	padding 0 2px
 	font-size 22px
+input#txt-filter
+	position absolute
+	top 0
+	right 50px
+	z-index 3
+    width 425px
+    font-size 12px
+    border 2px solid orange
 ul#branches
 	margin 5px 0
 	position sticky
