@@ -7,22 +7,26 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
 		view = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist'), vscode.Uri.joinPath(context.extensionUri, 'media') ] }).webview
 
-		view.onDidReceiveMessage (message) =>
+		``###* @typedef {{ command: 'response', data?: any, error?: any, id: number }} MsgResponse ###
+		``###* @typedef {{ command: string, data: any, id: number }} MsgRequest ###
+		view.onDidReceiveMessage (###* @type MsgRequest ### message) =>
+			h = (###* @type {() => any} ### func) =>
+				``###* @type MsgResponse ###
+				resp =
+					command: 'response'
+					id: message.id
+				try
+					resp.data = await func()
+				catch e
+					resp.error = e
+				view.postMessage resp
 			switch message.command
 				when 'git'
-					try
-						payload = data: await git.exec message.args, vscode.workspace.workspaceFolders[0]?.uri.path # todo or settings, and choosable
-					catch e
-						payload = error: e
-					view.postMessage {
-						command: 'response'
-						id: message.id
-						payload
-					}
+					h => git.exec message.data, vscode.workspace.workspaceFolders[0]?.uri.path # todo or settings, and choosable
 				when 'show-error-message'
-					vscode.window.showErrorMessage message.msg
+					h => vscode.window.showErrorMessage message.data
 				when 'show-information-message'
-					vscode.window.showInformationMessage message.msg
+					h => vscode.window.showInformationMessage message.data
 
 		get_uri = (###* @type {string[]} ### ...path_segments) =>
 			view.asWebviewUri vscode.Uri.joinPath context.extensionUri, ...path_segments

@@ -1,35 +1,40 @@
+# todo externalize these types (shared with extension.coffee)
+``###* @typedef {{ command: 'response', data?: any, error?: any, id: number }} MsgResponse ###
+``###* @typedef {{ command: string, data: any, id: number }} MsgRequest ###
+
 vscode = acquireVsCodeApi()
 
-``###* @type {{[id: number]: (data: any) => void }} ###
+``###* @type {Record<string, (r: MsgResponse) => void>} ###
 callbacks = {}
 id = 0
 
-``###*
-# @param args {string}
-# @returns {Promise<string>}
-###
-export git = (args) =>
-	answer = new Promise (ok) =>
-		callbacks[++id] = (data) =>
-			ok data
-	vscode.postMessage { command: 'git', args, id }
-	resp = await answer
-	resp.data ? throw resp.error
-
-``###* @param msg {string} ###
-export show_information_message = (msg) =>
-	vscode.postMessage { command: 'show-information-message', msg }
-
-``###* @param msg {string} ###
-export show_error_message = (msg) =>
-	vscode.postMessage { command: 'show-error-message', msg }
-
-window.addEventListener 'message', ({ data: message }) =>
+window.addEventListener 'message', (msg_event) =>
+	``###* @type MsgResponse ###
+	message = msg_event.data
 	switch message.command
 		when 'response'
 			handler = callbacks[message.id]
 			if handler
-				handler message.payload
+				handler message
 				delete callbacks[message.id]
 			else
 				throw new Error "unhandled response id: " + JSON.stringify(message)
+
+send_message = (###* @type string ### command, ###* @type any ### data) =>
+	id++
+	``###* @type MsgRequest ###
+	request = { command, data, id }
+	vscode.postMessage request
+	``###* @type {MsgResponse} ###
+	resp = await new Promise (ok) =>
+		callbacks[id] = (data) =>
+			ok data
+	if resp.error then throw resp.error
+	resp.data
+
+export git = (###* @type string ### args) =>
+	send_message 'git', args
+export show_information_message = (###* @type string ### msg) =>
+	send_message 'show-information-message', msg
+export show_error_message = (###* @type string ### msg) =>
+	send_message 'show-error-message', msg
