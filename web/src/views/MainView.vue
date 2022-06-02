@@ -10,7 +10,7 @@
 			p v-if="!commits.length"
 				| No commits found
 			ul#branches.row.align-center.wrap
-				li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch}"
+				li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch, is_hovered:branch.name===hovered_branch_name}"
 					/ todo duplicate stuff
 					button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
 						| {{ branch.name }}
@@ -25,7 +25,7 @@
 			recycle-scroller#commits.scroller.fill-w.flex-1 role="list" :items="commits" :item-size="scroll_item_height" v-slot="{ item: commit }" key-field="i" :buffer="scroll_pixel_buffer" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
 				.row.commit :class="commit === selected_commit ? 'active' : null"
 					.vis :style="vis_style"
-						span v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined"
+						span.vis-v v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined" :data-branch-name="v.branch? v.branch.name : undefined"
 							| {{ v.char }}
 					.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
 						.subject.flex-1
@@ -68,6 +68,8 @@ details
 	white-space pre
 	&.is_head:after
 		content: ' (HEAD)'
+	&.is_hovered
+		outline 3px solid #c54a4a
 ul
 	list-style none
 	margin 0

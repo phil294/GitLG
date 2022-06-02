@@ -65,6 +65,22 @@ export default
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem first_visible_commit_i
 			head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
+		
+		mousemove_debouncer = -1
+		hover_branch_debouncer = -1
+		``###* @type {Ref<string | null>} ###
+		hovered_branch_name = ref null
+		document.addEventListener 'mousemove', (e) =>
+			window.clearTimeout mousemove_debouncer
+			mousemove_debouncer = window.setTimeout (=>
+				if e.target?.classList.contains('vis-v')
+					if branch_name = e.target.dataset.branchName
+						hovered_branch_name.value = branch_name
+						window.clearTimeout hover_branch_debouncer
+						hover_branch_debouncer = window.setTimeout (=>
+							hovered_branch_name.value = null
+						), 300
+			), 100
 
 
 		show_invisible_branches = ref false
@@ -148,4 +164,5 @@ export default
 			selected_commit
 			txt_filter
 			txt_filter_ref
+			hovered_branch_name
 		}
