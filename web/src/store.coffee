@@ -33,7 +33,7 @@ send_message = (###* @type string ### command, ###* @type any ### data) =>
 	resp.data
 
 export git = (###* @type string ### args) =>
-	send_message 'git', args
+	(await send_message 'git', args).trim()
 export show_information_message = (###* @type string ### msg) =>
 	send_message 'show-information-message', msg
 export show_error_message = (###* @type string ### msg) =>
