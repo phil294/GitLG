@@ -38,3 +38,7 @@ export show_information_message = (###* @type string ### msg) =>
 	send_message 'show-information-message', msg
 export show_error_message = (###* @type string ### msg) =>
 	send_message 'show-error-message', msg
+export get_config = (###* @type string ### key) =>
+	send_message 'get-config', key
+export set_config = (###* @type string ### key, ###* @type any ### value) =>
+	send_message 'set-config', { key, value }

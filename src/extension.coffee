@@ -27,6 +27,10 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 					h => vscode.window.showErrorMessage message.data
 				when 'show-information-message'
 					h => vscode.window.showInformationMessage message.data
+				when 'get-config'
+					h => context.globalState.get message.data
+				when 'set-config'
+					h => context.globalState.update message.data.key, message.data.value
 
 		get_uri = (###* @type {string[]} ### ...path_segments) =>
 			view.asWebviewUri vscode.Uri.joinPath context.extensionUri, ...path_segments
