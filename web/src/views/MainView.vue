@@ -29,9 +29,9 @@
 					.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
 						.subject.flex-1
 							.ref v-for="ref of commit.refs" :class="{is_head:ref.name===head_branch}"
-								div :style="{color:ref.color}"
+								span :style="{color:ref.color}"
 									| {{ ref.name }}
-							span {{ commit.subject }}
+							span  {{ commit.subject }}
 						.author.flex-noshrink {{ commit.author_name }}
 						.stats.flex-noshrink.row.align-center.justify-flex-end.gap-5 v-if="commit.stats"
 							.changes title="Changed lines in amount of files"
