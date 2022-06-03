@@ -2,9 +2,9 @@ import { git, get_config, set_config } from '../store.coffee'
 import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
 
 ``###* @typedef {{
-# 	name: string
-#	default: boolean
-#	value?: boolean
+# 	value: string
+#	default_active: boolean
+#	active?: boolean
 # }} GitOption ###
 
 export default defineComponent
@@ -31,8 +31,7 @@ export default defineComponent
 		immediate:
 			type: Boolean
 			default: false
-		title:
-			# also serves as a config key
+		config_key:
 			type: String
 			required: true
 	emits: [ 'success' ]
@@ -46,13 +45,13 @@ export default defineComponent
 		###* @type {GitOption[]} ###
 		options = reactive props.options.map (option) => {
 			...option
-			value: option.default
+			active: option.default_active
 		}
 		params = reactive props.params
 		to_cli = (###* @type {GitOption[]} ### options = []) =>
-			(props.args + " " + options.map ({ name, value }) =>
-				if value
-					name
+			(props.args + " " + options.map ({ value, active }) =>
+				if active
+					value
 				else ''
 			.join(' ')).trim()
 		constructed_command = computed =>
@@ -64,7 +63,7 @@ export default defineComponent
 			!! saved_config.value?.command
 		has_unsaved_changes = computed =>
 			saved_config.value?.command != command.value
-		config_key = "git input config " + props.title
+		config_key = "git input config " + props.config_key
 		get_saved = =>
 			saved_config.value = (await get_config config_key) or null
 			if saved_config.value

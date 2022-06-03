@@ -3,6 +3,48 @@ import { Commit } from '../log-utils.coffee'
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
 import GitInput from './GitInput.vue'
 
+config_branch_actions = [
+	title: "→   Checkout"
+	immediate: true
+	args: 'checkout $1'
+	params: [ "{BRANCH_NAME}" ]
+,
+	title: "⛙   Merge"
+	args: 'merge $1'
+	params: [ "{BRANCH_NAME}" ]
+	options: [ value: '--no-commit', default_active: false ]
+,
+	title: "✎   Rename"
+	args: 'branch -m $1 $2'
+	params: [ "{BRANCH_NAME}" , 'new_branch_name' ]
+,
+	title: "🗑   Delete"
+	args: 'branch -d $1'
+	params: [ "{BRANCH_NAME}" ]
+	options: [ value: '--force', default_active: false ]
+]
+
+config_commit_actions = [
+	title: "→   Checkout"
+	immediate: true
+	args: 'checkout $1'
+	params: [ "{COMMIT_HASH}" ]
+,
+	title: "+   Create branch"
+	args: 'branch $1 $2'
+	params: [ 'new_branch_name',  "{COMMIT_HASH}" ]
+,
+	title: "𖣣   Cherry pick"
+	args: 'cherry-pick $1'
+	params: [ "{COMMIT_HASH}" ]
+	options: [ value: '--no-commit', default_active: false ]
+,
+	title: "⎌   Revert"
+	args: 'revert $1'
+	params: [ "{COMMIT_HASH}" ]
+	options: [ value: '--no-commit', default_active: false ]
+]
+
 export default defineComponent
 	components: { GitInput }
 	emits: [ 'change' ]
@@ -40,6 +82,18 @@ export default defineComponent
 		
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath
+		
+		commit_actions = config_commit_actions.map (a) => {
+			...a
+			params: a.params?.map (p) =>
+				p.replaceAll('{COMMIT_HASH}', props.commit.hash)
+		}
+
+		branch_actions = (###* @type string ### branch_name) => config_branch_actions.map (a) => {
+			...a
+			params: a.params?.map (p) =>
+				p.replaceAll('{BRANCH_NAME}', branch_name)
+		}
 
 		{
 			args
@@ -49,4 +103,6 @@ export default defineComponent
 			changed_files
 			show_diff
 			body
+			commit_actions
+			branch_actions
 		}
