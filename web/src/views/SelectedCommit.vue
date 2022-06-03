@@ -1,6 +1,8 @@
 <template lang="slm">
 div
 	h2.summary :title="commit.subject" {{ commit.subject }}
+
+	p.body {{ body }}
 	
 	div v-if="branch_tips.length"
 		h3 Branches:
@@ -65,4 +67,6 @@ div
 		font-family monospace
 		text-align right
 		width 2rem
+.body
+	white-space pre-wrap
 </style>

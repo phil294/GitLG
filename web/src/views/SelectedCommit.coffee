@@ -28,6 +28,7 @@ export default defineComponent
 
 		``###* @type {Ref<{path:string,insertions:number,deletions:number}[]>} ###
 		changed_files = ref []
+		body = ref ''
 		watchEffect =>
 			changed_files.value = (try await git "diff --numstat --format='' #{props.commit.hash} #{props.commit.hash}~1")
 				?.split('\n').map((l) =>
@@ -35,6 +36,7 @@ export default defineComponent
 					path: split[2]
 					insertions: Number split[1]
 					deletions: Number split[0]) or []
+			body.value = await git "show -s --format='%b' #{props.commit.hash}"
 		
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath
@@ -46,4 +48,5 @@ export default defineComponent
 			keep_open
 			changed_files
 			show_diff
+			body
 		}
