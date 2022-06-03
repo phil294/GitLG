@@ -1,6 +1,5 @@
 <template lang="slm">
 div.col.gap-10
-	h4 {{ title }}
 	promise-form.col.gap-5 :action="execute"
 		.row.align-center.gap-10
 			code git 
