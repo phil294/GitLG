@@ -51,7 +51,7 @@ code {
 details
 	cursor pointer
 
-input:not([type='checkbox']), textarea {
+input:not([type='checkbox']):not([type='radio']), textarea {
 	display: block;
 	width: 100%;
 	border: none;

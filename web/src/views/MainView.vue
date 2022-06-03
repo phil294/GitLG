@@ -5,8 +5,15 @@
 		git-input args="log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)" :options="[ { name: '--reflog', default: false } ]" title="Git Log" hide_result="" :action="run_log" :immediate="true" ref="git_input_ref"
 	.row.flex-1
 		#log.col.flex-1
-			button#refresh.btn @click="do_log()" ⟳
-			input#txt-filter v-if="txt_filter!==null" v-model="txt_filter" placeholder="Type to search for commit summary, hash, author" ref="txt_filter_ref"
+			button#refresh.btn @click="do_log()" title="Refresh" ⟳
+			button#toggle-txt-filter.btn @click="txt_filter_toggle_dialog()" title="Open search/filter dialog. Also via Ctrl+f" 🔍
+			input#txt-filter v-if="txt_filter!==null" v-model="txt_filter" placeholder="Type to search for commit summary, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
+			label#filter-type-filter.row.align-center v-if="txt_filter!==null"
+				input type="radio" v-model="txt_filter_type" value="filter"
+				| Filter
+			label#filter-type-search.row.align-center v-if="txt_filter!==null"
+				input type="radio" v-model="txt_filter_type" value="search"
+				| Search
 			p v-if="!commits.length"
 				| No commits found
 			ul#branches.row.align-center.wrap
@@ -75,21 +82,28 @@ ul
 	margin 0
 #log
 	position relative
-#refresh.btn
+#refresh.btn, input#txt-filter, #toggle-txt-filter.btn, #filter-type-filter, #filter-type-search
 	position absolute
 	top 0
-	right 0
 	z-index 3
+#refresh.btn
+	right 0
 	padding 0 2px
 	font-size 22px
 input#txt-filter
-	position absolute
-	top 0
-	right 50px
-	z-index 3
+	right 76px
 	width 425px
 	font-size 12px
 	border 2px solid orange
+#toggle-txt-filter.btn
+	right 37px
+	font-size 20px
+	padding 0 2px
+#filter-type-filter, #filter-type-search
+	width 70px
+	right 74px
+#filter-type-search
+	top 15px
 ul#branches
 	margin 5px 0
 	position sticky

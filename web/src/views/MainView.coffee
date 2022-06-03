@@ -28,23 +28,52 @@ export default
 		returned_commits = ref []
 		``###* @type {Ref<string | null>} ###
 		txt_filter = ref null
+		``###* @type {Ref<'filter' | 'search'>} ###
+		txt_filter_type = ref 'filter'
 		``###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
+		txt_filter_filter = (###* @type Commit ### commit) =>
+			["subject", "hash", "author_name", "author_email"].some (prop) =>
+				#@ts-ignore
+				commit[prop].toLowerCase().includes(txt_filter.value?.toLowerCase())
 		commits = computed =>
-			if txt_filter.value == null
+			if txt_filter.value == null or txt_filter_type.value == 'search'
 				return returned_commits.value
-			returned_commits.value.filter (commit) =>
-				["subject", "hash", "author_name", "author_email"].some (prop) =>
-					#@ts-ignore
-					commit[prop].toLowerCase().includes(txt_filter.value?.toLowerCase())
+			returned_commits.value.filter txt_filter_filter
+		txt_filter_last_i = -1
+		txt_filter_toggle_dialog = =>
+			if txt_filter.value == null
+				txt_filter.value = ''
+				await new Promise (ok) => setTimeout(ok, 0)
+				txt_filter_ref.value?.focus()
+			else
+				txt_filter.value = null
+				txt_filter_last_i = -1
 		document.addEventListener 'keyup', (e) =>
 			if e.ctrlKey and e.key == 'f'
-				if txt_filter.value == null
-					txt_filter.value = ''
-					await new Promise (ok) => setTimeout(ok, 0)
-					txt_filter_ref.value?.focus()
+				txt_filter_toggle_dialog()
+		select_searched_commit_debouncer = -1
+		txt_filter_enter = (###* @type KeyboardEvent ### event) =>
+			return if txt_filter_type.value == 'filter'
+			if event.shiftKey
+				next = [...commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_filter)
+				if next > -1
+					next_match_index = txt_filter_last_i - 1 - next
 				else
-					txt_filter.value = null
+					next_match_index = commits.value.length - 1
+			else
+				next = commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_filter)
+				if next > -1
+					next_match_index = txt_filter_last_i + 1 + next
+				else
+					next_match_index = 0
+			commits_scroller_ref.value?.scrollToItem next_match_index - Math.floor(visible_commits.value.length / 2) + 2
+			txt_filter_last_i = next_match_index
+			window.clearTimeout select_searched_commit_debouncer
+			select_searched_commit_debouncer = window.setTimeout (=>
+				selected_commit.value = commits.value[txt_filter_last_i]
+			), 100
+
 
 		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
 		This function exists so we can modify the args before sending to git, otherwise
@@ -55,7 +84,6 @@ export default
 			data = await git args # error will be handled by GitInput
 			return if not data
 			parsed = parse data, sep
-			first_visible_commit_i = commits.value.indexOf(visible_commits.value[0])
 			returned_commits.value = parsed.commits
 			branches.value = parsed.branches
 			vis_style.value = 'min-width': "min(50vw, #{parsed.vis_max_length/2}em)"
@@ -63,7 +91,7 @@ export default
 				selected_commit.value = (commits.value.find (commit) =>
 					commit.hash == selected_commit.value?.hash) or null
 			await new Promise (ok) => setTimeout(ok, 0)
-			commits_scroller_ref.value?.scrollToItem first_visible_commit_i
+			commits_scroller_ref.value?.scrollToItem scroll_item_offset.value
 			head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
 		
 		mousemove_debouncer = -1
@@ -100,6 +128,9 @@ export default
 			visible_commits_debouncer = window.setTimeout (=>
 				visible_commits.value = commits.value.slice(start_index, end_index)
 			), 170
+		
+		scroll_item_offset = computed =>
+			commits.value.indexOf(visible_commits.value[0])
 
 		watch visible_commits, =>
 			visible_cp = [...visible_commits.value] # to avoid race conditions
@@ -168,5 +199,8 @@ export default
 			selected_commit
 			txt_filter
 			txt_filter_ref
+			txt_filter_type
+			txt_filter_enter
+			txt_filter_toggle_dialog
 			hovered_branch_name
 		}
