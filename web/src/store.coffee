@@ -39,9 +39,9 @@ export show_information_message = (###* @type string ### msg) =>
 	send_message 'show-information-message', msg
 export show_error_message = (###* @type string ### msg) =>
 	send_message 'show-error-message', msg
-export get_config = (###* @type string ### key) =>
-	send_message 'get-config', key
-export set_config = (###* @type string ### key, ###* @type any ### value) =>
-	send_message 'set-config', { key, value }
+export get_state = (###* @type string ### key) =>
+	send_message 'get-state', key
+export set_state = (###* @type string ### key, ###* @type any ### value) =>
+	send_message 'set-state', { key, value }
 export open_diff = (###* @type string ### hash, ###* @type string ### filename) =>
 	send_message 'open-diff', { hash, filename }

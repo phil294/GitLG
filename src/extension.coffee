@@ -40,9 +40,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 					h => vscode.window.showErrorMessage d
 				when 'show-information-message'
 					h => vscode.window.showInformationMessage d
-				when 'get-config'
+				when 'get-state'
 					h => context.globalState.get d
-				when 'set-config'
+				when 'set-state'
 					h => context.globalState.update d.key, d.value
 				when 'open-diff'
 					h =>

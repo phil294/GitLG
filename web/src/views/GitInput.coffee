@@ -1,4 +1,4 @@
-import { git, get_config, set_config } from '../store.coffee'
+import { git, get_state, set_state } from '../store.coffee'
 import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
 
 ``###* @typedef {{
@@ -65,7 +65,7 @@ export default defineComponent
 			saved_config.value?.command != command.value
 		config_key = "git input config " + props.config_key
 		get_saved = =>
-			saved_config.value = (await get_config config_key) or null
+			saved_config.value = (await get_state config_key) or null
 			if saved_config.value
 				Object.assign options, saved_config.value.options
 				# because modifying `options` this will have changed `command`
@@ -76,7 +76,7 @@ export default defineComponent
 			new_saved =
 				options: options
 				command: command.value
-			await set_config config_key, JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
+			await set_state config_key, JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
 			saved_config.value = new_saved
 		reset_command = =>
 			command.value = constructed_command.value
