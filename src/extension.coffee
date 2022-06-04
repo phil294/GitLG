@@ -6,6 +6,7 @@ util = require('util')
 exec = util.promisify(require('child_process').exec)
 
 EXT_NAME = 'git log --graph'
+EXT_ID = 'git-log--graph'
 
 git = (###* @type string ### args) =>
 	{ stdout, stderr } = await exec 'git ' + args,
@@ -50,6 +51,8 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						uri_1 = vscode.Uri.parse "git-show:#{d.hash}~1:#{d.filename}"
 						uri_2 = vscode.Uri.parse "git-show:#{d.hash}:#{d.filename}"
 						vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} @#{d.hash}"
+				when 'get-config'
+					h => vscode.workspace.getConfiguration(EXT_ID).get d
 
 		get_uri = (###* @type {string[]} ### ...path_segments) =>
 			view.asWebviewUri vscode.Uri.joinPath context.extensionUri, ...path_segments

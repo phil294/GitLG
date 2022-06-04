@@ -2,7 +2,7 @@
 #main-view.fill.col
 	details
 		summary Configure...
-		git-input :args="default_log_args" :options="default_log_options" config_key="main-log" hide_result="" :action="run_log" :immediate="true" ref="git_input_ref"
+		git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 	.row.flex-1
 		#log.col.flex-1
 			p v-if="!commits.length"
@@ -31,7 +31,7 @@
 						| Search
 					button.global-action.btn v-for="action of global_actions" @click="popup_action = action" :title="action.description"
 						| {{ action.title }}
-					git-popup v-if="popup_action" v-bind="popup_action" @close="popup_action=null" @change="do_log()"
+					git-popup v-if="popup_action" :git_action="popup_action" @close="popup_action=null" @change="do_log()"
 
 					button#toggle-txt-filter.btn @click="txt_filter_toggle_dialog()" title="Open search/filter dialog. Also via Ctrl+f" 🔍
 					button#refresh.btn @click="do_log()" title="Refresh" ⟳

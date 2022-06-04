@@ -1,59 +1,14 @@
-import { git, open_diff } from '../store.coffee'
+import { git, open_diff, get_config } from '../store.coffee'
 import { Commit } from '../log-utils.coffee'
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
 import GitPopup from './GitPopup.vue'
 
-config_branch_actions = [
-	title: "→   Checkout"
-	immediate: true
-	args: 'checkout $1'
-	params: [ "{BRANCH_NAME}" ]
-,
-	title: "⛙   Merge"
-	args: 'merge $1'
-	params: [ "{BRANCH_NAME}" ]
-	options: [ value: '--no-commit', default_active: false ]
-,
-	title: "✎   Rename"
-	args: 'branch -m $1 $2'
-	params: [ "{BRANCH_NAME}" , 'new_branch_name' ]
-,
-	title: "🗑   Delete"
-	args: 'branch -d $1'
-	params: [ "{BRANCH_NAME}" ]
-	options: [ value: '--force', default_active: false ]
-]
-
-config_commit_actions = [
-	title: "→   Checkout"
-	immediate: true
-	args: 'checkout $1'
-	params: [ "{COMMIT_HASH}" ]
-,
-	title: "+   Create branch"
-	args: 'branch $1 $2'
-	params: [ 'new_branch_name',  "{COMMIT_HASH}" ]
-,
-	title: "𖣣   Cherry pick"
-	args: 'cherry-pick $1'
-	params: [ "{COMMIT_HASH}" ]
-	options: [ value: '--no-commit', default_active: false ]
-,
-	title: "⎌   Revert"
-	args: 'revert $1'
-	params: [ "{COMMIT_HASH}" ]
-	options: [ value: '--no-commit', default_active: false ]
-]
-
-config_stash_actions = [
-	title: "→   Apply"
-	immediate: true
-	args: 'checkout $1'
-	params: [ "{COMMIT_HASH}" ]
-]
-
-## TODO externalize
-export parse_config_actions = (actions, ###* @type {[string,string][]} ### param_replacements = []) =>
+###*
+# @param actions {import('./GitInput.coffee').ConfigGitAction[]}
+# @param param_replacements {[string,string][]}
+# @return {import('./GitInput.coffee').GitAction[]}
+###
+export parse_config_actions = (actions, param_replacements = []) =>
 	namespace = param_replacements.map(([k]) => k).join('-') or 'global'
 	actions.map (action) => {
 		...action
@@ -71,8 +26,8 @@ export default defineComponent
 			###* @type {() => Commit} ###
 			type: Object
 			required: true
-	setup: (props, { emit }) ->
-		``###* @type {Ref<any>} ### # TODO import type from gitinput coffee somehow
+	setup: (props) ->
+		``###* @type {Ref<import('./GitInput.coffee').GitAction | null>} ###
 		popup_action = ref null
 		
 		branch_tips = computed =>
@@ -98,11 +53,18 @@ export default defineComponent
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath
 		
-		commit_actions = computed => parse_config_actions config_commit_actions,
+		config_branch_actions = ref []
+		config_commit_actions = ref []
+		config_stash_actions = ref []
+		do =>
+			config_branch_actions.value = await get_config 'actions.branch'
+			config_commit_actions.value = await get_config 'actions.commit'
+			config_stash_actions.value = await get_config 'actions.stash'
+		commit_actions = computed => parse_config_actions config_commit_actions.value,
 			[['{COMMIT_HASH}', props.commit.hash]]
-		branch_actions = (###* @type string ### branch_name) => parse_config_actions config_branch_actions,
+		branch_actions = (###* @type string ### branch_name) => parse_config_actions config_branch_actions.value,
 			[['{BRANCH_NAME}', branch_name]]
-		stash_actions = computed => parse_config_actions config_stash_actions,
+		stash_actions = computed => parse_config_actions config_stash_actions.value,
 			[['{COMMIT_HASH}', props.commit.hash]]
 
 		{

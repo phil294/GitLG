@@ -33,7 +33,7 @@ div
 				progress.diff :value="(file.insertions / (file.insertions + file.deletions)) || 0" title="Ratio insertions / deletions"
 				.flex-1 {{ file.path }}
 	
-	git-popup v-if="popup_action" v-bind="popup_action" @close="popup_action=null"
+	git-popup v-if="popup_action" :git_action="popup_action" @close="popup_action=null"
 </template>
 
 <script lang="coffee" src="./SelectedCommit.coffee"></script>

@@ -1,25 +1,11 @@
 import { parse_config_actions } from './SelectedCommit.coffee'
-import { git, show_error_message } from '../store.coffee'
+import { git, show_error_message, get_config } from '../store.coffee'
 import { parse, Branch, Commit } from '../log-utils.coffee'
 import { ref, Ref, computed, watch } from 'vue'
 import SelectedCommit from './SelectedCommit.vue'
 import GitInput from './GitInput.vue'
 import GitPopup from './GitPopup.vue'
 import GitInputModel from './GitInput.coffee'
-
-config_global_actions =	[
-	title: "↧"
-	description: "Stash (include untracked)"
-	args: 'stash -u'
-	options: [ value: '--include-untracked', default_active: true ]
-	immediate: true
-,
-	title: "↥"
-	description: "Stash pop"
-	args: 'stash pop'
-	immediate: true
-]
-
 
 export default
 	components: { SelectedCommit, GitInput, GitPopup }
@@ -90,8 +76,11 @@ export default
 				selected_commit.value = commits.value[txt_filter_last_i]
 			), 100
 
-		default_log_args = "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)"
-		default_log_options = [ { value: '--reflog', default_active: false } ]
+		log_action =
+			args: "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)"
+			options: [ { value: '--reflog', default_active: false } ]
+			config_key: "main-log"
+			immediate: true
 		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
 		This function exists so we can modify the args before sending to git, otherwise
 		GitInput would have done the git call ###
@@ -208,8 +197,11 @@ export default
 			show_invisible_branches.value = false
 			selected_commit.value = commit
 
-		global_actions = computed => parse_config_actions config_global_actions
-		``###* @type {Ref<any>} ### # TODO same as sel com
+		config_global_actions = ref []
+		do =>
+			config_global_actions.value = await get_config 'actions.global'
+		global_actions = computed => parse_config_actions config_global_actions.value
+		``###* @type {Ref<import('./GitInput.coffee').GitAction | null>} ###
 		popup_action = ref null
 
 		{
@@ -220,8 +212,7 @@ export default
 			git_input_ref
 			run_log
 			do_log
-			default_log_args
-			default_log_options
+			log_action
 			commit_clicked
 			commits_scroller_updated
 			show_invisible_branches

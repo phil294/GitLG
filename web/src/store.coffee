@@ -44,3 +44,5 @@ export set_state = (###* @type string ### key, ###* @type any ### value) =>
 	send_message 'set-state', { key, value }
 export open_diff = (###* @type string ### hash, ###* @type string ### filename) =>
 	send_message 'open-diff', { hash, filename }
+export get_config = (###* @type string ### key) =>
+	send_message 'get-config', key

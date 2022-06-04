@@ -26,7 +26,315 @@
 				"title": "Open graph view",
 				"category": "git log --graph"
 			}
-		]
+		],
+		"configuration": {
+			"title": "git log --graph",
+			"properties": {
+				"git-log--graph.actions.global": {
+					"markdownDescription": "List of actions that are always visible in the top nav bar, left of the refresh/search buttons. `title` and `description` apply to the buttons, `args`, `options` and `params` to the popup.. Please refer to the interface for a better understanding, also check the default values. The default values have `immediate:true` set, that's why you normally don't really see the popup when you click e.g. on 'stash pop'. THESE COMMANDS ARE CLI EXECUTED AS IS, SO BE CAREFUL EDITING THEM. YOU CAN LOSE ALL YOUR DATA IF YOU DON'T KNOW WHAT YOU ARE DOING.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": [
+							"title",
+							"args"
+						],
+						"properties": {
+							"title": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"immediate": {
+								"type": "boolean"
+							},
+							"args": {
+								"type": "string"
+							},
+							"params": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"options": {
+								"type": "object",
+								"required": [
+									"value",
+									"default_active"
+								],
+								"properties": {
+									"value": {
+										"type": "string"
+									},
+									"default_active": {
+										"type": "boolean"
+									}
+								}
+							}
+						}
+					},
+					"default": [
+						{
+							"title": "↧",
+							"description": "Stash (include untracked)",
+							"args": "stash -u",
+							"options": [
+								{
+									"value": "--include-untracked",
+									"default_active": true
+								}
+							],
+							"immediate": true
+						},
+						{
+							"title": "↥",
+							"description": "Stash pop",
+							"args": "stash pop",
+							"immediate": true
+						}
+					]
+				},
+				"git-log--graph.actions.commit": {
+					"markdownDescription": "List of actions to show that can be applied on a commit. These are shown when selecting a commit. `params` can contain the special string `{COMMIT_HASH}`. `title` and `description` apply to the buttons, `args`, `options` and `params` to the popup. Please refer to the interface for a better understanding, also check the default values. THESE COMMANDS ARE CLI EXECUTED AS IS, SO BE CAREFUL EDITING THEM. YOU CAN LOSE ALL YOUR DATA IF YOU DON'T KNOW WHAT YOU ARE DOING.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": [
+							"title",
+							"args"
+						],
+						"properties": {
+							"title": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"immediate": {
+								"type": "boolean"
+							},
+							"args": {
+								"type": "string"
+							},
+							"params": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"options": {
+								"type": "object",
+								"required": [
+									"value",
+									"default_active"
+								],
+								"properties": {
+									"value": {
+										"type": "string"
+									},
+									"default_active": {
+										"type": "boolean"
+									}
+								}
+							}
+						}
+					},
+					"default": [
+						{
+							"title": "→   Checkout",
+							"immediate": true,
+							"args": "checkout $1",
+							"params": [
+								"{COMMIT_HASH}"
+							]
+						},
+						{
+							"title": "+   Create branch",
+							"args": "branch $1 $2",
+							"params": [
+								"new_branch_name",
+								"{COMMIT_HASH}"
+							]
+						},
+						{
+							"title": "𖣣   Cherry pick",
+							"args": "cherry-pick $1",
+							"params": [
+								"{COMMIT_HASH}"
+							],
+							"options": [
+								{
+									"value": "--no-commit",
+									"default_active": false
+								}
+							]
+						},
+						{
+							"title": "⎌   Revert",
+							"args": "revert $1",
+							"params": [
+								"{COMMIT_HASH}"
+							],
+							"options": [
+								{
+									"value": "--no-commit",
+									"default_active": false
+								}
+							]
+						}
+					]
+				},
+				"git-log--graph.actions.stash": {
+					"markdownDescription": "List of actions to show that can be applied on a stash. These are shown when selecting a commit. `params` can contain the special string `{COMMIT_HASH}`. `title` and `description` apply to the buttons, `args`, `options` and `params` to the popup. Please refer to the interface for a better understanding, also check the default values. THESE COMMANDS ARE CLI EXECUTED AS IS, SO BE CAREFUL EDITING THEM. YOU CAN LOSE ALL YOUR DATA IF YOU DON'T KNOW WHAT YOU ARE DOING.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": [
+							"title",
+							"args"
+						],
+						"properties": {
+							"title": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"immediate": {
+								"type": "boolean"
+							},
+							"args": {
+								"type": "string"
+							},
+							"params": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"options": {
+								"type": "object",
+								"required": [
+									"value",
+									"default_active"
+								],
+								"properties": {
+									"value": {
+										"type": "string"
+									},
+									"default_active": {
+										"type": "boolean"
+									}
+								}
+							}
+						}
+					},
+					"default": [
+						{
+							"title": "→   Apply",
+							"immediate": true,
+							"args": "checkout $1",
+							"params": [
+								"{COMMIT_HASH}"
+							]
+						}
+					]
+				},
+				"git-log--graph.actions.branch": {
+					"markdownDescription": "List of actions to show that can be applied on a branch. These are shown when selecting a commit. `params` can contain the special string `{BRANCH_NAME}`. `title` and `description` apply to the buttons, `args`, `options` and `params` to the popup. Please refer to the interface for a better understanding, also check the default values. THESE COMMANDS ARE CLI EXECUTED AS IS, SO BE CAREFUL EDITING THEM. YOU CAN LOSE ALL YOUR DATA IF YOU DON'T KNOW WHAT YOU ARE DOING.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": [
+							"title",
+							"args"
+						],
+						"properties": {
+							"title": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"immediate": {
+								"type": "boolean"
+							},
+							"args": {
+								"type": "string"
+							},
+							"params": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"options": {
+								"type": "object",
+								"required": [
+									"value",
+									"default_active"
+								],
+								"properties": {
+									"value": {
+										"type": "string"
+									},
+									"default_active": {
+										"type": "boolean"
+									}
+								}
+							}
+						}
+					},
+					"default": [
+						{
+							"title": "→   Checkout",
+							"description": "",
+							"immediate": true,
+							"args": "checkout $1",
+							"params": [
+								"{BRANCH_NAME}"
+							]
+						},
+						{
+							"title": "⛙   Merge",
+							"args": "merge $1",
+							"params": [
+								"{BRANCH_NAME}"
+							],
+							"options": [
+								{
+									"value": "--no-commit",
+									"default_active": false
+								}
+							]
+						},
+						{
+							"title": "✎   Rename",
+							"args": "branch -m $1 $2",
+							"params": [
+								"{BRANCH_NAME}",
+								"new_branch_name"
+							]
+						},
+						{
+							"title": "🗑   Delete",
+							"args": "branch -d $1",
+							"params": [
+								"{BRANCH_NAME}"
+							],
+							"options": [
+								{
+									"value": "--force",
+									"default_active": false
+								}
+							]
+						}
+					]
+				}
+			}
+		}
 	},
 	"scripts": {},
 	"devDependencies": {

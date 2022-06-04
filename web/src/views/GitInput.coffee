@@ -1,25 +1,33 @@
 import { git, get_state, set_state } from '../store.coffee'
 import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
 
-``###* @typedef {{
-# 	value: string
+``###*
+# @typedef {{
+#	value: string
 #	default_active: boolean
 #	active?: boolean
-# }} GitOption ###
+# }} GitOption
+#
+# @typedef {{
+#	title: string
+#	description?: string
+#	immediate?: boolean
+#	args: string
+#	params?: string[]
+#	options?: GitOption[]
+# }} ConfigGitAction
+#
+# @typedef {ConfigGitAction & {
+#	config_key: string
+# }} GitAction
+###
 
 export default defineComponent
 	props:
-		args:
-			type: String
+		git_action:
+			###* @type {() => GitAction} ###
+			type: Object
 			required: true
-		options:
-			###* @type {() => GitOption[]} ###
-			type: Array
-			default: => []
-		params:
-			###* @type {() => string[]} ###
-			type: Array
-			default: => []
 		action:
 			# somehow impossible to get both validation and type support with coffee JSDoc
 			# (no casting possible), no matter how. Runtime validation is more important
@@ -28,12 +36,6 @@ export default defineComponent
 		hide_result:
 			type: Boolean
 			default: false
-		immediate:
-			type: Boolean
-			default: false
-		config_key:
-			type: String
-			required: true
 	emits: [ 'success' ]
 	###*
 	# To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
@@ -43,13 +45,13 @@ export default defineComponent
 	###
 	setup: (props, { emit }) ->
 		###* @type {GitOption[]} ###
-		options = reactive props.options.map (option) => {
+		options = reactive (props.git_action.options or []).map (option) => {
 			...option
 			active: option.default_active
 		}
-		params = reactive props.params
+		params = reactive (props.git_action.params or [])
 		to_cli = (###* @type {GitOption[]} ### options = []) =>
-			(props.args + " " + options.map ({ value, active }) =>
+			(props.git_action.args + " " + options.map ({ value, active }) =>
 				if active
 					value
 				else ''
@@ -63,7 +65,7 @@ export default defineComponent
 			!! saved_config.value?.command
 		has_unsaved_changes = computed =>
 			saved_config.value?.command != command.value
-		config_key = "git input config " + props.config_key
+		config_key = "git input config " + props.git_action.config_key
 		get_saved = =>
 			saved_config.value = (await get_state config_key) or null
 			if saved_config.value
@@ -112,7 +114,7 @@ export default defineComponent
 
 		do =>
 			await get_saved()
-			if props.immediate
+			if props.git_action.immediate
 				execute()
 
 		{
