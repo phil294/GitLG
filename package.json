@@ -30,6 +30,10 @@
 		"configuration": {
 			"title": "git log --graph",
 			"properties": {
+				"git-log--graph.folder": {
+					"description": "The *absolute* path where the .git folder is located. Multi-root workspaces (multiple or nested folders) are currently not supported. If this option is not specified, the root of the first available workspace folder is used.",
+					"type": "string"
+				},
 				"git-log--graph.actions.global": {
 					"markdownDescription": "List of Git actions that are always visible in the top nav bar, left of the refresh/search buttons. `title` and `description` apply to the buttons, `args`, `options` and `params` to the popup. Please refer to the interface for a better understanding, also check the default values. The default values have `immediate:true` set, that's why you normally don't really see the popup when you click e.g. on 'stash pop'. THESE COMMANDS ARE CLI EXECUTED AS IS, SO BE CAREFUL EDITING THEM. YOU CAN LOSE ALL YOUR DATA IF YOU DON'T KNOW WHAT YOU ARE DOING. However, if you do, please also consider [sending in a PR or issue](https://github.com/phil294/git-log--graph) with the action snippet if you think is is helpful to the majority of users.",
 					"type": "array",
