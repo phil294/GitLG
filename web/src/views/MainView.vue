@@ -129,6 +129,8 @@ ul#branches
 				white-space pre
 				overflow hidden
 				text-overflow ellipsis
+			> .subject
+				min-width 150px
 			.hash, > .datetime
 				font-family monospace
 			> .datetime, > .author
