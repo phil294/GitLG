@@ -59,17 +59,20 @@
 								}
 							},
 							"options": {
-								"type": "object",
-								"required": [
-									"value",
-									"default_active"
-								],
-								"properties": {
-									"value": {
-										"type": "string"
-									},
-									"default_active": {
-										"type": "boolean"
+								"type": "array",
+								"items": {
+									"type": "object",
+									"required": [
+										"value",
+										"default_active"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"default_active": {
+											"type": "boolean"
+										}
 									}
 								}
 							}
@@ -125,17 +128,20 @@
 								}
 							},
 							"options": {
-								"type": "object",
-								"required": [
-									"value",
-									"default_active"
-								],
-								"properties": {
-									"value": {
-										"type": "string"
-									},
-									"default_active": {
-										"type": "boolean"
+								"type": "array",
+								"items": {
+									"type": "object",
+									"required": [
+										"value",
+										"default_active"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"default_active": {
+											"type": "boolean"
+										}
 									}
 								}
 							}
@@ -215,17 +221,20 @@
 								}
 							},
 							"options": {
-								"type": "object",
-								"required": [
-									"value",
-									"default_active"
-								],
-								"properties": {
-									"value": {
-										"type": "string"
-									},
-									"default_active": {
-										"type": "boolean"
+								"type": "array",
+								"items": {
+									"type": "object",
+									"required": [
+										"value",
+										"default_active"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"default_active": {
+											"type": "boolean"
+										}
 									}
 								}
 							}
@@ -271,17 +280,20 @@
 								}
 							},
 							"options": {
-								"type": "object",
-								"required": [
-									"value",
-									"default_active"
-								],
-								"properties": {
-									"value": {
-										"type": "string"
-									},
-									"default_active": {
-										"type": "boolean"
+								"type": "array",
+								"items": {
+									"type": "object",
+									"required": [
+										"value",
+										"default_active"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"default_active": {
+											"type": "boolean"
+										}
 									}
 								}
 							}
