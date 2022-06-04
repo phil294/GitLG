@@ -12,6 +12,7 @@ import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } 
 #	title: string
 #	description?: string
 #	immediate?: boolean
+#	ignore_errors:? boolean
 #	args: string
 #	params?: string[]
 #	options?: GitOption[]
@@ -115,7 +116,9 @@ export default defineComponent
 		do =>
 			await get_saved()
 			if props.git_action.immediate
-				execute()
+				await execute()
+				if props.git_action.ignore_errors
+					emit 'success'
 
 		{
 			command
