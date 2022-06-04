@@ -57,4 +57,5 @@ div
 		width 2rem
 .body
 	white-space pre-wrap
+	word-break break-word
 </style>
