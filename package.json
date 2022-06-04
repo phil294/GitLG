@@ -367,6 +367,13 @@
 									"default_active": false
 								}
 							]
+						},
+						{
+							"title": "⥁   Rebase",
+							"args": "rebase $1",
+							"params": [
+								"{BRANCH_NAME}"
+							]
 						}
 					]
 				}
