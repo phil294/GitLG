@@ -21,7 +21,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			(try await git "show '#{uri.path}'") or ''
 
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
-		view = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist'), vscode.Uri.joinPath(context.extensionUri, 'media') ] }).webview
+		panel = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist'), vscode.Uri.joinPath(context.extensionUri, 'media') ] })
+		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png");
+		view = panel.webview
 
 		view.onDidReceiveMessage (###* @type MsgRequest ### message) =>
 			d = message.data
