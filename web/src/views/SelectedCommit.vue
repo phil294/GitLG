@@ -7,7 +7,7 @@ div
 	div v-if="stash"
 		h3 Stash:
 		.row.gap-5.wrap
-			button.btn v-for="action of stash_actions" @click="args = action"
+			button.btn v-for="action of stash_actions" @click="popup_action = action"
 				| {{ action.title }}
 	
 	div v-if="branch_tips.length"
@@ -17,12 +17,12 @@ div
 				h3 :style="{color:branch_tip.color}"
 					| {{ branch_tip.name }}
 				.row.gap-5.wrap
-					button.btn v-for="action of branch_actions(branch_tip.name)" @click="args = action"
+					button.btn v-for="action of branch_actions(branch_tip.name)" @click="popup_action = action"
 						| {{ action.title }}
 
 	h3 This commit {{ commit.hash }}:
 	.row.gap-5.wrap
-		button.btn v-for="action of commit_actions" @click="args = action"
+		button.btn v-for="action of commit_actions" @click="popup_action = action"
 			| {{ action.title }}
 	
 	h3 Changed files:
@@ -33,13 +33,7 @@ div
 				progress.diff :value="(file.insertions / (file.insertions + file.deletions)) || 0" title="Ratio insertions / deletions"
 				.flex-1 {{ file.path }}
 	
-	popup v-if="args" @close="args=null"
-		.selected-input
-			p Execute Git command
-			git-input v-bind="args" @success="git_execute_success()"
-			label.row.align-center.gap-5
-				input type="checkbox" v-model="keep_open"
-				| Keep window open after success
+	git-popup v-if="popup_action" v-bind="popup_action" @close="popup_action=null"
 </template>
 
 <script lang="coffee" src="./SelectedCommit.coffee"></script>

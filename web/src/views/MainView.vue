@@ -5,30 +5,36 @@
 		git-input :args="default_log_args" :options="default_log_options" config_key="main-log" hide_result="" :action="run_log" :immediate="true" ref="git_input_ref"
 	.row.flex-1
 		#log.col.flex-1
-			button#refresh.btn @click="do_log()" title="Refresh" ⟳
-			button#toggle-txt-filter.btn @click="txt_filter_toggle_dialog()" title="Open search/filter dialog. Also via Ctrl+f" 🔍
-			input#txt-filter v-if="txt_filter!==null" v-model="txt_filter" placeholder="Type to search for commit summary, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
-			label#filter-type-filter.row.align-center v-if="txt_filter!==null"
-				input type="radio" v-model="txt_filter_type" value="filter"
-				| Filter
-			label#filter-type-search.row.align-center v-if="txt_filter!==null"
-				input type="radio" v-model="txt_filter_type" value="search"
-				| Search
 			p v-if="!commits.length"
 				| No commits found
-			ul#branches.row.align-center.wrap
-				li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch, is_hovered:branch.name===hovered_branch_name}"
-					/ todo duplicate stuff
-					button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
-						| {{ branch.name }}
-				li.show-invisible_branches v-if="invisible_branches.length"
-					button @click="show_invisible_branches = ! show_invisible_branches"
-						| Show all >>
-				template v-if="show_invisible_branches"
-					li.ref.branch.invisible v-for="branch of invisible_branches"
+			nav.row.align-center.justify-space-between.gap-10
+				ul#branches.row.align-center.wrap
+					li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch, is_hovered:branch.name===hovered_branch_name}"
+						/ todo duplicate stuff
 						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
 							| {{ branch.name }}
-					li Click on any of the branch names to scroll to the tip of it.
+					li.show-invisible_branches v-if="invisible_branches.length"
+						button @click="show_invisible_branches = ! show_invisible_branches"
+							| Show all >>
+					template v-if="show_invisible_branches"
+						li.ref.branch.invisible v-for="branch of invisible_branches"
+							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
+								| {{ branch.name }}
+						li Click on any of the branch names to scroll to the tip of it.
+				aside#actions.center.gap-5
+					input#txt-filter v-if="txt_filter!==null" v-model="txt_filter" placeholder="Type to search for commit summary, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
+					label#filter-type-filter.row.align-center v-if="txt_filter!==null"
+						input type="radio" v-model="txt_filter_type" value="filter"
+						| Filter
+					label#filter-type-search.row.align-center v-if="txt_filter!==null"
+						input type="radio" v-model="txt_filter_type" value="search"
+						| Search
+					button.global-action.btn v-for="action of global_actions" @click="popup_action = action"
+						| {{ action.title }}
+					git-popup v-if="popup_action" v-bind="popup_action" @close="popup_action=null" @change="do_log()"
+
+					button#toggle-txt-filter.btn @click="txt_filter_toggle_dialog()" title="Open search/filter dialog. Also via Ctrl+f" 🔍
+					button#refresh.btn @click="do_log()" title="Refresh" ⟳
 			recycle-scroller#commits.scroller.fill-w.flex-1 role="list" :items="commits" :item-size="scroll_item_height" v-slot="{ item: commit }" key-field="i" :buffer="scroll_pixel_buffer" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
 				.row.commit :class="commit === selected_commit ? 'active' : null"
 					.vis :style="vis_style"
@@ -82,33 +88,23 @@ ul
 	margin 0
 #log
 	position relative
-#refresh.btn, input#txt-filter, #toggle-txt-filter.btn, #filter-type-filter, #filter-type-search
-	position absolute
-	top 0
-	z-index 3
-#refresh.btn
-	right 0
-	padding 0 2px
-	font-size 22px
-input#txt-filter
-	right 76px
-	width 425px
-	font-size 12px
-	border 2px solid orange
-#toggle-txt-filter.btn
-	right 37px
-	font-size 20px
-	padding 0 2px
-#filter-type-filter, #filter-type-search
-	width 70px
-	right 74px
-#filter-type-search
-	top 15px
-ul#branches
-	margin 5px 0
-	position sticky
-	top 5px
-	z-index 2
+	> nav
+		margin 5px 0
+		position sticky
+		top 5px
+		z-index 2
+		// ul#branches
+		aside#actions
+			> button.btn
+				font-size 21px
+				padding 0 2px
+			#toggle-txt-filter.btn
+				margin-left 15px
+			input#txt-filter
+				width 425px
+				font-size 12px
+				border 2px solid orange
+
 .active
 	box-shadow 0 0 3px 0px gold
 #commits.scroller

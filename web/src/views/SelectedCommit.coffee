@@ -1,7 +1,7 @@
 import { git, open_diff } from '../store.coffee'
 import { Commit } from '../log-utils.coffee'
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
-import GitInput from './GitInput.vue'
+import GitPopup from './GitPopup.vue'
 
 config_branch_actions = [
 	title: "→   Checkout"
@@ -65,8 +65,8 @@ export parse_config_actions = (actions, ###* @type {[string,string][]} ### param
 	}
 
 export default defineComponent
-	components: { GitInput }
-	emits: [ 'change' ]
+	components: { GitPopup }
+	# emits: [ 'change' ] TODO
 	props:
 		commit:
 			###* @type {() => Commit} ###
@@ -74,7 +74,7 @@ export default defineComponent
 			required: true
 	setup: (props, { emit }) ->
 		``###* @type {Ref<any>} ### # TODO import type from gitinput coffee somehow
-		args = ref null
+		popup_action = ref null
 		
 		branch_tips = computed =>
 			props.commit.refs.filter (ref) =>
@@ -84,13 +84,6 @@ export default defineComponent
 			props.commit.refs.find (ref) =>
 				ref.type == "stash"
 		
-		keep_open = ref false
-		
-		git_execute_success = =>
-			if not keep_open.value
-				args.value = null
-				emit 'change' # todo this is actually independent of keep_open :/
-
 		``###* @type {Ref<{path:string,insertions:number,deletions:number}[]>} ###
 		changed_files = ref []
 		body = ref ''
@@ -122,5 +115,5 @@ export default defineComponent
 			commit_actions
 			branch_actions
 			stash_actions
-			args
+			popup_action
 		}
