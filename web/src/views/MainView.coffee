@@ -90,12 +90,12 @@ export default
 			# errors will be handled by GitInput
 			[ log_data, stash_data ] = await Promise.all [
 				git log_args
-				git 'reflog show stash'
+				try await git 'reflog show stash'
 			]
 			return if not log_data
 			parsed = parse log_data, sep
 			# stashes are queried (git reflog show stash) but shown as commits. Need to add refs:
-			for stash from stash_data.split('\n')
+			for stash from (stash_data or '').split('\n')
 				# 7c37db63 stash@{11}: On master: wip cs
 				split = stash.split(' ')
 				parsed.commits.find((c) => c.hash == split[0])?.refs.push
