@@ -96,6 +96,12 @@
 							"description": "Stash pop",
 							"args": "stash pop",
 							"immediate": true
+						},
+						{
+							"title": "⇩",
+							"description": "Fetch all",
+							"args": "fetch --all",
+							"immediate": true
 						}
 					]
 				},
