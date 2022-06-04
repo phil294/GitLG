@@ -94,6 +94,8 @@ export default defineComponent
 		execute = =>
 			error.value = ''
 			try
+				if params.some (p) => p.includes("'")
+					throw "Params cannot contain single quotes."
 				cmd = command.value
 				i = 0
 				while (pos = cmd.indexOf('$'+ ++i)) > -1

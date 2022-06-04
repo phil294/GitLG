@@ -174,14 +174,14 @@
 						{
 							"title": "→   Checkout",
 							"immediate": true,
-							"args": "checkout $1",
+							"args": "checkout '$1'",
 							"params": [
 								"{COMMIT_HASH}"
 							]
 						},
 						{
 							"title": "+   Create branch",
-							"args": "branch $1 $2",
+							"args": "branch '$1' '$2'",
 							"params": [
 								"new_branch_name",
 								"{COMMIT_HASH}"
@@ -189,7 +189,7 @@
 						},
 						{
 							"title": "𖣣   Cherry pick",
-							"args": "cherry-pick $1",
+							"args": "cherry-pick '$1'",
 							"params": [
 								"{COMMIT_HASH}"
 							],
@@ -202,7 +202,7 @@
 						},
 						{
 							"title": "⎌   Revert",
-							"args": "revert $1",
+							"args": "revert '$1'",
 							"params": [
 								"{COMMIT_HASH}"
 							],
@@ -270,7 +270,7 @@
 						{
 							"title": "→   Apply",
 							"immediate": true,
-							"args": "stash apply $1",
+							"args": "stash apply '$1'",
 							"params": [
 								"{COMMIT_HASH}"
 							]
@@ -333,14 +333,14 @@
 							"title": "→   Checkout",
 							"description": "",
 							"immediate": true,
-							"args": "checkout $1",
+							"args": "checkout '$1'",
 							"params": [
 								"{BRANCH_NAME}"
 							]
 						},
 						{
 							"title": "⛙   Merge",
-							"args": "merge $1",
+							"args": "merge '$1'",
 							"params": [
 								"{BRANCH_NAME}"
 							],
@@ -353,7 +353,7 @@
 						},
 						{
 							"title": "✎   Rename",
-							"args": "branch -m $1 $2",
+							"args": "branch -m '$1' '$2'",
 							"params": [
 								"{BRANCH_NAME}",
 								"new_branch_name"
@@ -361,7 +361,7 @@
 						},
 						{
 							"title": "🗑   Delete",
-							"args": "branch -d $1",
+							"args": "branch -d '$1'",
 							"params": [
 								"{BRANCH_NAME}"
 							],
@@ -374,7 +374,7 @@
 						},
 						{
 							"title": "⥁   Rebase",
-							"args": "rebase $1",
+							"args": "rebase '$1'",
 							"params": [
 								"{BRANCH_NAME}"
 							]
