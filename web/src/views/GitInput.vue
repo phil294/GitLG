@@ -29,10 +29,10 @@ div.col.gap-10
 	div v-if="options.length"
 		div Common options
 		ul.options
-			li v-for="option of options" :class="{changed: option.value !== option.default}"
+			li v-for="option of options" :class="{changed: option.active !== option.default_active}"
 				label.row.align-center.gap-5
-					input type="checkbox" v-model="option.value" :disabled="text_changed"
-					| {{ option.name }}
+					input type="checkbox" v-model="option.active" :disabled="text_changed"
+					| {{ option.value }}
 </template>
 
 <script lang="coffee" src="./GitInput.coffee"></script>
