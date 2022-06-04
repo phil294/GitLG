@@ -1,7 +1,5 @@
 import colors from "./colors.coffee"
 
-# todo colors const
-
 ``###*
 # @typedef {{
 #	name: string
@@ -73,7 +71,7 @@ parse = (data, separator) =>
 	commits = []
 	
 	vis_max_length = 0
-	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare: ###'-', '.']
+	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
 	for line, line_no in lines
 		# Example line:
 		# | | | * {SEP}fced73ef{SEP}phil294{SEP}e@mail.com{SEP}1557084465{SEP}HEAD -> master, origin/master, tag: xyz{SEP}Subject line
@@ -107,7 +105,7 @@ parse = (data, separator) =>
 				as_branch
 			else undefined
 
-		``###* @type {typeof graph_chars} ### # TODO with graph_chars as const, and without typeof no error?? should be error when case '*' becomes case '*MMM'
+		``###* @type {typeof graph_chars} ###
 		vis = vis_str.trimEnd().split('')
 		vis_max_length = Math.max(vis_max_length, vis.length)
 		if vis.some (v) => not graph_chars.includes(v)
@@ -128,7 +126,6 @@ parse = (data, separator) =>
 			v_e = commits[line_no]?.vis[i+1]
 			v_ee = commits[line_no]?.vis[i+2]
 			switch char
-				# todo refactor / check these for duplicate code
 				when '*'
 					if branch_tip
 						branch = branch_tip
@@ -181,10 +178,7 @@ parse = (data, separator) =>
 					if v_e?.char == '|'
 						branch = v_e?.branch
 					else if v_w_char == '|'
-						# right before (chronologically) a merge commit (which would be at v_nw)
-						if v_nw?.char != '*'
-							# TODO keep? 
-							throw new Error "expected merge * before |\\ at line " + line_no
+						# right before (chronologically) a merge commit (which would be at v_nw).
 						# we can't know the actual branch yet (if it even still exists at all), the last branch
 						# commit is somewhere further down.
 						branch = new_virtual_branch()

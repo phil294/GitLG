@@ -1,3 +1,6 @@
+``###* @typedef {{ command: 'response', data?: any, error?: any, id: number }} MsgResponse ###
+``###* @typedef {{ command: string, data: any, id: number }} MsgRequest ###
+
 vscode = require 'vscode'
 util = require('util')
 exec = util.promisify(require('child_process').exec)
@@ -6,7 +9,7 @@ EXT_NAME = 'git log --graph'
 
 git = (###* @type string ### args) =>
 	{ stdout, stderr } = await exec 'git ' + args,
-		cwd: vscode.workspace.workspaceFolders?[0].uri.path # todo or settings, and choosable
+		cwd: vscode.workspace.workspaceFolders?[0].uri.path
 		# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format is 538 MB or 7.4 MB for the first 15k commits
 		maxBuffer: 1024 * 1024 * 35
 	stdout
@@ -19,8 +22,6 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
 		view = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist'), vscode.Uri.joinPath(context.extensionUri, 'media') ] }).webview
 
-		``###* @typedef {{ command: 'response', data?: any, error?: any, id: number }} MsgResponse ###
-		``###* @typedef {{ command: string, data: any, id: number }} MsgRequest ###
 		view.onDidReceiveMessage (###* @type MsgRequest ### message) =>
 			d = message.data
 			h = (###* @type {() => any} ### func) =>

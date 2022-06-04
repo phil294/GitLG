@@ -17,7 +17,7 @@ div
 				h3 :style="{color:branch_tip.color}"
 					| {{ branch_tip.name }}
 				.row.gap-5.wrap
-					button.btn v-for="action of branch_actions(branch_tip.name)" @click="popup_action = action"
+					button.btn v-for="action of branch_actions(branch_tip.name)" @click="popup_action = action" :title="action.description"
 						| {{ action.title }}
 
 	h3 This commit {{ commit.hash }}:

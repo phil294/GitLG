@@ -1,6 +1,5 @@
-# todo externalize these types (shared with extension.coffee)
-``###* @typedef {{ command: 'response', data?: any, error?: any, id: number }} MsgResponse ###
-``###* @typedef {{ command: string, data: any, id: number }} MsgRequest ###
+``###* @typedef {import('@extension/extension.coffee').MsgResponse} MsgResponse ###
+``###* @typedef {import('@extension/extension.coffee').MsgRequest} MsgRequest ###
 
 vscode = acquireVsCodeApi()
 

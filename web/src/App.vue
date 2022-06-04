@@ -102,6 +102,8 @@ body, html
 	@extend .justify-center, .align-center
 .justify-flex-end
 	justify-content flex-end
+.justify-space-between
+	justify-content space-between
 .fill-w
 	width 100%
 .fill-h

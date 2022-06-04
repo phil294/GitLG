@@ -11,7 +11,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
+      "@web/*": [
+        "web/src/*"
+      ],
+      "@extension/*": [
         "src/*"
       ]
     },

@@ -8,12 +8,14 @@ import GitPopup from './GitPopup.vue'
 import GitInputModel from './GitInput.coffee'
 
 config_global_actions =	[
-	title: "↧" # TODO "Stash (include untracked)" 
+	title: "↧"
+	description: "Stash (include untracked)"
 	args: 'stash -u'
 	options: [ value: '--include-untracked', default_active: true ]
 	immediate: true
 ,
-	title: "↥" # TODO "Stash pop"
+	title: "↥"
+	description: "Stash pop"
 	args: 'stash pop'
 	immediate: true
 ]
@@ -53,7 +55,6 @@ export default
 		commits = computed =>
 			if txt_filter.value == null or txt_filter_type.value == 'search'
 				return returned_commits.value
-			# todo debounce filtering somehow, and externalize debouncers eg lodash
 			returned_commits.value.filter txt_filter_filter
 		txt_filter_last_i = -1
 		txt_filter_toggle_dialog = =>
@@ -207,7 +208,7 @@ export default
 			show_invisible_branches.value = false
 			selected_commit.value = commit
 
-		global_actions = parse_config_actions config_global_actions
+		global_actions = computed => parse_config_actions config_global_actions
 		``###* @type {Ref<any>} ### # TODO same as sel com
 		popup_action = ref null
 

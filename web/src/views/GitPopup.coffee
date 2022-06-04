@@ -11,7 +11,6 @@ export default defineComponent
 		
 		close = =>
 			emit 'close'
-		# pbly not on merge errors? FIXME
 		success = =>
 			if not keep_open.value
 				close()

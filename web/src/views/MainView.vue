@@ -29,7 +29,7 @@
 					label#filter-type-search.row.align-center v-if="txt_filter!==null"
 						input type="radio" v-model="txt_filter_type" value="search"
 						| Search
-					button.global-action.btn v-for="action of global_actions" @click="popup_action = action"
+					button.global-action.btn v-for="action of global_actions" @click="popup_action = action" :title="action.description"
 						| {{ action.title }}
 					git-popup v-if="popup_action" v-bind="popup_action" @close="popup_action=null" @change="do_log()"
 

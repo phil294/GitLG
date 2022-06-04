@@ -66,7 +66,6 @@ export parse_config_actions = (actions, ###* @type {[string,string][]} ### param
 
 export default defineComponent
 	components: { GitPopup }
-	# emits: [ 'change' ] TODO
 	props:
 		commit:
 			###* @type {() => Commit} ###
@@ -99,11 +98,11 @@ export default defineComponent
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath
 		
-		commit_actions = parse_config_actions config_commit_actions,
+		commit_actions = computed => parse_config_actions config_commit_actions,
 			[['{COMMIT_HASH}', props.commit.hash]]
 		branch_actions = (###* @type string ### branch_name) => parse_config_actions config_branch_actions,
 			[['{BRANCH_NAME}', branch_name]]
-		stash_actions = parse_config_actions config_stash_actions,
+		stash_actions = computed => parse_config_actions config_stash_actions,
 			[['{COMMIT_HASH}', props.commit.hash]]
 
 		{

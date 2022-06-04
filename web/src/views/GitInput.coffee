@@ -21,7 +21,7 @@ export default defineComponent
 			type: Array
 			default: => []
 		action:
-			# TODO: somehow impossible to get both validation and type support with coffee JSDoc
+			# somehow impossible to get both validation and type support with coffee JSDoc
 			# (no casting possible), no matter how. Runtime validation is more important
 			type: Function
 			default: git
