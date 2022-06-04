@@ -74,16 +74,29 @@ export default
 				selected_commit.value = commits.value[txt_filter_last_i]
 			), 100
 
-
+		default_log_args = "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)"
+		default_log_options = [ { value: '--reflog', default_active: false } ]
 		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
 		This function exists so we can modify the args before sending to git, otherwise
 		GitInput would have done the git call ###
-		run_log = (###* @type string ### args) =>
+		run_log = (###* @type string ### log_args) =>
 			sep = '^%^%^%^%^'
-			args = args.replace(" --pretty=VSCode", " --pretty=format:'#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s'")
-			data = await git args # error will be handled by GitInput
-			return if not data
-			parsed = parse data, sep
+			log_args = log_args.replace(" --pretty=VSCode", " --pretty=format:'#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s'")
+			# errors will be handled by GitInput
+			[ log_data, stash_data ] = await Promise.all [
+				git log_args
+				git 'reflog show stash'
+			]
+			return if not log_data
+			parsed = parse log_data, sep
+			# stashes are queried (git reflog show stash) but shown as commits. Need to add refs:
+			for stash from stash_data.split('\n')
+				# 7c37db63 stash@{11}: On master: wip cs
+				split = stash.split(' ')
+				parsed.commits.find((c) => c.hash == split[0])?.refs.push
+					name: split.slice(1).join(' ')
+					type: "stash"
+					color: '#fff'
 			returned_commits.value = parsed.commits
 			branches.value = parsed.branches
 			vis_style.value = 'min-width': "min(50vw, #{parsed.vis_max_length/2}em)"
@@ -187,6 +200,8 @@ export default
 			git_input_ref
 			run_log
 			do_log
+			default_log_args
+			default_log_options
 			commit_clicked
 			commits_scroller_updated
 			show_invisible_branches

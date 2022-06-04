@@ -3,6 +3,12 @@ div
 	h2.summary :title="commit.subject" {{ commit.subject }}
 
 	p.body {{ body }}
+
+	div v-if="stash"
+		h3 Stash:
+		.row.gap-5.wrap
+			button.btn v-for="action of stash_actions" @click="args = action"
+				| {{ action.title }}
 	
 	div v-if="branch_tips.length"
 		h3 Branches:
@@ -11,12 +17,12 @@ div
 				h3 :style="{color:branch_tip.color}"
 					| {{ branch_tip.name }}
 				.row.gap-5.wrap
-					button.btn v-for="action of branch_actions(branch_tip.name)" @click="args = {...action, config_key: 'branch-'+action.title}"
+					button.btn v-for="action of branch_actions(branch_tip.name)" @click="args = action"
 						| {{ action.title }}
 
 	h3 This commit {{ commit.hash }}:
 	.row.gap-5.wrap
-		button.btn v-for="action of commit_actions" @click="args = {...action, config_key: 'commit-'+action.title}"
+		button.btn v-for="action of commit_actions" @click="args = action"
 			| {{ action.title }}
 	
 	h3 Changed files:

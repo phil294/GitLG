@@ -5,7 +5,7 @@ import colors from "./colors.coffee"
 ``###*
 # @typedef {{
 #	name: string
-#	color: colors[number] | undefined
+#	color?: colors[number]
 #	type: "tag" | "stash" | "branch"
 # }} GitRef
 # @typedef {GitRef & {
@@ -95,7 +95,6 @@ parse = (data, separator) =>
 					color: undefined
 					type:
 						if name.startsWith("tag: ") then "tag"
-						else if name.startsWith("refs/") then "stash"
 						else "branch"
 				ref
 			.sort git_ref_sort

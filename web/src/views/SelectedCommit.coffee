@@ -45,6 +45,25 @@ config_commit_actions = [
 	options: [ value: '--no-commit', default_active: false ]
 ]
 
+config_stash_actions = [
+	title: "→   Apply"
+	immediate: true
+	args: 'checkout $1'
+	params: [ "{COMMIT_HASH}" ]
+]
+
+## TODO externalize
+export parse_config_actions = (actions, ###* @type {[string,string][]} ### param_replacements = []) =>
+	namespace = param_replacements.map(([k]) => k).join('-') or 'global'
+	actions.map (action) => {
+		...action
+		config_key: "action-#{namespace}-#{action.title}"
+		params: action.params?.map (param) =>
+			for replacement from param_replacements
+				param = param.replaceAll(replacement[0], replacement[1])
+			param
+	}
+
 export default defineComponent
 	components: { GitInput }
 	emits: [ 'change' ]
@@ -60,6 +79,10 @@ export default defineComponent
 		branch_tips = computed =>
 			props.commit.refs.filter (ref) =>
 				ref.type == "branch"
+
+		stash = computed =>
+			props.commit.refs.find (ref) =>
+				ref.type == "stash"
 		
 		keep_open = ref false
 		
@@ -83,26 +106,21 @@ export default defineComponent
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath
 		
-		commit_actions = config_commit_actions.map (a) => {
-			...a
-			params: a.params?.map (p) =>
-				p.replaceAll('{COMMIT_HASH}', props.commit.hash)
-		}
-
-		branch_actions = (###* @type string ### branch_name) => config_branch_actions.map (a) => {
-			...a
-			params: a.params?.map (p) =>
-				p.replaceAll('{BRANCH_NAME}', branch_name)
-		}
+		commit_actions = parse_config_actions config_commit_actions,
+			[['{COMMIT_HASH}', props.commit.hash]]
+		branch_actions = (###* @type string ### branch_name) => parse_config_actions config_branch_actions,
+			[['{BRANCH_NAME}', branch_name]]
+		stash_actions = parse_config_actions config_stash_actions,
+			[['{COMMIT_HASH}', props.commit.hash]]
 
 		{
-			args
 			branch_tips
-			git_execute_success
-			keep_open
+			stash
 			changed_files
 			show_diff
 			body
 			commit_actions
 			branch_actions
+			stash_actions
+			args
 		}
