@@ -29,7 +29,7 @@ div
 	ul.changed-files
 		li v-for="file of changed_files"
 			button.row.center.gap-5 @click="show_diff(file.path)"
-				.change-count {{ file.insertions + file.deletions }}
+				.change-count {{ (file.insertions + file.deletions) || 0 }}
 				progress.diff :value="(file.insertions / (file.insertions + file.deletions)) || 0" title="Ratio insertions / deletions"
 				.flex-1 {{ file.path }}
 	
