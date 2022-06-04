@@ -250,7 +250,7 @@
 						{
 							"title": "→   Apply",
 							"immediate": true,
-							"args": "checkout $1",
+							"args": "stash apply $1",
 							"params": [
 								"{COMMIT_HASH}"
 							]
