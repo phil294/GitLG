@@ -2,6 +2,7 @@
 	"name": "git-log--graph",
 	"description": "git log --graph, an interactive Git Graph frontend",
 	"version": "0.0.1",
+	"icon": "logo.png",
 	"publisher": "phil294",
 	"private": false,
 	"license": "MIT",
