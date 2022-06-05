@@ -70,5 +70,5 @@ export default
 .popup-content
 	padding 0 2vmax 3vmax
 	overflow auto
-	height fit-content // FIXME
+	height fit-content
 </style>
