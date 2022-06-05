@@ -135,6 +135,7 @@ export default
 		scroll_item_height = 22 # must be synced with css (v-bind doesn't work with coffee)
 		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
+		scroll_item_offset = ref 0
 		visible_commits_debouncer = 0
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>
 			buffer_indices_amt = Math.floor(scroll_pixel_buffer / scroll_item_height) # those are invisible
@@ -142,14 +143,12 @@ export default
 				start_index += buffer_indices_amt
 			if end_index < commits.value.length - 1
 				end_index -= buffer_indices_amt
+			scroll_item_offset.value = start_index + 1
 			window.clearTimeout visible_commits_debouncer
 			visible_commits_debouncer = window.setTimeout (=>
 				visible_commits.value = commits.value.slice(start_index, end_index)
 			), 170
 		
-		scroll_item_offset = computed =>
-			commits.value.indexOf(visible_commits.value[0])
-
 		watch visible_commits, =>
 			visible_cp = [...visible_commits.value] # to avoid race conditions
 				.filter (commit) => commit.hash and not commit.stats
