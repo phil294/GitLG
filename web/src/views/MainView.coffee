@@ -1,5 +1,5 @@
 import { git, show_error_message, get_config } from '../bridge.coffee'
-import { parse, Branch, Commit } from '../log-utils.coffee'
+import { parse, Branch, Commit } from './log-utils.coffee'
 import { ref, Ref, computed, watch } from 'vue'
 import GitInputModel, { parse_config_actions, GitAction } from './GitInput.coffee'
 import GitInput from './GitInput.vue'
