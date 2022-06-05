@@ -126,6 +126,8 @@ body, html
 	padding: 3vmax
 .error
 	color darkred
+.warn
+	color orange
 .grey
 	color grey
 button

@@ -5,8 +5,10 @@ div.col.gap-10
 			code git 
 			input.command v-model="command"
 		.input-controls.justify-flex-end.align-center.gap-10
-			div v-if="text_changed"
-				| Edited
+			div.warn v-if="text_changed"
+				details
+					summary Edited. Be careful!
+					| Editing this field can be dangerous, as it is executed without escaping. If you do not know what you are doing, please click Reset.
 			button.btn.btn-2 type="button" v-if="text_changed" @click="reset_command()"
 				| ↺ Reset
 			div v-if="is_saved && ! has_unsaved_changes"
