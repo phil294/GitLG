@@ -28,9 +28,7 @@
 					label#filter-type-search.row.align-center v-if="txt_filter!==null"
 						input type="radio" v-model="txt_filter_type" value="search"
 						| Search
-					button.global-action.btn v-for="action of global_actions" @click="popup_action = action" :title="action.description"
-						| {{ action.title }}
-					git-popup v-if="popup_action" :git_action="popup_action" @close="popup_action=null" @change="do_log()"
+					git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
 
 					button#toggle-txt-filter.btn @click="txt_filter_toggle_dialog()" title="Open search/filter dialog. Also via Ctrl+f" 🔍
 					button#refresh.btn @click="do_log()" title="Refresh" ⟳
@@ -91,7 +89,7 @@ details
 		z-index 2
 		// ul#branches
 		aside#actions
-			> button.btn
+			:deep(button.btn)
 				font-size 21px
 				padding 0 2px
 			#toggle-txt-filter.btn

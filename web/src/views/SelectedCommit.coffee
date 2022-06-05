@@ -1,20 +1,18 @@
 import { git, open_diff, get_config } from '../bridge.coffee'
 import { Commit } from './log-utils.coffee'
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
-import { parse_config_actions, GitAction } from './GitInput.coffee'
-import GitPopup from './GitPopup.vue'
+import { parse_config_actions } from './GitInput.coffee'
+import GitActionButton from './GitActionButton.vue'
 
 export default defineComponent
-	components: { GitPopup }
+	emits: ['change']
+	components: { GitActionButton }
 	props:
 		commit:
 			###* @type {() => Commit} ###
 			type: Object
 			required: true
 	setup: (props) ->
-		``###* @type {Ref<GitAction | null>} ###
-		popup_action = ref null
-		
 		branch_tips = computed =>
 			props.commit.refs.filter (ref) =>
 				ref.type == "branch"
@@ -61,5 +59,4 @@ export default defineComponent
 			commit_actions
 			branch_actions
 			stash_actions
-			popup_action
 		}

@@ -3,11 +3,11 @@ import { parse, Branch, Commit } from './log-utils.coffee'
 import { ref, Ref, computed, watch } from 'vue'
 import GitInputModel, { parse_config_actions, GitAction } from './GitInput.coffee'
 import GitInput from './GitInput.vue'
-import GitPopup from './GitPopup.vue'
+import GitActionButton from './GitActionButton.vue'
 import SelectedCommit from './SelectedCommit.vue'
 
 export default
-	components: { SelectedCommit, GitInput, GitPopup }
+	components: { SelectedCommit, GitInput, GitActionButton }
 	setup: ->
 		``###* @type {Ref<Branch[]>} ###
 		branches = ref []
@@ -201,7 +201,6 @@ export default
 			config_global_actions.value = await get_config 'actions.global'
 		global_actions = computed => parse_config_actions config_global_actions.value
 		``###* @type {Ref<GitAction | null>} ###
-		popup_action = ref null
 
 		{
 			commits
@@ -229,5 +228,4 @@ export default
 			txt_filter_toggle_dialog
 			hovered_branch_name
 			global_actions
-			popup_action
 		}
