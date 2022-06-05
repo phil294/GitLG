@@ -10,7 +10,6 @@
 			nav.row.align-center.justify-space-between.gap-10
 				ul#branches.row.align-center.wrap
 					li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch, is_hovered:branch.name===hovered_branch_name}"
-						/ todo duplicate stuff
 						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
 							| {{ branch.name }}
 					li.show-invisible_branches v-if="invisible_branches.length"
@@ -83,9 +82,6 @@ details
 		content: ' (HEAD)'
 	&.is_hovered
 		outline 3px solid #c54a4a
-ul
-	list-style none
-	margin 0
 #log
 	position relative
 	> nav
