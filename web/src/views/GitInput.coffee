@@ -1,4 +1,4 @@
-import { git, get_state, set_state } from '../store.coffee'
+import { git, get_state, set_state } from '../bridge.coffee'
 import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
 
 ``###*

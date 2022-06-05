@@ -1,4 +1,4 @@
-import { git, open_diff, get_config } from '../store.coffee'
+import { git, open_diff, get_config } from '../bridge.coffee'
 import { Commit } from '../log-utils.coffee'
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
 import { parse_config_actions, GitAction } from './GitInput.coffee'

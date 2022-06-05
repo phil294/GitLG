@@ -1,4 +1,4 @@
-import { show_error_message, show_information_message } from './store.coffee'
+import { show_error_message, show_information_message } from './bridge.coffee'
 import { createApp } from 'vue'
 import App from './App.vue'
 import PromiseForm from './components/PromiseForm.vue'
