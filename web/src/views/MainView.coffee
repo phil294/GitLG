@@ -118,7 +118,8 @@ export default
 		document.addEventListener 'mousemove', (e) =>
 			window.clearTimeout mousemove_debouncer
 			mousemove_debouncer = window.setTimeout (=>
-				if e.target?.classList.contains('vis-v')
+				#@ts-ignore
+				if e.target?.classList.contains('vis-v') #@ts-ignore
 					if branch_name = e.target.dataset.branchName
 						hovered_branch_name.value = branch_name
 						window.clearTimeout hover_branch_debouncer
