@@ -62,7 +62,7 @@
 
 <script lang="coffee" src="./MainView.coffee"></script>
 
-<style lang="stylus">
+<style lang="stylus" scoped>
 details
 	margin 0 0 0 10px
 	color grey
