@@ -81,6 +81,9 @@ This is what you'll get:
 
 ## Changelog
 
+### 0.0.2 2022-06-05
+- [`ac6ceee`](https://github.com/phil294/git-log--graph/commit/ac6ceee) Set icon
+
 ### 0.0.1 2022-06-05
 
 ## Relation to [mhutchie.git-graph](https://github.com/mhutchie/vscode-git-graph/)
