@@ -46,7 +46,7 @@ You can set `"git-log--graph.folder"` to some desired *absolute* path in which a
 
 ### Customization
 
-All blue buttons are completely customizable; you can edit and add as many actions. You don't *have* to customize it though, the defaults should be fine for most use cases.
+All blue buttons are completely customizable; you can edit and add as many actions as you like. You don't *have* to customize it though, the defaults should be fine for most use cases.
 
 Let's say you wanted to add a `git switch` action button, with convenience checkboxes for `--detach` and / or `--force`.
 There are four kinds of actions: `global` (top icons), `commit` (right box), `branch` (right box if any branch present) and `stash` (right box if stash present).
@@ -54,7 +54,7 @@ There are four kinds of actions: `global` (top icons), `commit` (right box), `br
 
 The only required parameters per action are `title` and `args`.
 
-```json
+```jsonc
 // VSCode settings.json
 "git-log--graph.actions.branch": [
     // ... the default actions, VSCode should put them here automatically so you can also edit them.
