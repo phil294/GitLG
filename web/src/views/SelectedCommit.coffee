@@ -1,23 +1,8 @@
 import { git, open_diff, get_config } from '../store.coffee'
 import { Commit } from '../log-utils.coffee'
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
+import { parse_config_actions, GitAction } from './GitInput.coffee'
 import GitPopup from './GitPopup.vue'
-
-###*
-# @param actions {import('./GitInput.coffee').ConfigGitAction[]}
-# @param param_replacements {[string,string][]}
-# @return {import('./GitInput.coffee').GitAction[]}
-###
-export parse_config_actions = (actions, param_replacements = []) =>
-	namespace = param_replacements.map(([k]) => k).join('-') or 'global'
-	actions.map (action) => {
-		...action
-		config_key: "action-#{namespace}-#{action.title}"
-		params: action.params?.map (param) =>
-			for replacement from param_replacements
-				param = param.replaceAll(replacement[0], replacement[1])
-			param
-	}
 
 export default defineComponent
 	components: { GitPopup }
@@ -27,7 +12,7 @@ export default defineComponent
 			type: Object
 			required: true
 	setup: (props) ->
-		``###* @type {Ref<import('./GitInput.coffee').GitAction | null>} ###
+		``###* @type {Ref<GitAction | null>} ###
 		popup_action = ref null
 		
 		branch_tips = computed =>

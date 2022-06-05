@@ -23,6 +23,22 @@ import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } 
 # }} GitAction
 ###
 
+###*
+# @param actions {ConfigGitAction[]}
+# @param param_replacements {[string,string][]}
+# @return {GitAction[]}
+###
+export parse_config_actions = (actions, param_replacements = []) =>
+	namespace = param_replacements.map(([k]) => k).join('-') or 'global'
+	actions.map (action) => {
+		...action
+		config_key: "action-#{namespace}-#{action.title}"
+		params: action.params?.map (param) =>
+			for replacement from param_replacements
+				param = param.replaceAll(replacement[0], replacement[1])
+			param
+	}
+
 export default defineComponent
 	props:
 		git_action:
