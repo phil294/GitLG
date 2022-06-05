@@ -7,26 +7,25 @@ pause() {
 	echo
 }
 
+git fetch
+changes=$(git log --reverse origin/master.. --pretty=format:"%h___%B" |grep . |sed -E 's/^([0-9a-f]{6,})___(.)/- [`\1`](https:\/\/github.com\/phil294\/git-log--graph\/commit\/\1) \U\2/')
+
+echo 'CHANGES, generated from commits since last git push:'
+echo "$changes"
+echo "---- (put into clipboard)"
+echo "$changes" |xclip -sel c
+echo 'update changelog & set package.json version'
+pause
+
 yarn
 yarn upgrade
 pushd web
 yarn
 yarn upgrade
 popd
-pause
-
-git fetch
-changes=$(git log --reverse origin/master.. --pretty=format:"%h___%B" |grep . |sed -E 's/^([0-9a-f]{8})___(.)/- [`\1`](https:\/\/github.com\/phil294\/git-log--graph\/commit\/\1) \U\2/')
-
-echo 'CHANGES, generated from commits since last git push:'
-echo "$changes"
-echo "---- (put into clipboard)"
-echo "$changes" |xclip -sel c
-echo 'update changelog'
-pause
-
-echo 'update package.json version'
-pause
+git add yarn.lock
+git add web/yarn.lock
+git commit -m 'yarn upgrade' ||:
 
 ./build.sh
 rm web-dist/index.html
