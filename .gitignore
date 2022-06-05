@@ -6,3 +6,4 @@ dist
 web-dist
 *.ttf
 todo*
+*.vsix

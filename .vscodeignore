@@ -1,0 +1,14 @@
+.vscode
+node_modules
+**/*.coffee
+coffeesense.config.js
+web
+todo*
+build.sh
+release.sh
+demo*.png
+.gitignore
+jsconfig.json
+yarn.lock
+CONTRIBUTING.md
+*.vsix

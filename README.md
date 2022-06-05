@@ -79,6 +79,10 @@ This is what you'll get:
 
 ![switch popup](./demo4.png)
 
+## Changelog
+
+### 0.0.1 2022-06-05
+
 ## Relation to [mhutchie.git-graph](https://github.com/mhutchie/vscode-git-graph/)
 
 Michael Hutchison's extension is awesome - if you haven't yet, I highly recommend checking it out. It has more features, is much more stable and a generally well thought-out and documented Open Source project.
