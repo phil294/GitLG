@@ -191,6 +191,9 @@ export default
 				return show_error_message "No commit found for branch #{branch.name}. No idea why :/"
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			show_invisible_branches.value = false
+			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
+			# a branch name in a commit's ref list.
+			selected_commit.value = commits.value[first_branch_commit_i]
 		
 		commit_clicked = (###* @type {Commit} ### commit) =>
 			show_invisible_branches.value = false

@@ -10,14 +10,14 @@
 			nav.row.align-center.justify-space-between.gap-10
 				ul#branches.row.align-center.wrap
 					li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch, is_hovered:branch.name===hovered_branch_name}"
-						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
+						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip"
 							| {{ branch.name }}
 					li.show-invisible_branches v-if="invisible_branches.length"
 						button @click="show_invisible_branches = ! show_invisible_branches"
 							| Show all >>
 					template v-if="show_invisible_branches"
 						li.ref.branch.invisible v-for="branch of invisible_branches"
-							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)"
+							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip"
 								| {{ branch.name }}
 						li Click on any of the branch names to scroll to the tip of it.
 				aside#actions.center.gap-5
