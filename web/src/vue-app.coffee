@@ -4,6 +4,8 @@ import App from './App.vue'
 import PromiseForm from './components/PromiseForm.vue'
 import Popup from './components/Popup.vue'
 import moveable from './directives/moveable'
+import drag from './directives/drag'
+import drop from './directives/drop'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
@@ -13,6 +15,8 @@ app.component 'promise-form', PromiseForm
 app.component 'popup', Popup
 app.component 'recycle-scroller', RecycleScroller
 app.directive 'moveable', moveable
+app.directive 'drag', drag
+app.directive 'drop', drop
 
 console_error = console.error
 handle_error = (###* @type {any} ### e) =>
