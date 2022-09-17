@@ -25,18 +25,21 @@ import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } 
 
 ###*
 # @param actions {ConfigGitAction[]}
-# @param param_replacements {[string,string][]}
+# @param replacements {[string,string][]}
 # @return {GitAction[]}
 ###
-export parse_config_actions = (actions, param_replacements = []) =>
-	namespace = param_replacements.map(([k]) => k).join('-') or 'global'
+export parse_config_actions = (actions, replacements = []) =>
+	namespace = replacements.map(([k]) => k).join('-') or 'global'
+	do_replacements = (###* @type {string} ### txt) =>
+		for replacement from replacements
+			txt = txt.replaceAll(replacement[0], replacement[1])
+		txt
 	actions.map (action) => {
 		...action
+		title: do_replacements(action.title)
+		description: if action.description then do_replacements(action.description) else undefined
 		config_key: "action-#{namespace}-#{action.title}"
-		params: action.params?.map (param) =>
-			for replacement from param_replacements
-				param = param.replaceAll(replacement[0], replacement[1])
-			param
+		params: action.params?.map do_replacements
 	}
 
 export default defineComponent
