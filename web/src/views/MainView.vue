@@ -76,8 +76,9 @@ details
 	border 1px solid #505050
 	border-radius 7px
 	white-space pre
-	&.is_head:after
-		content: ' (HEAD)'
+	&.is_head > *:after
+		content ' (HEAD)'
+		color white
 	&.is_hovered
 		outline 3px solid #c54a4a
 #log
