@@ -114,7 +114,7 @@
 						{
 							"title": "🛇",
 							"description": "Abort merge or cherry-pick",
-							"args": "merge --abort; git cherry-pick --abort",
+							"args": "merge --abort; git cherry-pick --abort; git reset --merge",
 							"immediate": true,
 							"ignore_errors": true
 						}
