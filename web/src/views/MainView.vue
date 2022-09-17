@@ -88,6 +88,7 @@ details
 		position sticky
 		top 5px
 		z-index 2
+		border-bottom 1px solid #424242
 		// ul#branches
 		aside#actions
 			:deep(button.btn)
