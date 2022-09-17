@@ -21,11 +21,13 @@ export default
 }
 
 body {
-	color: var(--vscode-foreground);
+	// color: var(--vscode-foreground); TODO:
+	color: #cccccc;
 	font-size: var(--vscode-font-size);
 	font-weight: var(--vscode-font-weight);
 	font-family: var(--vscode-font-family);
-	background-color: var(--vscode-editor-background);
+	// background-color: var(--vscode-editor-background); TODO:
+	background-color: #202020;
 }
 
 ol, ul, *[role=list] {
@@ -48,6 +50,7 @@ a:hover, a:active {
 
 code {
 	font-family: var(--vscode-editor-font-family);
+	color: #cccccc; // TODO:
 }
 
 details

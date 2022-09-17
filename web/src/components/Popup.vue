@@ -43,9 +43,6 @@ export default
 	z-index 9999
 	box-sizing border-box
 	background rgba(0,0,0,0.9)
-/body.vscode-light
-	.modal-body
-		background rgba(255,255,255,0.9)
 .modal-background
 	position absolute
 .modal-main

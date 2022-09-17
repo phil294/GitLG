@@ -38,8 +38,6 @@ Notable features:
  - Show stashes
  - Green/red insertions/deletion stats
 
-Note that the theming and colors may be suboptimal at times, they definitely need some revision.
-
 ## Configuration
 
 You can set `"git-log--graph.folder"` to some desired *absolute* path in which a .git folder is located. Multi-root workspaces (multiple or nested folders) are currently not supported. If this option is not specified, the root of the first available workspace folder is used.
