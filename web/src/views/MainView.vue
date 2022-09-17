@@ -10,14 +10,14 @@
 			nav.row.align-center.justify-space-between.gap-10
 				ul#branches.row.align-center.wrap
 					li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch, is_hovered:branch.name===hovered_branch_name}"
-						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip"
+						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip" v-drag="branch.name" v-drop="branch_drop(branch.name)"
 							| {{ branch.name }}
 					li.show-invisible_branches v-if="invisible_branches.length"
 						button @click="show_invisible_branches = ! show_invisible_branches"
 							| Show all >>
 					template v-if="show_invisible_branches"
 						li.ref.branch.invisible v-for="branch of invisible_branches"
-							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip"
+							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip" v-drag="branch.name" v-drop="branch_drop(branch.name)"
 								| {{ branch.name }}
 						li Click on any of the branch names to scroll to the tip of it.
 				aside#actions.center.gap-5
@@ -39,7 +39,7 @@
 							| {{ v.char }}
 					.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
 						.subject.flex-1
-							.ref v-for="ref of commit.refs" :class="{is_head:ref.name===head_branch}"
+							.ref v-for="ref of commit.refs" :class="{is_head:ref.name===head_branch,branch:ref.type==='branch'}" v-drag="ref.type==='branch'?ref.name:undefined" v-drop="ref.type==='branch'?branch_drop(ref.name):undefined"
 								span :style="{color:ref.color}"
 									| {{ ref.name }}
 							span  {{ commit.subject }}
@@ -55,6 +55,10 @@
 							.hash.flex-noshrink {{ commit.hash }}
 		#selected-commit.flex-noshrink
 			selected-commit.active.padding v-if="selected_commit" :commit="selected_commit" @change="do_log()"
+
+	popup v-if="drag_drop_target_branch_name" @close="drag_drop_target_branch_name=''"
+		.drag-drop-branch-actions.col.center.gap-5
+			git-action-button.drag-drop-branch-action v-for="action of drag_drop_branch_actions" :git_action="action" @change="do_log()"
 </template>
 
 <script lang="coffee" src="./MainView.coffee"></script>
@@ -81,6 +85,10 @@ details
 		color white
 	&.is_hovered
 		outline 3px solid #c54a4a
+	&.branch
+		&.dragenter
+			background white !important
+			color red !important
 #log
 	position relative
 	> nav

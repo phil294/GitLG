@@ -203,7 +203,19 @@ export default
 		do =>
 			config_global_actions.value = await get_config 'actions.global'
 		global_actions = computed => parse_config_actions config_global_actions.value
-		``###* @type {Ref<GitAction | null>} ###
+		
+		drag_drop_target_branch_name = ref ''
+		drag_drop_source_branch_name = ref ''
+		branch_drop = (###* @type {string} ### target_branch_name) =>
+			``###* @param options {import('@web/directives/drop').DropCallbackPayload} ###
+			({ data: source_branch_name }) =>
+				return if typeof source_branch_name != 'string'
+				drag_drop_target_branch_name.value = target_branch_name
+				drag_drop_source_branch_name.value = source_branch_name
+		config_drag_drop_branch_actions = ref []
+		do =>
+			config_drag_drop_branch_actions.value = await get_config 'actions.branch-drop'
+		drag_drop_branch_actions = computed => parse_config_actions config_drag_drop_branch_actions.value, [['{SOURCE_BRANCH_NAME}', drag_drop_source_branch_name.value], ['{TARGET_BRANCH_NAME}', drag_drop_target_branch_name.value]]
 
 		{
 			commits
@@ -231,4 +243,8 @@ export default
 			txt_filter_toggle_dialog
 			hovered_branch_name
 			global_actions
+			branch_drop
+			drag_drop_target_branch_name
+			drag_drop_source_branch_name
+			drag_drop_branch_actions
 		}

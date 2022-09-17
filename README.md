@@ -37,6 +37,7 @@ Notable features:
  - By default, 15,000 commits are loaded and displayed at once (see log cmd) and rendered efficiently inside a virtual scroller. Because of this, you can quickly scroll over thousands of commits without slowing down or performance issues.
  - Show stashes
  - Green/red insertions/deletion stats
+ - Drag/drop branch tips on top of each other to merge etc.
 
 ## Configuration
 
@@ -47,7 +48,7 @@ You can set `"git-log--graph.folder"` to some desired *absolute* path in which a
 All blue buttons are completely customizable; you can edit and add as many actions as you like. You don't *have* to customize it though, the defaults should be fine for most use cases.
 
 Let's say you wanted to add a `git switch` action button, with convenience checkboxes for `--detach` and / or `--force`.
-There are four kinds of actions: `global` (top icons), `commit` (right box), `branch` (right box if any branch present) and `stash` (right box if stash present).
+There are five kinds of actions: `global` (top icons), `commit` (right box), `branch` (right box if any branch present), `stash` (right box if stash present) and `branch-drop` (for when you've dragged one branch tip on top of another).
 `switch` works with branches, so it should be a `branch` action.
 
 The only required parameters per action are `title` and `args`.
@@ -59,7 +60,7 @@ The only required parameters per action are `title` and `args`.
     {
         "title": "⇆   Switch", // Whatever you want to appear on the button itself. Title is also used as a cache key (see `Save` above).
         "args": "switch '$1'", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`.
-        "params": [ "{BRANCH_NAME}" ], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: `{BRANCH_NAME}` and `{COMMIT_HASH}` (where it makes sense).
+        "params": [ "{BRANCH_NAME}" ], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: `{BRANCH_NAME}`, `{COMMIT_HASH}`, {SOURCE_BRANCH_NAME} and {TARGET_BRANCH_NAME} (where it makes sense).
         // `options` are just an easy and quick way to toggle common trailing options. You can also specify them manually in `args` of course, given that `args` is also editable yet again at runtime.
         "options": [
             { "value": "--detach", "default_active": false },
