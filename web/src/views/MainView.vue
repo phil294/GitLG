@@ -35,7 +35,7 @@
 			recycle-scroller#commits.scroller.fill-w.flex-1 role="list" :items="commits" :item-size="scroll_item_height" v-slot="{ item: commit }" key-field="i" :buffer="scroll_pixel_buffer" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
 				.row.commit :class="commit === selected_commit ? 'active' : null"
 					.vis :style="vis_style"
-						span.vis-v v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined" :data-branch-name="v.branch? v.branch.name : undefined"
+						span.vis-v v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined" :class="{is_head:v.branch&&v.branch.name===head_branch}" :data-branch-name="v.branch? v.branch.name : undefined"
 							| {{ v.char }}
 					.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
 						.subject.flex-1
@@ -101,6 +101,11 @@ details
 
 .active
 	box-shadow 0 0 3px 0px gold
+
+.is_head
+	box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
+	border-radius 25px
+
 #commits.scroller
 	&:focus
 		// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
