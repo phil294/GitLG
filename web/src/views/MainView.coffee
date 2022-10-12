@@ -27,32 +27,28 @@ export default
 
 		``###* @type {Ref<Commit[]>} ###
 		returned_commits = ref []
-		``###* @type {Ref<string | null>} ###
-		txt_filter = ref null
+		txt_filter = ref ''
 		``###* @type {Ref<'filter' | 'search'>} ###
 		txt_filter_type = ref 'filter'
+		clear_filter = =>
+			txt_filter.value = ''
+			if selected_commit.value
+				selected_i = commits.value.findIndex (c) => c == selected_commit.value
+				commits_scroller_ref.value?.scrollToItem selected_i - Math.floor(visible_commits.value.length / 2) + 2
 		``###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
-			["subject", "hash", "author_name", "author_email"].some (prop) =>
-				#@ts-ignore
-				commit[prop].toLowerCase().includes(txt_filter.value?.toLowerCase())
+			search_for = txt_filter.value.toLowerCase()
+			for str from [commit.subject, commit.hash, commit.author_name, commit.author_email, commit.branch?.name]
+				return true if str?.includes(search_for)
 		commits = computed =>
-			if txt_filter.value == null or txt_filter_type.value == 'search'
+			if not txt_filter.value or txt_filter_type.value == 'search'
 				return returned_commits.value
 			returned_commits.value.filter txt_filter_filter
 		txt_filter_last_i = -1
-		txt_filter_toggle_dialog = =>
-			if txt_filter.value == null
-				txt_filter.value = ''
-				await new Promise (ok) => setTimeout(ok, 0)
-				txt_filter_ref.value?.focus()
-			else
-				txt_filter.value = null
-				txt_filter_last_i = -1
 		document.addEventListener 'keyup', (e) =>
 			if e.ctrlKey and e.key == 'f'
-				txt_filter_toggle_dialog()
+				txt_filter_ref.value?.focus()
 		select_searched_commit_debouncer = -1
 		txt_filter_enter = (###* @type KeyboardEvent ### event) =>
 			return if txt_filter_type.value == 'filter'
@@ -136,19 +132,12 @@ export default
 
 		show_invisible_branches = ref false
 
-		scroll_pixel_buffer = 200 # 200 is also the default
-		scroll_item_height = 22 # must be synced with css (v-bind doesn't work with coffee)
 		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
 		scroll_item_offset = ref 0
 		visible_commits_debouncer = 0
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>
-			buffer_indices_amt = Math.floor(scroll_pixel_buffer / scroll_item_height) # those are invisible
-			if start_index > 0
-				start_index += buffer_indices_amt
-			if end_index < commits.value.length - 1
-				end_index -= buffer_indices_amt
-			scroll_item_offset.value = start_index + 1
+			scroll_item_offset.value = start_index
 			window.clearTimeout visible_commits_debouncer
 			visible_commits_debouncer = window.setTimeout (=>
 				visible_commits.value = commits.value.slice(start_index, end_index)
@@ -238,14 +227,12 @@ export default
 			invisible_branches
 			commits_scroller_ref
 			scroll_to_branch_tip
-			scroll_pixel_buffer
-			scroll_item_height
 			selected_commit
 			txt_filter
 			txt_filter_ref
 			txt_filter_type
 			txt_filter_enter
-			txt_filter_toggle_dialog
+			clear_filter
 			hovered_branch_name
 			global_actions
 			branch_drop

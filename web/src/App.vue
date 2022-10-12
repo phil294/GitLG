@@ -115,6 +115,8 @@ body, html
 	height 100%
 .fill
 	@extend .fill-w, .fill-h
+.gap-3
+	gap 3px
 .gap-5
 	gap 5px
 .gap-10
@@ -145,7 +147,7 @@ button
 	color inherit // FF bug
 	user-select none
 	cursor pointer
-	color var(--vscode-gitDecoration-modifiedResourceForeground)
+	color #E5B567 // var(--vscode-gitDecoration-modifiedResourceForeground)
 .btn, input[type="submit"], input[type="reset"], input[type="button"]
 	display inline-flex
 	align-items center

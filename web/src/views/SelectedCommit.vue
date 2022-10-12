@@ -25,31 +25,35 @@ div
 	h3 Changed files:
 	ul.changed-files
 		li v-for="file of changed_files"
-			button.row.center.gap-5 @click="show_diff(file.path)"
-				.change-count {{ (file.insertions + file.deletions) || 0 }}
+			button.change.row.center.gap-5 @click="show_diff(file.path)"
+				.count {{ (file.insertions + file.deletions) || 0 }}
 				progress.diff :value="(file.insertions / (file.insertions + file.deletions)) || 0" title="Ratio insertions / deletions"
-				.flex-1 {{ file.path }}
+				.path.flex-1 {{ file.path }}
 </template>
 
 <script lang="coffee" src="./SelectedCommit.coffee"></script>
 
-<style lang="stylus">
-#selected-commit
-	width 350px
-	h2.summary
-		white-space pre
-		overflow hidden
-		text-overflow ellipsis
+<style lang="stylus" scoped>
+h2.summary
+	white-space pre-line
+	word-break break-word
+	overflow hidden
+	text-overflow ellipsis
 .selected-input
 	width: clamp(200px, 50vw, 50vw)
 .changed-files
 	padding 0
-	white-space pre
 	overflow auto
-	.change-count
+	.change
 		font-family monospace
-		text-align right
-		width 2rem
+		> .count
+			text-align right
+			width 2rem
+		> .path
+			white-space pre
+			// white-space pre-line
+			// text-indent -1rem
+			// padding-left 1rem
 .body
 	white-space pre-wrap
 	word-break break-word

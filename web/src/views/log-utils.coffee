@@ -17,6 +17,7 @@ import colors from "./colors.coffee"
 #		char: string
 #		branch: Branch | null
 #	}[]
+#	branch?: Branch
 #	hash: string
 #	author_name: string
 #	author_email: string
@@ -28,6 +29,7 @@ import colors from "./colors.coffee"
 #		insertions?: number
 #		deletions?: number
 #	}
+#	scroll_height: number
 # }} Commit
 ###
 
@@ -114,7 +116,12 @@ parse = (data, separator) =>
 			if timestamp
 				new Date(Number(timestamp) * 1000).toISOString().slice(0,19).replace("T"," ")
 			else undefined
-		commits[line_no] = { i: line_no, vis: [], hash, author_name, author_email, datetime, refs, subject }
+		commits[line_no] = {
+			i: line_no
+			vis: []
+			hash, author_name, author_email, datetime, refs, subject
+			scroll_height: if hash then 18 else 11 # must be synced with css (v-bind doesn't work with coffee)
+		}
 		for char, i in vis by -1
 			``###* @type {Branch | null | undefined } ###
 			branch = undefined
@@ -127,6 +134,7 @@ parse = (data, separator) =>
 			v_ee = commits[line_no]?.vis[i+2]
 			switch char
 				when '*'
+					char = '●'
 					if branch_tip
 						branch = branch_tip
 						if v_nw?.char == '\\'
@@ -149,6 +157,7 @@ parse = (data, separator) =>
 						branch = v_ne?.branch
 					else
 						branch = new_virtual_branch()
+					commits[line_no].branch = branch if branch
 				when '|'
 					if v_n?.branch
 						branch = v_n?.branch
@@ -161,7 +170,7 @@ parse = (data, separator) =>
 				when '_'
 					branch = v_ee?.branch
 				when '/'
-					if v_ne?.char == '*'
+					if v_ne?.char == '●'
 						branch = v_ne?.branch
 					else if v_ne?.char == '|'
 						if v_nee?.char == '/' or v_nee?.char == '_'

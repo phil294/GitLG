@@ -66,12 +66,6 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				<meta http-equiv='Content-Security-Policy' content=\"default-src 'none'; style-src #{view.cspSource} 'unsafe-inline'; script-src #{view.cspSource}; font-src #{view.cspSource};\">
 				<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 				<link href='#{get_uri 'web-dist', 'css', 'app.css'}' rel='stylesheet'>
-				<style>
-					@font-face {
-						font-family: 'OverpassMono-Bold';
-						src: url('#{get_uri 'media'}/OverpassMono-Bold.ttf') format('truetype');
-					}
-				</style>
 				<title>#{EXT_NAME}</title>
 			</head>
 			<body>
