@@ -76,7 +76,12 @@ export default
 			), 100
 
 		log_action =
-			args: "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)"
+			# rearding the -greps: Under normal circumstances, when showing stashes in
+			# git log, each of the stashes 2 or 3 parents are being shown. That because of
+			# git internals, but they are completely useless to the user.
+			# Could not find any easy way to skip those other than de-grepping them, TODO:.
+			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
+			args: "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash) --invert-grep --grep='^untracked files on ' --grep='^index on '"
 			options: [ { value: '--reflog', default_active: false } ]
 			config_key: "main-log"
 			immediate: true
@@ -89,13 +94,13 @@ export default
 			# errors will be handled by GitInput
 			[ log_data, stash_data ] = await Promise.all [
 				git log_args
-				try await git 'reflog show stash'
+				try await git 'stash list --format="%h %gd"'
 			]
 			return if not log_data
 			parsed = parse log_data, sep
 			# stashes are queried (git reflog show stash) but shown as commits. Need to add refs:
 			for stash from (stash_data or '').split('\n')
-				# 7c37db63 stash@{11}: On master: wip cs
+				# 7c37db63 stash@{11}
 				split = stash.split(' ')
 				parsed.commits.find((c) => c.hash == split[0])?.refs.push
 					name: split.slice(1).join(' ')
