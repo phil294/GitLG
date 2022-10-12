@@ -187,11 +187,29 @@
 							]
 						},
 						{
-							"title": "⛙   Rebase {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
+							"title": "↦   Rebase {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
 							"args": "checkout '$2' && git rebase '$1'",
 							"params": [
 								"{SOURCE_BRANCH_NAME}",
 								"{TARGET_BRANCH_NAME}"
+							]
+						},
+						{
+							"title": "⎌   Reset {SOURCE_BRANCH_NAME} onto {TARGET_BRANCH_NAME}...",
+							"args": "checkout '$1' && git reset '$1'",
+							"params": [
+								"{SOURCE_BRANCH_NAME}",
+								"{TARGET_BRANCH_NAME}"
+							],
+							"options": [
+								{
+									"value": "--soft",
+									"default_active": false
+								},
+								{
+									"value": "--hard",
+									"default_active": false
+								}
 							]
 						}
 					]
@@ -278,7 +296,7 @@
 							]
 						},
 						{
-							"title": "⎌   Revert",
+							"title": "↺   Revert",
 							"args": "revert '$1'",
 							"params": [
 								"{COMMIT_HASH}"
@@ -286,6 +304,30 @@
 							"options": [
 								{
 									"value": "--no-commit",
+									"default_active": false
+								}
+							]
+						},
+						{
+							"title": "↦   Rebase",
+							"args": "rebase '$1'",
+							"params": [
+								"{COMMIT_HASH}"
+							]
+						},
+						{
+							"title": "⎌   Reset",
+							"args": "reset '$1'",
+							"params": [
+								"{COMMIT_HASH}"
+							],
+							"options": [
+								{
+									"value": "--soft",
+									"default_active": false
+								},
+								{
+									"value": "--hard",
 									"default_active": false
 								}
 							]
