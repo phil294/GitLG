@@ -82,6 +82,10 @@ This is what you'll get:
 
 Entries usually sorted by importance.
 
+### 0.0.4 2022-10-12
+- [`1496dac`](https://github.com/phil294/git-log--graph/commit/1496dac) Many style improvements
+- [`1496dac`](https://github.com/phil294/git-log--graph/commit/1496dac) Filter now includes branch name of commit
+
 ### 0.0.3 2022-09-17
 - [`8f9dfd4`](https://github.com/phil294/git-log--graph/commit/8f9dfd4) Add drag/drop for branches. These actions are also configurable. By default there's `merge` and `rebase`.
 - [`90531ce`](https://github.com/phil294/git-log--graph/commit/90531ce) Highlight the HEAD branch all the time
