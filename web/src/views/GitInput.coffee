@@ -125,7 +125,7 @@ export default defineComponent
 				emit 'success', result
 			catch e
 				console.warn e
-				if not e.killed and e.code == 1 and e.stdout.includes("CONFLICT") and e.stderr.includes(" 'git add <")
+				if not e.killed and e.code == 1 and e.stdout.includes("CONFLICT") and e.stderr.includes("git add <")
 					error.value = "Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n\n" + e.stdout
 				else if e.stdout
 					error.value = (JSON.stringify e, null, 4).replaceAll('\\n', '\n')
