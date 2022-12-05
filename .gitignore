@@ -1,9 +1,10 @@
 .vscode/.history
 node_modules
-*.js
+# *.js
 # TODO but not coffeesense.config.js
 dist
 web-dist
 *.ttf
 todo*
 *.vsix
+extension.js
