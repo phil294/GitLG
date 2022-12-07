@@ -77,7 +77,7 @@ export default
 			# git internals, but they are completely useless to the user.
 			# Could not find any easy way to skip those other than de-grepping them, TODO:.
 			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-			args: "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash) --invert-grep --grep='^untracked files on ' --grep='^index on '"
+			args: "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all stash_refs --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
 			options: [ { value: '--reflog', default_active: false } ]
 			config_key: "main-log"
 			immediate: true
@@ -86,7 +86,9 @@ export default
 		GitInput would have done the git call ###
 		run_log = (###* @type string ### log_args) =>
 			sep = '^%^%^%^%^'
-			log_args = log_args.replace(" --pretty=VSCode", " --pretty=format:'#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s'")
+			log_args = log_args.replace(" --pretty=VSCode", " --pretty=format:\"#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s\"")
+			stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
+			log_args = log_args.replace("stash_refs", stash_refs)
 			# errors will be handled by GitInput
 			[ log_data, stash_data ] = await Promise.all [
 				git log_args
@@ -147,7 +149,7 @@ export default
 			visible_cp = [...visible_commits.value] # to avoid race conditions
 				.filter (commit) => commit.hash and not commit.stats
 			if not visible_cp.length then return
-			data = await git "show --format='%h' --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
+			data = await git "show --format=\"%h\" --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
 			return if not data
 			hash = ''
 			for line from data.split('\n').filter(Boolean)
