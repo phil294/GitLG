@@ -10,7 +10,7 @@ EXT_ID = 'git-log--graph'
 
 git = (###* @type string ### args) =>
 	{ stdout, stderr } = await exec 'git ' + args,
-		cwd: vscode.workspace.getConfiguration(EXT_ID).get('folder') or vscode.workspace.workspaceFolders?[0].uri.path
+		cwd: vscode.workspace.getConfiguration(EXT_ID).get('folder') or vscode.workspace.workspaceFolders?[0].uri.fsPath
 		# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format is 538 MB or 7.4 MB for the first 15k commits
 		maxBuffer: 1024 * 1024 * 35
 	stdout
