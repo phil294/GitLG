@@ -88,7 +88,7 @@ export default
 			sep = '^%^%^%^%^'
 			log_args = log_args.replace(" --pretty=VSCode", " --pretty=format:\"#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s\"")
 			stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
-			log_args = log_args.replace("stash_refs", stash_refs)
+			log_args = log_args.replace("stash_refs", stash_refs.replaceAll('\n', ' '))
 			# errors will be handled by GitInput
 			[ log_data, stash_data ] = await Promise.all [
 				git log_args
