@@ -112,6 +112,18 @@
 						},
 						{
 							"title": "",
+							"icon": "repo-push",
+							"description": "Push",
+							"args": "push"
+						},
+						{
+							"title": "",
+							"icon": "repo-pull",
+							"description": "Pull",
+							"args": "pull"
+						},
+						{
+							"title": "",
 							"icon": "cloud-download",
 							"description": "Fetch all",
 							"args": "fetch --all",
