@@ -83,6 +83,13 @@ This is what you'll get:
 
 Entries usually sorted by importance.
 
+### 0.0.5 2023-01-16
+- [`9a2c177`](https://github.com/phil294/git-log--graph/commit/9a2c177) Use vscode-codicons instead of unicode icons (#3)
+- [`9ca9296`](https://github.com/phil294/git-log--graph/commit/9ca9296) Add default push and pull actions
+- [`cbbd17c`](https://github.com/phil294/git-log--graph/commit/cbbd17c) Add `git rebase --abort` to the abort action
+- [`9a821df`](https://github.com/phil294/git-log--graph/commit/9a821df) Fix git reset args
+
+
 ### 0.0.4 2022-10-12
 - [`1496dac`](https://github.com/phil294/git-log--graph/commit/1496dac) Many style improvements
 - [`1496dac`](https://github.com/phil294/git-log--graph/commit/1496dac) Filter now includes branch name of commit
