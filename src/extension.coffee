@@ -21,7 +21,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			(try await git "show \"#{uri.path}\"") or ''
 
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
-		panel = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist'), vscode.Uri.joinPath(context.extensionUri, 'media') ] })
+		panel = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] })
 		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png");
 		view = panel.webview
 
@@ -66,6 +66,12 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				<meta http-equiv='Content-Security-Policy' content=\"default-src 'none'; style-src #{view.cspSource} 'unsafe-inline'; script-src #{view.cspSource}; font-src #{view.cspSource};\">
 				<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 				<link href='#{get_uri 'web-dist', 'css', 'app.css'}' rel='stylesheet'>
+				<style>
+					@font-face {
+						font-family: 'codicon';
+						src: url('#{get_uri 'web-dist', 'fonts', 'codicon.ttf'}') format('truetype');
+					}
+				</style>
 				<title>#{EXT_NAME}</title>
 			</head>
 			<body>

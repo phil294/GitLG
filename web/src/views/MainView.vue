@@ -22,7 +22,8 @@
 						li Click on any of the branch names to jump to the tip of it.
 				aside#actions.center.gap-5
 					git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
-					button#refresh.btn @click="do_log()" title="Refresh" ⟳
+					button#refresh.btn.center @click="do_log()" title="Refresh"
+						i.codicon.codicon-refresh
 			aside#search.center.gap-5.justify-flex-end
 				input#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
 				button#clear-filter v-if="txt_filter" @click="clear_filter()"

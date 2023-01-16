@@ -48,6 +48,9 @@
 							"title": {
 								"type": "string"
 							},
+							"icon": {
+								"type": "string"
+							},
 							"description": {
 								"type": "string"
 							},
@@ -88,7 +91,8 @@
 					},
 					"default": [
 						{
-							"title": "↧",
+							"title": "",
+							"icon": "fold-down",
 							"description": "Stash (include untracked)",
 							"args": "stash -u",
 							"options": [
@@ -100,19 +104,22 @@
 							"immediate": true
 						},
 						{
-							"title": "↥",
+							"title": "",
+							"icon": "fold-up",
 							"description": "Stash pop",
 							"args": "stash pop",
 							"immediate": true
 						},
 						{
-							"title": "⇩",
+							"title": "",
+							"icon": "cloud-download",
 							"description": "Fetch all",
 							"args": "fetch --all",
 							"immediate": true
 						},
 						{
-							"title": "🛇",
+							"title": "",
+							"icon": "circle-slash",
 							"description": "Abort merge or cherry-pick",
 							"args": "merge --abort; git cherry-pick --abort; git reset --merge",
 							"immediate": true,
@@ -133,6 +140,9 @@
 							"title": {
 								"type": "string"
 							},
+							"icon": {
+								"type": "string"
+							},
 							"description": {
 								"type": "string"
 							},
@@ -173,7 +183,8 @@
 					},
 					"default": [
 						{
-							"title": "⛙   Merge {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
+							"title": "Merge {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
+							"icon": "git-merge",
 							"args": "checkout '$2' && git merge '$1'",
 							"params": [
 								"{SOURCE_BRANCH_NAME}",
@@ -187,7 +198,8 @@
 							]
 						},
 						{
-							"title": "↦   Rebase {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
+							"title": "Rebase {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
+							"icon": "references",
 							"args": "checkout '$2' && git rebase '$1'",
 							"params": [
 								"{SOURCE_BRANCH_NAME}",
@@ -195,7 +207,8 @@
 							]
 						},
 						{
-							"title": "⎌   Reset {SOURCE_BRANCH_NAME} onto {TARGET_BRANCH_NAME}...",
+							"title": "Reset {SOURCE_BRANCH_NAME} onto {TARGET_BRANCH_NAME}...",
+							"icon": "reply",
 							"args": "checkout '$1' && git reset '$1'",
 							"params": [
 								"{SOURCE_BRANCH_NAME}",
@@ -227,6 +240,9 @@
 							"title": {
 								"type": "string"
 							},
+							"icon": {
+								"type": "string"
+							},
 							"description": {
 								"type": "string"
 							},
@@ -267,7 +283,8 @@
 					},
 					"default": [
 						{
-							"title": "→   Checkout",
+							"title": "Checkout",
+							"icon": "git-commit",
 							"immediate": true,
 							"args": "checkout '$1'",
 							"params": [
@@ -275,7 +292,8 @@
 							]
 						},
 						{
-							"title": "+   Create branch",
+							"title": "Create branch",
+							"icon": "add",
 							"args": "branch '$1' '$2'",
 							"params": [
 								"new_branch_name",
@@ -283,7 +301,8 @@
 							]
 						},
 						{
-							"title": "𖣣   Cherry pick",
+							"title": "Cherry pick",
+							"icon": "record",
 							"args": "cherry-pick '$1'",
 							"params": [
 								"{COMMIT_HASH}"
@@ -296,7 +315,8 @@
 							]
 						},
 						{
-							"title": "↺   Revert",
+							"title": "Revert",
+							"icon": "discard",
 							"args": "revert '$1'",
 							"params": [
 								"{COMMIT_HASH}"
@@ -309,14 +329,16 @@
 							]
 						},
 						{
-							"title": "↦   Rebase",
+							"title": "Rebase",
+							"icon": "references",
 							"args": "rebase '$1'",
 							"params": [
 								"{COMMIT_HASH}"
 							]
 						},
 						{
-							"title": "⎌   Reset",
+							"title": "Reset",
+							"icon": "reply",
 							"args": "reset '$1'",
 							"params": [
 								"{COMMIT_HASH}"
@@ -345,6 +367,9 @@
 						],
 						"properties": {
 							"title": {
+								"type": "string"
+							},
+							"icon": {
 								"type": "string"
 							},
 							"description": {
@@ -409,6 +434,9 @@
 							"title": {
 								"type": "string"
 							},
+							"icon": {
+								"type": "string"
+							},
 							"description": {
 								"type": "string"
 							},
@@ -449,7 +477,8 @@
 					},
 					"default": [
 						{
-							"title": "→   Checkout",
+							"title": "Checkout",
+							"icon": "git-commit",
 							"description": "",
 							"immediate": true,
 							"args": "checkout '$1'",
@@ -458,7 +487,8 @@
 							]
 						},
 						{
-							"title": "⛙   Merge",
+							"title": "Merge",
+							"icon": "git-merge",
 							"args": "merge '$1'",
 							"params": [
 								"{BRANCH_NAME}"
@@ -471,7 +501,8 @@
 							]
 						},
 						{
-							"title": "✎   Rename",
+							"title": "Rename",
+							"icon": "edit",
 							"args": "branch -m '$1' '$2'",
 							"params": [
 								"{BRANCH_NAME}",
@@ -479,7 +510,8 @@
 							]
 						},
 						{
-							"title": "🗑   Delete",
+							"title": "Delete",
+							"icon": "trash",
 							"args": "branch -d '$1'",
 							"params": [
 								"{BRANCH_NAME}"
@@ -492,7 +524,8 @@
 							]
 						},
 						{
-							"title": "⥁   Rebase",
+							"title": "Rebase",
+							"icon": "references",
 							"args": "rebase '$1'",
 							"params": [
 								"{BRANCH_NAME}"

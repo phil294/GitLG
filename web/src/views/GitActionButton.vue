@@ -1,7 +1,10 @@
 <template lang="slm">
 div
-	button.btn @click="show_popup=true" :title="git_action.description"
-		| {{ git_action.title }}
+	button.btn.gap-5 @click="show_popup=true" :title="git_action.description"
+		.icon.center v-if="git_action.icon"
+			i.codicon :class="'codicon-'+git_action.icon"
+		.title v-if="git_action.title"
+			| {{ git_action.title }}
 	popup v-if="show_popup" @close="show_popup=false"
 		.selected-input
 			p Execute Git command

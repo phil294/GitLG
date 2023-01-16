@@ -8,6 +8,7 @@ import drag from './directives/drag'
 import drop from './directives/drop'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import '@vscode/codicons/dist/codicon.css'
 
 app = createApp(App)
 

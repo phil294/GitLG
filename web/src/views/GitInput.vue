@@ -9,19 +9,22 @@ div.col.gap-10
 				details
 					summary Edited. Be careful!
 					| Editing this field can be dangerous, as it is executed without escaping. If you do not know what you are doing, please click Reset.
-			button.btn.btn-2 type="button" v-if="text_changed" @click="reset_command()"
-				| ↺ Reset
+			button.btn.btn-2.gap-3 type="button" v-if="text_changed" @click="reset_command()"
+				i.codicon.codicon-discard
+				| Reset
 			div v-if="is_saved && ! has_unsaved_changes"
 				| Saved
-			button.btn.btn-2 type="button" v-if="has_unsaved_changes" @click="save()"
-				| 🖫 Save
+			button.btn.btn-2.gap-3 type="button" v-if="has_unsaved_changes" @click="save()"
+				i.codicon.codicon-save
+				| Save
 		.param v-for="(param, i) in params"
 			label.row.align-center.gap-5
 				| Param \${{ i+1 }}
 				input v-model="params[i]"
 		div
-			button.btn
-				| ✓ Execute
+			button.btn.gap-3
+				i.codicon.codicon-check
+				| Execute
 	.error-response.padding-l v-if="error"
 		| Command failed: 
 		| {{ error }}
