@@ -28,16 +28,16 @@ export default defineComponent
 			get_files_command =
 				if stash.value
 					# so we can see untracked as well
-					"stash show --include-untracked --numstat --format='' #{props.commit.hash}"
+					"stash show --include-untracked --numstat --format=\"\" #{props.commit.hash}"
 				else
-					"diff --numstat --format='' #{props.commit.hash} #{props.commit.hash}~1"
+					"diff --numstat --format=\"\" #{props.commit.hash} #{props.commit.hash}~1"
 			changed_files.value = (try await git get_files_command)
 				?.split('\n').map((l) =>
 					split = l.split('\t')
 					path: split[2]
 					insertions: Number split[1]
 					deletions: Number split[0]) or []
-			body.value = await git "show -s --format='%b' #{props.commit.hash}"
+			body.value = await git "show -s --format=\"%b\" #{props.commit.hash}"
 		
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath

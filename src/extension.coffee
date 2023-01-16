@@ -10,7 +10,7 @@ EXT_ID = 'git-log--graph'
 
 git = (###* @type string ### args) =>
 	{ stdout, stderr } = await exec 'git ' + args,
-		cwd: vscode.workspace.getConfiguration(EXT_ID).get('folder') or vscode.workspace.workspaceFolders?[0].uri.path
+		cwd: vscode.workspace.getConfiguration(EXT_ID).get('folder') or vscode.workspace.workspaceFolders?[0].uri.fsPath
 		# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format is 538 MB or 7.4 MB for the first 15k commits
 		maxBuffer: 1024 * 1024 * 35
 	stdout
@@ -18,7 +18,7 @@ git = (###* @type string ### args) =>
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider 'git-show',
 		provideTextDocumentContent: (uri) ->
-			(try await git "show '#{uri.path}'") or ''
+			(try await git "show \"#{uri.path}\"") or ''
 
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
 		panel = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist'), vscode.Uri.joinPath(context.extensionUri, 'media') ] })
