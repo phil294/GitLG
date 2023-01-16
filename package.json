@@ -132,8 +132,8 @@
 						{
 							"title": "",
 							"icon": "circle-slash",
-							"description": "Abort merge or cherry-pick",
-							"args": "merge --abort; git cherry-pick --abort; git reset --merge",
+							"description": "Abort the current merge or cherry-pick or rebase, if present.",
+							"args": "merge --abort; git cherry-pick --abort; git rebase --abort; git reset --merge",
 							"immediate": true,
 							"ignore_errors": true
 						}
