@@ -84,6 +84,7 @@ This is what you'll get:
 Entries usually sorted by importance.
 
 ### 0.0.5 2023-01-16
+- [`bff9e5c`](https://github.com/phil294/git-log--graph/commit/bff9e5c) Windows support added thanks to @iamfraggle [#4](https://github.com/phil294/git-log--graph/pull/4) 🎉
 - [`9a2c177`](https://github.com/phil294/git-log--graph/commit/9a2c177) Use vscode-codicons instead of unicode icons (#3)
 - [`9ca9296`](https://github.com/phil294/git-log--graph/commit/9ca9296) Add default push and pull actions
 - [`cbbd17c`](https://github.com/phil294/git-log--graph/commit/cbbd17c) Add `git rebase --abort` to the abort action
