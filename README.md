@@ -1,6 +1,6 @@
 # git log --graph: VSCode extension
 
-Customizable Git explorer. Linux/Mac only currently.
+Customizable Git explorer.
 
 You can **install the extension in VSCode from [HERE](https://marketplace.visualstudio.com/items?itemName=phil294.git-log--graph)** or for VSCodium from [Open VSX Registry](https://open-vsx.org/extension/phil294/git-log--graph).
 
@@ -18,13 +18,13 @@ This allows you to set params and modify the command before executing, both via 
 
 All Git actions (blue buttons) work like that. Even the main `git log` action itself is a modifiable field: By default it holds
 
-    log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all $(git reflog show --format='%h' stash)
+    log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all stash_refs --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \"
 
 You shouldn't edit the `--pretty` argument of course, but if you for example want to view the log of a subfolder, all you need to do is add ` -- subfolder` to the end of the command.
 
 Please *be careful editing any of the input fields or config*, as they are all passed to your command line AS IS, that is, without escaping. For example, if you change the above merge command to `merge '$1' --no-commi` (typo, `t` missing at the end), this will still be executed and result in a Git error. If you change it to `status; reboot`, your computer will attempt to shut down, so probably don't do that.
 
-`$()` and `;` in the examples above are shell features. Also, this extension expects `git` to be a globally available command. Because of that, Windows is not supported. It would of course be doable, but I don't have a Win system at hand and simply cannot be bothered. If you want Windows support, you can send in a PR, check [CONTRIBUTING.md](./CONTRIBUTING.md).
+All OS Linux/Mac/Windows are supported.
 
 ## Features
 
