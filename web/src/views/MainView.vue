@@ -4,7 +4,7 @@
 		summary Configure...
 		git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 	.row.flex-1
-		#left.col.flex-noshrink
+		#left.col
 			p v-if="!commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
@@ -53,8 +53,10 @@
 								span.grey {{ commit.stats.files_changed }}
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
-		#right.flex-1.col
-			selected-commit#selected-commit.active.flex-1.fill-w.padding v-if="selected_commit" :commit="selected_commit" @change="do_log()"
+		#right.col.flex-1 v-if="selected_commit"
+			selected-commit#selected-commit.active.flex-1.fill-w.padding :commit="selected_commit" @change="do_log()"
+			button#close-selected-commit.center @click="selected_commit=null" title="Close"
+				i.codicon.codicon-close
 			#resize-hint v-if="selected_commit"
 				| ← resize
 
@@ -90,7 +92,9 @@ details
 			background white !important
 			color red !important
 #left
-	width calc(100% - 400px)
+	flex-shrink 1
+	width 100%
+	min-width 30%
 	resize horizontal
 	overflow auto
 	position relative
@@ -173,8 +177,14 @@ details
 					width 93px
 
 #right
+	min-width 400px
+	position relative
 	#selected-commit
 		overflow auto
+	#close-selected-commit
+		position absolute
+		top 10px
+		right 10px
 	#resize-hint
 		color #555555
 		font-size small

@@ -178,7 +178,11 @@ export default
 		
 		commit_clicked = (###* @type {Commit} ### commit) =>
 			show_invisible_branches.value = false
-			selected_commit.value = commit
+			selected_commit.value =
+				if selected_commit.value == commit
+					null
+				else
+					commit
 
 		config_global_actions = ref []
 		do =>
