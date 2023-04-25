@@ -17,7 +17,7 @@
 							| Show all >>
 					template v-if="show_invisible_branches"
 						li.ref.branch-tip.invisible v-for="branch of invisible_branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)"
-							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip"
+							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip"
 								| {{ branch.name }}
 						li Click on any of the branch names to jump to the tip of it.
 				aside#actions.center.gap-5
