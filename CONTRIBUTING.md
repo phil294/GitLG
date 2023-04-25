@@ -19,6 +19,6 @@ All the interesting stuff happens inside `web/src/views`:
 
 ## Building
 
-I don't know how to properly spin up a HMR dev server inside a VSCode extension (probably impossible), so you just run `./build.sh --mode=development` after making changes and before running the extension with the launch script `Run Extension`.
+Launch the script `Run Extension`. This runs the `build.sh` task beforehand.
 
-Note that both sourcemaps and minification are entirely disabled both in development and production as this results in a better runtime debugging experience and readability overall (no babel).
+Note that both source maps and minification are entirely disabled both in development and production as this results in a better runtime debugging experience and readability overall (no babel).

@@ -9,7 +9,8 @@
 			"args": [
 				"--extensionDevelopmentPath=${workspaceRoot}",
 				// "--disableExtensions"
-			]
+			],
+			"preLaunchTask": "build dev"
 		}
 	]
 }
