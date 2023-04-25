@@ -52,7 +52,6 @@ export default defineComponent
 			# somehow impossible to get both validation and type support with coffee JSDoc
 			# (no casting possible), no matter how. Runtime validation is more important
 			type: Function
-			default: git
 		hide_result:
 			type: Boolean
 			default: false
@@ -112,19 +111,15 @@ export default defineComponent
 		error = ref ''
 		execute = =>
 			error.value = ''
+			if params.some (p) => p.includes("'")
+				throw "Params cannot contain single quotes."
+			cmd = command.value
+			i = 0
+			while (pos = cmd.indexOf('$'+ ++i)) > -1
+				cmd = cmd.slice(0, pos) + params[i-1] + cmd.slice(pos + 2)
 			try
-				if params.some (p) => p.includes("'")
-					throw "Params cannot contain single quotes."
-				cmd = command.value
-				i = 0
-				while (pos = cmd.indexOf('$'+ ++i)) > -1
-					cmd = cmd.slice(0, pos) + params[i-1] + cmd.slice(pos + 2)
-				result = await props.action cmd
-				if not props.hide_result
-					data.value = result
-				emit 'success', result
+				result = await (props.action || git) cmd
 			catch e
-				console.warn e
 				if not e.killed and e.code == 1 and e.stdout.includes("CONFLICT") and e.stderr.includes("git add <")
 					error.value = "Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n\n" + e.stdout
 				else if e.stdout
@@ -133,6 +128,14 @@ export default defineComponent
 					error.value = e.stderr.replaceAll('\\n', '\n')
 				else
 					error.value = e
+				if props.action
+					throw e
+				else
+					console.warn e
+				return
+			if not props.hide_result
+				data.value = result
+			emit 'success', result
 
 		do =>
 			await get_saved()
