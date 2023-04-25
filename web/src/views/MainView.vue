@@ -82,11 +82,9 @@ details
 	border-radius 7px
 	white-space pre
 	margin 0 1px
-	&.is_head > *:after
+	&.is_head:after
 		content ' (HEAD)'
 		color white
-	&.is_hovered
-		outline 3px solid #c54a4a
 	&.branch-tip
 		&.dragenter
 			background white !important
