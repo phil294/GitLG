@@ -191,12 +191,14 @@ export default
 		
 		drag_drop_target_branch_name = ref ''
 		drag_drop_source_branch_name = ref ''
-		branch_drop = (###* @type {string} ### target_branch_name) =>
-			``###* @param options {import('@web/directives/drop').DropCallbackPayload} ###
-			({ data: source_branch_name }) =>
-				return if typeof source_branch_name != 'string'
-				drag_drop_target_branch_name.value = target_branch_name
-				drag_drop_source_branch_name.value = source_branch_name
+		``###*
+		# @param target_branch_name {string}
+		# @param options {import('@web/directives/drop').DropCallbackPayload}
+		###
+		branch_drop = (target_branch_name, { data: source_branch_name }) =>
+			return if typeof source_branch_name != 'string' or source_branch_name == target_branch_name
+			drag_drop_target_branch_name.value = target_branch_name
+			drag_drop_source_branch_name.value = source_branch_name
 		config_drag_drop_branch_actions = ref []
 		do =>
 			config_drag_drop_branch_actions.value = await get_config 'actions.branch-drop'

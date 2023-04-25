@@ -9,15 +9,15 @@
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				ul#branches.row.align-center.wrap.flex-1.gap-3
-					li.ref.branch-tip.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch}"
-						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip" v-drag="branch.name" v-drop="branch_drop(branch.name)"
+					li.ref.branch-tip.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)"
+						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip"
 							| {{ branch.name }}
 					li.show-invisible_branches v-if="invisible_branches.length"
 						button @click="show_invisible_branches = ! show_invisible_branches"
 							| Show all >>
 					template v-if="show_invisible_branches"
-						li.ref.branch-tip.invisible v-for="branch of invisible_branches" :class="{is_head:branch.name===head_branch}"
-							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip" v-drag="branch.name" v-drop="branch_drop(branch.name)"
+						li.ref.branch-tip.invisible v-for="branch of invisible_branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)"
+							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip"
 								| {{ branch.name }}
 						li Click on any of the branch names to jump to the tip of it.
 				aside#actions.center.gap-5
@@ -36,7 +36,7 @@
 					| Search
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
 				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}" @click="commit_clicked(commit)" role="button"
-					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch" @branch_drop="branch_drop($event)"
+					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch" @branch_drop="branch_drop(...$event)"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
 							.hash.flex-noshrink {{ commit.hash }}
