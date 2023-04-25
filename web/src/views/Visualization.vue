@@ -21,7 +21,6 @@
 		top 0
 		line-height 1em
 		opacity 85%
-		font-family unset
 	svg
 		> line.vis-v.is_head
 			filter drop-shadow(4px 0px 1px #ffffffdd) drop-shadow(-4px 0px 1px #ffffffdd)

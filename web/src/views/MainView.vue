@@ -138,9 +138,6 @@ details
 			cursor pointer
 			&.active
 				box-shadow 0 0 3px 0px gold
-			.vis
-				font-weight bold
-				font-family monospace
 			// TODO: wait for vscode to be process.versions.chrome (dev tools) >= 112, then:
 			// .vis:has(+.info:hover)
 			// 	overflow hidden
