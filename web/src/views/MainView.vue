@@ -1,4 +1,4 @@
-1<template lang="slm">
+<template lang="slm">
 #main-view.fill.col
 	details
 		summary Configure...
@@ -9,14 +9,14 @@
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				ul#branches.row.align-center.wrap.flex-1.gap-3
-					li.ref.branch.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch, is_hovered:branch.name===hovered_branch_name}"
-						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip" v-drag="branch.name" v-drop="branch_drop(branch.name)"
+					li.ref.branch-tip.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch}"
+						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip" v-drag="branch.name" v-drop="branch_drop(branch.name)"
 							| {{ branch.name }}
 					li.show-invisible_branches v-if="invisible_branches.length"
 						button @click="show_invisible_branches = ! show_invisible_branches"
 							| Show all >>
 					template v-if="show_invisible_branches"
-						li.ref.branch.invisible v-for="branch of invisible_branches" :class="{is_head:branch.name===head_branch}"
+						li.ref.branch-tip.invisible v-for="branch of invisible_branches" :class="{is_head:branch.name===head_branch}"
 							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch)" title="Jump to branch tip" v-drag="branch.name" v-drop="branch_drop(branch.name)"
 								| {{ branch.name }}
 						li Click on any of the branch names to jump to the tip of it.
@@ -35,19 +35,14 @@
 					input type="radio" v-model="txt_filter_type" value="search"
 					| Search
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
-				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}"
-					.vis :style="vis_style"
-						span.vis-v v-for="v of commit.vis" :style="v.branch? {color:v.branch.color} : undefined" :class="{is_head:v.branch&&v.branch.name===head_branch}" :data-branch-name="v.branch? v.branch.name : undefined"
-							| {{ v.char }}
-					.info.flex-1.row.gap-20 v-if="commit.hash" @click="commit_clicked(commit)"
+				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}" @click="commit_clicked(commit)" role="button"
+					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch" @branch_drop="branch_drop($event)"
+					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
 							.hash.flex-noshrink {{ commit.hash }}
 						.subject-wrapper.flex-1.row.align-center
 							div.vis.vis-v :style="commit.branch? {color:commit.branch.color} : undefined"
 								| ● 
-							.ref v-for="ref of commit.refs" :class="{is_head:ref.name===head_branch,branch:ref.type==='branch'}" v-drag="ref.type==='branch'?ref.name:undefined" v-drop="ref.type==='branch'?branch_drop(ref.name):undefined"
-								span :style="{color:ref.color}"
-									| {{ ref.name }}
 							.subject  {{ commit.subject }}
 						.author.flex-noshrink :title="commit.author_email"
 							| {{ commit.author_name }}
@@ -77,7 +72,7 @@ details
 	&[open]
 		color unset
 		padding 10px
-.ref
+:deep(.ref)
 	background black
 	font-weight bold
 	font-style italic
@@ -86,12 +81,13 @@ details
 	border 1px solid #505050
 	border-radius 7px
 	white-space pre
+	margin 0 1px
 	&.is_head > *:after
 		content ' (HEAD)'
 		color white
 	&.is_hovered
 		outline 3px solid #c54a4a
-	&.branch
+	&.branch-tip
 		&.dragenter
 			background white !important
 			color red !important
@@ -126,8 +122,9 @@ details
 			width 0
 			color grey
 
-	.is_head
+	:deep(.is_head)
 		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
+		border 3px solid white
 		border-radius 25px
 
 	#log.scroller
@@ -135,18 +132,25 @@ details
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
 			outline none
 		.commit
-			--h 18px // must be synced with JS
+			--h 19px // must be synced with JS
 			&.empty
-				--h 11px // same
+				--h 6px // same
 			height var(--h)
 			line-height var(--h)
+			cursor pointer
 			&.active
 				box-shadow 0 0 3px 0px gold
 			.vis
 				font-weight bold
 				font-family monospace
+			// TODO: wait for vscode to be process.versions.chrome (dev tools) >= 112, then:
+			// .vis:has(+.info:hover)
+			// 	overflow hidden
+			// Workaround until then:
+			.info:hover
+				z-index 1
+				background #202020
 			.info
-				cursor pointer
 				border-top 1px solid #2e2e2e
 				> *
 					white-space pre
@@ -163,7 +167,6 @@ details
 						overflow hidden
 						flex 0 3 auto
 						min-width 55px
-						margin 0 1px
 					> .subject
 						overflow hidden
 						flex 1 1 30%

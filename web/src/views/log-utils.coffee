@@ -12,11 +12,13 @@ import colors from "./colors.coffee"
 # }} Branch
 #
 # @typedef {{
+#	char: string
+#	branch: Branch | null
+# }[]} Vis
+#
+# @typedef {{
 #	i: number
-#	vis: {
-#		char: string
-#		branch: Branch | null
-#	}[]
+#	vis: Vis
 #	branch?: Branch
 #	hash: string
 #	author_name: string
@@ -120,7 +122,7 @@ parse = (data, separator) =>
 			i: line_no
 			vis: []
 			hash, author_name, author_email, datetime, refs, subject
-			scroll_height: if hash then 18 else 11 # must be synced with css (v-bind doesn't work with coffee)
+			scroll_height: if hash then 19 else 6 # must be synced with css (v-bind doesn't work with coffee)
 		}
 		for char, i in vis by -1
 			``###* @type {Branch | null | undefined } ###
@@ -134,10 +136,9 @@ parse = (data, separator) =>
 			v_ee = commits[line_no]?.vis[i+2]
 			switch char
 				when '*'
-					char = '●'
 					if branch_tip
 						branch = branch_tip
-						if v_nw?.char == '\\'
+						if ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
 							# This is branch tip but in previous above lines, this branch
 							# was already on display for merging without its actual name known (virtual substitute).
 							# Fix these lines (min 1) now
@@ -149,50 +150,64 @@ parse = (data, separator) =>
 									match.branch = branch
 								k--
 							branches.splice branches.indexOf(wrong_branch), 1
+							char = '⎺*'
 					else if v_n?.branch
 						branch = v_n?.branch
-					else if v_nw?.char == '\\'
+					else if ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
 						branch = v_nw?.branch
-					else if v_ne?.char == '/'
+						char = '⎺*'
+					else if ['/','/⎺'].includes(v_ne?.char||'')
 						branch = v_ne?.branch
+						char = '*⎺'
 					else
 						branch = new_virtual_branch()
 					commits[line_no].branch = branch if branch
 				when '|'
 					if v_n?.branch
 						branch = v_n?.branch
-					else if v_nw?.char == '\\'
+					else if ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
 						branch = v_nw?.branch
-					else if v_ne?.char == '/'
+						char = '⎺|'
+					else if ['/','/⎺'].includes(v_ne?.char||'')
 						branch = v_ne?.branch
+						char = '|⎺'
 					else
 						throw new Error 'no neighbor found for | at line ' + line_no
 				when '_'
 					branch = v_ee?.branch
 				when '/'
-					if v_ne?.char == '●'
+					if ['*','⎺*','*⎺'].includes(v_ne?.char||'')
 						branch = v_ne?.branch
-					else if v_ne?.char == '|'
-						if v_nee?.char == '/' or v_nee?.char == '_'
+						char = '/⎺'
+					else if ['|','⎺|','|⎺'].includes(v_ne?.char||'')
+						if ['/','/⎺'].includes(v_nee?.char||'') or v_nee?.char == '_'
 							branch = v_nee?.branch
 						else
 							branch = v_ne?.branch
-					else if v_ne?.char == '/'
+							char = '/⎺'
+					else if ['/','/⎺'].includes(v_ne?.char||'')
 						branch = v_ne?.branch
-					else if v_n?.char == '\\' or v_n?.char == '|'
+					else if['\\','⎺\\⎽','⎺\\'].includes( v_n?.char||'') or ['|','⎺|','|⎺'].includes(v_n?.char||'')
 						branch = v_n?.branch
+						# TODO:
+						# if ['|','⎺|','|⎺'].includes(v_n?.char||'')
+						#	char = ?
 					else
 						throw new Error 'no neighbor found for / at line ' + line_no
 				when '\\'
-					if v_e?.char == '|'
+					if ['|','⎺|','|⎺'].includes(v_e?.char||'')
 						branch = v_e?.branch
-					else if v_w_char == '|'
+						char = '⎺\\⎽'
+					else if ['|','⎺|','|⎺'].includes(v_w_char)
 						# right before (chronologically) a merge commit (which would be at v_nw).
 						# we can't know the actual branch yet (if it even still exists at all), the last branch
 						# commit is somewhere further down.
 						branch = new_virtual_branch()
-					else if v_nw?.char == '|' or v_nw?.char == '\\'
+						char = '⎺\\'
+					else if ['|','⎺|','|⎺'].includes(v_nw?.char||'') or ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
 						branch = v_nw?.branch
+						if ['|','⎺|','|⎺'].includes(v_nw?.char||'')
+							char = '⎺\\'
 					else if v_nw?.char == '.' or v_nw?.char == '-'
 						k = i - 2
 						while (match = commits[line_no-1].vis[k])?.char == '-'
@@ -204,6 +219,8 @@ parse = (data, separator) =>
 						throw new Error 'no neighbor found for \\ at line ' + line_no
 				when ' ', '.', '-'
 					branch = null
+					# TODO:
+					# set char to ⎺-like?
 			if branch == undefined
 				throw new Error 'unexpected undefined branch at line ' + line_no
 			commits[line_no].vis[i] = {

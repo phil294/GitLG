@@ -22,7 +22,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 
 	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
 		panel = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] })
-		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png");
+		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
 		view = panel.webview
 
 		view.onDidReceiveMessage (###* @type MsgRequest ### message) =>

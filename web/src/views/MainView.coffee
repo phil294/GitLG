@@ -1,20 +1,22 @@
 import { git, show_error_message, get_config } from '../bridge.coffee'
+# TODO: type errors
 import { parse, Branch, Commit } from './log-utils.coffee'
 import { ref, Ref, computed, watch } from 'vue'
 import GitInputModel, { parse_config_actions, GitAction } from './GitInput.coffee'
 import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import SelectedCommit from './SelectedCommit.vue'
+import Visualization from './Visualization.vue'
 
 export default
-	components: { SelectedCommit, GitInput, GitActionButton }
+	components: { SelectedCommit, GitInput, GitActionButton, Visualization }
 	setup: ->
 		``###* @type {Ref<Branch[]>} ###
 		branches = ref []
 		# this is either a branch name or HEAD in which case it will simply not be shown
 		# which is also not necessary because HEAD is then also visible as a branch tip.
 		head_branch = ref ''
-		vis_style = ref {}
+		vis_max_length = ref 0
 		``###* @type {Ref<Commit | null>} ###
 		selected_commit = ref null
 		``###* @type {Ref<GitInputModel | null>} ###
@@ -30,6 +32,7 @@ export default
 		txt_filter = ref ''
 		``###* @type {Ref<'filter' | 'search'>} ###
 		txt_filter_type = ref 'filter'
+		# TODO: error here somewhere
 		clear_filter = =>
 			txt_filter.value = ''
 			if selected_commit.value
@@ -106,7 +109,7 @@ export default
 					color: '#fff'
 			returned_commits.value = parsed.commits
 			branches.value = parsed.branches
-			vis_style.value = 'min-width': "min(50vw, #{parsed.vis_max_length/2}em)"
+			vis_max_length.value = parsed.vis_max_length
 			if selected_commit.value
 				selected_commit.value = (commits.value.find (commit) =>
 					commit.hash == selected_commit.value?.hash) or null
@@ -114,24 +117,6 @@ export default
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset.value
 			head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
 		
-		mousemove_debouncer = -1
-		hover_branch_debouncer = -1
-		``###* @type {Ref<string | null>} ###
-		hovered_branch_name = ref null
-		document.addEventListener 'mousemove', (e) =>
-			window.clearTimeout mousemove_debouncer
-			mousemove_debouncer = window.setTimeout (=>
-				#@ts-ignore
-				if e.target?.classList.contains('vis-v') #@ts-ignore
-					if branch_name = e.target.dataset.branchName
-						hovered_branch_name.value = branch_name
-						window.clearTimeout hover_branch_debouncer
-						hover_branch_debouncer = window.setTimeout (=>
-							hovered_branch_name.value = null
-						), 300
-			), 100
-
-
 		show_invisible_branches = ref false
 
 		``###* @type {Ref<Commit[]>} ###
@@ -179,12 +164,12 @@ export default
 			branches.value.filter (branch) =>
 				not visible_branches.value.includes branch
 
-		scroll_to_branch_tip = (###* @type Branch ### branch) =>
+		scroll_to_branch_tip = (###* @type string ### branch_name) =>
 			first_branch_commit_i = commits.value.findIndex (commit) =>
 				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
-				commit.refs.some (ref) => ref.name == branch.name
+				commit.refs.some (ref) => ref.name == branch_name
 			if first_branch_commit_i == -1
-				return show_error_message "No commit found for branch #{branch.name}. No idea why :/"
+				return show_error_message "No commit found for branch #{branch_name}. No idea why :/"
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			show_invisible_branches.value = false
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
@@ -216,7 +201,7 @@ export default
 		{
 			commits
 			branches
-			vis_style
+			vis_max_length
 			head_branch
 			git_input_ref
 			run_log
@@ -235,7 +220,6 @@ export default
 			txt_filter_type
 			txt_filter_enter
 			clear_filter
-			hovered_branch_name
 			global_actions
 			branch_drop
 			drag_drop_target_branch_name
