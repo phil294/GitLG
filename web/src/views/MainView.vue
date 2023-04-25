@@ -130,7 +130,7 @@ details
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
 			outline none
 		.commit
-			--h 19px // must be synced with JS
+			--h 23px // must be synced with JS
 			&.empty
 				--h 6px // same
 			height var(--h)

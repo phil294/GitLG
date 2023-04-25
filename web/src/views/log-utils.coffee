@@ -122,7 +122,7 @@ parse = (data, separator) =>
 			i: line_no
 			vis: []
 			hash, author_name, author_email, datetime, refs, subject
-			scroll_height: if hash then 19 else 6 # must be synced with css (v-bind doesn't work with coffee)
+			scroll_height: if hash then 23 else 6 # must be synced with css (v-bind doesn't work with coffee)
 		}
 		for char, i in vis by -1
 			``###* @type {Branch | null | undefined } ###
