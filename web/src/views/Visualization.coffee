@@ -114,4 +114,4 @@ export default defineComponent
 			style:
 				left: padding_left + v_width * (vis_circle_index.value + 1) + 3 + 'px'
 
-		{ vis_style, lines, vis_width, circle, refs_elems }
+		{ vis_style, lines, vis_width, circle, refs_elems, v_height }
