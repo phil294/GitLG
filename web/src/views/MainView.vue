@@ -151,7 +151,7 @@ details
 					white-space pre
 					overflow hidden
 					text-overflow ellipsis
-				.subject, .datetime, .hash
+				.datetime, .hash
 					font-family monospace
 				> .subject-wrapper
 					min-width 150px
