@@ -31,9 +31,9 @@ body {
 }
 
 ol, ul, *[role=list] {
-	padding-left: var(--container-padding);
 	list-style none
 	margin 0
+	padding 0
 }
 
 *:focus {

@@ -1,39 +1,42 @@
 <template lang="slm">
 #main-view.fill.col
-	details
-		summary Configure...
-		git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 	.row.flex-1
 		#left.col
 			p v-if="!commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
-				ul#branches.row.align-center.wrap.flex-1.gap-3
-					li.ref.branch-tip.visible.active v-for="branch of visible_branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)"
+				details
+					summary Configure...
+					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
+				aside.center.gap-20
+					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
+						input#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
+						button#clear-filter v-if="txt_filter" @click="clear_filter()"
+							| ✖
+						label#filter-type-filter.row.align-center
+							input type="radio" v-model="txt_filter_type" value="filter"
+							| Filter
+						label#filter-type-search.row.align-center
+							input type="radio" v-model="txt_filter_type" value="search"
+							| Search
+					section#actions.center.gap-5 aria-roledescription="Global actions"
+						git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
+							button#refresh.btn.center @click="do_log()" title="Refresh"
+								i.codicon.codicon-refresh
+			ul#branches.gap-3
+				li.ref.branch-tip.active v-for="branch of invisible_branch_tips_of_visible_branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)" ref="invisible_branch_tips_of_visible_branches_ref"
+					button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip"
+						| {{ branch.name }}
+				li.show-invisible_branches v-if="invisible_branches.length"
+					button @click="show_all_branches = ! show_all_branches"
+						| Show all >>
+				template v-if="show_all_branches"
+					li.ref.branch-tip v-for="branch of branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)"
 						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip"
 							| {{ branch.name }}
-					li.show-invisible_branches v-if="invisible_branches.length"
-						button @click="show_invisible_branches = ! show_invisible_branches"
-							| Show all >>
-					template v-if="show_invisible_branches"
-						li.ref.branch-tip.invisible v-for="branch of invisible_branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)"
-							button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip"
-								| {{ branch.name }}
-						li Click on any of the branch names to jump to the tip of it.
-				aside#actions.center.gap-5
-					git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
-					button#refresh.btn.center @click="do_log()" title="Refresh"
-						i.codicon.codicon-refresh
-			aside#search.center.gap-5.justify-flex-end
-				input#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
-				button#clear-filter v-if="txt_filter" @click="clear_filter()"
-					| ✖
-				label#filter-type-filter.row.align-center
-					input type="radio" v-model="txt_filter_type" value="filter"
-					| Filter
-				label#filter-type-search.row.align-center
-					input type="radio" v-model="txt_filter_type" value="search"
-					| Search
+					li Click on any of the branch names to jump to the tip of it.
+			svg#branches-connection.fill-w height="25"
+				line v-for="line of branches_connection_lines" v-bind="line"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
 				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}" @click="commit_clicked(commit)" role="button"
 					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch" @branch_drop="branch_drop(...$event)"
@@ -105,31 +108,48 @@ details
 		top 5px
 		z-index 2
 		border-bottom 1px solid #424242
-		// ul#branches
-		aside#actions
-			:deep(button.btn)
-				font-size 21px
-				padding 0 2px
-	> aside#search
-		padding 6px
-		input#txt-filter
-			width 425px
-			font-family monospace
-			padding 0
-			background black
-			color #d5983d
-		#clear-filter
-			position relative
-			right 20px
-			width 0
-			color grey
+		> aside
+			> section#search
+				input#txt-filter
+					width 425px
+					font-family monospace
+					padding 0
+					background black
+					color #d5983d
+				#clear-filter
+					position relative
+					right 20px
+					width 0
+					color grey
+			> section#actions
+				:deep(button.btn)
+					font-size 21px
+					padding 0 2px
 
 	:deep(.is_head)
-		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
 		border 3px solid white
+		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
 		border-radius 25px
-
+	ul#branches, svg#branches-connection, #log.scroller
+		padding-left var(--container-padding)
+	ul#branches
+		height 26px
+		// overflow hidden
+		position relative
+		> li
+			display inline-block
+			margin-right 8px
+			&:last-child
+				position absolute
+				right 0
+				top 0
+				padding 1px 5px
+				background #202020
+	svg#branches-connection
+		position absolute
+		top 63px
 	#log.scroller
+		margin-top 20px
 		&:focus
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
 			outline none

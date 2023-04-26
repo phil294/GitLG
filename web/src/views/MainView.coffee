@@ -1,16 +1,25 @@
 import { git, show_error_message, get_config } from '../bridge.coffee'
 # TODO: type errors
 import { parse, Branch, Commit } from './log-utils.coffee'
-import { ref, Ref, computed, watch } from 'vue'
+import { ref, Ref, ComputedRef, computed, watch, nextTick } from 'vue'
 import GitInputModel, { parse_config_actions, GitAction } from './GitInput.coffee'
 import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import SelectedCommit from './SelectedCommit.vue'
 import Visualization from './Visualization.vue'
 
+``###*
+# To use in place of `.filter(Boolean)` for type safety with strict null checks.
+# @template T
+# @param value {T | undefined | null | false}
+# @return {value is T}
+###
+is_truthy = (value) => !!value
+
 export default
 	components: { SelectedCommit, GitInput, GitActionButton, Visualization }
 	setup: ->
+		# TODO move these variables further down into their sections instead of them all here
 		``###* @type {Ref<Branch[]>} ###
 		branches = ref []
 		# this is either a branch name or HEAD in which case it will simply not be shown
@@ -23,6 +32,9 @@ export default
 		git_input_ref = ref null
 		``###* @type {Ref<any | null>} ###
 		commits_scroller_ref = ref null
+		# TODO these refs shouldn't be null/[] by default but the actual element
+		``###* @type {Ref<[]>} ###
+		invisible_branch_tips_of_visible_branches_ref = ref []
 
 		do_log = =>
 			git_input_ref.value?.execute()
@@ -117,7 +129,7 @@ export default
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset.value
 			head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
 		
-		show_invisible_branches = ref false
+		show_all_branches = ref false
 
 		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
@@ -128,41 +140,76 @@ export default
 			window.clearTimeout visible_commits_debouncer
 			visible_commits_debouncer = window.setTimeout (=>
 				visible_commits.value = commits.value.slice(start_index, end_index)
-			), 170
+			), 70
+		
+		branches_connection_lines = ref []
 		
 		watch visible_commits, =>
-			visible_cp = [...visible_commits.value] # to avoid race conditions
-				.filter (commit) => commit.hash and not commit.stats
-			if not visible_cp.length then return
-			data = await git "show --format=\"%h\" --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
-			return if not data
-			hash = ''
-			for line from data.split('\n').filter(Boolean)
-				if not line.startsWith ' '
-					hash = line
-					continue
-				stat = files_changed: 0, insertions: 0, deletions: 0
-				#  3 files changed, 87 insertions(+), 70 deletions(-)
-				for stmt from line.trim().split(', ')
-					words = stmt.split(' ')
-					if words[1].startsWith 'file'
-						stat.files_changed = Number(words[0])
-					else if words[1].startsWith 'insertion'
-						stat.insertions = Number(words[0])
-					else if words[1].startsWith 'deletion'
-						stat.deletions = Number(words[0])
-				visible_cp[visible_cp.findIndex((cp)=>cp.hash==hash)].stats = stat
-
+			do =>
+				visible_cp = [...visible_commits.value] # to avoid race conditions
+					.filter (commit) => commit.hash and not commit.stats
+				if not visible_cp.length then return
+				data = await git "show --format=\"%h\" --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
+				return if not data
+				hash = ''
+				for line from data.split('\n').filter(Boolean)
+					if not line.startsWith ' '
+						hash = line
+						continue
+					stat = files_changed: 0, insertions: 0, deletions: 0
+					#  3 files changed, 87 insertions(+), 70 deletions(-)
+					for stmt from line.trim().split(', ')
+						words = stmt.split(' ')
+						if words[1].startsWith 'file'
+							stat.files_changed = Number(words[0])
+						else if words[1].startsWith 'insertion'
+							stat.insertions = Number(words[0])
+						else if words[1].startsWith 'deletion'
+							stat.deletions = Number(words[0])
+					visible_cp[visible_cp.findIndex((cp)=>cp.hash==hash)].stats = stat
+			do =>
+				branches_connection_lines.value = []
+				commit = visible_commits.value[0]
+				await nextTick()
+				for branch from invisible_branch_tips_of_visible_branches.value
+					vis_i = commit.vis.findIndex (v) => v.branch == branch
+					# We can't really know the exact sizes and thus position
+					# of the html elements so we wait for them to be rendered and get the position and draw
+					# the lines between them and the vis of the first commit
+					branch_ref = invisible_branch_tips_of_visible_branches_ref.value.find (r) =>
+						JSON.parse(r.dataset.drag_value) == branch.name
+					continue if not branch_ref
+					branches_connection_lines.value.push
+						x1: branch_ref.offsetLeft - 13
+						x2: 9 + 7 * vis_i
+						y1: 0
+						y2: 25
+						style:
+							stroke: branch.color
+							'stroke-width': 2
+						class:
+							is_head: branch.name == head_branch.value
 
 		visible_branches = computed =>
 			[...new Set(visible_commits.value
 				.flatMap (commit) =>
 					commit.vis.map (v) => v.branch)]
-			.filter(Boolean)
-			.filter (branch) => not branch?.virtual
+			.filter(is_truthy)
+			.filter (branch) => not branch.virtual
 		invisible_branches = computed =>
 			branches.value.filter (branch) =>
 				not visible_branches.value.includes branch
+		visible_branch_tips = computed =>
+			[...new Set(visible_commits.value
+				.flatMap (commit) =>
+					commit.refs)]
+			.filter (ref) =>
+				# @ts-ignore
+				ref.type == 'branch' and not ref.virtual
+		invisible_branch_tips_of_visible_branches = computed =>
+			# alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.virtual and not visible_branch_tips.value.includes(ref)) or []
+			visible_branches.value.filter (branch) =>
+				not visible_branch_tips.value.includes branch
 
 		scroll_to_branch_tip = (###* @type string ### branch_name) =>
 			first_branch_commit_i = commits.value.findIndex (commit) =>
@@ -171,13 +218,13 @@ export default
 			if first_branch_commit_i == -1
 				return show_error_message "No commit found for branch #{branch_name}. No idea why :/"
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
-			show_invisible_branches.value = false
+			show_all_branches.value = false
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
 			selected_commit.value = commits.value[first_branch_commit_i]
 		
 		commit_clicked = (###* @type {Commit} ### commit) =>
-			show_invisible_branches.value = false
+			show_all_branches.value = false
 			selected_commit.value =
 				if selected_commit.value == commit
 					null
@@ -215,7 +262,7 @@ export default
 			log_action
 			commit_clicked
 			commits_scroller_updated
-			show_invisible_branches
+			show_all_branches
 			visible_branches
 			invisible_branches
 			commits_scroller_ref
@@ -231,4 +278,7 @@ export default
 			drag_drop_target_branch_name
 			drag_drop_source_branch_name
 			drag_drop_branch_actions
+			invisible_branch_tips_of_visible_branches
+			invisible_branch_tips_of_visible_branches_ref
+			branches_connection_lines
 		}
