@@ -27,8 +27,15 @@ git add yarn.lock
 git add web/yarn.lock
 git commit -m 'yarn upgrade' ||:
 
-./build.sh
+yarn coffee -c src/*.coffee
+pushd web
+yarn build
+popd
 rm web-dist/index.html
+
+echo 'clean up local files for vsix packaging'
+pause
+pause
 
 npx vsce package
 

@@ -19,6 +19,13 @@ All the interesting stuff happens inside `web/src/views`:
 
 ## Building
 
-Launch the script `Run Extension`. This runs the `build.sh` task beforehand.
+- First, once run `yarn install` both in the main and in the `web` subfolder.
+- Then run `yarn coffee -c src/*.coffee` once. You'll have to repeat this every time you change anything inside `/src` (currently only `extension.coffee`).
+- Inside the web folder, run `yarn serve`. This runs the web app part at `http://localhost:8080` which we will access from the extension.
+- Launch the script `Run Extension`.
+
+This setup supports Vue's hot module replacement (HMR), so you normally do *not* have to restart anything while editing web files: Changes are immediately reflected in the extension's interface, allowing for rapid feedback.
+
+To create a final `.vsix` production extension file, please refer to `./release.sh`.
 
 Note that both source maps and minification are entirely disabled both in development and production as this results in a better runtime debugging experience and readability overall (no babel).

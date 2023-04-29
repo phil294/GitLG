@@ -56,27 +56,41 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				when 'get-config'
 					h => vscode.workspace.getConfiguration(EXT_ID).get d
 
-		get_uri = (###* @type {string[]} ### ...path_segments) =>
-			view.asWebviewUri vscode.Uri.joinPath context.extensionUri, ...path_segments
+		is_production = context.extensionMode == vscode.ExtensionMode.Production
+		dev_server_url = 'http://localhost:8080'
+		csp = "default-src 'none'; " +
+			"style-src #{view.cspSource} 'unsafe-inline' " +
+				(if is_production then '' else dev_server_url) + '; ' +
+			"script-src #{view.cspSource} " +
+				(if is_production then '' else "#{dev_server_url} 'unsafe-eval'") + '; ' +
+			"font-src #{view.cspSource} " +
+				(if is_production then '' else dev_server_url) + '; ' +
+			"connect-src " +
+				(if is_production then '' else '*') + '; '
+		get_web_uri = (###* @type {string[]} ### ...path_segments) =>
+			if is_production
+				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
+			else
+				[dev_server_url, ...path_segments].join('/')
 		view.html = "
 			<!DOCTYPE html>
 			<html lang='en'>
 			<head>
 				<meta charset='UTF-8'>
-				<meta http-equiv='Content-Security-Policy' content=\"default-src 'none'; style-src #{view.cspSource} 'unsafe-inline'; script-src #{view.cspSource}; font-src #{view.cspSource};\">
+				<meta http-equiv='Content-Security-Policy' content=\"#{csp}\">
 				<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-				<link href='#{get_uri 'web-dist', 'css', 'app.css'}' rel='stylesheet'>
+				<link href='#{get_web_uri 'css', 'app.css'}' rel='stylesheet'>
 				<style>
 					@font-face {
 						font-family: 'codicon';
-						src: url('#{get_uri 'web-dist', 'fonts', 'codicon.ttf'}') format('truetype');
+						src: url('#{get_web_uri 'fonts', 'codicon.ttf'}') format('truetype');
 					}
 				</style>
 				<title>#{EXT_NAME}</title>
 			</head>
 			<body>
 				<div id='app'></div>
-				<script src='#{get_uri 'web-dist', 'js', 'chunk-vendors.js'}'></script>
-				<script src='#{get_uri 'web-dist', 'js', 'app.js'}'></script>
+				<script src='#{get_web_uri 'js', 'chunk-vendors.js'}'></script>
+				<script src='#{get_web_uri 'js', 'app.js'}'></script>
 			</body>
 			</html>"
