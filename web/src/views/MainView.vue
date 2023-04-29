@@ -2,7 +2,7 @@
 #main-view.fill.col
 	.row.flex-1
 		#left.col
-			p v-if="!commits.length"
+			p v-if="!filtered_commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				details.log-config.flex-1
@@ -23,17 +23,16 @@
 						git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
 							button#refresh.btn.center @click="do_log()" title="Refresh"
 								i.codicon.codicon-refresh
-			all-branches :branches="branches" @branch_drop="branch_drop(...$event)" :head_branch="head_branch" @scroll_to_branch_tip="scroll_to_branch_tip($event)"
-			ul#quick-branch-tips
-				li.ref.branch-tip.active v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" v-bind="branch_elem.bind" v-drag="branch_elem.drag" v-drop="branch_elem.drop"
-					button :style="{color:branch_elem.branch.color}" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip"
-						| {{ branch_elem.branch.name }}
+			all-branches @branch_selected="scroll_to_branch_tip($event)"
+			#quick-branch-tips
+				button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip" v-bind="branch_elem.bind"
+					ref-tip.active :git_ref="branch_elem.branch"
 			#branches-connection
 				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 			// fixme rm buffer again?
-			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
+			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
 				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}" @click="commit_clicked(commit)" role="button"
-					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch" @branch_drop="branch_drop(...$event)"
+					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
 							.hash.flex-noshrink {{ commit.hash }}
@@ -57,9 +56,9 @@
 			#resize-hint v-if="selected_commit"
 				| ← resize
 
-	popup v-if="drag_drop_target_branch_name" @close="drag_drop_target_branch_name=''"
+	popup v-if="combine_branches_from_branch_name" @close="combine_branches_from_branch_name=''"
 		.drag-drop-branch-actions.col.center.gap-5
-			git-action-button.drag-drop-branch-action v-for="action of drag_drop_branch_actions" :git_action="action" @change="do_log()"
+			git-action-button.drag-drop-branch-action v-for="action of combine_branches_actions" :git_action="action" @change="do_log()"
 </template>
 
 <script lang="coffee" src="./MainView.coffee"></script>
@@ -71,23 +70,6 @@ details.log-config
 	&[open]
 		color unset
 		padding 10px
-:deep(.ref)
-	background black
-	font-weight bold
-	font-style italic
-	display inline-block
-	padding 1px 3px
-	border 1px solid #505050
-	border-radius 7px
-	white-space pre
-	margin 0 1px
-	&.is_head:after
-		content ' (HEAD)'
-		color white
-	&.branch-tip
-		&.dragenter
-			background white !important
-			color red !important
 #left
 	flex-shrink 1
 	width 100%
@@ -127,18 +109,17 @@ details.log-config
 		max-width clamp(300px, 70vw, 80vw)
 		background #202020dd
 		padding 10px 10px 20px 20px
-		box-shadow 0 0 28px 23px #202020dd
 		border-radius 5px
-	ul#quick-branch-tips, #branches-connection, #log.scroller
+	#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
 	#branches-connection
 		height 100px
 		:deep(>.vis>svg>line.vis-v)
 			stroke-dasharray 4
-	ul#quick-branch-tips
+	#quick-branch-tips
 		position sticky
 		z-index 1
-		> li
+		> button
 			position absolute
 			&:hover
 				z-index 1

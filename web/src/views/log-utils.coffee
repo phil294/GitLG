@@ -1,38 +1,10 @@
 import colors from "./colors.coffee"
 
 ``###*
-# @typedef {{
-#	name: string
-#	color?: colors[number]
-#	type: "tag" | "stash" | "branch"
-# }} GitRef
-# @typedef {GitRef & {
-#	type: "branch"
-#	virtual?: boolean
-# }} Branch
-#
-# @typedef {{
-#	char: string
-#	branch: Branch | null
-# }[]} Vis
-#
-# @typedef {{
-#	i: number
-#	vis: Vis
-#	branch?: Branch
-#	hash: string
-#	author_name: string
-#	author_email: string
-#	datetime?: string
-#	refs: GitRef[]
-#	subject: string
-#	stats?: {
-#		files_changed?: number
-#		insertions?: number
-#		deletions?: number
-#	}
-#	scroll_height: number
-# }} Commit
+# @typedef {import('./types').GitRef} GitRef
+# @typedef {import('./types').Branch} Branch
+# @typedef {import('./types').Vis} Vis
+# @typedef {import('./types').Commit} Commit
 ###
 
 git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>

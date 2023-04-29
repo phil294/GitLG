@@ -6,9 +6,8 @@
 		.background @click="show_all_branches=false"
 		input.filter v-model="txt_filter" placeholder="🔍 filter branch name"
 		.branches
-			.ref.branch-tip v-for="branch of filtered_branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>$emit('branch_drop',[branch.name,e])"
-				button :style="{color:branch.color}" @click="$emit('scroll_to_branch_tip',branch.name);show_all_branches=false" title="Jump to branch tip"
-					| {{ branch.name }}
+			button v-for="branch of filtered_branches" @click="$emit('branch_selected',branch.name);show_all_branches=false" title="Jump to branch tip"
+				ref-tip :git_ref="branch"
 </template>
 
 <script lang="coffee" src="./AllBranches.coffee"></script>

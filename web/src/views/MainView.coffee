@@ -1,13 +1,19 @@
-import { git, show_error_message, get_config } from '../bridge.coffee'
+import * as store from './store.coffee'
+import { show_error_message } from '../bridge.coffee'
 # TODO: type errors
-import { parse, Branch, Commit } from './log-utils.coffee'
-import { ref, Ref, ComputedRef, computed, watch, nextTick } from 'vue'
-import GitInputModel, { parse_config_actions, GitAction } from './GitInput.coffee'
+import { ref, computed, watch } from 'vue'
+import GitInputModel from './GitInput.coffee'
 import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import SelectedCommit from './SelectedCommit.vue'
 import Visualization from './Visualization.vue'
 import AllBranches from './AllBranches.vue'
+import RefTip from './RefTip.vue'
+``###*
+# @typedef {import('./types').Commit} Commit
+###
+###* @template T @typedef {import('vue').Ref<T>} Ref ###
+###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 ``###*
 # To use in place of `.filter(Boolean)` for type safety with strict null checks.
@@ -18,15 +24,9 @@ import AllBranches from './AllBranches.vue'
 is_truthy = (value) => !!value
 
 export default
-	components: { SelectedCommit, GitInput, GitActionButton, Visualization, AllBranches }
+	components: { SelectedCommit, GitInput, GitActionButton, Visualization, AllBranches, RefTip }
 	setup: ->
 		# TODO move these variables further down into their sections instead of them all here
-		``###* @type {Ref<Branch[]>} ###
-		branches = ref []
-		# this is either a branch name or HEAD in which case it will simply not be shown
-		# which is also not necessary because HEAD is then also visible as a branch tip.
-		head_branch = ref ''
-		vis_max_length = ref 0
 		``###* @type {Ref<Commit | null>} ###
 		selected_commit = ref null
 		``###* @type {Ref<GitInputModel | null>} ###
@@ -37,8 +37,6 @@ export default
 		do_log = =>
 			git_input_ref.value?.execute()
 
-		``###* @type {Ref<Commit[]>} ###
-		returned_commits = ref []
 		txt_filter = ref ''
 		``###* @type {Ref<'filter' | 'search'>} ###
 		txt_filter_type = ref 'filter'
@@ -46,7 +44,7 @@ export default
 		clear_filter = =>
 			txt_filter.value = ''
 			if selected_commit.value
-				selected_i = commits.value.findIndex (c) => c == selected_commit.value
+				selected_i = filtered_commits.value.findIndex (c) => c == selected_commit.value
 				commits_scroller_ref.value?.scrollToItem selected_i - Math.floor(visible_commits.value.length / 2) + 2
 		``###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
@@ -54,10 +52,10 @@ export default
 			search_for = txt_filter.value.toLowerCase()
 			for str from [commit.subject, commit.hash, commit.author_name, commit.author_email, commit.branch?.name]
 				return true if str?.includes(search_for)
-		commits = computed =>
+		filtered_commits = computed =>
 			if not txt_filter.value or txt_filter_type.value == 'search'
-				return returned_commits.value
-			returned_commits.value.filter txt_filter_filter
+				return store.commits.value
+			store.commits.value.filter txt_filter_filter
 		txt_filter_last_i = -1
 		document.addEventListener 'keyup', (e) =>
 			if e.ctrlKey and e.key == 'f'
@@ -66,13 +64,13 @@ export default
 		txt_filter_enter = (###* @type KeyboardEvent ### event) =>
 			return if txt_filter_type.value == 'filter'
 			if event.shiftKey
-				next = [...commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_filter)
+				next = [...filtered_commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_filter)
 				if next > -1
 					next_match_index = txt_filter_last_i - 1 - next
 				else
-					next_match_index = commits.value.length - 1
+					next_match_index = filtered_commits.value.length - 1
 			else
-				next = commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_filter)
+				next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_filter)
 				if next > -1
 					next_match_index = txt_filter_last_i + 1 + next
 				else
@@ -81,7 +79,7 @@ export default
 			txt_filter_last_i = next_match_index
 			window.clearTimeout select_searched_commit_debouncer
 			select_searched_commit_debouncer = window.setTimeout (=>
-				selected_commit.value = commits.value[txt_filter_last_i]
+				selected_commit.value = filtered_commits.value[txt_filter_last_i]
 			), 100
 
 		log_action =
@@ -98,34 +96,12 @@ export default
 		This function exists so we can modify the args before sending to git, otherwise
 		GitInput would have done the git call ###
 		run_log = (###* @type string ### log_args) =>
-			sep = '^%^%^%^%^'
-			log_args = log_args.replace(" --pretty=VSCode", " --pretty=format:\"#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s\"")
-			stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
-			log_args = log_args.replace("stash_refs", stash_refs.replaceAll('\n', ' '))
-			# errors will be handled by GitInput
-			[ log_data, stash_data ] = await Promise.all [
-				git log_args
-				try await git 'stash list --format="%h %gd"'
-			]
-			return if not log_data
-			parsed = parse log_data, sep
-			# stashes are queried (git reflog show stash) but shown as commits. Need to add refs:
-			for stash from (stash_data or '').split('\n')
-				# 7c37db63 stash@{11}
-				split = stash.split(' ')
-				parsed.commits.find((c) => c.hash == split[0])?.refs.push
-					name: split.slice(1).join(' ')
-					type: "stash"
-					color: '#fff'
-			returned_commits.value = parsed.commits
-			branches.value = parsed.branches
-			vis_max_length.value = parsed.vis_max_length
+			await store.git_run_log(log_args)
 			if selected_commit.value
-				selected_commit.value = (commits.value.find (commit) =>
+				selected_commit.value = (filtered_commits.value.find (commit) =>
 					commit.hash == selected_commit.value?.hash) or null
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
-			head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
 		
 		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
@@ -146,7 +122,7 @@ export default
 				window.clearTimeout scroll_callback_debouncer
 				scroll_callback_debouncer = window.setTimeout scroll_callback, 80
 		scroll_callback = =>
-			visible_commits.value = commits.value.slice(scroll_item_offset, scroll_item_offset_end)
+			visible_commits.value = filtered_commits.value.slice(scroll_item_offset, scroll_item_offset_end)
 			if not ignore_next_scroll_event
 				window.clearTimeout scroll_callback_debouncer2
 				scroll_callback_debouncer2 = window.setTimeout(=>
@@ -197,37 +173,13 @@ export default
 						style:
 							left: 0 + v_width * i + 'px'
 							top: 0 + row * 19 + 'px'
-						class:
-							is_head: v.branch.name == head_branch.value
-					drag: v.branch.name
-					drop: (###* @type {import('../directives/drop').DropCallbackPayload} ### event) =>
-						branch_drop(v.branch?.name||'', event)
 				.filter(is_truthy)
 
 		watch visible_commits, =>
-			# TODO rm wrapper
-			do =>
-				visible_cp = [...visible_commits.value] # to avoid race conditions
-					.filter (commit) => commit.hash and not commit.stats
-				if not visible_cp.length then return
-				data = await git "show --format=\"%h\" --shortstat " + visible_cp.map((c)=>c.hash).join(' ')
-				return if not data
-				hash = ''
-				for line from data.split('\n').filter(Boolean)
-					if not line.startsWith ' '
-						hash = line
-						continue
-					stat = files_changed: 0, insertions: 0, deletions: 0
-					#  3 files changed, 87 insertions(+), 70 deletions(-)
-					for stmt from line.trim().split(', ')
-						words = stmt.split(' ')
-						if words[1].startsWith 'file'
-							stat.files_changed = Number(words[0])
-						else if words[1].startsWith 'insertion'
-							stat.insertions = Number(words[0])
-						else if words[1].startsWith 'deletion'
-							stat.deletions = Number(words[0])
-					visible_cp[visible_cp.findIndex((cp)=>cp.hash==hash)].stats = stat
+			visible_cp = [...visible_commits.value] # to avoid race conditions
+				.filter (commit) => commit.hash and not commit.stats
+			if not visible_cp.length then return
+			await store.update_commit_stats(visible_cp)
 
 		visible_branches = computed =>
 			[...new Set(visible_commits.value
@@ -236,7 +188,7 @@ export default
 			.filter(is_truthy)
 			.filter (branch) => not branch.virtual
 		invisible_branches = computed =>
-			branches.value.filter (branch) =>
+			store.branches.value.filter (branch) =>
 				not visible_branches.value.includes branch
 		visible_branch_tips = computed =>
 			[...new Set(visible_commits.value
@@ -251,7 +203,7 @@ export default
 				not visible_branch_tips.value.includes branch
 
 		scroll_to_branch_tip = (###* @type string ### branch_name) =>
-			first_branch_commit_i = commits.value.findIndex (commit) =>
+			first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
 				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
 				commit.refs.some (ref) => ref.name == branch_name
 			if first_branch_commit_i == -1
@@ -259,7 +211,7 @@ export default
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
-			selected_commit.value = commits.value[first_branch_commit_i]
+			selected_commit.value = filtered_commits.value[first_branch_commit_i]
 		
 		commit_clicked = (###* @type {Commit} ### commit) =>
 			selected_commit.value =
@@ -268,31 +220,14 @@ export default
 				else
 					commit
 
-		config_global_actions = ref []
-		do =>
-			config_global_actions.value = await get_config 'actions.global'
-		global_actions = computed => parse_config_actions config_global_actions.value
+		global_actions = computed =>
+			store.global_actions.value
 		
-		drag_drop_target_branch_name = ref ''
-		drag_drop_source_branch_name = ref ''
-		``###*
-		# @param target_branch_name {string}
-		# @param options {import('@web/directives/drop').DropCallbackPayload}
-		###
-		branch_drop = (target_branch_name, { data: source_branch_name }) =>
-			return if typeof source_branch_name != 'string' or source_branch_name == target_branch_name
-			drag_drop_target_branch_name.value = target_branch_name
-			drag_drop_source_branch_name.value = source_branch_name
-		config_drag_drop_branch_actions = ref []
-		do =>
-			config_drag_drop_branch_actions.value = await get_config 'actions.branch-drop'
-		drag_drop_branch_actions = computed => parse_config_actions config_drag_drop_branch_actions.value, [['{SOURCE_BRANCH_NAME}', drag_drop_source_branch_name.value], ['{TARGET_BRANCH_NAME}', drag_drop_target_branch_name.value]]
-
 		{
-			commits
-			branches
-			vis_max_length
-			head_branch
+			filtered_commits
+			branches: store.branches
+			vis_max_length: store.vis_max_length
+			head_branch: store.head_branch
 			git_input_ref
 			run_log
 			do_log
@@ -310,10 +245,9 @@ export default
 			txt_filter_enter
 			clear_filter
 			global_actions
-			branch_drop
-			drag_drop_target_branch_name
-			drag_drop_source_branch_name
-			drag_drop_branch_actions
+			combine_branches_to_branch_name: store.combine_branches_to_branch_name
+			combine_branches_from_branch_name: store.combine_branches_from_branch_name
+			combine_branches_actions: store.combine_branches_actions
 			invisible_branch_tips_of_visible_branches
 			invisible_branch_tips_of_visible_branches_elems
 			connection_fake_commit

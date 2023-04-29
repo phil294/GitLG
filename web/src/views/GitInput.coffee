@@ -1,27 +1,13 @@
 import { git, get_state, set_state } from '../bridge.coffee'
-import { ref, Ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
+import { ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
 
 ``###*
-# @typedef {{
-#	value: string
-#	default_active: boolean
-#	active?: boolean
-# }} GitOption
-#
-# @typedef {{
-#	title: string
-#	description?: string
-#	immediate?: boolean
-#	ignore_errors:? boolean
-#	args: string
-#	params?: string[]
-#	options?: GitOption[]
-# }} ConfigGitAction
-#
-# @typedef {ConfigGitAction & {
-#	config_key: string
-# }} GitAction
+# @typedef {import('./types').GitOption} GitOption
+# @typedef {import('./types').ConfigGitAction} ConfigGitAction
+# @typedef {import('./types').GitAction} GitAction
 ###
+###* @template T @typedef {import('vue').Ref<T>} Ref ###
+###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 ###*
 # @param actions {ConfigGitAction[]}

@@ -1,22 +1,18 @@
-import { ref, Ref, ComputedRef, computed, watch, nextTick } from 'vue'
+import { ref, computed } from 'vue'
+import { branches } from './store.coffee'
+import RefTip from './RefTip.vue'
 
 export default
-	emit: ['branch_drop', 'scroll_to_branch_tip']
-	props:
-		branches:
-			type: Array
-			required: true
-		head_branch:
-			required: true
-			type: String
-	setup: (props) ->
+	emit: ['branch_drop', 'branch_selected']
+	components: { RefTip }
+	setup: ->
 		show_all_branches = ref false
 		txt_filter = ref ''
 		filtered_branches = computed =>
 			if not txt_filter.value
-				props.branches
+				branches.value
 			else
-				props.branches.filter (branch) =>
+				branches.value.filter (branch) =>
 					branch.name.toLowerCase().includes(txt_filter.value.toLowerCase())
 		{
 			show_all_branches
