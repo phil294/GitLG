@@ -13,9 +13,10 @@ export default defineComponent
 		head_branch:
 			required: true
 			type: String
+	# TODO: type-safe
 	emits: ['branch_drop']
-	setup: (props) ->
-		v_width = 7
+	setup: (props, { emit }) ->
+		v_width = 10
 		padding_left = 5
 		padding_right = 20
 		vis_width = props.vis_max_length * v_width + padding_right
@@ -43,6 +44,26 @@ export default defineComponent
 							x2: padding_left + v_width * (i + 0.5)
 							y1: 0
 							y2: v_height.value
+						when '⎽*', '⎽|'
+							x1: padding_left + v_width * (i + 0.5)
+							x2: padding_left + v_width * i
+							y1: 0
+							y2: v_height.value
+						when '⎽⎽|'
+							x1: padding_left + v_width * (i - 0.5)
+							x2: padding_left + v_width * (i + 0.5)
+							y1: v_height.value
+							y2: 0
+						when '*⎽', '|⎽'
+							x1: padding_left + v_width * (i + 0.5)
+							x2: padding_left + v_width * (i + 1)
+							y1: 0
+							y2: v_height.value
+						when '|⎽⎽'
+							x1: padding_left + v_width * (i + 0.5)
+							x2: padding_left + v_width * (i + 1.5)
+							y1: 0
+							y2: v_height.value
 						when '_'
 							x1: padding_left + v_width * i
 							x2: padding_left + v_width * (i + 1)
@@ -64,15 +85,15 @@ export default defineComponent
 							y1: 0
 							y2: v_height.value
 						when '/'
-							x1: padding_left + v_width * i
-							x2: padding_left + v_width * (i + 1)
-							y1: v_height.value
-							y2: 0
+							x1: padding_left + v_width * (i + 1)
+							x2: padding_left + v_width * i
+							y1: 0
+							y2: v_height.value
 						when '/⎺'
-							x1: padding_left + v_width * i
-							x2: padding_left + v_width * (i + 1.5)
-							y1: v_height.value
-							y2: 0
+							x1: padding_left + v_width * (i + 1.5)
+							x2: padding_left + v_width * i
+							y1: 0
+							y2: v_height.value
 						when '.', '-'
 							x1: padding_left + v_width * i
 							x2: padding_left + v_width * (i + 1)
@@ -111,6 +132,9 @@ export default defineComponent
 						class:
 							is_head: ref.name == props.head_branch
 							'branch-tip': ref.type == 'branch'
+					drag: if ref.type == 'branch' then ref.name
+					drop: (###* @type {import('../directives/drop').DropCallbackPayload} ### event) =>
+						if ref.type == 'branch' then emit('branch_drop', [ref.name, event])
 			style:
 				left: padding_left + v_width * (vis_circle_index.value + 1) + 3 + 'px'
 

@@ -32,9 +32,6 @@ export default
 		git_input_ref = ref null
 		``###* @type {Ref<any | null>} ###
 		commits_scroller_ref = ref null
-		# TODO these refs shouldn't be null/[] by default but the actual element
-		``###* @type {Ref<[]>} ###
-		invisible_branch_tips_of_visible_branches_ref = ref []
 
 		do_log = =>
 			git_input_ref.value?.execute()
@@ -126,25 +123,90 @@ export default
 				selected_commit.value = (commits.value.find (commit) =>
 					commit.hash == selected_commit.value?.hash) or null
 			await new Promise (ok) => setTimeout(ok, 0)
-			commits_scroller_ref.value?.scrollToItem scroll_item_offset.value
+			commits_scroller_ref.value?.scrollToItem scroll_item_offset
 			head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
 		
 		show_all_branches = ref false
 
 		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
-		scroll_item_offset = ref 0
-		visible_commits_debouncer = 0
+		scroll_item_offset = 0
+		scroll_item_offset_end = 0
+		scroll_callback_debouncer = 0
+		scroll_callback_debouncer2 = 0
+		ignore_next_scroll_event = false
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>
-			scroll_item_offset.value = start_index
-			window.clearTimeout visible_commits_debouncer
-			visible_commits_debouncer = window.setTimeout (=>
-				visible_commits.value = commits.value.slice(start_index, end_index)
-			), 70
+			if ignore_next_scroll_event
+				ignore_next_scroll_event = false
+				return
+			# https://github.com/Akryum/vue-virtual-scroller/issues/801
+			new_scroll_item_offset = if start_index > 0 then Math.max(3, start_index + 1) else 0
+			if new_scroll_item_offset != scroll_item_offset
+				scroll_item_offset = new_scroll_item_offset
+				scroll_item_offset_end = end_index
+				window.clearTimeout scroll_callback_debouncer
+				scroll_callback_debouncer = window.setTimeout scroll_callback, 80
+		scroll_callback = =>
+			visible_commits.value = commits.value.slice(scroll_item_offset, scroll_item_offset_end)
+			if not ignore_next_scroll_event
+				window.clearTimeout scroll_callback_debouncer2
+				scroll_callback_debouncer2 = window.setTimeout(=>
+					ignore_next_scroll_event = true
+					# We'll have to do it once again after a greater delay because
+					# somehow sometimes there's more scrolling going on *after* updated callback.
+					# This strategy seems to be reliable contrary to also listening to @scroll event.
+					scroll_callback()
+				, 500)
+			ignore_next_scroll_event = true
+			# Snap-scroll to the item - see link above. We do this so we don't show half rows
+			# so the connection fake commit always fits properly
+			commits_scroller_ref.value?.scrollToItem scroll_item_offset
 		
-		branches_connection_lines = ref []
-		
+		# To paint a nice gradient between branches at the top and the vis below:
+		connection_fake_commit = computed =>
+			commit = visible_commits.value[0]
+			return null if not commit
+			{
+				...commit
+				scroll_height: 100
+				refs: []
+				vis: commit.vis.map (v) => {
+					...v
+					char:
+						if v.branch and invisible_branch_tips_of_visible_branches.value.includes(v.branch)
+							switch v.char
+								when '*', '|', '⎽*', '⎽|', '*⎽', '|⎽' then '|'
+								when '⎺*', '⎺|', '\\', '_', '.', '-'  then '⎽|'
+								when '*⎺', '|⎺', '/'                  then '|⎽'
+								when '⎺\\', '⎺\\⎽'                    then '⎽⎽|'
+								when '/⎺'                             then '|⎽⎽'
+						else ' '
+				}
+			}
+
+		# TODO: ordering of methods etc
+		invisible_branch_tips_of_visible_branches_elems = computed =>
+			v_width = 10 # TODO sync
+			row = -1
+			connection_fake_commit.value?.vis
+				.map (v, i) =>
+					return null if not v.branch or v.char == ' '
+					row++
+					row = 0 if row > 5
+					branch: v.branch
+					bind:
+						style:
+							left: 0 + v_width * i + 'px'
+							top: 0 + row * 19 + 'px'
+						class:
+							is_head: v.branch.name == head_branch.value
+					drag: v.branch.name
+					drop: (###* @type {import('../directives/drop').DropCallbackPayload} ### event) =>
+						branch_drop(v.branch?.name||'', event)
+				.filter(is_truthy)
+
 		watch visible_commits, =>
+			# TODO rm wrapper
 			do =>
 				visible_cp = [...visible_commits.value] # to avoid race conditions
 					.filter (commit) => commit.hash and not commit.stats
@@ -167,28 +229,6 @@ export default
 						else if words[1].startsWith 'deletion'
 							stat.deletions = Number(words[0])
 					visible_cp[visible_cp.findIndex((cp)=>cp.hash==hash)].stats = stat
-			do =>
-				branches_connection_lines.value = []
-				commit = visible_commits.value[0]
-				await nextTick()
-				for branch from invisible_branch_tips_of_visible_branches.value
-					vis_i = commit.vis.findIndex (v) => v.branch == branch
-					# We can't really know the exact sizes and thus position
-					# of the html elements so we wait for them to be rendered and get the position and draw
-					# the lines between them and the vis of the first commit
-					branch_ref = invisible_branch_tips_of_visible_branches_ref.value.find (r) =>
-						JSON.parse(r.dataset.drag_value) == branch.name
-					continue if not branch_ref
-					branches_connection_lines.value.push
-						x1: branch_ref.offsetLeft - 13
-						x2: 9 + 7 * vis_i
-						y1: 0
-						y2: 25
-						style:
-							stroke: branch.color
-							'stroke-width': 2
-						class:
-							is_head: branch.name == head_branch.value
 
 		visible_branches = computed =>
 			[...new Set(visible_commits.value
@@ -279,6 +319,6 @@ export default
 			drag_drop_source_branch_name
 			drag_drop_branch_actions
 			invisible_branch_tips_of_visible_branches
-			invisible_branch_tips_of_visible_branches_ref
-			branches_connection_lines
+			invisible_branch_tips_of_visible_branches_elems
+			connection_fake_commit
 		}

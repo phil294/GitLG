@@ -4,7 +4,7 @@
 		line.vis-v v-for="line of lines" v-bind="line"
 		circle.vis-v v-if="circle" v-bind="circle"
 	.refs.row.align-center :style="refs_elems.style"
-		.ref v-for="ref_elem of refs_elems.refs" v-drag="ref_elem.ref.type==='branch'?ref_elem.ref.name:undefined" v-drop="(e)=>ref_elem.ref.type==='branch'?$emit('branch_drop',[ref_elem.ref.name,e]):undefined" v-bind="ref_elem.bind"
+		.ref v-for="ref_elem of refs_elems.refs" v-bind="ref_elem.bind" v-drag="ref_elem.drag" v-drop="ref_elem.drop"
 			| {{ ref_elem.ref.name }}
 </template>
 
@@ -23,7 +23,7 @@
 		opacity 85%
 	svg
 		> line.vis-v.is_head
-			filter drop-shadow(4px 0px 1px #ffffffdd) drop-shadow(-4px 0px 1px #ffffffdd)
+			filter drop-shadow(4px 0px 1px #ffffff99) drop-shadow(-4px 0px 1px #ffffff99)
 		> circle.vis-v.is_head
 			fill white
 </style>

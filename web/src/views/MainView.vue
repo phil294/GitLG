@@ -5,7 +5,7 @@
 			p v-if="!commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
-				details
+				details.log-config.flex-1
 					summary Configure...
 					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 				aside.center.gap-20
@@ -23,10 +23,10 @@
 						git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
 							button#refresh.btn.center @click="do_log()" title="Refresh"
 								i.codicon.codicon-refresh
-			ul#branches.gap-3
-				li.ref.branch-tip.active v-for="branch of invisible_branch_tips_of_visible_branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)" ref="invisible_branch_tips_of_visible_branches_ref"
-					button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip"
-						| {{ branch.name }}
+			ul#quick-branch-tips
+				li.ref.branch-tip.active v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" v-bind="branch_elem.bind" v-drag="branch_elem.drag" v-drop="branch_elem.drop"
+					button :style="{color:branch_elem.branch.color}" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip"
+						| {{ branch_elem.branch.name }}
 				li.show-invisible_branches v-if="invisible_branches.length"
 					button @click="show_all_branches = ! show_all_branches"
 						| Show all >>
@@ -35,8 +35,9 @@
 						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip"
 							| {{ branch.name }}
 					li Click on any of the branch names to jump to the tip of it.
-			svg#branches-connection.fill-w height="25"
-				line v-for="line of branches_connection_lines" v-bind="line"
+			#branches-connection
+				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
+			// fixme rm buffer again?
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
 				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}" @click="commit_clicked(commit)" role="button"
 					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch" @branch_drop="branch_drop(...$event)"
@@ -71,7 +72,7 @@
 <script lang="coffee" src="./MainView.coffee"></script>
 
 <style lang="stylus" scoped>
-details
+details.log-config
 	margin 0 0 0 10px
 	color grey
 	&[open]
@@ -82,7 +83,7 @@ details
 	font-weight bold
 	font-style italic
 	display inline
-	padding 2px 4px
+	padding 1px 3px
 	border 1px solid #505050
 	border-radius 7px
 	white-space pre
@@ -129,27 +130,25 @@ details
 	:deep(.is_head)
 		border 3px solid white
 		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
-		border-radius 25px
-	ul#branches, svg#branches-connection, #log.scroller
+	ul#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
-	ul#branches
-		height 26px
-		// overflow hidden
-		position relative
+	#branches-connection
+		height 100px
+		:deep(>.vis>svg>line.vis-v)
+			stroke-dasharray 4
+	ul#quick-branch-tips
+		position sticky
+		z-index 1
 		> li
-			display inline-block
-			margin-right 8px
+			position absolute
+			&:hover
+				z-index 1
 			&:last-child
-				position absolute
 				right 0
 				top 0
 				padding 1px 5px
 				background #202020
-	svg#branches-connection
-		position absolute
-		top 63px
 	#log.scroller
-		margin-top 20px
 		&:focus
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
 			outline none
@@ -160,6 +159,7 @@ details
 			height var(--h)
 			line-height var(--h)
 			cursor pointer
+			// TODO
 			&.active
 				box-shadow 0 0 3px 0px gold
 			// TODO: wait for vscode to be process.versions.chrome (dev tools) >= 112, then:
@@ -182,6 +182,7 @@ details
 					display inline-flex
 					> *
 						text-overflow ellipsis
+					// TODO rm?
 					> .ref
 						overflow hidden
 						flex 0 3 auto
