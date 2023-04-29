@@ -10,7 +10,7 @@
 					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
-						input#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
+						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
 						button#clear-filter v-if="txt_filter" @click="clear_filter()"
 							| ✖
 						label#filter-type-filter.row.align-center
@@ -23,18 +23,11 @@
 						git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
 							button#refresh.btn.center @click="do_log()" title="Refresh"
 								i.codicon.codicon-refresh
+			all-branches :branches="branches" @branch_drop="branch_drop(...$event)" :head_branch="head_branch" @scroll_to_branch_tip="scroll_to_branch_tip($event)"
 			ul#quick-branch-tips
 				li.ref.branch-tip.active v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" v-bind="branch_elem.bind" v-drag="branch_elem.drag" v-drop="branch_elem.drop"
 					button :style="{color:branch_elem.branch.color}" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip"
 						| {{ branch_elem.branch.name }}
-				li.show-invisible_branches v-if="invisible_branches.length"
-					button @click="show_all_branches = ! show_all_branches"
-						| Show all >>
-				template v-if="show_all_branches"
-					li.ref.branch-tip v-for="branch of branches" :class="{is_head:branch.name===head_branch}" v-drag="branch.name" v-drop="(e)=>branch_drop(branch.name,e)"
-						button :style="{color:branch.color}" @click="scroll_to_branch_tip(branch.name)" title="Jump to branch tip"
-							| {{ branch.name }}
-					li Click on any of the branch names to jump to the tip of it.
 			#branches-connection
 				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 			// fixme rm buffer again?
@@ -82,7 +75,7 @@ details.log-config
 	background black
 	font-weight bold
 	font-style italic
-	display inline
+	display inline-block
 	padding 1px 3px
 	border 1px solid #505050
 	border-radius 7px
@@ -113,10 +106,6 @@ details.log-config
 			> section#search
 				input#txt-filter
 					width 425px
-					font-family monospace
-					padding 0
-					background black
-					color #d5983d
 				#clear-filter
 					position relative
 					right 20px
@@ -130,6 +119,16 @@ details.log-config
 	:deep(.is_head)
 		border 3px solid white
 		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
+	#all-branches
+		position absolute
+		top 45px
+		right 5px
+		z-index 2
+		max-width clamp(300px, 70vw, 80vw)
+		background #202020dd
+		padding 10px 10px 20px 20px
+		box-shadow 0 0 28px 23px #202020dd
+		border-radius 5px
 	ul#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
 	#branches-connection
@@ -143,11 +142,6 @@ details.log-config
 			position absolute
 			&:hover
 				z-index 1
-			&:last-child
-				right 0
-				top 0
-				padding 1px 5px
-				background #202020
 	#log.scroller
 		&:focus
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here

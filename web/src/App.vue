@@ -190,6 +190,15 @@ progress.diff
 		background-color darkred
 	&::-webkit-progress-value
 		background-color #009900
+
+details > summary
+	white-space nowrap
+
+input:not([type='checkbox']):not([type='radio']).filter
+	font-family monospace
+	padding 0 0 0 5px
+	background black
+	color #d5983d
 </style>
 
 <style lang="stylus" scoped>

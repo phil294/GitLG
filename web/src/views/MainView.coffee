@@ -7,6 +7,7 @@ import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import SelectedCommit from './SelectedCommit.vue'
 import Visualization from './Visualization.vue'
+import AllBranches from './AllBranches.vue'
 
 ``###*
 # To use in place of `.filter(Boolean)` for type safety with strict null checks.
@@ -17,7 +18,7 @@ import Visualization from './Visualization.vue'
 is_truthy = (value) => !!value
 
 export default
-	components: { SelectedCommit, GitInput, GitActionButton, Visualization }
+	components: { SelectedCommit, GitInput, GitActionButton, Visualization, AllBranches }
 	setup: ->
 		# TODO move these variables further down into their sections instead of them all here
 		``###* @type {Ref<Branch[]>} ###
@@ -126,8 +127,6 @@ export default
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
 			head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
 		
-		show_all_branches = ref false
-
 		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
 		scroll_item_offset = 0
@@ -258,13 +257,11 @@ export default
 			if first_branch_commit_i == -1
 				return show_error_message "No commit found for branch #{branch_name}. No idea why :/"
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
-			show_all_branches.value = false
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
 			selected_commit.value = commits.value[first_branch_commit_i]
 		
 		commit_clicked = (###* @type {Commit} ### commit) =>
-			show_all_branches.value = false
 			selected_commit.value =
 				if selected_commit.value == commit
 					null
@@ -302,7 +299,6 @@ export default
 			log_action
 			commit_clicked
 			commits_scroller_updated
-			show_all_branches
 			visible_branches
 			invisible_branches
 			commits_scroller_ref
