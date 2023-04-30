@@ -26,11 +26,11 @@
 			all-branches @branch_selected="scroll_to_branch_tip($event)"
 			#quick-branch-tips
 				button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip" v-bind="branch_elem.bind"
-					ref-tip.active :git_ref="branch_elem.branch"
+					ref-tip :git_ref="branch_elem.branch"
 			#branches-connection
 				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
-				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}" @click="selected_commit=selected_commit==commit?null:commit" role="button"
+				.row.commit :class="{selected_commit:commit===selected_commit,empty:!commit.hash}" @click="selected_commit=selected_commit==commit?null:commit" role="button"
 					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
@@ -49,7 +49,7 @@
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
 		#right.col.flex-1 v-if="selected_commit"
-			commit-details#selected-commit.active.flex-1.fill-w.padding :commit="selected_commit" @change="do_log()"
+			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @change="do_log()"
 			button#close-selected-commit.center @click="selected_commit=null" title="Close"
 				i.codicon.codicon-close
 			#resize-hint v-if="selected_commit"
@@ -134,8 +134,7 @@ details.log-config
 			height var(--h)
 			line-height var(--h)
 			cursor pointer
-			// TODO
-			&.active
+			&.selected_commit
 				box-shadow 0 0 3px 0px gold
 			// TODO: wait for vscode to be process.versions.chrome (dev tools) >= 112, then:
 			// .vis:has(+.info:hover)
@@ -157,11 +156,6 @@ details.log-config
 					display inline-flex
 					> *
 						text-overflow ellipsis
-					// TODO rm?
-					> .ref
-						overflow hidden
-						flex 0 3 auto
-						min-width 55px
 					> .subject
 						overflow hidden
 						flex 1 1 30%

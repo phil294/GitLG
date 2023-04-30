@@ -9,7 +9,6 @@ export default defineComponent
 			required: true
 			###* @type {() => Commit} ###
 			type: Object
-	# TODO: type-safe
 	emits: ['branch_drop']
 	components: { RefTip }
 	setup: (props) ->
