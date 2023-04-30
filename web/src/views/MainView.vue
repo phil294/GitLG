@@ -21,8 +21,8 @@
 							| Search
 					section#actions.center.gap-5 aria-roledescription="Global actions"
 						git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
-							button#refresh.btn.center @click="do_log()" title="Refresh"
-								i.codicon.codicon-refresh
+						button#refresh.btn.center @click="do_log()" title="Refresh"
+							i.codicon.codicon-refresh
 			all-branches @branch_selected="scroll_to_branch_tip($event)"
 			#quick-branch-tips
 				button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip" v-bind="branch_elem.bind"
