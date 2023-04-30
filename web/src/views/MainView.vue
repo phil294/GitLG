@@ -7,7 +7,7 @@
 			p v-else-if="!filtered_commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
-				details.log-config.flex-1
+				details.config.flex-1
 					summary Configure...
 					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 				aside.center.gap-20
@@ -25,8 +25,8 @@
 						git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
 						button#refresh.btn.center @click="do_log()" title="Refresh"
 							i.codicon.codicon-refresh
-			all-branches @branch_selected="scroll_to_branch_tip($event)"
 			#quick-branch-tips
+				all-branches @branch_selected="scroll_to_branch_tip($event)"
 				button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip" v-bind="branch_elem.bind"
 					ref-tip :git_ref="branch_elem.branch"
 			#branches-connection
@@ -65,12 +65,12 @@
 <script lang="coffee" src="./MainView.coffee"></script>
 
 <style lang="stylus" scoped>
-details.log-config
-	margin 0 0 0 10px
+details.config
 	color grey
 	&[open]
 		color unset
 		padding 10px
+		flex 100% 1 0
 #left
 	flex-shrink 1
 	width 100%
@@ -79,13 +79,14 @@ details.log-config
 	overflow auto
 	position relative
 	> nav
-		padding 5px 0
+		padding 5px
 		position sticky
 		z-index 2
 		background #111111
 		border-bottom 1px solid #424242
 		> aside
 			> section#search
+				overflow hidden
 				input#txt-filter
 					width 425px
 				#clear-filter
@@ -94,6 +95,7 @@ details.log-config
 					width 0
 					color grey
 			> section#actions
+				overflow hidden
 				:deep(button.btn)
 					font-size 21px
 					padding 0 2px
@@ -101,16 +103,6 @@ details.log-config
 	:deep(.is_head)
 		border 3px solid white
 		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
-	#all-branches
-		position absolute
-		top 55px
-		right 10px
-		z-index 2
-		max-width clamp(300px, 70vw, 80vw)
-		background #161616dd
-		box-shadow 0 0 5px 2px #161616dd
-		padding 5px 10px 20px 20px
-		border-radius 5px
 	#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
 	#branches-connection
@@ -124,6 +116,16 @@ details.log-config
 			position absolute
 			&:hover
 				z-index 1
+		> #all-branches
+			position absolute
+			top 15px
+			right 10px
+			z-index 2
+			max-width clamp(300px, 70vw, 80vw)
+			background #161616dd
+			box-shadow 0 0 5px 2px #161616dd
+			padding 5px 10px 20px 20px
+			border-radius 5px
 	#log.scroller
 		&:focus
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here

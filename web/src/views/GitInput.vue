@@ -3,7 +3,7 @@ div.col.gap-10
 	promise-form.col.gap-5 :action="execute"
 		.row.align-center.gap-10
 			code git 
-			input.command v-model="command"
+			input.command.flex-1 v-model="command"
 		.input-controls.justify-flex-end.align-center.gap-10
 			div.warn v-if="text_changed"
 				details

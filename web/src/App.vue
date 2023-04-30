@@ -63,7 +63,6 @@ details
 
 input:not([type='checkbox']):not([type='radio']), textarea {
 	display: block;
-	width: 100%;
 	border: none;
 	// font-family: var(--vscode-font-family);
 	font-family: monospace;
