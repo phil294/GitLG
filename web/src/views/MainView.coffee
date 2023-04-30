@@ -1,6 +1,5 @@
 import * as store from './store.coffee'
 import { show_error_message } from '../bridge.coffee'
-# TODO: type errors
 import { ref, computed, watch } from 'vue'
 import GitInputModel from './GitInput.coffee'
 import GitInput from './GitInput.vue'
@@ -26,21 +25,21 @@ is_truthy = (value) => !!value
 export default
 	components: { SelectedCommit, GitInput, GitActionButton, Visualization, AllBranches, RefTip }
 	setup: ->
-		# TODO move these variables further down into their sections instead of them all here
 		``###* @type {Ref<Commit | null>} ###
 		selected_commit = ref null
-		``###* @type {Ref<GitInputModel | null>} ###
-		git_input_ref = ref null
-		``###* @type {Ref<any | null>} ###
-		commits_scroller_ref = ref null
+		commit_clicked = (###* @type {Commit} ### commit) =>
+			selected_commit.value =
+				if selected_commit.value == commit
+					null
+				else
+					commit
 
-		do_log = =>
-			git_input_ref.value?.execute()
+
+
 
 		txt_filter = ref ''
 		``###* @type {Ref<'filter' | 'search'>} ###
 		txt_filter_type = ref 'filter'
-		# TODO: error here somewhere
 		clear_filter = =>
 			txt_filter.value = ''
 			if selected_commit.value
@@ -82,6 +81,26 @@ export default
 				selected_commit.value = filtered_commits.value[txt_filter_last_i]
 			), 100
 
+
+
+		scroll_to_branch_tip = (###* @type string ### branch_name) =>
+			first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
+				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
+				commit.refs.some (ref) => ref.name == branch_name
+			if first_branch_commit_i == -1
+				return show_error_message "No commit found for branch #{branch_name}. No idea why :/"
+			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
+			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
+			# a branch name in a commit's ref list.
+			selected_commit.value = filtered_commits.value[first_branch_commit_i]
+
+
+
+
+		``###* @type {Ref<GitInputModel | null>} ###
+		git_input_ref = ref null
+		do_log = =>
+			git_input_ref.value?.execute()
 		log_action =
 			# rearding the -greps: Under normal circumstances, when showing stashes in
 			# git log, each of the stashes 2 or 3 parents are being shown. That because of
@@ -103,6 +122,11 @@ export default
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
 		
+
+
+
+		``###* @type {Ref<any | null>} ###
+		commits_scroller_ref = ref null
 		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
 		scroll_item_offset = 0
@@ -136,7 +160,35 @@ export default
 			# Snap-scroll to the item - see link above. We do this so we don't show half rows
 			# so the connection fake commit always fits properly
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
+
+
+
+		watch visible_commits, =>
+			visible_cp = [...visible_commits.value] # to avoid race conditions
+				.filter (commit) => commit.hash and not commit.stats
+			if not visible_cp.length then return
+			await store.update_commit_stats(visible_cp)
+		visible_branches = computed =>
+			[...new Set(visible_commits.value
+				.flatMap (commit) =>
+					commit.vis.map (v) => v.branch)]
+			.filter(is_truthy)
+			.filter (branch) => not branch.virtual
+		visible_branch_tips = computed =>
+			[...new Set(visible_commits.value
+				.flatMap (commit) =>
+					commit.refs)]
+			.filter (ref) =>
+				# @ts-ignore
+				ref.type == 'branch' and not ref.virtual
+		invisible_branch_tips_of_visible_branches = computed =>
+			# alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.virtual and not visible_branch_tips.value.includes(ref)) or []
+			visible_branches.value.filter (branch) =>
+				not visible_branch_tips.value.includes branch
+
 		
+
+
 		# To paint a nice gradient between branches at the top and the vis below:
 		connection_fake_commit = computed =>
 			commit = visible_commits.value[0]
@@ -158,8 +210,6 @@ export default
 						else ' '
 				}
 			}
-
-		# TODO: ordering of methods etc
 		invisible_branch_tips_of_visible_branches_elems = computed =>
 			v_width = 10 # TODO sync
 			row = -1
@@ -175,53 +225,14 @@ export default
 							top: 0 + row * 19 + 'px'
 				.filter(is_truthy)
 
-		watch visible_commits, =>
-			visible_cp = [...visible_commits.value] # to avoid race conditions
-				.filter (commit) => commit.hash and not commit.stats
-			if not visible_cp.length then return
-			await store.update_commit_stats(visible_cp)
 
-		visible_branches = computed =>
-			[...new Set(visible_commits.value
-				.flatMap (commit) =>
-					commit.vis.map (v) => v.branch)]
-			.filter(is_truthy)
-			.filter (branch) => not branch.virtual
-		invisible_branches = computed =>
-			store.branches.value.filter (branch) =>
-				not visible_branches.value.includes branch
-		visible_branch_tips = computed =>
-			[...new Set(visible_commits.value
-				.flatMap (commit) =>
-					commit.refs)]
-			.filter (ref) =>
-				# @ts-ignore
-				ref.type == 'branch' and not ref.virtual
-		invisible_branch_tips_of_visible_branches = computed =>
-			# alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.virtual and not visible_branch_tips.value.includes(ref)) or []
-			visible_branches.value.filter (branch) =>
-				not visible_branch_tips.value.includes branch
 
-		scroll_to_branch_tip = (###* @type string ### branch_name) =>
-			first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
-				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
-				commit.refs.some (ref) => ref.name == branch_name
-			if first_branch_commit_i == -1
-				return show_error_message "No commit found for branch #{branch_name}. No idea why :/"
-			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
-			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
-			# a branch name in a commit's ref list.
-			selected_commit.value = filtered_commits.value[first_branch_commit_i]
 		
-		commit_clicked = (###* @type {Commit} ### commit) =>
-			selected_commit.value =
-				if selected_commit.value == commit
-					null
-				else
-					commit
-
 		global_actions = computed =>
 			store.global_actions.value
+		
+
+
 		
 		{
 			filtered_commits
@@ -235,7 +246,6 @@ export default
 			commit_clicked
 			commits_scroller_updated
 			visible_branches
-			invisible_branches
 			commits_scroller_ref
 			scroll_to_branch_tip
 			selected_commit
