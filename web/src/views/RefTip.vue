@@ -20,6 +20,7 @@
 		content ' (HEAD)'
 		color white
 	&.branch
+		cursor move
 		&.dragenter
 			background white !important
 			color red !important
