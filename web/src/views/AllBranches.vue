@@ -15,7 +15,7 @@
 #show-all-branches
 	float right
 .branches
-	> .branch-tip
+	> button > .ref-tip.branch
 		margin 2px
 		padding 1px 6px
 input.filter
