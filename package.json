@@ -92,7 +92,7 @@
 					"default": [
 						{
 							"title": "",
-							"icon": "fold-down",
+							"icon": "chevron-up",
 							"description": "Stash (include untracked)",
 							"args": "stash -u",
 							"options": [
@@ -105,22 +105,10 @@
 						},
 						{
 							"title": "",
-							"icon": "fold-up",
+							"icon": "chevron-down",
 							"description": "Stash pop",
 							"args": "stash pop",
 							"immediate": true
-						},
-						{
-							"title": "",
-							"icon": "repo-push",
-							"description": "Push",
-							"args": "push"
-						},
-						{
-							"title": "",
-							"icon": "repo-pull",
-							"description": "Pull",
-							"args": "pull"
 						},
 						{
 							"title": "",
@@ -513,6 +501,18 @@
 							]
 						},
 						{
+							"title": "Pull",
+							"icon": "fold-down",
+							"description": "Pull",
+							"args": "pull"
+						},
+						{
+							"title": "Push",
+							"icon": "fold-up",
+							"description": "Push",
+							"args": "push"
+						},
+						{
 							"title": "Rename",
 							"icon": "edit",
 							"args": "branch -m '$1' '$2'",
@@ -544,6 +544,11 @@
 							]
 						}
 					]
+				},
+				"git-log--graph.branch-width": {
+					"description": "The width of the individual branch lines, including both line and right spacing. The default 'auto' chooses between 10 and 2 depending on the size of the repository.",
+					"type": ["integer", "string"],
+					"default": "auto"
 				}
 			}
 		}
