@@ -1,9 +1,14 @@
+import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, open_diff, get_config } from '../bridge.coffee'
-import { Commit } from './log-utils.coffee'
-import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
+import { commit_actions, stash_actions, branch_actions } from './store.coffee'
 import { parse_config_actions } from './GitInput.coffee'
 import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
+``###*
+# @typedef {import('./types').Commit} Commit
+###
+###* @template T @typedef {import('vue').Ref<T>} Ref ###
+###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 export default defineComponent
 	emits: ['change']
@@ -43,19 +48,12 @@ export default defineComponent
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath
 		
-		config_branch_actions = ref []
-		config_commit_actions = ref []
-		config_stash_actions = ref []
-		do =>
-			config_branch_actions.value = await get_config 'actions.branch'
-			config_commit_actions.value = await get_config 'actions.commit'
-			config_stash_actions.value = await get_config 'actions.stash'
-		commit_actions = computed => parse_config_actions config_commit_actions.value,
-			[['{COMMIT_HASH}', props.commit.hash]]
-		branch_actions = (###* @type string ### branch_name) => parse_config_actions config_branch_actions.value,
-			[['{BRANCH_NAME}', branch_name]]
-		stash_actions = computed => parse_config_actions config_stash_actions.value,
-			[['{COMMIT_HASH}', props.commit.hash]]
+		_commit_actions = computed =>
+			parse_config_actions(commit_actions.value, [['{COMMIT_HASH}', props.commit.hash]])
+		_branch_actions = (###* @type string ### branch_name) =>
+			parse_config_actions(branch_actions.value, [['{BRANCH_NAME}', branch_name]])
+		_stash_actions = computed =>
+			parse_config_actions(stash_actions.value, [['{COMMIT_HASH}', props.commit.hash]])
 
 		{
 			branch_tips
@@ -63,7 +61,7 @@ export default defineComponent
 			changed_files
 			show_diff
 			body
-			commit_actions
-			branch_actions
-			stash_actions
+			commit_actions: _commit_actions
+			branch_actions: _branch_actions
+			stash_actions: _stash_actions
 		}

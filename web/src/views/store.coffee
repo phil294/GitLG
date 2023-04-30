@@ -75,8 +75,17 @@ export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 
 ``###* @type {Ref<ConfigGitAction[]>} ###
 export global_actions = ref []
+``###* @type {Ref<ConfigGitAction[]>} ###
+export branch_actions = ref []
+``###* @type {Ref<ConfigGitAction[]>} ###
+export commit_actions = ref []
+``###* @type {Ref<ConfigGitAction[]>} ###
+export stash_actions = ref []
 do =>
 	global_actions.value = await get_config 'actions.global'
+	branch_actions.value = await get_config 'actions.branch'
+	commit_actions.value = await get_config 'actions.commit'
+	stash_actions.value = await get_config 'actions.stash'
 ``###* @type {Ref<ConfigGitAction[]>} ###
 _unparsed_combine_branches_actions = ref []
 do =>
