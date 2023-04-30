@@ -56,7 +56,7 @@ parse = (data, separator) =>
 		# this is not helpful as these colors are non-consistent and not bound to any branches
 		[ vis_str = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = line.split separator
 		if vis_str.at(-1) != ' '
-			throw new Error "unknown syntax at line " + line_no
+			console.warn "unknown git graph syntax returned at line " + line_no
 		refs = refs_csv
 			.split ', '
 			# map to ["master", "origin/master", "tag: xyz"]
