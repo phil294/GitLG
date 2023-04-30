@@ -3,7 +3,6 @@
 	button.btn#show-all-branches @click="show_all_branches = ! show_all_branches"
 		| All branches
 	div v-if="show_all_branches"
-		.background @click="show_all_branches=false"
 		input.filter v-model="txt_filter" placeholder="🔍 filter branch name"
 		.branches
 			button v-for="branch of filtered_branches" @click="$emit('branch_selected',branch.name);show_all_branches=false" title="Jump to branch tip"
@@ -13,10 +12,6 @@
 <script lang="coffee" src="./AllBranches.coffee"></script>
 
 <style lang="stylus" scoped>
-.background
-	position fixed
-	inset 0
-	z-index -1
 #show-all-branches
 	float right
 .branches

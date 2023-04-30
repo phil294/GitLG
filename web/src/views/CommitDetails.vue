@@ -10,7 +10,6 @@ div
 			git-action-button v-for="action of stash_actions" :git_action="action" @change="$emit('change')"
 
 	div v-if="branch_tips.length"
-		h3 Branches:
 		ul.branches v-for="branch_tip of branch_tips"
 			li
 				ref-tip :git_ref="branch_tip"

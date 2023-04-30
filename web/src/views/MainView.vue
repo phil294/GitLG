@@ -102,12 +102,13 @@ details.log-config
 		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
 	#all-branches
 		position absolute
-		top 45px
-		right 5px
+		top 55px
+		right 10px
 		z-index 2
 		max-width clamp(300px, 70vw, 80vw)
 		background #202020dd
-		padding 10px 10px 20px 20px
+		box-shadow 0 0 5px 2px #202020dd
+		padding 5px 10px 20px 20px
 		border-radius 5px
 	#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
