@@ -20,6 +20,7 @@ export default defineComponent
 			props.commit.scroll_height
 		vis_style = computed =>
 			'min-width': "max(min(50vw, #{vis_width}px),210px)"
+			'max-width': '60vw'
 		lines = computed =>
 			props.commit.vis
 				.map (v, i) =>
