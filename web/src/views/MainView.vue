@@ -100,9 +100,6 @@ details.config
 					font-size 21px
 					padding 0 2px
 
-	:deep(.is_head)
-		border 3px solid white
-		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
 	#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
 	#branches-connection
