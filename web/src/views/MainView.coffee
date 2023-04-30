@@ -25,16 +25,6 @@ is_truthy = (value) => !!value
 export default
 	components: { SelectedCommit, GitInput, GitActionButton, Visualization, AllBranches, RefTip }
 	setup: ->
-		``###* @type {Ref<Commit | null>} ###
-		selected_commit = ref null
-		commit_clicked = (###* @type {Commit} ### commit) =>
-			selected_commit.value =
-				if selected_commit.value == commit
-					null
-				else
-					commit
-
-
 
 
 		txt_filter = ref ''
@@ -42,8 +32,8 @@ export default
 		txt_filter_type = ref 'filter'
 		clear_filter = =>
 			txt_filter.value = ''
-			if selected_commit.value
-				selected_i = filtered_commits.value.findIndex (c) => c == selected_commit.value
+			if store.selected_commit.value
+				selected_i = filtered_commits.value.findIndex (c) => c == store.selected_commit.value
 				commits_scroller_ref.value?.scrollToItem selected_i - Math.floor(visible_commits.value.length / 2) + 2
 		``###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
@@ -78,7 +68,7 @@ export default
 			txt_filter_last_i = next_match_index
 			window.clearTimeout select_searched_commit_debouncer
 			select_searched_commit_debouncer = window.setTimeout (=>
-				selected_commit.value = filtered_commits.value[txt_filter_last_i]
+				store.selected_commit.value = filtered_commits.value[txt_filter_last_i]
 			), 100
 
 
@@ -92,7 +82,7 @@ export default
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
-			selected_commit.value = filtered_commits.value[first_branch_commit_i]
+			store.selected_commit.value = filtered_commits.value[first_branch_commit_i]
 
 
 
@@ -116,9 +106,9 @@ export default
 		GitInput would have done the git call ###
 		run_log = (###* @type string ### log_args) =>
 			await store.git_run_log(log_args)
-			if selected_commit.value
-				selected_commit.value = (filtered_commits.value.find (commit) =>
-					commit.hash == selected_commit.value?.hash) or null
+			if store.selected_commit.value
+				store.selected_commit.value = (filtered_commits.value.find (commit) =>
+					commit.hash == store.selected_commit.value?.hash) or null
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
 		
@@ -243,12 +233,11 @@ export default
 			run_log
 			do_log
 			log_action
-			commit_clicked
 			commits_scroller_updated
 			visible_branches
 			commits_scroller_ref
 			scroll_to_branch_tip
-			selected_commit
+			selected_commit: store.selected_commit
 			txt_filter
 			txt_filter_ref
 			txt_filter_type

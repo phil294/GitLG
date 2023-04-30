@@ -92,3 +92,6 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 	return if from_branch_name == to_branch_name
 	combine_branches_to_branch_name.value = to_branch_name
 	combine_branches_from_branch_name.value = from_branch_name
+
+``###* @type {Ref<Commit|null>} ###
+export selected_commit = ref null

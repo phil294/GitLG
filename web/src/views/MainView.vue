@@ -30,7 +30,7 @@
 			#branches-connection
 				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1"
-				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}" @click="commit_clicked(commit)" role="button"
+				.row.commit :class="{active:commit===selected_commit,empty:!commit.hash}" @click="selected_commit=selected_commit==commit?null:commit" role="button"
 					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
