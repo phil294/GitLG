@@ -28,7 +28,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type ContextMenuEntry[]
 		wrapper_el.classList.add 'context-menu-wrapper'
 		wrapper_el.style.setProperty 'left', x + 'px'
 		wrapper_el.style.setProperty 'top', y + 'px'
-		for entry from entries
+		entries.forEach (entry) =>
 			entry_el = document.createElement('li')
 			entry_el.setAttribute('role', 'button')
 			entry_el.classList.add('row', 'gap-5')
@@ -40,7 +40,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type ContextMenuEntry[]
 			entry_el.appendChild(icon_el)
 			entry_el.appendChild(label_el)
 			entry_el.onclick = entry.action
-			wrapper_el.appendChild(entry_el)
+			wrapper_el?.appendChild(entry_el)
 		document.body.appendChild(wrapper_el)
 	destroy_context_menu = =>
 		return if not wrapper_el

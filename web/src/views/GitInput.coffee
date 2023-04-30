@@ -54,7 +54,7 @@ export default defineComponent
 			...option
 			active: option.default_active
 		}
-		params = reactive (props.git_action.params or [])
+		params = reactive [...(props.git_action.params or [])]
 		to_cli = (###* @type {GitOption[]} ### options = []) =>
 			(props.git_action.args + " " + options.map ({ value, active }) =>
 				if active
