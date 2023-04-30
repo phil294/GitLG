@@ -78,10 +78,9 @@ details.log-config
 	position relative
 	> nav
 		padding 5px 0
-		margin 0 0 5px 0
 		position sticky
-		top 5px
 		z-index 2
+		background #111111
 		border-bottom 1px solid #424242
 		> aside
 			> section#search
@@ -106,8 +105,8 @@ details.log-config
 		right 10px
 		z-index 2
 		max-width clamp(300px, 70vw, 80vw)
-		background #202020dd
-		box-shadow 0 0 5px 2px #202020dd
+		background #161616dd
+		box-shadow 0 0 5px 2px #161616dd
 		padding 5px 10px 20px 20px
 		border-radius 5px
 	#quick-branch-tips, #branches-connection, #log.scroller
@@ -128,7 +127,7 @@ details.log-config
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
 			outline none
 		.commit
-			--h 23px // must be synced with JS
+			--h 20px // must be synced with JS
 			&.empty
 				--h 6px // same
 			height var(--h)
@@ -142,7 +141,7 @@ details.log-config
 			// Workaround until then:
 			.info:hover
 				z-index 1
-				background #202020
+				background #161616
 			.info
 				border-top 1px solid #2e2e2e
 				> *

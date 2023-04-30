@@ -32,7 +32,7 @@ body {
 	font-weight: var(--vscode-font-weight);
 	font-family: var(--vscode-font-family);
 	// background-color: var(--vscode-editor-background); TODO:
-	background-color: #202020;
+	background-color: #161616;
 }
 
 ol, ul, *[role=list] {
