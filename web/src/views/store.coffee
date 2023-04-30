@@ -17,8 +17,8 @@ import { ref, computed } from "vue"
 # It encompasses state, actions and getters (computed values).
 #########################
 
-``###* @type {Ref<Commit[]>} ###
-export commits = ref []
+``###* @type {Ref<Commit[]|null>} ###
+export commits = ref null
 
 ``###* @type {Ref<Branch[]>} ###
 export branches = ref []

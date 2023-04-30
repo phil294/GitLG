@@ -2,7 +2,9 @@
 #main-view.fill.col
 	.row.flex-1
 		#left.col
-			p v-if="!filtered_commits.length"
+			p v-if="!initialized"
+				| Loading...
+			p v-else-if="!filtered_commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				details.log-config.flex-1

@@ -9,7 +9,7 @@ import { ref, computed, defineComponent, reactive, watchEffect, nextTick } from 
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
-###*
+``###*
 # @param actions {ConfigGitAction[]}
 # @param replacements {[string,string][]}
 # @return {GitAction[]}

@@ -41,10 +41,12 @@ export default
 			search_for = txt_filter.value.toLowerCase()
 			for str from [commit.subject, commit.hash, commit.author_name, commit.author_email, commit.branch?.name]
 				return true if str?.includes(search_for)
+		initialized = computed =>
+			!! store.commits.value
 		filtered_commits = computed =>
 			if not txt_filter.value or txt_filter_type.value == 'search'
-				return store.commits.value
-			store.commits.value.filter txt_filter_filter
+				return store.commits.value or []
+			(store.commits.value or []).filter txt_filter_filter
 		txt_filter_last_i = -1
 		document.addEventListener 'keyup', (e) =>
 			if e.ctrlKey and e.key == 'f'
@@ -224,6 +226,7 @@ export default
 
 		
 		{
+			initialized
 			filtered_commits
 			branches: store.branches
 			vis_max_length: store.vis_max_length
