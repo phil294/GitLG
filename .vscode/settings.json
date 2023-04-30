@@ -24,10 +24,13 @@
         "**/.git/**"
     ],
     "cSpell.words": [
+        "codicon",
         "datetime",
         "mhutchie",
         "numstat",
         "oneline",
+        "onglobalclick",
+        "onglobalkeyup",
         "reflog",
         "scroller",
         "shortstat"

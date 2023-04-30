@@ -1,6 +1,7 @@
 import { parse_config_actions } from "./GitInput.coffee"
 import { parse } from "./log-utils.coffee"
 import { git, get_config } from "../bridge.coffee"
+import GitInputModel from './GitInput.coffee'
 import { ref, computed } from "vue"
 ``###*
 # @typedef {import('./types').GitRef} GitRef
@@ -8,6 +9,7 @@ import { ref, computed } from "vue"
 # @typedef {import('./types').Vis} Vis
 # @typedef {import('./types').Commit} Commit
 # @typedef {import('./types').ConfigGitAction} ConfigGitAction
+# @typedef {import('./types').GitAction} GitAction
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
@@ -53,6 +55,11 @@ export git_run_log = (###* @type string ### log_args) =>
 	# todo rename to vis_max_amount
 	vis_max_length.value = parsed.vis_max_length
 	head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
+``###* @type {Ref<Ref<GitInputModel|null>|null>} ###
+export main_view_git_input_ref = ref null
+export refresh_main_view = =>
+	console.info('refreshing main view')
+	main_view_git_input_ref.value?.value?.execute()
 
 export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 	data = await git "show --format=\"%h\" --shortstat " + commits.map((c)=>c.hash).join(' ')
@@ -77,11 +84,17 @@ export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 ``###* @type {Ref<ConfigGitAction[]>} ###
 export global_actions = ref []
 ``###* @type {Ref<ConfigGitAction[]>} ###
-export branch_actions = ref []
+config_branch_actions = ref []
+export commit_actions = (###* @type string ### hash) =>
+	parse_config_actions(config_commit_actions.value, [['{COMMIT_HASH}', hash]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
-export commit_actions = ref []
+config_commit_actions = ref []
+export branch_actions = (###* @type string ### branch_name) =>
+	parse_config_actions(config_branch_actions.value, [['{BRANCH_NAME}', branch_name]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
-export stash_actions = ref []
+config_stash_actions = ref []
+export stash_actions = (###* @type string ### hash) =>
+	parse_config_actions(config_stash_actions.value, [['{COMMIT_HASH}', hash]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
 _unparsed_combine_branches_actions = ref []
 export combine_branches_actions = computed =>
@@ -96,6 +109,9 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 	combine_branches_to_branch_name.value = to_branch_name
 	combine_branches_from_branch_name.value = from_branch_name
 
+``###* @type {Ref<GitAction|null>} ###
+export selected_git_action = ref null
+
 ``###* @type {Ref<Commit|null>} ###
 export selected_commit = ref null
 
@@ -106,9 +122,9 @@ export init = =>
 	refresh_config()
 export refresh_config = =>
 	global_actions.value = await get_config 'actions.global'
-	branch_actions.value = await get_config 'actions.branch'
-	commit_actions.value = await get_config 'actions.commit'
-	stash_actions.value = await get_config 'actions.stash'
+	config_branch_actions.value = await get_config 'actions.branch'
+	config_commit_actions.value = await get_config 'actions.commit'
+	config_stash_actions.value = await get_config 'actions.stash'
 	
 	_unparsed_combine_branches_actions.value = await get_config 'actions.branch-drop'
 

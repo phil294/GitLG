@@ -48,6 +48,7 @@ import colors from "./colors.coffee"
 #	args: string
 #	params?: string[]
 #	options?: GitOption[]
+#	icon?: string
 # }} ConfigGitAction
 #
 # @typedef {ConfigGitAction & {

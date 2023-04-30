@@ -1,7 +1,6 @@
 import { ref, computed, defineComponent, watchEffect } from 'vue'
-import { git, open_diff, get_config } from '../bridge.coffee'
+import { git, open_diff } from '../bridge.coffee'
 import { commit_actions, stash_actions, branch_actions } from './store.coffee'
-import { parse_config_actions } from './GitInput.coffee'
 import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
 ``###*
@@ -11,7 +10,6 @@ import RefTip from './RefTip.vue'
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 export default defineComponent
-	emits: ['change']
 	components: { GitActionButton, RefTip }
 	props:
 		commit:
@@ -48,12 +46,8 @@ export default defineComponent
 		show_diff = (###* @type string ### filepath) =>
 			open_diff props.commit.hash, filepath
 		
-		_commit_actions = computed =>
-			parse_config_actions(commit_actions.value, [['{COMMIT_HASH}', props.commit.hash]])
-		_branch_actions = (###* @type string ### branch_name) =>
-			parse_config_actions(branch_actions.value, [['{BRANCH_NAME}', branch_name]])
-		_stash_actions = computed =>
-			parse_config_actions(stash_actions.value, [['{COMMIT_HASH}', props.commit.hash]])
+		_commit_actions = commit_actions(props.commit.hash)
+		_stash_actions = stash_actions(props.commit.hash)
 
 		{
 			branch_tips
@@ -62,6 +56,6 @@ export default defineComponent
 			show_diff
 			body
 			commit_actions: _commit_actions
-			branch_actions: _branch_actions
+			branch_actions
 			stash_actions: _stash_actions
 		}

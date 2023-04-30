@@ -22,8 +22,8 @@
 							input type="radio" v-model="txt_filter_type" value="search"
 							| Search
 					section#actions.center.gap-5 aria-roledescription="Global actions"
-						git-action-button.global-action v-for="action of global_actions" :git_action="action" @change="do_log()"
-						button#refresh.btn.center @click="do_log()" title="Refresh"
+						git-action-button.global-action v-for="action of global_actions" :git_action="action"
+						button#refresh.btn.center @click="refresh_main_view()" title="Refresh"
 							i.codicon.codicon-refresh
 			#quick-branch-tips
 				all-branches @branch_selected="scroll_to_branch_tip($event)"
@@ -51,7 +51,7 @@
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
 		#right.col.flex-1 v-if="selected_commit"
-			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @change="do_log()"
+			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit"
 			button#close-selected-commit.center @click="selected_commit=null" title="Close"
 				i.codicon.codicon-close
 			#resize-hint v-if="selected_commit"
@@ -59,7 +59,9 @@
 
 	popup v-if="combine_branches_from_branch_name" @close="combine_branches_from_branch_name=''"
 		.drag-drop-branch-actions.col.center.gap-5
-			git-action-button.drag-drop-branch-action v-for="action of combine_branches_actions" :git_action="action" @change="do_log()"
+			git-action-button.drag-drop-branch-action v-for="action of combine_branches_actions" :git_action="action"
+	popup v-if="selected_git_action" @close="selected_git_action=null"
+		selected-git-action
 </template>
 
 <script lang="coffee" src="./MainView.coffee"></script>

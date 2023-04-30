@@ -203,6 +203,21 @@ input:not([type='checkbox']):not([type='radio']).filter
 	padding 0 0 0 5px
 	background black
 	color #d5983d
+
+ul.context-menu-wrapper
+	position absolute
+	background #111111dd
+	min-width 150px
+	cursor pointer
+	box-shadow 0 2px 3px 2px #111111dd
+	user-select none
+	z-index 10
+	> li
+		padding 4px 8px
+		&:not(:last-child)
+			border-bottom 1px solid #424242
+		&:hover
+			background black
 </style>
 
 <style lang="stylus" scoped>

@@ -7,18 +7,18 @@ div
 	div v-if="stash"
 		h3 Stash:
 		.row.gap-5.wrap
-			git-action-button v-for="action of stash_actions" :git_action="action" @change="$emit('change')"
+			git-action-button v-for="action of stash_actions" :git_action="action"
 
 	div v-if="branch_tips.length"
 		ul.branches v-for="branch_tip of branch_tips"
 			li
-				ref-tip :git_ref="branch_tip"
+				ref-tip :git_ref="branch_tip" :commit="commit"
 				.row.gap-5.wrap
-					git-action-button v-for="action of branch_actions(branch_tip.name)" :git_action="action" @change="$emit('change')"
+					git-action-button v-for="action of branch_actions(branch_tip.name)" :git_action="action"
 
 	h3 This commit {{ commit.hash }}:
 	.row.gap-5.wrap
-		git-action-button v-for="action of commit_actions" :git_action="action" @change="$emit('change')"
+		git-action-button v-for="action of commit_actions" :git_action="action"
 
 	h3 Changed files:
 	ul.changed-files

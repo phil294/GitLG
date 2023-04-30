@@ -7,6 +7,7 @@ import GitActionButton from './GitActionButton.vue'
 import CommitDetails from './CommitDetails.vue'
 import Visualization from './Visualization.vue'
 import AllBranches from './AllBranches.vue'
+import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
 ``###*
 # @typedef {import('./types').Commit} Commit
@@ -23,7 +24,7 @@ import RefTip from './RefTip.vue'
 is_truthy = (value) => !!value
 
 export default
-	components: { CommitDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip }
+	components: { CommitDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction }
 	setup: ->
 
 
@@ -91,8 +92,7 @@ export default
 
 		``###* @type {Ref<GitInputModel | null>} ###
 		git_input_ref = ref null
-		do_log = =>
-			git_input_ref.value?.execute()
+		store.main_view_git_input_ref.value = git_input_ref
 		log_action =
 			# rearding the -greps: Under normal circumstances, when showing stashes in
 			# git log, each of the stashes 2 or 3 parents are being shown. That because of
@@ -237,7 +237,6 @@ export default
 			head_branch: store.head_branch
 			git_input_ref
 			run_log
-			do_log
 			log_action
 			commits_scroller_updated
 			visible_branches
@@ -257,4 +256,6 @@ export default
 			invisible_branch_tips_of_visible_branches_elems
 			connection_fake_commit
 			escape_pressed
+			refresh_main_view: store.refresh_main_view
+			selected_git_action: store.selected_git_action
 		}
