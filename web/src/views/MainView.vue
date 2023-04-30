@@ -1,5 +1,5 @@
 <template lang="slm">
-#main-view.fill.col
+#main-view.fill.col @keyup.escape="escape_pressed()"
 	.row.flex-1
 		#left.col
 			p v-if="!initialized"

@@ -224,7 +224,11 @@ export default
 		
 
 
-		
+		escape_pressed = =>
+			store.selected_commit.value = null
+
+
+
 		{
 			initialized
 			filtered_commits
@@ -252,4 +256,5 @@ export default
 			invisible_branch_tips_of_visible_branches
 			invisible_branch_tips_of_visible_branches_elems
 			connection_fake_commit
+			escape_pressed
 		}
