@@ -13,8 +13,7 @@ div
 		h3 Branches:
 		ul.branches v-for="branch_tip of branch_tips"
 			li
-				h3 :style="{color:branch_tip.color}"
-					| {{ branch_tip.name }}
+				ref-tip :git_ref="branch_tip"
 				.row.gap-5.wrap
 					git-action-button v-for="action of branch_actions(branch_tip.name)" :git_action="action" @change="$emit('change')"
 
@@ -57,4 +56,6 @@ h2.summary
 .body
 	white-space pre-wrap
 	word-break break-word
+.branches .ref-tip
+	margin 20px 10px 10px
 </style>

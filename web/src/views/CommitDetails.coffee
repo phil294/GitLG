@@ -3,10 +3,11 @@ import { Commit } from './log-utils.coffee'
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
 import { parse_config_actions } from './GitInput.coffee'
 import GitActionButton from './GitActionButton.vue'
+import RefTip from './RefTip.vue'
 
 export default defineComponent
 	emits: ['change']
-	components: { GitActionButton }
+	components: { GitActionButton, RefTip }
 	props:
 		commit:
 			###* @type {() => Commit} ###
