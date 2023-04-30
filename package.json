@@ -412,7 +412,8 @@
 					},
 					"default": [
 						{
-							"title": "→   Apply",
+							"title": "Apply",
+							"icon": "arrow-right",
 							"immediate": true,
 							"args": "stash apply '$1'",
 							"params": [
