@@ -31,7 +31,7 @@ div
 				.path.flex-1 {{ file.path }}
 </template>
 
-<script lang="coffee" src="./SelectedCommit.coffee"></script>
+<script lang="coffee" src="./CommitDetails.coffee"></script>
 
 <style lang="stylus" scoped>
 h2.summary

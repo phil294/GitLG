@@ -4,7 +4,7 @@ import { ref, computed, watch } from 'vue'
 import GitInputModel from './GitInput.coffee'
 import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
-import SelectedCommit from './SelectedCommit.vue'
+import CommitDetails from './CommitDetails.vue'
 import Visualization from './Visualization.vue'
 import AllBranches from './AllBranches.vue'
 import RefTip from './RefTip.vue'
@@ -23,7 +23,7 @@ import RefTip from './RefTip.vue'
 is_truthy = (value) => !!value
 
 export default
-	components: { SelectedCommit, GitInput, GitActionButton, Visualization, AllBranches, RefTip }
+	components: { CommitDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip }
 	setup: ->
 
 
