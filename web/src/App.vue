@@ -5,10 +5,15 @@
 
 <script lang="coffee">
 import MainView from './views/MainView.vue'
+import * as store from './views/store.coffee'
+import { add_push_listener } from './bridge.coffee'
 
 export default
 	components: { MainView }	
 	setup: ->
+		store.init()
+		add_push_listener 'config-change', store.refresh_config
+		undefined
 </script>
 
 <style lang="stylus">

@@ -1,32 +1,34 @@
-``###* @typedef {import('@extension/extension.coffee').MsgResponse} MsgResponse ###
-``###* @typedef {import('@extension/extension.coffee').MsgRequest} MsgRequest ###
+``###* @typedef {import('@extension/extension.coffee').BridgeMessage} BridgeMessage ###
 
 vscode = acquireVsCodeApi()
 
-``###* @type {Record<string, (r: MsgResponse) => void>} ###
-callbacks = {}
+``###* @type {Record<string, (r: BridgeMessage) => void>} ###
+response_handlers = {}
 id = 0
 
+``###* @type {Record<string, (r: BridgeMessage) => void>} ###
+push_handlers = {}
+
 window.addEventListener 'message', (msg_event) =>
-	``###* @type MsgResponse ###
+	``###* @type BridgeMessage ###
 	message = msg_event.data
-	switch message.command
+	switch message.type
 		when 'response'
-			handler = callbacks[message.id]
-			if handler
-				handler message
-				delete callbacks[message.id]
-			else
-				throw new Error "unhandled response id: " + JSON.stringify(message)
+			throw new Error "unhandled message response id: " + JSON.stringify(message) if not response_handlers[message.id]
+			response_handlers[message.id] message
+			delete response_handlers[message.id]
+		when 'push'
+			throw new Error "unhandled message push id: " + JSON.stringify(message) if not push_handlers[message.id]
+			push_handlers[message.id] message
 
 send_message = (###* @type string ### command, ###* @type any ### data) =>
 	id++
-	``###* @type MsgRequest ###
-	request = { command, data, id }
+	``###* @type BridgeMessage ###
+	request = { command, data, id, type: 'request' }
 	vscode.postMessage request
-	``###* @type {MsgResponse} ###
+	``###* @type {BridgeMessage} ###
 	resp = await new Promise (ok) =>
-		callbacks[id] = (data) =>
+		response_handlers[id] = (data) =>
 			ok data
 	if resp.error then throw resp.error
 	resp.data
@@ -46,3 +48,6 @@ export open_diff = (###* @type string ### hash, ###* @type string ### filename) 
 	send_message 'open-diff', { hash, filename }
 export get_config = (###* @type string ### key) =>
 	send_message 'get-config', key
+
+export add_push_listener = (###* @type string ### id, ###* @type {(r: BridgeMessage) => void} ### handler) =>
+	push_handlers[id] = handler

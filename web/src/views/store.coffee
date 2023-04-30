@@ -50,6 +50,7 @@ export git_run_log = (###* @type string ### log_args) =>
 			color: '#fff'
 	commits.value = parsed.commits
 	branches.value = parsed.branches
+	# todo rename to vis_max_amount
 	vis_max_length.value = parsed.vis_max_length
 	head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
 
@@ -81,15 +82,8 @@ export branch_actions = ref []
 export commit_actions = ref []
 ``###* @type {Ref<ConfigGitAction[]>} ###
 export stash_actions = ref []
-do =>
-	global_actions.value = await get_config 'actions.global'
-	branch_actions.value = await get_config 'actions.branch'
-	commit_actions.value = await get_config 'actions.commit'
-	stash_actions.value = await get_config 'actions.stash'
 ``###* @type {Ref<ConfigGitAction[]>} ###
 _unparsed_combine_branches_actions = ref []
-do =>
-	_unparsed_combine_branches_actions.value = await get_config 'actions.branch-drop'
 export combine_branches_actions = computed =>
 	parse_config_actions(_unparsed_combine_branches_actions.value, [
 		['{SOURCE_BRANCH_NAME}', combine_branches_from_branch_name.value],
@@ -104,3 +98,24 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 
 ``###* @type {Ref<Commit|null>} ###
 export selected_commit = ref null
+
+``###* @type {Ref<number|string>} ###
+export config_width = ref ''
+
+export init = =>
+	refresh_config()
+export refresh_config = =>
+	global_actions.value = await get_config 'actions.global'
+	branch_actions.value = await get_config 'actions.branch'
+	commit_actions.value = await get_config 'actions.commit'
+	stash_actions.value = await get_config 'actions.stash'
+	
+	_unparsed_combine_branches_actions.value = await get_config 'actions.branch-drop'
+
+	config_width.value = await get_config 'branch-width'
+
+export vis_v_width = computed =>
+	if not config_width.value or not Number(config_width.value)
+		Math.max(2, Math.min(10, Math.round(vis_max_length.value * (-1) * 8 / 50 + 18)))
+	else
+		Number(config_width.value)

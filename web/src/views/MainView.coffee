@@ -201,7 +201,6 @@ export default
 				}
 			}
 		invisible_branch_tips_of_visible_branches_elems = computed =>
-			v_width = 10 # TODO sync
 			row = -1
 			connection_fake_commit.value?.vis
 				.map (v, i) =>
@@ -211,7 +210,7 @@ export default
 					branch: v.branch
 					bind:
 						style:
-							left: 0 + v_width * i + 'px'
+							left: 0 + store.vis_v_width.value * i + 'px'
 							top: 0 + row * 19 + 'px'
 				.filter(is_truthy)
 

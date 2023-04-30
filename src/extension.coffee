@@ -1,5 +1,4 @@
-``###* @typedef {{ command: 'response', data?: any, error?: any, id: number }} MsgResponse ###
-``###* @typedef {{ command: string, data: any, id: number }} MsgRequest ###
+``###* @typedef {{ type: 'response' | 'request' | 'push', command?: string, data?: any, error?: any, id: number | string }} BridgeMessage ###
 
 vscode = require 'vscode'
 util = require('util')
@@ -25,36 +24,45 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
 		view = panel.webview
 
-		view.onDidReceiveMessage (###* @type MsgRequest ### message) =>
+		view.onDidReceiveMessage (###* @type BridgeMessage ### message) =>
 			d = message.data
 			h = (###* @type {() => any} ### func) =>
-				``###* @type MsgResponse ###
+				``###* @type BridgeMessage ###
 				resp =
-					command: 'response'
+					type: 'response'
 					id: message.id
 				try
 					resp.data = await func()
 				catch e
 					resp.error = e
 				view.postMessage resp
-			switch message.command
-				when 'git'
-					h => git d
-				when 'show-error-message'
-					h => vscode.window.showErrorMessage d
-				when 'show-information-message'
-					h => vscode.window.showInformationMessage d
-				when 'get-state'
-					h => context.globalState.get d
-				when 'set-state'
-					h => context.globalState.update d.key, d.value
-				when 'open-diff'
-					h =>
-						uri_1 = vscode.Uri.parse "git-show:#{d.hash}~1:#{d.filename}"
-						uri_2 = vscode.Uri.parse "git-show:#{d.hash}:#{d.filename}"
-						vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} @#{d.hash}"
-				when 'get-config'
-					h => vscode.workspace.getConfiguration(EXT_ID).get d
+			switch message.type
+				when 'request'
+					switch message.command
+						when 'git'
+							h => git d
+						when 'show-error-message'
+							h => vscode.window.showErrorMessage d
+						when 'show-information-message'
+							h => vscode.window.showInformationMessage d
+						when 'get-state'
+							h => context.globalState.get d
+						when 'set-state'
+							h => context.globalState.update d.key, d.value
+						when 'open-diff'
+							h =>
+								uri_1 = vscode.Uri.parse "git-show:#{d.hash}~1:#{d.filename}"
+								uri_2 = vscode.Uri.parse "git-show:#{d.hash}:#{d.filename}"
+								vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} @#{d.hash}"
+						when 'get-config'
+							h => vscode.workspace.getConfiguration(EXT_ID).get d
+		vscode.workspace.onDidChangeConfiguration (event) =>
+			if event.affectsConfiguration EXT_ID
+				``###* @type BridgeMessage ###
+				msg =
+					type: 'push'
+					id: 'config-change'
+				view.postMessage msg
 
 		is_production = context.extensionMode == vscode.ExtensionMode.Production
 		dev_server_url = 'http://localhost:8080'
