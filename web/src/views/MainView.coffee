@@ -1,6 +1,6 @@
+import { ref, computed, watch, nextTick } from 'vue'
 import * as store from './store.coffee'
 import { show_error_message } from '../bridge.coffee'
-import { ref, computed, watch } from 'vue'
 import GitInputModel from './GitInput.coffee'
 import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
@@ -36,6 +36,7 @@ export default
 			txt_filter.value = ''
 			if store.selected_commit.value
 				selected_i = filtered_commits.value.findIndex (c) => c == store.selected_commit.value
+				await nextTick()
 				commits_scroller_ref.value?.scrollToItem selected_i - Math.floor(visible_commits.value.length / 2) + 2
 		``###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
