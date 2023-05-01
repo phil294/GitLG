@@ -23,12 +23,14 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=
 
 	# The element(s) created by this is quite similar to the template of <git-action-button>
 	build_context_menu = (###* @type MouseEvent ### event) =>
+		entries = entries_provider(event)
+		return if not entries
 		wrapper_el = document.createElement('ul')
 		wrapper_el.setAttribute('aria-label', 'Context menu')
 		wrapper_el.classList.add 'context-menu-wrapper'
 		wrapper_el.style.setProperty 'left', event.clientX + 'px'
 		wrapper_el.style.setProperty 'top', event.clientY + 'px'
-		entries_provider(event).forEach (entry) =>
+		entries.forEach (entry) =>
 			entry_el = document.createElement('li')
 			entry_el.setAttribute('role', 'button')
 			entry_el.classList.add('row', 'gap-5')

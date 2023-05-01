@@ -245,7 +245,7 @@ export default
 		# works around it reliably (albeit uglily)
 		commit_context_menu_provider = computed => (###* @type MouseEvent ### event) =>
 			el = event.target
-			return if el not instanceof HTMLElement
+			return if el not instanceof HTMLElement and el not instanceof SVGElement
 			while el.parentElement and not el.parentElement.classList.contains('commit')
 				el = el.parentElement
 			return if not el.parentElement
