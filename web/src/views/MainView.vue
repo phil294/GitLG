@@ -13,6 +13,8 @@
 				folder-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
+						#search-instructions v-if="txt_filter_type==='search'"
+							| Jump between matches with ENTER / SHIFT+ENTER
 						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
 						button#clear-filter v-if="txt_filter" @click="clear_filter()"
 							| ✖
