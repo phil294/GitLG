@@ -193,6 +193,36 @@
 			]
 		}
 	],
+	"actions.commits": [
+		{
+			"title": "Cherry pick",
+			"icon": "record",
+			"args": "cherry-pick $1",
+			"params": [
+				"{COMMIT_HASHES}"
+			],
+			"options": [
+				{
+					"value": "--no-commit",
+					"default_active": false
+				}
+			]
+		},
+		{
+			"title": "Revert",
+			"icon": "discard",
+			"args": "revert $1",
+			"params": [
+				"{COMMIT_HASHES}"
+			],
+			"options": [
+				{
+					"value": "--no-commit",
+					"default_active": false
+				}
+			]
+		}
+	],
 	"actions.stash": [
 		{
 			"title": "Apply",

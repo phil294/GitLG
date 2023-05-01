@@ -37,7 +37,7 @@
 			#branches-connection
 				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider"
-				.row.commit :class="{selected_commit:commit===selected_commit,empty:!commit.hash}" @click="selected_commit=selected_commit==commit?null:commit" role="button" :data-commit-hash="commit.hash"
+				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
 					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
@@ -59,7 +59,13 @@
 			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
 			button#close-selected-commit.center @click="selected_commit=null" title="Close"
 				i.codicon.codicon-close
-			#resize-hint v-if="selected_commit"
+			.resize-hint v-if="selected_commit"
+				| ← resize
+		#right.col.flex-1 v-else-if="selected_commits.length"
+			commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits"
+			button#close-selected-commits.center @click="selected_commits=[]" title="Close"
+				i.codicon.codicon-close
+			.resize-hint v-if="selected_commit"
 				| ← resize
 
 	popup v-if="combine_branches_from_branch_name" @close="combine_branches_from_branch_name=''"
@@ -149,15 +155,23 @@ details.config
 			height var(--h)
 			line-height var(--h)
 			cursor pointer
+			user-select none
 			&.selected_commit
 				box-shadow 0 0 3px 0px gold
+				background #292616
+
+
 			// TODO: wait for vscode to be process.versions.chrome (dev tools) >= 112, then:
 			// .vis:has(+.info:hover)
 			// 	overflow hidden
-			// Workaround until then:
+			// Workaround until then (also see.vue-recycle-scroller__item-view.hover > .commit:
 			.info:hover
 				z-index 1
 				background #161616
+			&.selected_commit .info:hover
+				background #292616
+
+
 			.info
 				border-top 1px solid #2e2e2e
 				> *
@@ -184,13 +198,13 @@ details.config
 #right
 	min-width 400px
 	position relative
-	#selected-commit
+	#selected-commit, #selected-commits
 		overflow auto
-	#close-selected-commit
+	#close-selected-commit, #close-selected-commits
 		position absolute
 		top 10px
 		right 10px
-	#resize-hint
+	.resize-hint
 		color #555555
 		font-size small
 		padding-left 10px
@@ -200,4 +214,8 @@ details.config
 <style lang="stylus">
 .vue-recycle-scroller__item-view.hover > .commit
 	background #323232
+
+// TODO: see above
+.vue-recycle-scroller__item-view.hover > .commit .info:hover
+	background #323232 !important
 </style>

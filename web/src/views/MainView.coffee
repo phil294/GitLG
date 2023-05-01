@@ -5,6 +5,7 @@ import GitInputModel from './GitInput.coffee'
 import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import CommitDetails from './CommitDetails.vue'
+import CommitsDetails from './CommitsDetails.vue'
 import Visualization from './Visualization.vue'
 import AllBranches from './AllBranches.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
@@ -25,8 +26,33 @@ import FolderSelection from './FolderSelection.vue'
 is_truthy = (value) => !!value
 
 export default
-	components: { CommitDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction, FolderSelection }
+	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction, FolderSelection }
 	setup: ->
+		#
+		###* @type {Ref<Commit[]>} ###
+		selected_commits = ref []
+		selected_commit = computed =>
+			if selected_commits.value.length == 1
+				selected_commits.value[0]
+		commit_clicked = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
+			selected_index = selected_commits.value.indexOf commit
+			if event.ctrlKey
+				if selected_index > -1
+					selected_commits.value.splice selected_index, 1
+				else
+					selected_commits.value.push commit
+			else if event.shiftKey
+				total_index = filtered_commits.value.indexOf commit
+				last_total_index = filtered_commits.value.indexOf selected_commits.value.at(-1)
+				if total_index > last_total_index and total_index - last_total_index < 100
+					selected_commits.value.push ...filtered_commits.value.slice(last_total_index, total_index+1).filter (commit) =>
+						not selected_commits.value.includes commit
+			else
+				if selected_index > -1
+					selected_commits.value = []
+				else
+					selected_commits.value = [commit]
+
 
 
 		txt_filter = ref ''
@@ -34,8 +60,8 @@ export default
 		txt_filter_type = ref 'filter'
 		clear_filter = =>
 			txt_filter.value = ''
-			if store.selected_commit.value
-				selected_i = filtered_commits.value.findIndex (c) => c == store.selected_commit.value
+			if selected_commit.value
+				selected_i = filtered_commits.value.findIndex (c) => c == selected_commit.value
 				await nextTick()
 				commits_scroller_ref.value?.scrollToItem selected_i - Math.floor(visible_commits.value.length / 2) + 2
 		``###* @type {Ref<HTMLElement | null>} ###
@@ -73,7 +99,7 @@ export default
 			txt_filter_last_i = next_match_index
 			window.clearTimeout select_searched_commit_debouncer
 			select_searched_commit_debouncer = window.setTimeout (=>
-				store.selected_commit.value = filtered_commits.value[txt_filter_last_i]
+				selected_commits.value = [filtered_commits.value[txt_filter_last_i]]
 			), 100
 
 
@@ -87,7 +113,7 @@ export default
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
-			store.selected_commit.value = filtered_commits.value[first_branch_commit_i]
+			selected_commits.value = [filtered_commits.value[first_branch_commit_i]]
 		scroll_to_commit = (###* @type string ### hash) =>
 			commit_i = filtered_commits.value.findIndex (commit) =>
 				commit.hash == hash
@@ -120,9 +146,11 @@ export default
 		GitInput would have done the git call ###
 		run_log = (###* @type string ### log_args) =>
 			await store.git_run_log(log_args)
-			if store.selected_commit.value
-				store.selected_commit.value = (filtered_commits.value.find (commit) =>
-					commit.hash == store.selected_commit.value?.hash) or null
+			if selected_commit.value
+				new_commit = filtered_commits.value.find (commit) =>
+					commit.hash == selected_commit.value?.hash
+				if new_commit
+					selected_commits.value = [new_commit]
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
 		
@@ -241,7 +269,7 @@ export default
 			# when focus was in a sub component (??) so doing this instaed:
 			document.addEventListener 'keyup', (e) =>
 				if e.key == "Escape"
-					store.selected_commit.value = null
+					selected_commits.value = []
 
 
 		# It didn't work with normal context binding to the scroller's commit elements, either a bug
@@ -277,7 +305,9 @@ export default
 			commits_scroller_ref
 			scroll_to_branch_tip
 			scroll_to_commit
-			selected_commit: store.selected_commit
+			selected_commit
+			selected_commits
+			commit_clicked
 			txt_filter
 			txt_filter_ref
 			txt_filter_type

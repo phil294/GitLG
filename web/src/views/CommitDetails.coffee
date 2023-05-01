@@ -58,7 +58,7 @@ export default defineComponent
 		
 		show_diff = (###* @type string ### filepath) =>
 			exchange_message 'open-diff',
-				hash: props.commit.hash
+				hashes: [props.commit.hash, props.commit.hash+'~1']
 				filename: filepath
 		
 		_commit_actions = computed =>

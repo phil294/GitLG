@@ -200,6 +200,61 @@
 						}
 					}
 				},
+				"git-log--graph.actions.commits": {
+					"description": "Please check the extension's README for documentation. BE CAREFUL EDITING THESE OPTIONS.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": [
+							"title",
+							"args"
+						],
+						"properties": {
+							"title": {
+								"type": "string"
+							},
+							"icon": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"immediate": {
+								"type": "boolean"
+							},
+							"ignore_errors": {
+								"type": "boolean"
+							},
+							"args": {
+								"type": "string"
+							},
+							"params": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"options": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"required": [
+										"value",
+										"default_active"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"default_active": {
+											"type": "boolean"
+										}
+									}
+								}
+							}
+						}
+					}
+				},
 				"git-log--graph.actions.stash": {
 					"description": "Please check the extension's README for documentation. BE CAREFUL EDITING THESE OPTIONS.",
 					"type": "array",

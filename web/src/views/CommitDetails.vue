@@ -49,8 +49,6 @@ h2.summary
 	word-break break-word
 	overflow hidden
 	text-overflow ellipsis
-.selected-input
-	width: clamp(200px, 50vw, 50vw)
 .changed-files
 	padding 0
 	overflow auto

@@ -93,11 +93,16 @@ config_branch_actions = ref []
 config_tag_actions = ref []
 ``###* @type {Ref<ConfigGitAction[]>} ###
 config_commit_actions = ref []
+``###* @type {Ref<ConfigGitAction[]>} ###
+config_commits_actions = ref []
 export commit_actions = (###* @type string ### hash) => computed =>
 	parse_config_actions(config_commit_actions.value, [['{COMMIT_HASH}', hash]])
+export commits_actions = (###* @type string[] ### hashes) => computed =>
+	parse_config_actions(config_commits_actions.value, [['{COMMIT_HASHES}', hashes.join(' ')]])
 export branch_actions = (###* @type string ### branch_name) => computed =>
 	parse_config_actions(config_branch_actions.value, [['{BRANCH_NAME}', branch_name]])
 export tag_actions = (###* @type string ### tag_name) => computed =>
+	# TODO: tag name should be without the "tag: " and only in display in ref tip (also in other place?s)
 	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name.replace(/^tag: /, '')]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
 config_stash_actions = ref []
@@ -120,9 +125,6 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 ``###* @type {Ref<GitAction|null>} ###
 export selected_git_action = ref null
 
-``###* @type {Ref<Commit|null>} ###
-export selected_commit = ref null
-
 ``###* @type {Ref<number|string>} ###
 export config_width = ref ''
 
@@ -136,6 +138,7 @@ export refresh_config = =>
 	global_actions.value = default_git_actions['actions.global'].concat(await get_config 'actions.global')
 	config_branch_actions.value = default_git_actions['actions.branch'].concat(await get_config 'actions.branch')
 	config_commit_actions.value = default_git_actions['actions.commit'].concat(await get_config 'actions.commit')
+	config_commits_actions.value = default_git_actions['actions.commits'].concat(await get_config 'actions.commits')
 	config_stash_actions.value = default_git_actions['actions.stash'].concat(await get_config 'actions.stash')
 	config_tag_actions.value = default_git_actions['actions.tag'].concat(await get_config 'actions.tag')
 	

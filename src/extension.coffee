@@ -34,7 +34,7 @@ git = (###* @type string ### args) =>
 	stdout
 
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
-	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider 'git-show',
+	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
 		provideTextDocumentContent: (uri) ->
 			(try await git "show \"#{uri.path}\"") or ''
 
@@ -78,9 +78,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						when 'set-workspace-state' then h =>
 							context.workspaceState.update d.key, d.value
 						when 'open-diff' then h =>
-							uri_1 = vscode.Uri.parse "git-show:#{d.hash}~1:#{d.filename}"
-							uri_2 = vscode.Uri.parse "git-show:#{d.hash}:#{d.filename}"
-							vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} @#{d.hash}"
+							uri_1 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[0]}:#{d.filename}"
+							uri_2 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[1]}:#{d.filename}"
+							vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} #{d.hashes[0]} vs. #{d.hashes[1]}"
 						when 'get-config' then h =>
 							vscode.workspace.getConfiguration(EXT_ID).get d
 						when 'get-folder-names' then h =>
