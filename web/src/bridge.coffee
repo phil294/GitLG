@@ -21,8 +21,8 @@ window.addEventListener 'message', (msg_event) =>
 			throw new Error "unhandled message push id: " + JSON.stringify(message) if not push_handlers[message.id]
 			push_handlers[message.id] message
 
-export send_message = (###* @type string ### command, ###* @type any ### data) =>
-	console.info "send_message", command, data
+export exchange_message = (###* @type string ### command, ###* @type any ### data) =>
+	console.info "exchange_message", command, data
 	id++
 	``###* @type BridgeMessage ###
 	request = { command, data, id, type: 'request' }
@@ -36,17 +36,17 @@ export send_message = (###* @type string ### command, ###* @type any ### data) =
 
 ``###* @return {Promise<string>} ###
 export git = (###* @type string ### args) =>
-	(await send_message 'git', args).trim()
+	(await exchange_message 'git', args).trim()
 export show_information_message = (###* @type string ### msg) =>
-	send_message 'show-information-message', msg
+	exchange_message 'show-information-message', msg
 export show_error_message = (###* @type string ### msg) =>
-	send_message 'show-error-message', msg
+	exchange_message 'show-error-message', msg
 export get_global_state = (###* @type string ### key) =>
-	send_message 'get-global-state', key
+	exchange_message 'get-global-state', key
 export set_global_state = (###* @type string ### key, ###* @type any ### value) =>
-	send_message 'set-global-state', { key, value }
+	exchange_message 'set-global-state', { key, value }
 export get_config = (###* @type string ### key) =>
-	send_message 'get-config', key
+	exchange_message 'get-config', key
 
 export add_push_listener = (###* @type string ### id, ###* @type {(r: BridgeMessage) => void} ### handler) =>
 	push_handlers[id] = handler

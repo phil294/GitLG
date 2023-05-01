@@ -1,5 +1,5 @@
 import { ref, computed, defineComponent, watchEffect } from 'vue'
-import { git, send_message } from '../bridge.coffee'
+import { git, exchange_message } from '../bridge.coffee'
 import { commit_actions, stash_actions, branch_actions } from './store.coffee'
 import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
@@ -44,7 +44,7 @@ export default defineComponent
 			body.value = await git "show -s --format=\"%b\" #{props.commit.hash}"
 		
 		show_diff = (###* @type string ### filepath) =>
-			send_message 'open-diff',
+			exchange_message 'open-diff',
 				hash: props.commit.hash
 				filename: filepath
 		

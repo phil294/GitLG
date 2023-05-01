@@ -1,6 +1,6 @@
 import { parse_config_actions } from "./GitInput.coffee"
 import { parse } from "./log-utils.coffee"
-import { git, get_config, send_message } from "../bridge.coffee"
+import { git, get_config, exchange_message } from "../bridge.coffee"
 import GitInputModel from './GitInput.coffee'
 import { ref, computed } from "vue"
 ``###*
@@ -123,7 +123,7 @@ export folder_names = ref []
 
 export init = =>
 	refresh_config()
-	folder_names.value = await send_message 'get-folder-names'
+	folder_names.value = await exchange_message 'get-folder-names'
 export refresh_config = =>
 	global_actions.value = await get_config 'actions.global'
 	config_branch_actions.value = await get_config 'actions.branch'
