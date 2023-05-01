@@ -301,6 +301,22 @@
 							]
 						},
 						{
+							"title": "Create tag",
+							"icon": "tag",
+							"args": "tag '$1' '$2' --message '$3'",
+							"params": [
+								"new_tag_name",
+								"{COMMIT_HASH}",
+								""
+							],
+							"options": [
+								{
+									"value": "--annotate",
+									"default_active": true
+								}
+							]
+						},
+						{
 							"title": "Cherry pick",
 							"icon": "record",
 							"args": "cherry-pick '$1'",
@@ -417,7 +433,98 @@
 							"immediate": true,
 							"args": "stash apply '$1'",
 							"params": [
-								"{COMMIT_HASH}"
+								"{STASH_NAME}"
+							]
+						},
+						{
+							"title": "Pop",
+							"icon": "export",
+							"immediate": true,
+							"args": "stash pop '$1'",
+							"params": [
+								"{STASH_NAME}"
+							]
+						},
+						{
+							"title": "Drop",
+							"icon": "trash",
+							"args": "stash drop '$1'",
+							"params": [
+								"{STASH_NAME}"
+							]
+						},
+						{
+							"title": "To branch",
+							"icon": "add",
+							"args": "stash branch '$1' '$2'",
+							"params": [
+								"new_branch_name",
+								"{STASH_NAME}"
+							]
+						}
+					]
+				},
+				"git-log--graph.actions.tag": {
+					"description": "Please check the extension's README for documentation. BE CAREFUL EDITING THESE OPTIONS.",
+					"type": "array",
+					"items": {
+						"type": "object",
+						"required": [
+							"title",
+							"args"
+						],
+						"properties": {
+							"title": {
+								"type": "string"
+							},
+							"icon": {
+								"type": "string"
+							},
+							"description": {
+								"type": "string"
+							},
+							"immediate": {
+								"type": "boolean"
+							},
+							"ignore_errors": {
+								"type": "boolean"
+							},
+							"args": {
+								"type": "string"
+							},
+							"params": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"options": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"required": [
+										"value",
+										"default_active"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"default_active": {
+											"type": "boolean"
+										}
+									}
+								}
+							}
+						}
+					},
+					"default": [
+						{
+							"title": "Delete",
+							"icon": "trash",
+							"args": "tag -d '$1'",
+							"params": [
+								"{TAG_NAME}"
 							]
 						}
 					]
@@ -548,7 +655,10 @@
 				},
 				"git-log--graph.branch-width": {
 					"description": "The width of the individual branch lines, including both line and right spacing. The default 'auto' chooses between 10 and 2 depending on the size of the repository.",
-					"type": ["integer", "string"],
+					"type": [
+						"integer",
+						"string"
+					],
 					"default": "auto"
 				}
 			}
@@ -556,9 +666,12 @@
 	},
 	"scripts": {},
 	"devDependencies": {
-		"@types/node": "^12.12.0",
+		"@types/node": "^18.16.3",
 		"@types/vscode": "^1.47.0",
 		"@types/vscode-webview": "^1.57.0",
 		"coffeescript": "^2.7.0"
+	},
+	"dependencies": {
+		"glob": "^10.2.2"
 	}
 }
