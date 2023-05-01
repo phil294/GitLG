@@ -108,6 +108,7 @@ details.config
 	#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
 	#branches-connection
+		height 100px
 		:deep(>.vis>svg>line.vis-v)
 			stroke-dasharray 4
 	#git-status
