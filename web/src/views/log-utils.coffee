@@ -201,9 +201,16 @@ parse = (data, separator) =>
 				branch
 			}
 
-	for branch, i in branches
-		# cannot do this at creation because branches list is not fixed before this (see wrong_branch)
-		branch.color = colors[i % (colors.length - 1)]
+	# cannot do this at creation because branches list is not fixed before this (see wrong_branch)
+	i = -1
+	for branch from branches
+		branch.color = switch branch.name
+			when 'master', 'main' then '#ff3333'
+			when 'development', 'develop', 'dev' then '#009000'
+			when 'stage', 'staging' then '#d7d700'
+			else
+				i++
+				colors[i % (colors.length - 1)]
 	
 	branches = branches
 		.filter (branch) =>
