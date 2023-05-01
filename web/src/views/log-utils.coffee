@@ -61,6 +61,7 @@ parse = (data, separator) =>
 			.split ', '
 			# map to ["master", "origin/master", "tag: xyz"]
 			.map (r) => r.split(' -> ')[1] or r
+			.filter (r) => r != 'refs/stash'
 			.filter Boolean
 			.map (name) =>
 				###* @type {GitRef} ###
