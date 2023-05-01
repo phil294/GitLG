@@ -108,8 +108,9 @@ export default
 			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
 			args: "log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
 			options: [
-				{ value: '--author-date-order', default_active: true }
 				{ value: '--date-order', default_active: false }
+				{ value: '--author-date-order', default_active: true }
+				{ value: '--topo-order', default_active: false }
 				{ value: '--reflog', default_active: false }
 			]
 			config_key: "main-log"
