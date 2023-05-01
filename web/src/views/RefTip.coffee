@@ -35,7 +35,7 @@ export default defineComponent
 			source_branch_name = event.data
 			return if typeof source_branch_name != 'string'
 			combine_branches(source_branch_name, props.git_ref.name)
-		context_menu: computed =>
+		context_menu_provider: =>
 			if is_branch.value
 				to_context_menu_entries(branch_actions(props.git_ref.name))
 			else if props.git_ref.type == 'stash' and props.commit

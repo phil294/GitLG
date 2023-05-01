@@ -5,17 +5,17 @@ import Vue from 'vue'
 	oncontextmenu: (this: HTMLElement, ev: MouseEvent) => any
 	onglobalclick: (ev: MouseEvent) => any
 	onglobalkeyup: (ev: KeyboardEvent) => any
-	entries: ContextMenuEntry[]
+	entries_provider: () => ContextMenuEntry[]
 }} ContextMenuData
 ###
 
 ``###* @type {Map<HTMLElement,ContextMenuData>} ### 
 context_menu_data_by_el = new Map
 
-set_context_menu = (###* @type HTMLElement ### el, ###* @type ContextMenuEntry[] ### entries) =>
+set_context_menu = (###* @type HTMLElement ### el, ###* @type {()=>ContextMenuEntry[]} ### entries_provider) =>
 	existing_context_menu_data = context_menu_data_by_el.get el
 	if existing_context_menu_data
-		existing_context_menu_data.entries = entries
+		existing_context_menu_data.entries_provider = entries_provider
 		return
 
 	``###* @type {HTMLElement | null} ###
@@ -28,7 +28,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type ContextMenuEntry[]
 		wrapper_el.classList.add 'context-menu-wrapper'
 		wrapper_el.style.setProperty 'left', x + 'px'
 		wrapper_el.style.setProperty 'top', y + 'px'
-		entries.forEach (entry) =>
+		entries_provider().forEach (entry) =>
 			entry_el = document.createElement('li')
 			entry_el.setAttribute('role', 'button')
 			entry_el.classList.add('row', 'gap-5')
@@ -59,7 +59,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type ContextMenuEntry[]
 		onglobalkeyup: (e) =>
 			if e.key == "Escape"
 				destroy_context_menu()
-		entries: entries
+		entries_provider: entries_provider
 
 	el.addEventListener 'contextmenu', context_menu_data.oncontextmenu, false
 	document.addEventListener 'contextmenu', context_menu_data.onglobalclick, false

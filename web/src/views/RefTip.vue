@@ -1,5 +1,5 @@
 <template lang="slm">
-.ref-tip v-bind="bind" v-drag="drag" v-drop="drop" v-context-menu="context_menu"
+.ref-tip v-bind="bind" v-drag="drag" v-drop="drop" v-context-menu="context_menu_provider"
 	| {{ git_ref.name }}
 </template>
 

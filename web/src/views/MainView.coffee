@@ -228,6 +228,14 @@ export default
 			store.selected_commit.value = null
 
 
+		commit_context_menu_provider = (###* @type Commit ### commit) =>
+			store.commit_actions(commit.hash).map (action) =>
+				label: action.title
+				icon: action.icon
+				action: =>
+					store.selected_git_action.value = action
+
+
 
 		{
 			initialized
@@ -258,4 +266,5 @@ export default
 			escape_pressed
 			refresh_main_view: store.refresh_main_view
 			selected_git_action: store.selected_git_action
+			commit_context_menu_provider
 		}
