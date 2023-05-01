@@ -91,6 +91,8 @@ details.config
 		z-index 2
 		background #111111
 		border-bottom 1px solid #424242
+		#folder-selection
+			overflow hidden
 		> aside
 			> section#search
 				overflow hidden
