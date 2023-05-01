@@ -106,8 +106,12 @@ export default
 			# git internals, but they are completely useless to the user.
 			# Could not find any easy way to skip those other than de-grepping them, TODO:.
 			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-			args: "log --graph --oneline --pretty=VSCode --author-date-order -n 15000 --skip=0 --all stash_refs --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
-			options: [ { value: '--reflog', default_active: false } ]
+			args: "log --graph --oneline --pretty=VSCode -n 15000 --skip=0 --all stash_refs --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
+			options: [
+				{ value: '--author-date-order', default_active: true }
+				{ value: '--date-order', default_active: false }
+				{ value: '--reflog', default_active: false }
+			]
 			config_key: "main-log"
 			immediate: true
 		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
