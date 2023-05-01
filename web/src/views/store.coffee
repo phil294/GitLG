@@ -100,8 +100,8 @@ export tag_actions = (###* @type string ### tag_name) =>
 	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name.replace(/^tag: /, '')]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
 config_stash_actions = ref []
-export stash_actions = (###* @type string ### hash) =>
-	parse_config_actions(config_stash_actions.value, [['{COMMIT_HASH}', hash]])
+export stash_actions = (###* @type string ### stash_name) =>
+	parse_config_actions(config_stash_actions.value, [['{STASH_NAME}', stash_name]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
 _unparsed_combine_branches_actions = ref []
 export combine_branches_actions = computed =>

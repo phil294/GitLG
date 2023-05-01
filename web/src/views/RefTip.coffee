@@ -39,6 +39,6 @@ export default defineComponent
 			if is_branch.value
 				to_context_menu_entries(branch_actions(props.git_ref.name))
 			else if props.git_ref.type == 'stash' and props.commit
-				to_context_menu_entries(stash_actions(props.commit.hash))
+				to_context_menu_entries(stash_actions(props.git_ref.name))
 			else if props.git_ref.type == 'tag'
 				to_context_menu_entries(tag_actions(props.git_ref.name))

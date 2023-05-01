@@ -62,7 +62,7 @@ export default defineComponent
 				filename: filepath
 		
 		_commit_actions = commit_actions(props.commit.hash)
-		_stash_actions = stash_actions(props.commit.hash)
+		_stash_actions = stash_actions(stash.value?.name or '')
 
 		{
 			branch_tips
