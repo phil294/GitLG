@@ -1,4 +1,4 @@
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import * as store from './store.coffee'
 import { show_error_message } from '../bridge.coffee'
 import GitInputModel from './GitInput.coffee'
@@ -236,8 +236,12 @@ export default
 		
 
 
-		escape_pressed = =>
-			store.selected_commit.value = null
+		onMounted =>
+			# didn't work with @keyup.escape.native on the components root element
+			# when focus was in a sub component (??) so doing this instaed:
+			document.addEventListener 'keyup', (e) =>
+				if e.key == "Escape"
+					store.selected_commit.value = null
 
 
 		# It didn't work with normal context binding to the scroller's commit elements, either a bug
@@ -286,7 +290,6 @@ export default
 			invisible_branch_tips_of_visible_branches
 			invisible_branch_tips_of_visible_branches_elems
 			connection_fake_commit
-			escape_pressed
 			refresh_main_view: store.refresh_main_view
 			selected_git_action: store.selected_git_action
 			commit_context_menu_provider
