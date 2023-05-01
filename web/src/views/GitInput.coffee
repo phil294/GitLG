@@ -74,9 +74,11 @@ export default defineComponent
 		get_saved = =>
 			saved_config.value = (await get_global_state config_key) or null
 			if saved_config.value
-				Object.assign options, saved_config.value.options.filter (o) =>
-					# to not mess things up when changes in default options
-					options.some (oo) => oo.value == o.value
+				for option from options
+					saved = saved_config.value.options.find (o) =>
+						o.value == option.value
+					if saved
+						option.active = saved.active
 				# because modifying `options` this will have changed `command`
 				# via watchEffect, we need to wait before overwriting it
 				await nextTick()
