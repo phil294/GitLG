@@ -1,0 +1,290 @@
+{
+	"actions.global": [
+		{
+			"title": "",
+			"icon": "chevron-up",
+			"description": "Stash (include untracked)",
+			"args": "stash -u",
+			"options": [
+				{
+					"value": "--include-untracked",
+					"default_active": true
+				}
+			],
+			"immediate": true
+		},
+		{
+			"title": "",
+			"icon": "chevron-down",
+			"description": "Stash pop",
+			"args": "stash pop",
+			"immediate": true
+		},
+		{
+			"title": "",
+			"icon": "cloud-download",
+			"description": "Fetch all",
+			"args": "fetch --all",
+			"immediate": true
+		},
+		{
+			"title": "",
+			"icon": "circle-slash",
+			"description": "Abort the current merge or cherry-pick or rebase, if present.",
+			"args": "merge --abort; git cherry-pick --abort; git rebase --abort; git reset --merge",
+			"immediate": true,
+			"ignore_errors": true
+		}
+	],
+	"actions.branch-drop": [
+		{
+			"title": "Merge {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
+			"icon": "git-merge",
+			"args": "checkout '$2' && git merge '$1'",
+			"params": [
+				"{SOURCE_BRANCH_NAME}",
+				"{TARGET_BRANCH_NAME}"
+			],
+			"options": [
+				{
+					"value": "--no-commit",
+					"default_active": false
+				}
+			]
+		},
+		{
+			"title": "Rebase {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
+			"icon": "references",
+			"args": "checkout '$2' && git rebase '$1'",
+			"params": [
+				"{SOURCE_BRANCH_NAME}",
+				"{TARGET_BRANCH_NAME}"
+			]
+		},
+		{
+			"title": "Reset {SOURCE_BRANCH_NAME} onto {TARGET_BRANCH_NAME}...",
+			"icon": "reply",
+			"args": "checkout '$1' && git reset '$2'",
+			"params": [
+				"{SOURCE_BRANCH_NAME}",
+				"{TARGET_BRANCH_NAME}"
+			],
+			"options": [
+				{
+					"value": "--soft",
+					"default_active": false
+				},
+				{
+					"value": "--hard",
+					"default_active": false
+				}
+			]
+		}
+	],
+	"actions.commit": [
+		{
+			"title": "Checkout",
+			"icon": "git-commit",
+			"immediate": true,
+			"args": "checkout '$1'",
+			"params": [
+				"{COMMIT_HASH}"
+			]
+		},
+		{
+			"title": "Create branch",
+			"icon": "add",
+			"args": "branch '$1' '$2'",
+			"params": [
+				"new_branch_name",
+				"{COMMIT_HASH}"
+			]
+		},
+		{
+			"title": "Create tag",
+			"icon": "tag",
+			"args": "tag '$1' '$2' --message '$3'",
+			"params": [
+				"new_tag_name",
+				"{COMMIT_HASH}",
+				""
+			],
+			"options": [
+				{
+					"value": "--annotate",
+					"default_active": true
+				}
+			]
+		},
+		{
+			"title": "Cherry pick",
+			"icon": "record",
+			"args": "cherry-pick '$1'",
+			"params": [
+				"{COMMIT_HASH}"
+			],
+			"options": [
+				{
+					"value": "--no-commit",
+					"default_active": false
+				}
+			]
+		},
+		{
+			"title": "Revert",
+			"icon": "discard",
+			"args": "revert '$1'",
+			"params": [
+				"{COMMIT_HASH}"
+			],
+			"options": [
+				{
+					"value": "--no-commit",
+					"default_active": false
+				}
+			]
+		},
+		{
+			"title": "Rebase",
+			"icon": "references",
+			"args": "rebase '$1'",
+			"params": [
+				"{COMMIT_HASH}"
+			]
+		},
+		{
+			"title": "Reset",
+			"icon": "reply",
+			"args": "reset '$1'",
+			"params": [
+				"{COMMIT_HASH}"
+			],
+			"options": [
+				{
+					"value": "--soft",
+					"default_active": false
+				},
+				{
+					"value": "--hard",
+					"default_active": false
+				}
+			]
+		}
+	],
+	"actions.stash": [
+		{
+			"title": "Apply",
+			"icon": "arrow-right",
+			"immediate": true,
+			"args": "stash apply '$1'",
+			"params": [
+				"{STASH_NAME}"
+			]
+		},
+		{
+			"title": "Pop",
+			"icon": "export",
+			"immediate": true,
+			"args": "stash pop '$1'",
+			"params": [
+				"{STASH_NAME}"
+			]
+		},
+		{
+			"title": "Drop",
+			"icon": "trash",
+			"args": "stash drop '$1'",
+			"params": [
+				"{STASH_NAME}"
+			]
+		},
+		{
+			"title": "To branch",
+			"icon": "add",
+			"args": "stash branch '$1' '$2'",
+			"params": [
+				"new_branch_name",
+				"{STASH_NAME}"
+			]
+		}
+	],
+	"actions.tag": [
+		{
+			"title": "Delete",
+			"icon": "trash",
+			"args": "tag -d '$1'",
+			"params": [
+				"{TAG_NAME}"
+			]
+		}
+	],
+	"actions.branch": [
+		{
+			"title": "Checkout",
+			"icon": "git-commit",
+			"description": "",
+			"immediate": true,
+			"args": "checkout '$1'",
+			"params": [
+				"{BRANCH_NAME}"
+			]
+		},
+		{
+			"title": "Merge",
+			"icon": "git-merge",
+			"args": "merge '$1'",
+			"params": [
+				"{BRANCH_NAME}"
+			],
+			"options": [
+				{
+					"value": "--no-commit",
+					"default_active": false
+				}
+			]
+		},
+		{
+			"title": "Pull",
+			"icon": "fold-down",
+			"description": "Pull",
+			"args": "pull"
+		},
+		{
+			"title": "Push",
+			"icon": "fold-up",
+			"description": "Push",
+			"args": "push"
+		},
+		{
+			"title": "Rename",
+			"icon": "edit",
+			"args": "branch -m '$1' '$2'",
+			"params": [
+				"{BRANCH_NAME}",
+				"new_branch_name"
+			]
+		},
+		{
+			"title": "Delete",
+			"icon": "trash",
+			"args": "branch -d '$1'",
+			"params": [
+				"{BRANCH_NAME}"
+			],
+			"options": [
+				{
+					"value": "--force",
+					"default_active": false
+				}
+			]
+		},
+		{
+			"title": "Rebase",
+			"icon": "references",
+			"args": "rebase '$1'",
+			"params": [
+				"{BRANCH_NAME}"
+			]
+		}
+	]
+}

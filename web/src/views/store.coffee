@@ -1,8 +1,9 @@
-import { parse_config_actions } from "./GitInput.coffee"
+import { ref, computed } from "vue"
+import default_git_actions from './default-git-actions.json'
 import { parse } from "./log-utils.coffee"
 import { git, get_config, exchange_message } from "../bridge.coffee"
+import { parse_config_actions } from "./GitInput.coffee"
 import GitInputModel from './GitInput.coffee'
-import { ref, computed } from "vue"
 ``###*
 # @typedef {import('./types').GitRef} GitRef
 # @typedef {import('./types').Branch} Branch
@@ -132,11 +133,11 @@ export init = =>
 	refresh_config()
 	folder_names.value = await exchange_message 'get-folder-names'
 export refresh_config = =>
-	global_actions.value = await get_config 'actions.global'
-	config_branch_actions.value = await get_config 'actions.branch'
-	config_commit_actions.value = await get_config 'actions.commit'
-	config_stash_actions.value = await get_config 'actions.stash'
-	config_tag_actions.value = await get_config 'actions.tag'
+	global_actions.value = default_git_actions['actions.global'].concat(await get_config 'actions.global')
+	config_branch_actions.value = default_git_actions['actions.branch'].concat(await get_config 'actions.branch')
+	config_commit_actions.value = default_git_actions['actions.commit'].concat(await get_config 'actions.commit')
+	config_stash_actions.value = default_git_actions['actions.stash'].concat(await get_config 'actions.stash')
+	config_tag_actions.value = default_git_actions['actions.tag'].concat(await get_config 'actions.tag')
 	
 	_unparsed_combine_branches_actions.value = await get_config 'actions.branch-drop'
 
