@@ -28,6 +28,8 @@
 							i.codicon.codicon-refresh
 			#quick-branch-tips
 				all-branches @branch_selected="scroll_to_branch_tip($event)"
+				#git-status v-if="!invisible_branch_tips_of_visible_branches_elems.length"
+					| Status: {{ git_status }}
 				button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip" v-bind="branch_elem.bind"
 					ref-tip :git_ref="branch_elem.branch"
 			#branches-connection
@@ -106,9 +108,15 @@ details.config
 	#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
 	#branches-connection
-		height 100px
 		:deep(>.vis>svg>line.vis-v)
 			stroke-dasharray 4
+	#git-status
+		color #555
+		height 100px
+		position fixed
+		overflow auto
+		width 100%
+		white-space pre-line
 	#quick-branch-tips
 		position sticky
 		z-index 1

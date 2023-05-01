@@ -205,7 +205,7 @@ export default
 			}
 		invisible_branch_tips_of_visible_branches_elems = computed =>
 			row = -1
-			connection_fake_commit.value?.vis
+			(connection_fake_commit.value?.vis
 				.map (v, i) =>
 					return null if not v.branch or v.char == ' '
 					row++
@@ -215,7 +215,7 @@ export default
 						style:
 							left: 0 + store.vis_v_width.value * i + 'px'
 							top: 0 + row * 19 + 'px'
-				.filter(is_truthy)
+				.filter(is_truthy)) or []
 
 
 
@@ -268,4 +268,5 @@ export default
 			refresh_main_view: store.refresh_main_view
 			selected_git_action: store.selected_git_action
 			commit_context_menu_provider
+			git_status: store.git_status
 		}

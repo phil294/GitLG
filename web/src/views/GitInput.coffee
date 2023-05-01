@@ -41,7 +41,7 @@ export default defineComponent
 		hide_result:
 			type: Boolean
 			default: false
-	emits: [ 'success' ]
+	emits: [ 'executed', 'success' ]
 	###*
 	# To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
 	# both editable, the former modifying the latter but being locked when the latter is changed by hand.
@@ -119,6 +119,8 @@ export default defineComponent
 				else
 					console.warn e
 				return
+			finally
+				emit 'executed'
 			if not props.hide_result
 				data.value = result
 			emit 'success', result

@@ -28,6 +28,7 @@ export branches = ref []
 # which is also not necessary because HEAD is then also visible as a branch tip.
 export head_branch = ref ''
 export vis_max_length = ref 0
+export git_status = ref ''
 
 export git_run_log = (###* @type string ### log_args) =>
 	sep = '^%^%^%^%^'
@@ -35,9 +36,10 @@ export git_run_log = (###* @type string ### log_args) =>
 	stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
 	log_args = log_args.replace("stash_refs", stash_refs.replaceAll('\n', ' '))
 	# errors will be handled by GitInput
-	[ log_data, stash_data ] = await Promise.all [
+	[ log_data, stash_data, status_data ] = await Promise.all [
 		git log_args
 		try await git 'stash list --format="%h %gd"'
+		git 'status'
 	]
 	return if not log_data
 	parsed = parse log_data, sep
@@ -55,6 +57,7 @@ export git_run_log = (###* @type string ### log_args) =>
 	# todo rename to vis_max_amount
 	vis_max_length.value = parsed.vis_max_length
 	head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
+	git_status.value = status_data
 ``###* @type {Ref<Ref<GitInputModel|null>|null>} ###
 export main_view_git_input_ref = ref null
 export refresh_main_view = =>
