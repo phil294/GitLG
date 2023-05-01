@@ -17,9 +17,10 @@ div
 					git-action-button v-for="action of branch_actions(branch_tip.name)" :git_action="action"
 	
 	div v-if="tags.length"
-		ul.tags v-for="tag of tags"
+		ul.tags v-for="tag, tag_i of tags"
 			li
 				ref-tip :git_ref="tag" :commit="commit"
+				pre {{ tag_details[tag_i] }}
 				.row.gap-5.wrap
 					git-action-button v-for="action of tag_actions(tag.name)" :git_action="action"
 

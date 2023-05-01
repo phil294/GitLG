@@ -25,6 +25,8 @@ export default defineComponent
 		tags = computed =>
 			props.commit.refs.filter (ref) =>
 				ref.type == "tag"
+		``###* @type {Ref<string[]>} ###
+		tag_details = ref []
 
 		stash = computed =>
 			props.commit.refs.find (ref) =>
@@ -46,7 +48,13 @@ export default defineComponent
 					path: split[2]
 					insertions: Number split[1]
 					deletions: Number split[0]) or []
+
 			body.value = await git "show -s --format=\"%b\" #{props.commit.hash}"
+
+			tag_details.value = []
+			for tag from tags.value
+				details = await git "show --format='' --quiet refs/tags/" + tag.name.replace(/^tag: /, '')
+				tag_details.value.push details
 		
 		show_diff = (###* @type string ### filepath) =>
 			exchange_message 'open-diff',
@@ -59,6 +67,7 @@ export default defineComponent
 		{
 			branch_tips
 			tags
+			tag_details
 			stash
 			changed_files
 			show_diff
