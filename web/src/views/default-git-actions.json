@@ -240,6 +240,14 @@
 				{
 					"value": "--no-commit",
 					"default_active": false
+				},
+				{
+					"value": "--no-ff",
+					"default_active": false
+				},
+				{
+					"value": "--squash",
+					"default_active": false
 				}
 			]
 		},
