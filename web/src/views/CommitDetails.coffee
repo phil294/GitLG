@@ -11,6 +11,7 @@ import RefTip from './RefTip.vue'
 
 export default defineComponent
 	components: { GitActionButton, RefTip }
+	emits: ['hash_clicked']
 	props:
 		commit:
 			###* @type {() => Commit} ###

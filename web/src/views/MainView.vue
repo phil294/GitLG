@@ -54,7 +54,7 @@
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
 		#right.col.flex-1 v-if="selected_commit"
-			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit"
+			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
 			button#close-selected-commit.center @click="selected_commit=null" title="Close"
 				i.codicon.codicon-close
 			#resize-hint v-if="selected_commit"

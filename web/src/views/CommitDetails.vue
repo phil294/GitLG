@@ -23,7 +23,11 @@ div
 				.row.gap-5.wrap
 					git-action-button v-for="action of tag_actions(tag.name)" :git_action="action"
 
-	h3 This commit {{ commit.hash }}:
+	h3
+		| This commit 
+		button @click="$emit('hash_clicked',commit.hash)"
+			| {{ commit.hash }}
+		| :
 	.row.gap-5.wrap
 		git-action-button v-for="action of commit_actions" :git_action="action"
 

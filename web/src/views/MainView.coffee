@@ -87,7 +87,12 @@ export default
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
 			store.selected_commit.value = filtered_commits.value[first_branch_commit_i]
-
+		scroll_to_commit = (###* @type string ### hash) =>
+			commit_i = filtered_commits.value.findIndex (commit) =>
+				commit.hash == hash
+			if commit_i == -1
+				return show_error_message "No commit found for hash #{hash}. No idea why :/"
+			commits_scroller_ref.value?.scrollToItem commit_i
 
 
 
@@ -251,6 +256,7 @@ export default
 			visible_branches
 			commits_scroller_ref
 			scroll_to_branch_tip
+			scroll_to_commit
 			selected_commit: store.selected_commit
 			txt_filter
 			txt_filter_ref
