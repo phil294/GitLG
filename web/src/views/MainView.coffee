@@ -240,8 +240,18 @@ export default
 			store.selected_commit.value = null
 
 
-		commit_context_menu_provider = (###* @type Commit ### commit) =>
-			store.commit_actions(commit.hash).map (action) =>
+		# It didn't work with normal context binding to the scroller's commit elements, either a bug
+		# of context-menu update or I misunderstood something about vue-virtual-scroller, but this
+		# works around it reliably (albeit uglily)
+		commit_context_menu_provider = computed => (###* @type MouseEvent ### event) =>
+			el = event.target
+			return if el not instanceof HTMLElement
+			while el.parentElement and not el.parentElement.classList.contains('commit')
+				el = el.parentElement
+			return if not el.parentElement
+			hash = el.parentElement.dataset.commitHash
+			throw "commit context menu element has no hash?" if not hash
+			store.commit_actions(hash).value.map (action) =>
 				label: action.title
 				icon: action.icon
 				action: =>

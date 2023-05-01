@@ -5,14 +5,14 @@ import Vue from 'vue'
 	oncontextmenu: (this: HTMLElement, ev: MouseEvent) => any
 	onglobalclick: (ev: MouseEvent) => any
 	onglobalkeyup: (ev: KeyboardEvent) => any
-	entries_provider: () => ContextMenuEntry[]
+	entries_provider: (ev: MouseEvent) => ContextMenuEntry[]
 }} ContextMenuData
 ###
 
 ``###* @type {Map<HTMLElement,ContextMenuData>} ### 
 context_menu_data_by_el = new Map
 
-set_context_menu = (###* @type HTMLElement ### el, ###* @type {()=>ContextMenuEntry[]} ### entries_provider) =>
+set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=>ContextMenuEntry[]} ### entries_provider) =>
 	existing_context_menu_data = context_menu_data_by_el.get el
 	if existing_context_menu_data
 		existing_context_menu_data.entries_provider = entries_provider
@@ -22,13 +22,13 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {()=>ContextMenuEn
 	wrapper_el = null
 
 	# The element(s) created by this is quite similar to the template of <git-action-button>
-	build_context_menu = (###* @type number ### x, ###* @type number ### y) =>
+	build_context_menu = (###* @type MouseEvent ### event) =>
 		wrapper_el = document.createElement('ul')
 		wrapper_el.setAttribute('aria-label', 'Context menu')
 		wrapper_el.classList.add 'context-menu-wrapper'
-		wrapper_el.style.setProperty 'left', x + 'px'
-		wrapper_el.style.setProperty 'top', y + 'px'
-		entries_provider().forEach (entry) =>
+		wrapper_el.style.setProperty 'left', event.clientX + 'px'
+		wrapper_el.style.setProperty 'top', event.clientY + 'px'
+		entries_provider(event).forEach (entry) =>
 			entry_el = document.createElement('li')
 			entry_el.setAttribute('role', 'button')
 			entry_el.classList.add('row', 'gap-5')
@@ -53,7 +53,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {()=>ContextMenuEn
 			e.preventDefault()
 			e.stopPropagation()
 			destroy_context_menu()
-			build_context_menu(e.clientX, e.clientY)
+			build_context_menu(e)
 		onglobalclick: =>
 			destroy_context_menu()
 		onglobalkeyup: (e) =>
