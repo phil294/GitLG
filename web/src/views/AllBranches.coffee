@@ -1,4 +1,4 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { branches } from './store.coffee'
 import RefTip from './RefTip.vue'
 
@@ -15,11 +15,13 @@ export default
 				branches.value.filter (branch) =>
 					branch.name.toLowerCase().includes(txt_filter.value.toLowerCase())
 		on_mouse_up = (###* @type MouseEvent ### event) =>
+			await nextTick()
 			if not (event.target instanceof Element) or
 					event.target.getAttribute('id') != 'show-all-branches' and
 					not event.target.classList.contains('ref-tip') and
 					not event.target.classList.contains('filter') and
-					not event.target.querySelector('.ref-tip')
+					not event.target.querySelector('.ref-tip') and
+					not event.target.parentElement?.classList.contains('context-menu-wrapper')
 				show_all_branches.value = false
 		onMounted =>
 			document.addEventListener 'mouseup', on_mouse_up

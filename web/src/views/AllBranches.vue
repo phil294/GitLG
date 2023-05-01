@@ -2,7 +2,7 @@
 #all-branches
 	button.btn#show-all-branches @click="show_all_branches = ! show_all_branches"
 		| All branches
-	div v-if="show_all_branches"
+	div v-show="show_all_branches"
 		input.filter v-model="txt_filter" placeholder="🔍 filter branch name"
 		.branches
 			button v-for="branch of filtered_branches" @click="$emit('branch_selected',branch.name);show_all_branches=false" title="Jump to branch tip"
