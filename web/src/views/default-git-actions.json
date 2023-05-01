@@ -169,6 +169,28 @@
 					"default_active": false
 				}
 			]
+		},
+		{
+			"title": "Merge",
+			"icon": "git-merge",
+			"args": "merge '$1'",
+			"params": [
+				"{COMMIT_HASH}"
+			],
+			"options": [
+				{
+					"value": "--no-commit",
+					"default_active": false
+				},
+				{
+					"value": "--no-ff",
+					"default_active": false
+				},
+				{
+					"value": "--squash",
+					"default_active": false
+				}
+			]
 		}
 	],
 	"actions.stash": [
