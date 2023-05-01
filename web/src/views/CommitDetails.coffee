@@ -65,6 +65,10 @@ export default defineComponent
 			commit_actions(props.commit.hash).value
 		_stash_actions = computed =>
 			stash_actions(stash.value?.name or '').value
+		_branch_actions = computed => (###* @type string ### branch_name) =>
+			branch_actions(branch_name).value
+		_tag_actions = computed => (###* @type string ### tag_name) =>
+			tag_actions(tag_name).value
 
 		{
 			branch_tips
@@ -75,7 +79,7 @@ export default defineComponent
 			show_diff
 			body
 			commit_actions: _commit_actions
-			branch_actions
-			tag_actions
+			branch_actions: _branch_actions
+			tag_actions: _tag_actions
 			stash_actions: _stash_actions
 		}
