@@ -68,6 +68,7 @@ input:not([type='checkbox']):not([type='radio']), textarea {
 	border: none;
 	// font-family: var(--vscode-font-family);
 	font-family: monospace;
+	font-size 11.5px
 	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
 	color: var(--vscode-input-foreground);
 	outline-color: var(--vscode-input-border);
