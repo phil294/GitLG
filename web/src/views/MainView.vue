@@ -116,7 +116,6 @@ details.config
 		height 100px
 		position fixed
 		overflow auto
-		width 100%
 		white-space pre-line
 	#quick-branch-tips
 		position sticky
