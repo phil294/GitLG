@@ -1,6 +1,6 @@
 import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.coffee'
-import { commit_actions, stash_actions, branch_actions } from './store.coffee'
+import { commit_actions, stash_actions, branch_actions, tag_actions } from './store.coffee'
 import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
 ``###*
@@ -20,6 +20,10 @@ export default defineComponent
 		branch_tips = computed =>
 			props.commit.refs.filter (ref) =>
 				ref.type == "branch"
+		
+		tags = computed =>
+			props.commit.refs.filter (ref) =>
+				ref.type == "tag"
 
 		stash = computed =>
 			props.commit.refs.find (ref) =>
@@ -53,11 +57,13 @@ export default defineComponent
 
 		{
 			branch_tips
+			tags
 			stash
 			changed_files
 			show_diff
 			body
 			commit_actions: _commit_actions
 			branch_actions
+			tag_actions
 			stash_actions: _stash_actions
 		}

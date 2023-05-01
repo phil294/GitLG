@@ -15,6 +15,13 @@ div
 				ref-tip :git_ref="branch_tip" :commit="commit"
 				.row.gap-5.wrap
 					git-action-button v-for="action of branch_actions(branch_tip.name)" :git_action="action"
+	
+	div v-if="tags.length"
+		ul.tags v-for="tag of tags"
+			li
+				ref-tip :git_ref="tag" :commit="commit"
+				.row.gap-5.wrap
+					git-action-button v-for="action of tag_actions(tag.name)" :git_action="action"
 
 	h3 This commit {{ commit.hash }}:
 	.row.gap-5.wrap
@@ -55,6 +62,7 @@ h2.summary
 .body
 	white-space pre-wrap
 	word-break break-word
-.branches .ref-tip
-	margin 20px 10px 10px
+.branches, .tags
+	.ref-tip
+		margin 20px 10px 10px
 </style>

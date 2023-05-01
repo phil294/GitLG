@@ -88,12 +88,16 @@ export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 export global_actions = ref []
 ``###* @type {Ref<ConfigGitAction[]>} ###
 config_branch_actions = ref []
-export commit_actions = (###* @type string ### hash) =>
-	parse_config_actions(config_commit_actions.value, [['{COMMIT_HASH}', hash]])
+``###* @type {Ref<ConfigGitAction[]>} ###
+config_tag_actions = ref []
 ``###* @type {Ref<ConfigGitAction[]>} ###
 config_commit_actions = ref []
+export commit_actions = (###* @type string ### hash) =>
+	parse_config_actions(config_commit_actions.value, [['{COMMIT_HASH}', hash]])
 export branch_actions = (###* @type string ### branch_name) =>
 	parse_config_actions(config_branch_actions.value, [['{BRANCH_NAME}', branch_name]])
+export tag_actions = (###* @type string ### tag_name) =>
+	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name.replace(/^tag: /, '')]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
 config_stash_actions = ref []
 export stash_actions = (###* @type string ### hash) =>
@@ -132,6 +136,7 @@ export refresh_config = =>
 	config_branch_actions.value = await get_config 'actions.branch'
 	config_commit_actions.value = await get_config 'actions.commit'
 	config_stash_actions.value = await get_config 'actions.stash'
+	config_tag_actions.value = await get_config 'actions.tag'
 	
 	_unparsed_combine_branches_actions.value = await get_config 'actions.branch-drop'
 

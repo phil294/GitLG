@@ -1,5 +1,5 @@
 import { defineComponent, computed } from 'vue'
-import { head_branch, combine_branches, branch_actions, stash_actions, selected_git_action } from './store.coffee'
+import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action } from './store.coffee'
 ``###* @typedef {import('./types').GitRef} GitRef ###
 ``###* @typedef {import('./types').Commit} Commit ###
 ``###* @typedef {import('./types').GitAction} GitAction ###
@@ -40,3 +40,5 @@ export default defineComponent
 				to_context_menu_entries(branch_actions(props.git_ref.name))
 			else if props.git_ref.type == 'stash' and props.commit
 				to_context_menu_entries(stash_actions(props.commit.hash))
+			else if props.git_ref.type == 'tag'
+				to_context_menu_entries(tag_actions(props.git_ref.name))
