@@ -20,7 +20,7 @@ div.col.gap-10
 		.param v-for="(param, i) in params"
 			label.row.align-center.gap-5
 				| Param \${{ i+1 }}
-				input v-model="params[i]"
+				input v-model="params[i]" onfocus="select()" ref="params_input_refs"
 		div
 			button.btn.gap-3
 				i.codicon.codicon-check

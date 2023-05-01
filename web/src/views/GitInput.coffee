@@ -1,5 +1,5 @@
 import { git, get_global_state, set_global_state } from '../bridge.coffee'
-import { ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
+import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMounted } from 'vue'
 
 ``###*
 # @typedef {import('./types').GitOption} GitOption
@@ -95,6 +95,12 @@ export default defineComponent
 		text_changed = computed =>
 			command.value != constructed_command.value
 
+		``###* @type {Ref<HTMLInputElement[]>} ###
+		params_input_refs = ref []
+		onMounted =>
+			if params_input_refs.value.length
+				params_input_refs.value[0].focus()
+
 		data = ref ''
 		error = ref ''
 		execute = =>
@@ -133,7 +139,7 @@ export default defineComponent
 				await execute()
 				if props.git_action.ignore_errors
 					emit 'success'
-
+		
 		{
 			command
 			options
@@ -146,4 +152,5 @@ export default defineComponent
 			is_saved
 			has_unsaved_changes
 			save
+			params_input_refs
 		}

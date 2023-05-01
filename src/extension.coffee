@@ -104,7 +104,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		csp = "default-src 'none'; " +
 			"style-src #{view.cspSource} 'unsafe-inline' " +
 				(if is_production then '' else dev_server_url) + '; ' +
-			"script-src #{view.cspSource} " +
+			"script-src #{view.cspSource} 'unsafe-inline' " +
 				(if is_production then '' else "#{dev_server_url} 'unsafe-eval'") + '; ' +
 			"font-src #{view.cspSource} " +
 				(if is_production then '' else dev_server_url) + '; ' +
