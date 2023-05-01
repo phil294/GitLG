@@ -21,7 +21,7 @@ window.addEventListener 'message', (msg_event) =>
 			throw new Error "unhandled message push id: " + JSON.stringify(message) if not push_handlers[message.id]
 			push_handlers[message.id] message
 
-send_message = (###* @type string ### command, ###* @type any ### data) =>
+export send_message = (###* @type string ### command, ###* @type any ### data) =>
 	console.info "send_message", command, data
 	id++
 	``###* @type BridgeMessage ###
@@ -45,17 +45,8 @@ export get_global_state = (###* @type string ### key) =>
 	send_message 'get-global-state', key
 export set_global_state = (###* @type string ### key, ###* @type any ### value) =>
 	send_message 'set-global-state', { key, value }
-export open_diff = (###* @type string ### hash, ###* @type string ### filename) =>
-	send_message 'open-diff', { hash, filename }
 export get_config = (###* @type string ### key) =>
 	send_message 'get-config', key
-``###* @return {Promise<string[]>} ###
-export get_folder_names = =>
-	send_message 'get-folder-names'
-export set_selected_folder_index = (###* @type number ### i) =>
-	send_message 'set-selected-folder-index', i
-export get_selected_folder_index = =>
-	Number((await send_message 'get-selected-folder-index'))
 
 export add_push_listener = (###* @type string ### id, ###* @type {(r: BridgeMessage) => void} ### handler) =>
 	push_handlers[id] = handler

@@ -1,6 +1,6 @@
 import { parse_config_actions } from "./GitInput.coffee"
 import { parse } from "./log-utils.coffee"
-import { git, get_config, get_folder_names } from "../bridge.coffee"
+import { git, get_config, send_message } from "../bridge.coffee"
 import GitInputModel from './GitInput.coffee'
 import { ref, computed } from "vue"
 ``###*
@@ -15,7 +15,7 @@ import { ref, computed } from "vue"
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 #########################
-# This file should be used for state that is likely of importance for more than just one component.
+# This file should be used for state that is of importance for more than just one component.
 # It encompasses state, actions and getters (computed values).
 #########################
 
@@ -123,7 +123,7 @@ export folder_names = ref []
 
 export init = =>
 	refresh_config()
-	folder_names.value = await get_folder_names()
+	folder_names.value = await send_message 'get-folder-names'
 export refresh_config = =>
 	global_actions.value = await get_config 'actions.global'
 	config_branch_actions.value = await get_config 'actions.branch'

@@ -1,14 +1,14 @@
 import { defineComponent, watch, ref } from 'vue'
-import { set_selected_folder_index, get_selected_folder_index } from '../bridge.coffee'
+import { send_message } from '../bridge.coffee'
 import { folder_names, refresh_main_view } from './store.coffee'
 
 export default defineComponent
 	setup: ->
 		selection = ref 0
 		do =>
-			selection.value = await get_selected_folder_index()
+			selection.value = Number((await send_message 'get-selected-folder-index'))
 		watch selection, =>
-			set_selected_folder_index(selection.value)
+			send_message 'set-selected-folder-index', selection.value
 			refresh_main_view()
 		{
 			selection
