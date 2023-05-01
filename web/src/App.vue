@@ -12,7 +12,9 @@ export default
 	components: { MainView }	
 	setup: ->
 		store.init()
-		add_push_listener 'config-change', store.refresh_config
+		add_push_listener 'config-change', =>
+			store.refresh_config()
+			store.refresh_main_view()
 		undefined
 </script>
 
@@ -77,6 +79,10 @@ textarea::placeholder {
 	color: var(--vscode-input-placeholderForeground);
 }
 
+select
+	color #cccccc
+	background #161616
+	border-color #333
 
 body, html
 	margin 0

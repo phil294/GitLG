@@ -10,6 +10,7 @@
 				details.config.flex-1
 					summary Configure...
 					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
+				folder-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
 						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"

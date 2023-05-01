@@ -9,6 +9,7 @@ import Visualization from './Visualization.vue'
 import AllBranches from './AllBranches.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
+import FolderSelection from './FolderSelection.vue'
 ``###*
 # @typedef {import('./types').Commit} Commit
 ###
@@ -24,7 +25,7 @@ import RefTip from './RefTip.vue'
 is_truthy = (value) => !!value
 
 export default
-	components: { CommitDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction }
+	components: { CommitDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction, FolderSelection }
 	setup: ->
 
 

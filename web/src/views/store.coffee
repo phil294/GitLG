@@ -1,6 +1,6 @@
 import { parse_config_actions } from "./GitInput.coffee"
 import { parse } from "./log-utils.coffee"
-import { git, get_config } from "../bridge.coffee"
+import { git, get_config, get_folder_names } from "../bridge.coffee"
 import GitInputModel from './GitInput.coffee'
 import { ref, computed } from "vue"
 ``###*
@@ -58,7 +58,7 @@ export git_run_log = (###* @type string ### log_args) =>
 ``###* @type {Ref<Ref<GitInputModel|null>|null>} ###
 export main_view_git_input_ref = ref null
 export refresh_main_view = =>
-	console.info('refreshing main view')
+	console.warn('refreshing main view')
 	main_view_git_input_ref.value?.value?.execute()
 
 export update_commit_stats = (###* @type {Commit[]} ### commits) =>
@@ -118,8 +118,12 @@ export selected_commit = ref null
 ``###* @type {Ref<number|string>} ###
 export config_width = ref ''
 
+###* @type {Ref<string[]>} ###
+export folder_names = ref []
+
 export init = =>
 	refresh_config()
+	folder_names.value = await get_folder_names()
 export refresh_config = =>
 	global_actions.value = await get_config 'actions.global'
 	config_branch_actions.value = await get_config 'actions.branch'

@@ -1,4 +1,4 @@
-import { git, get_state, set_state } from '../bridge.coffee'
+import { git, get_global_state, set_global_state } from '../bridge.coffee'
 import { ref, computed, defineComponent, reactive, watchEffect, nextTick } from 'vue'
 
 ``###*
@@ -72,7 +72,7 @@ export default defineComponent
 			saved_config.value?.command != command.value
 		config_key = "git input config " + props.git_action.config_key
 		get_saved = =>
-			saved_config.value = (await get_state config_key) or null
+			saved_config.value = (await get_global_state config_key) or null
 			if saved_config.value
 				Object.assign options, saved_config.value.options.filter (o) =>
 					# to not mess things up when changes in default options
@@ -85,7 +85,7 @@ export default defineComponent
 			new_saved =
 				options: options
 				command: command.value
-			await set_state config_key, JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
+			await set_global_state config_key, JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
 			saved_config.value = new_saved
 		reset_command = =>
 			command.value = constructed_command.value
