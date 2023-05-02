@@ -118,12 +118,12 @@ details.config
 	#quick-branch-tips, #branches-connection, #log.scroller
 		padding-left var(--container-padding)
 	#branches-connection
-		height 100px
+		height 110px
 		:deep(>.vis>svg>line.vis-v)
 			stroke-dasharray 4
 	#git-status
 		color #555
-		height 100px
+		height 110px
 		position fixed
 		overflow auto
 		white-space pre-line

@@ -227,7 +227,7 @@ export default
 			return null if not commit
 			{
 				...commit
-				scroll_height: 100
+				scroll_height: 110
 				refs: []
 				vis: commit.vis.map (v) => {
 					...v
