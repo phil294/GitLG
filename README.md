@@ -117,6 +117,9 @@ Please consider opening an issue or PR if you think a certain action warrants a 
 
 Entries usually sorted by importance.
 
+### 0.1.1 2023-05-02
+- Fix extension startup
+
 ### 0.1.0 2023-05-02
 - [`bff9e5c`](https://github.com/phil294/git-log--graph/commit/bff9e5c) Windows support added thanks to @iamfraggle [#4](https://github.com/phil294/git-log--graph/pull/4) 🎉 (this was part of 0.0.5 already but not in changelog before)
 - [`6a9b422`](https://github.com/phil294/git-log--graph/commit/6a9b422) New SVG-based graph visualization and large interface and style overhaul. Tell me if you miss the previous one, we can make stuff configurable if necessary. Sorry for breaking your work flow, but this should be the last major UI/UX update forever.
