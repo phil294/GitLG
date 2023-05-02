@@ -141,8 +141,7 @@ export refresh_config = =>
 	config_commits_actions.value = default_git_actions['actions.commits'].concat(await get_config 'actions.commits')
 	config_stash_actions.value = default_git_actions['actions.stash'].concat(await get_config 'actions.stash')
 	config_tag_actions.value = default_git_actions['actions.tag'].concat(await get_config 'actions.tag')
-	
-	_unparsed_combine_branches_actions.value = await get_config 'actions.branch-drop'
+	_unparsed_combine_branches_actions.value = default_git_actions['actions.branch-drop'].concat(await get_config 'actions.branch-drop')
 
 	config_width.value = await get_config 'branch-width'
 
