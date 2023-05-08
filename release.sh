@@ -27,10 +27,6 @@ yarn build
 popd
 rm web-dist/index.html
 
-rm -rf node_modules
-# TODO: instead, package properly (glob package) and then put node_modules on .vscodeignore again, as folder is too big
-yarn install --production
-
 # TODO: permission error postcss blah
 # yarn upgrade
 # pushd web
@@ -41,6 +37,7 @@ yarn install --production
 # git add web/yarn.lock
 # git commit -m 'yarn upgrade' ||:
 
+npx esbuild src/extension.js --bundle --platform=node --outfile=src/extension.js --allow-overwrite --external:vscode
 
 echo 'clean up local files for vsix packaging'
 pause

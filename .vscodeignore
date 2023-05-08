@@ -1,5 +1,5 @@
 .vscode
-web/node_modules
+node_modules
 **/*.coffee
 coffeesense.config.js
 web

@@ -436,7 +436,8 @@
 		"@types/node": "^18.16.3",
 		"@types/vscode": "^1.47.0",
 		"@types/vscode-webview": "^1.57.0",
-		"coffeescript": "^2.7.0"
+		"coffeescript": "^2.7.0",
+		"esbuild": "^0.17.18"
 	},
 	"dependencies": {
 		"glob": "^10.2.2"
