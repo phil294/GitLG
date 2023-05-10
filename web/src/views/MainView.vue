@@ -57,7 +57,7 @@
 						.datetime.flex-noshrink {{ commit.datetime }}
 		#right.col.flex-1 v-if="selected_commit"
 			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
-			button#close-selected-commit.center @click="selected_commit=null" title="Close"
+			button#close-selected-commit.center @click="selected_commits=[]" title="Close"
 				i.codicon.codicon-close
 			.resize-hint v-if="selected_commit"
 				| ← resize
