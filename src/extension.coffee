@@ -8,6 +8,7 @@ exec = util.promisify(require('child_process').exec)
 
 EXT_NAME = 'git log --graph'
 EXT_ID = 'git-log--graph'
+START_CMD = 'git-log--graph.start'
 
 selected_folder_path = ''
 ``###* @type {{name:string,path:string}[]} ###
@@ -38,7 +39,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		provideTextDocumentContent: (uri) ->
 			(try await git "show \"#{uri.path}\"") or ''
 
-	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.start', =>
+	context.subscriptions.push vscode.commands.registerCommand START_CMD, =>
 		panel = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] })
 		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
 		view = panel.webview
@@ -137,3 +138,10 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				<script src='#{get_web_uri 'js', 'app.js'}'></script>
 			</body>
 			</html>"
+
+	status_bar_item = vscode.window.createStatusBarItem vscode.StatusBarAlignment.Left
+	status_bar_item.command = START_CMD
+	context.subscriptions.push status_bar_item
+	status_bar_item.text = "$(git-branch) Git Log"
+	status_bar_item.tooltip = "Open up the main view of the git-log--graph extension"
+	status_bar_item.show()

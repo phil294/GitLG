@@ -17,7 +17,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:git-log--graph.start"
+		"*"
 	],
 	"main": "./src/extension.js",
 	"contributes": {

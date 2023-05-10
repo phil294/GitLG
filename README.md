@@ -10,7 +10,7 @@ This is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Fou
 
 You can **install the extension in VSCode from [HERE](https://marketplace.visualstudio.com/items?itemName=phil294.git-log--graph)** or for VSCodium from [Open VSX Registry](https://open-vsx.org/extension/phil294/git-log--graph).
 
-Then run the command: `git log --graph: Open graph view`. That's all you need to know really, everything below is subordinate.
+Then run the command: `git log --graph: Open graph view` or just click the `Git Log` action menu in the bottom status bar. That's all you need to know really, everything below is subordinate.
 
 ## Actions
 
