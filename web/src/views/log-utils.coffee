@@ -71,16 +71,13 @@ parse = (data, separator) =>
 					type:
 						if name.startsWith("tag: ") then "tag"
 						else "branch"
+				if ref.type == "branch"
+					ref = new_branch name
 				ref
 			.sort git_ref_sort
 		branch_tips = refs
 			.filter (r) => r.type == "branch"
-		branch_tip =
-			if branch_tips[0]
-				as_branch = new_branch(branch_tips[0].name)
-				refs[refs.indexOf(branch_tips[0])] = as_branch
-				as_branch
-			else undefined
+		branch_tip = branch_tips[0]
 
 		``###* @type {typeof graph_chars} ###
 		vis = vis_str.trimEnd().split('')
