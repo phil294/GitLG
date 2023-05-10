@@ -1,6 +1,6 @@
 <template lang="slm">
 div.col.gap-10
-	promise-form.col.gap-5 :action="execute"
+	promise-form.col.gap-5 :action="execute" ref="ref_form"
 		.row.align-center.gap-10
 			code git 
 			input.command.flex-1 v-model="command"

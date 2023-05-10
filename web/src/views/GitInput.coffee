@@ -126,6 +126,8 @@ export default defineComponent
 					throw e
 				else
 					console.warn e
+				if props.git_action.ignore_errors
+					emit 'success'
 				return
 			finally
 				emit 'executed'
@@ -133,12 +135,15 @@ export default defineComponent
 				data.value = result
 			emit 'success', result
 
-		do =>
+		# typing doesn't work https://github.com/vuejs/composition-api/issues/402
+		### @type {Ref<InstanceType<import('../components/PromiseForm.vue')>|null>} ###
+		# so we need the ts-ignore below. TODO
+		ref_form = ref null
+		onMounted =>
 			await get_saved()
 			if props.git_action.immediate
-				await execute()
-				if props.git_action.ignore_errors
-					emit 'success'
+				# @ts-ignore
+				await ref_form.value?.request_submit()
 		
 		{
 			command
@@ -153,4 +158,5 @@ export default defineComponent
 			has_unsaved_changes
 			save
 			params_input_refs
+			ref_form
 		}

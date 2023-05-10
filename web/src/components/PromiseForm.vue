@@ -1,5 +1,5 @@
 <template lang="slm">
-form @submit.prevent="submit" enctype="multipart/form-data"
+form @submit.prevent="submit" enctype="multipart/form-data" ref="form_ref"
 	/ using an invisible fieldset wrapper to group disable attribute for all children (does not work on <form> directly)
 	fieldset.low-key :disabled="disabled || loading" :class="$attrs.class"
 		legend
@@ -37,7 +37,11 @@ export default
 	data: =>
 		loading: false
 	methods:
+		request_submit: ->
+			@$refs.form_ref.requestSubmit()
 		submit: (event) ->
+			if not event
+				throw new Error("Cannot call `submit` on PromiseForm directly. Use `request_submit` instead.")
 			@loading = true
 			@$emit 'submit', event
 
