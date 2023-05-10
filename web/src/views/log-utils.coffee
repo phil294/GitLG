@@ -25,9 +25,10 @@ git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 # extraction is the main purpose of this function.
 # @param log_data {string}
 # @param branch_data {string}
+# @param stash_data {string}
 # @param separator {string}
 ###
-parse = (log_data, branch_data, separator) =>
+parse = (log_data, branch_data, stash_data, separator) =>
 	lines = log_data.split '\n'
 
 	``###* @type {Branch[]} ###
@@ -236,6 +237,18 @@ parse = (log_data, branch_data, separator) =>
 			not branch.virtual
 		.sort git_ref_sort
 		.slice(0, 350)
+
+	# stashes were queried (git reflog show stash) but shown as commits. Need to add refs:
+	for stash from (stash_data or '').split('\n')
+		# 7c37db63 stash@{11}
+		split = stash.split(' ')
+		commit = commits.find((c) => c.hash == split[0])
+		name = split.slice(1).join(' ')
+		commit?.refs.push
+			name: name
+			id: name
+			type: "stash"
+			color: '#fff'
 
 	{ commits, branches, vis_max_length }
 

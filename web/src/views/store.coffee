@@ -44,18 +44,7 @@ export git_run_log = (###* @type string ### log_args) =>
 		git 'status'
 	]
 	return if not log_data
-	parsed = parse log_data, branch_data, sep
-	# stashes are queried (git reflog show stash) but shown as commits. Need to add refs:
-	for stash from (stash_data or '').split('\n')
-		# 7c37db63 stash@{11}
-		split = stash.split(' ')
-		commit = parsed.commits.find((c) => c.hash == split[0])
-		name = split.slice(1).join(' ')
-		commit?.refs.push
-			name: name
-			id: name
-			type: "stash"
-			color: '#fff'
+	parsed = parse log_data, branch_data, stash_data, sep
 	commits.value = parsed.commits
 	branches.value = parsed.branches
 	# todo rename to vis_max_amount
