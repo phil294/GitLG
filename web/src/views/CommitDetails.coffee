@@ -53,7 +53,7 @@ export default defineComponent
 
 			tag_details.value = []
 			for tag from tags.value
-				details = await git "show --format='' --quiet refs/tags/" + tag.name.replace(/^tag: /, '')
+				details = await git "show --format='' --quiet refs/tags/" + tag.name
 				tag_details.value.push details
 		
 		show_diff = (###* @type string ### filepath) =>

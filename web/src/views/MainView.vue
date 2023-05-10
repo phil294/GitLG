@@ -32,13 +32,13 @@
 				all-branches @branch_selected="scroll_to_branch_tip($event)"
 				#git-status v-if="!invisible_branch_tips_of_visible_branches_elems.length"
 					| Status: {{ git_status }}
-				button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.name)" title="Jump to branch tip" v-bind="branch_elem.bind"
+				button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.id)" title="Jump to branch tip" v-bind="branch_elem.bind"
 					ref-tip :git_ref="branch_elem.branch"
 			#branches-connection
-				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
+				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider"
 				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
-					visualization.vis :commit="commit" :vis_max_length="vis_max_length" :head_branch="head_branch"
+					visualization.vis :commit="commit" :vis_max_length="vis_max_length"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
 							.hash.flex-noshrink {{ commit.hash }}

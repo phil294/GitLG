@@ -22,19 +22,20 @@ export default defineComponent
 				icon: action.icon
 				action: =>
 					selected_git_action.value = action
+
 		bind: computed =>
 			style:
 				color: props.git_ref.color
 			class:
-				'head': props.git_ref.name == head_branch.value
+				'head': props.git_ref.id == head_branch.value
 				'branch': is_branch.value
 		drag: computed =>
-			if is_branch.value then props.git_ref.name
+			if is_branch.value then props.git_ref.id
 		drop: (###* @type {import('../directives/drop').DropCallbackPayload} ### event) =>
 			return if not is_branch.value
 			source_branch_name = event.data
 			return if typeof source_branch_name != 'string'
-			combine_branches(source_branch_name, props.git_ref.name)
+			combine_branches(source_branch_name, props.git_ref.id)
 		context_menu_provider: computed => =>
 			if is_branch.value
 				to_context_menu_entries(branch_actions(props.git_ref.name).value)

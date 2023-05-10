@@ -25,7 +25,7 @@ export commits = ref null
 
 ``###* @type {Ref<Branch[]>} ###
 export branches = ref []
-# this is either a branch name or HEAD in which case it will simply not be shown
+# this is either a branch id(name) or HEAD in which case it will simply not be shown
 # which is also not necessary because HEAD is then also visible as a branch tip.
 export head_branch = ref ''
 export vis_max_length = ref 0
@@ -37,20 +37,23 @@ export git_run_log = (###* @type string ### log_args) =>
 	stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
 	log_args = log_args.replace("{STASH_REFS}", stash_refs.replaceAll('\n', ' '))
 	# errors will be handled by GitInput
-	[ log_data, stash_data, status_data ] = await Promise.all [
+	[ log_data, branch_data, stash_data, status_data ] = await Promise.all [
 		git log_args
-		try await git 'stash list --format="%h %gd"'
+		git "branch --list --all --format=\"%(refname)\""
+		try await git "stash list --format=\"%h %gd\""
 		git 'status'
 	]
 	return if not log_data
-	parsed = parse log_data, sep
+	parsed = parse log_data, branch_data, sep
 	# stashes are queried (git reflog show stash) but shown as commits. Need to add refs:
 	for stash from (stash_data or '').split('\n')
 		# 7c37db63 stash@{11}
 		split = stash.split(' ')
 		commit = parsed.commits.find((c) => c.hash == split[0])
+		name = split.slice(1).join(' ')
 		commit?.refs.push
-			name: split.slice(1).join(' ')
+			name: name
+			id: name
 			type: "stash"
 			color: '#fff'
 	commits.value = parsed.commits
@@ -102,8 +105,7 @@ export commits_actions = (###* @type string[] ### hashes) => computed =>
 export branch_actions = (###* @type string ### branch_name) => computed =>
 	parse_config_actions(config_branch_actions.value, [['{BRANCH_NAME}', branch_name]])
 export tag_actions = (###* @type string ### tag_name) => computed =>
-	# TODO: tag name should be without the "tag: " and only in display in ref tip (also in other place?s)
-	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name.replace(/^tag: /, '')]])
+	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
 config_stash_actions = ref []
 export stash_actions = (###* @type string ### stash_name) => computed =>

@@ -13,7 +13,7 @@ export default
 				branches.value
 			else
 				branches.value.filter (branch) =>
-					branch.name.toLowerCase().includes(txt_filter.value.toLowerCase())
+					branch.id.toLowerCase().includes(txt_filter.value.toLowerCase())
 		on_mouse_up = (###* @type MouseEvent ### event) =>
 			await nextTick()
 			if not (event.target instanceof Element) or

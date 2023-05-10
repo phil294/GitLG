@@ -1,6 +1,7 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import * as store from './store.coffee'
 import { show_error_message } from '../bridge.coffee'
+import { is_truthy } from './types'
 import GitInputModel from './GitInput.coffee'
 import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
@@ -16,14 +17,6 @@ import FolderSelection from './FolderSelection.vue'
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
-
-``###*
-# To use in place of `.filter(Boolean)` for type safety with strict null checks.
-# @template T
-# @param value {T | undefined | null | false}
-# @return {value is T}
-###
-is_truthy = (value) => !!value
 
 export default
 	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction, FolderSelection }
@@ -68,7 +61,7 @@ export default
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
 			search_for = txt_filter.value.toLowerCase()
-			for str from [commit.subject, commit.hash, commit.author_name, commit.author_email, commit.branch?.name]
+			for str from [commit.subject, commit.hash, commit.author_name, commit.author_email, commit.branch?.id]
 				return true if str?.includes(search_for)
 		initialized = computed =>
 			!! store.commits.value
@@ -104,12 +97,12 @@ export default
 
 
 
-		scroll_to_branch_tip = (###* @type string ### branch_name) =>
+		scroll_to_branch_tip = (###* @type string ### branch_id) =>
 			first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
 				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
-				commit.refs.some (ref) => ref.name == branch_name
+				commit.refs.some (ref) => ref.id == branch_id
 			if first_branch_commit_i == -1
-				return show_error_message "No commit found for branch #{branch_name}. No idea why :/"
+				return show_error_message "No commit found for branch #{branch_id}. No idea why :/"
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.

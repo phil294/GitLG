@@ -1,6 +1,6 @@
 <template lang="slm">
 .ref-tip v-bind="bind" v-drag="drag" v-drop="drop" v-context-menu="context_menu_provider"
-	| {{ git_ref.name }}
+	| {{ git_ref.id }}
 </template>
 
 <script lang="coffee" src="./RefTip.coffee"></script>

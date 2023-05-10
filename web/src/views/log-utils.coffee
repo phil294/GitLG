@@ -1,4 +1,5 @@
 import colors from "./colors.coffee"
+import { is_truthy } from "./types"
 
 ``###*
 # @typedef {import('./types').GitRef} GitRef
@@ -8,40 +9,54 @@ import colors from "./colors.coffee"
 ###
 
 git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
-	a_is_tag = a.name.startsWith("tag: ")
-	b_is_tag = b.name.startsWith("tag: ")
+	a_is_tag = a.id.startsWith("tag: ")
+	b_is_tag = b.id.startsWith("tag: ")
 	# prefer branch over tag/stash
-	Number(a_is_tag or not a.name.startsWith("refs/")) - Number(b_is_tag or not b.name.startsWith("refs/")) or
+	Number(a_is_tag or not a.id.startsWith("refs/")) - Number(b_is_tag or not b.id.startsWith("refs/")) or
 		# prefer tag over stash
 		Number(b_is_tag) - Number(a_is_tag) or
 		# prefer local branch over remote branch
-		a.name.indexOf("/") - b.name.indexOf("/")
+		a.id.indexOf("/") - b.id.indexOf("/")
 
 ``###*
 # @returns all known branches *from that data* (branches outside are invisible) and the very
 # data transformed into commits. A commit is git commit info and its vis
 # (git graph visual representation branch lines). This vis-branch association
 # extraction is the main purpose of this function.
-# @param data {string}
+# @param log_data {string}
+# @param branch_data {string}
 # @param separator {string}
 ###
-parse = (data, separator) =>
-	lines = data.split '\n'
+parse = (log_data, branch_data, separator) =>
+	lines = log_data.split '\n'
 
 	``###* @type {Branch[]} ###
 	branches = []
 	``###* @returns {Branch} ###
-	new_branch = (###* @type string ### branch_name) =>
+	new_branch = (###* @type string ### branch_name, ###* @type string ### remote_name) =>
 		branches.push
 			name: branch_name
 			color: undefined
 			type: "branch"
+			remote_name: remote_name
+			id: if remote_name then "#{remote_name}/#{branch_name}" else branch_name
 		branches[branches.length - 1]
 	new_virtual_branch = =>
 		branch = new_branch ''
 		branch.virtual = true
 		branch
 
+	for branch_line from branch_data.split('\n')
+		# refs/heads/local-branch-name
+		# refs/remotes/origin-name/remote-branch-name
+		if branch_line.startsWith("refs/heads/")
+			new_branch(branch_line.slice(11))
+		else
+			[remote_name, ...remote_branch_name_parts] = branch_line.slice(13).split('/')
+			new_branch(remote_branch_name_parts.join('/'), remote_name)
+	# Not actually a branch but since it's included in the log refs and is neither stash nor tag
+	# and checking it out works, we can just treat it as one:
+	new_branch 'HEAD'
 
 	``###* @type {Commit[]} ###
 	commits = []
@@ -62,18 +77,24 @@ parse = (data, separator) =>
 			# map to ["master", "origin/master", "tag: xyz"]
 			.map (r) => r.split(' -> ')[1] or r
 			.filter (r) => r != 'refs/stash'
-			.filter Boolean
-			.map (name) =>
-				###* @type {GitRef} ###
-				ref =
-					name: name
-					color: undefined
-					type:
-						if name.startsWith("tag: ") then "tag"
-						else "branch"
-				if ref.type == "branch"
-					ref = new_branch name
-				ref
+			.filter is_truthy
+			.map (id) =>
+				if id.startsWith("tag: ")
+					###* @type {GitRef} ###
+					ref =
+						id: id
+						name: id.slice(5)
+						color: undefined
+						type: "tag"
+					ref
+				else
+					branch_match = branches.find (branch) => id == branch.id
+					if branch_match
+						branch_match
+					else
+						console.error "Could not find ref '#{id}' in list of branches for commit '#{hash}'"
+						undefined
+			.filter is_truthy
 			.sort git_ref_sort
 		branch_tips = refs
 			.filter (r) => r.type == "branch"

@@ -101,7 +101,7 @@ export default defineComponent
 						style:
 							stroke: v.branch?.color
 						class:
-							is_head: v.branch?.name == head_branch.value
+							is_head: v.branch?.id == head_branch.value
 						...coords
 					}
 				.filter Boolean
@@ -114,7 +114,7 @@ export default defineComponent
 				style:
 					stroke: v.branch?.color
 				class:
-					is_head: v.branch?.name == head_branch.value
+					is_head: v.branch?.id == head_branch.value
 				cx: padding_left + vis_v_width.value * (vis_circle_index.value + 0.5)
 				cy: v_height.value * 0.5
 				r: 4
