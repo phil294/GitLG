@@ -121,6 +121,6 @@ export default defineComponent
 		refs_elems = computed =>
 			refs: props.commit.refs
 			style:
-				left: padding_left + vis_v_width.value * (vis_circle_index.value + 1) + 3 + 'px'
+				left: padding_left + vis_v_width.value * (vis_circle_index.value + 1) - 2 + 'px'
 
 		{ vis_style, lines, vis_width, circle, refs_elems, v_height }
