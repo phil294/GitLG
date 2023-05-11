@@ -17,7 +17,8 @@ echo "$changes" |xclip -sel c
 echo 'update changelog'
 pause
 
-echo 'set package.json version'
+echo 'patched package.json version to minor bump'
+npm version patch --no-git-tag-version
 pause
 
 yarn
