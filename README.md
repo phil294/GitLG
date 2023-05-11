@@ -123,7 +123,6 @@ Entries usually sorted by importance.
 - [`a60712e`](https://github.com/phil294/git-log--graph/commit/a60712e) Fix checkout of remote branches. Now just checks out the local branch name instead which in modern Git actually creates a new local tracking branch beforehand named after the remote one if it didn't exist. In other words, checkout `origin/main` now does a checkout `main`.
 - [`ed873f4`](https://github.com/phil294/git-log--graph/commit/ed873f4) Fix branch logic (coloring, searching etc) for when more than one branch is connected to a single commit
 - [`73d086d`](https://github.com/phil294/git-log--graph/commit/73d086d) Fix closing the Selected Commit view by pressing the X button
-
 - [`12d73e0`](https://github.com/phil294/git-log--graph/commit/12d73e0) Show loading animation while immediate actions load. So for example when you click "Fetch", you'll now see that something is happening when your network is slow and it's not possible to click it again while doing so.
 - [`9ad180b`](https://github.com/phil294/git-log--graph/commit/9ad180b) Move ref tags like branch tips a bit closer to their respective commit circle
 - [`883edd0`](https://github.com/phil294/git-log--graph/commit/883edd0) Bundle extension js with esbuild. This reduces final bundle size by about 80% (as it was in prior updates) as node_modules aren't shipped anymore
