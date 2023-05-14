@@ -98,6 +98,11 @@ Please consider opening an issue or PR if you think a certain action warrants a 
 ```jsonc
 // VSCode settings.json
 {
+    "git-log--graph.disable-scroll-snapping": {
+        "description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
+        "type": "boolean",
+        "default": false
+    },
     "git-log--graph.branch-width": {
         "description": "The width of the individual branch lines, including both line and right spacing. The default 'auto' chooses between 10 and 2 depending on the size of the repository.",
         "type": [

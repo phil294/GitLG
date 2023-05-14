@@ -159,9 +159,13 @@ export default
 			scroll_item_offset = start_index + 2
 			visible_commits.value = filtered_commits.value.slice(scroll_item_offset, end_index)
 		scroller_on_wheel = (###* @type WheelEvent ### event) =>
+			if not store.config_scroll_snapping_active.value
+				return
 			event.preventDefault()
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20)
 		scroller_on_keydown = (###* @type KeyboardEvent ### event) =>
+			if not store.config_scroll_snapping_active.value
+				return
 			if event.key == 'ArrowDown'
 				event.preventDefault()
 				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1

@@ -427,6 +427,11 @@
 						"string"
 					],
 					"default": "auto"
+				},
+				"git-log--graph.disable-scroll-snapping": {
+					"description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
+					"type": "boolean",
+					"default": false
 				}
 			}
 		}

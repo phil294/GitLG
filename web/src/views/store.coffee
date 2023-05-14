@@ -119,6 +119,9 @@ export selected_git_action = ref null
 ``###* @type {Ref<number|string>} ###
 export config_width = ref ''
 
+``###* @type {Ref<boolean>} ###
+export config_scroll_snapping_active = ref false
+
 ###* @type {Ref<string[]>} ###
 export folder_names = ref []
 
@@ -135,6 +138,8 @@ export refresh_config = =>
 	_unparsed_combine_branches_actions.value = default_git_actions['actions.branch-drop'].concat(await get_config 'actions.branch-drop')
 
 	config_width.value = await get_config 'branch-width'
+
+	config_scroll_snapping_active.value = ! (await get_config 'disable-scroll-snapping')
 
 export vis_v_width = computed =>
 	if not config_width.value or not Number(config_width.value)
