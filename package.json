@@ -17,7 +17,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onStartupFinished"
+		"onStartupFinished",
+		"onWebviewPanel:git-log--graph"
 	],
 	"main": "./src/extension.js",
 	"contributes": {

@@ -66,18 +66,10 @@ post_message = (###* @type BridgeMessage ### msg) =>
 	panel?.webview.postMessage msg
 
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
-	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
-		provideTextDocumentContent: (uri) ->
-			(try await git "show \"#{uri.path}\"") or ''
-
-	context.subscriptions.push vscode.commands.registerCommand START_CMD, =>
-		if panel
-			panel.reveal()
-			return
-
-		panel = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] })
-		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
+	populate_panel = =>
+		return if not panel
 		view = panel.webview
+		view.options = { enableScripts: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] }
 		panel.onDidDispose =>
 			panel = null
 
@@ -175,6 +167,24 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				<script src='#{get_web_uri 'js', 'app.js'}'></script>
 			</body>
 			</html>"
+	
+	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
+		provideTextDocumentContent: (uri) ->
+			(try await git "show \"#{uri.path}\"") or ''
+
+	context.subscriptions.push vscode.commands.registerCommand START_CMD, =>
+		if panel
+			panel.reveal()
+			return
+		panel = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { retainContextWhenHidden: true })
+		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
+		populate_panel()
+
+	vscode.window.registerWebviewPanelSerializer EXT_ID,
+		deserializeWebviewPanel: (deserialized_panel) ->
+			panel = deserialized_panel
+			await populate_panel()
+			undefined
 
 	status_bar_item = vscode.window.createStatusBarItem vscode.StatusBarAlignment.Left
 	status_bar_item.command = START_CMD
