@@ -156,22 +156,23 @@ export default
 		visible_commits = ref []
 		scroll_item_offset = 0
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>
-			scroll_item_offset = start_index + 2
-			visible_commits.value = filtered_commits.value.slice(scroll_item_offset, end_index)
+			scroll_item_offset = start_index
+			commits_start_index = if scroll_item_offset < 3 then 0 else scroll_item_offset + 2
+			visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index)
 		scroller_on_wheel = (###* @type WheelEvent ### event) =>
 			if not store.config_scroll_snapping_active.value
 				return
 			event.preventDefault()
-			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20)
+			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20) + 2
 		scroller_on_keydown = (###* @type KeyboardEvent ### event) =>
 			if not store.config_scroll_snapping_active.value
 				return
 			if event.key == 'ArrowDown'
 				event.preventDefault()
-				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 3
 			else if event.key == 'ArrowUp'
 				event.preventDefault()
-				commits_scroller_ref.value?.scrollToItem scroll_item_offset - 1
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
 
 
 
