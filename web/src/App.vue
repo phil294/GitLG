@@ -15,6 +15,8 @@ export default
 		add_push_listener 'config-change', =>
 			store.refresh_config()
 			store.refresh_main_view()
+		add_push_listener 'git-index-change', =>
+			store.refresh_main_view()
 		undefined
 </script>
 

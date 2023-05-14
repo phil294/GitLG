@@ -27,12 +27,38 @@ refresh_folders = =>
 			path: join(root.uri.fsPath, path)
 	).then (x) => x.flat()
 
+``###* @type {vscode.FileSystemWatcher | null} ###
+index_watcher = null
+restart_index_watcher = =>
+	if index_watcher
+		index_watcher.dispose()
+		index_watcher = null
+	return if not selected_folder_path
+	index_watcher = vscode.workspace.createFileSystemWatcher "#{selected_folder_path}/.git/index"
+	index_change = =>
+		return if Date.now() - last_git_execution < 1500
+		console.info 'file watcher: git INDEX change' # from external, e.g. cli
+		post_message
+			type: 'push'
+			id: 'git-index-change'
+	index_watcher.onDidChange index_change
+	index_watcher.onDidCreate index_change
+	index_watcher.onDidDelete index_change
+
+last_git_execution = 0
 git = (###* @type string ### args) =>
 	{ stdout, stderr } = await exec 'git ' + args,
 		cwd: vscode.workspace.getConfiguration(EXT_ID).get('folder') or selected_folder_path
 		# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format is 538 MB or 7.4 MB for the first 15k commits
 		maxBuffer: 1024 * 1024 * 35
+	last_git_execution = Date.now()
 	stdout
+
+``###* @type {vscode.Webview | null} ###
+view = null
+
+post_message = (###* @type BridgeMessage ### msg) =>
+	view?.postMessage msg
 
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
@@ -48,6 +74,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		selected_folder_path = context.workspaceState.get('selected_folder_path') or ''
 		if not folders.some (folder) => folder.path == selected_folder_path
 			selected_folder_path = folders[0]?.path or ''
+		restart_index_watcher()
 
 		view.onDidReceiveMessage (###* @type BridgeMessage ### message) =>
 			d = message.data
@@ -60,7 +87,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 					resp.data = await func()
 				catch e
 					resp.error = e
-				view.postMessage resp
+				post_message resp
 			switch message.type
 				when 'request'
 					switch message.command
@@ -89,16 +116,15 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						when 'set-selected-folder-index' then h =>
 							selected_folder_path = folders[Number(d)]?.path or ''
 							context.workspaceState.update 'selected_folder_path', selected_folder_path
+							restart_index_watcher()
 						when 'get-selected-folder-index' then h =>
 							folders.findIndex (folder) =>
 								folder.path == selected_folder_path
 		vscode.workspace.onDidChangeConfiguration (event) =>
 			if event.affectsConfiguration EXT_ID
-				``###* @type BridgeMessage ###
-				msg =
+				post_message
 					type: 'push'
 					id: 'config-change'
-				view.postMessage msg
 
 		is_production = context.extensionMode == vscode.ExtensionMode.Production
 		dev_server_url = 'http://localhost:8080'
@@ -113,7 +139,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				(if is_production then '' else '*') + '; '
 		get_web_uri = (###* @type {string[]} ### ...path_segments) =>
 			if is_production
-				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
+				view?.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
 			else
 				[dev_server_url, ...path_segments].join('/')
 		view.html = "
