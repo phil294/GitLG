@@ -54,11 +54,11 @@ git = (###* @type string ### args) =>
 	last_git_execution = Date.now()
 	stdout
 
-``###* @type {vscode.Webview | null} ###
-view = null
+``###* @type {vscode.WebviewPanel | null} ###
+panel = null
 
 post_message = (###* @type BridgeMessage ### msg) =>
-	view?.postMessage msg
+	panel?.webview.postMessage msg
 
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
@@ -66,9 +66,15 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			(try await git "show \"#{uri.path}\"") or ''
 
 	context.subscriptions.push vscode.commands.registerCommand START_CMD, =>
+		if panel
+			panel.reveal()
+			return
+
 		panel = vscode.window.createWebviewPanel(EXT_NAME, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { enableScripts: true, retainContextWhenHidden: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] })
 		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
 		view = panel.webview
+		panel.onDidDispose =>
+			panel = null
 
 		await refresh_folders()
 		selected_folder_path = context.workspaceState.get('selected_folder_path') or ''
@@ -139,7 +145,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				(if is_production then '' else '*') + '; '
 		get_web_uri = (###* @type {string[]} ### ...path_segments) =>
 			if is_production
-				view?.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
+				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
 			else
 				[dev_server_url, ...path_segments].join('/')
 		view.html = "
