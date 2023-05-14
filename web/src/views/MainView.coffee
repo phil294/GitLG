@@ -155,36 +155,20 @@ export default
 		``###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
 		scroll_item_offset = 0
-		scroll_item_offset_end = 0
-		scroll_callback_debouncer = 0
-		scroll_callback_debouncer2 = 0
-		ignore_next_scroll_event = false
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>
-			if ignore_next_scroll_event
-				ignore_next_scroll_event = false
-				return
-			# https://github.com/Akryum/vue-virtual-scroller/issues/801
-			new_scroll_item_offset = if start_index > 0 then Math.max(3, start_index + 1) else 0
-			if new_scroll_item_offset != scroll_item_offset
-				scroll_item_offset = new_scroll_item_offset
-				scroll_item_offset_end = end_index
-				window.clearTimeout scroll_callback_debouncer
-				scroll_callback_debouncer = window.setTimeout scroll_callback, 80
-		scroll_callback = =>
-			visible_commits.value = filtered_commits.value.slice(scroll_item_offset, scroll_item_offset_end)
-			if not ignore_next_scroll_event
-				window.clearTimeout scroll_callback_debouncer2
-				scroll_callback_debouncer2 = window.setTimeout(=>
-					ignore_next_scroll_event = true
-					# We'll have to do it once again after a greater delay because
-					# somehow sometimes there's more scrolling going on *after* updated callback.
-					# This strategy seems to be reliable contrary to also listening to @scroll event.
-					scroll_callback()
-				, 500)
-			ignore_next_scroll_event = true
-			# Snap-scroll to the item - see link above. We do this so we don't show half rows
-			# so the connection fake commit always fits properly
-			commits_scroller_ref.value?.scrollToItem scroll_item_offset
+			scroll_item_offset = start_index + 2
+			visible_commits.value = filtered_commits.value.slice(scroll_item_offset, end_index)
+		scroller_on_wheel = (###* @type WheelEvent ### event) =>
+			event.preventDefault()
+			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20)
+		scroller_on_keydown = (###* @type KeyboardEvent ### event) =>
+			if event.key == 'ArrowDown'
+				event.preventDefault()
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
+			else if event.key == 'ArrowUp'
+				event.preventDefault()
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset - 1
+
 
 
 
@@ -317,4 +301,6 @@ export default
 			selected_git_action: store.selected_git_action
 			commit_context_menu_provider
 			git_status: store.git_status
+			scroller_on_wheel
+			scroller_on_keydown
 		}
