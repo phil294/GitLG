@@ -15,12 +15,12 @@ selected_folder_path = ''
 folders = []
 refresh_folders = =>
 	folders = await Promise.all((vscode.workspace.workspaceFolders or []).map (root) =>
-		paths = await glob '**/.git',
+		paths = try await glob '**/.git',
 			ignore: 'node_modules/**' # TODO maybe use some kind of vscode setting for this
 			maxDepth: 3
 			cwd: root.uri.fsPath
-			signal: AbortSignal.timeout(200)
-		paths.map (path) =>
+			signal: AbortSignal.timeout(2000)
+		(paths or []).map (path) =>
 			path = dirname(path)
 			if path == '.' then path = ''
 			name: if path then "#{root.name}/#{path}" else root.name
