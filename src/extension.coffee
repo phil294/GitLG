@@ -20,11 +20,16 @@ refresh_folders = =>
 			maxDepth: 3
 			cwd: root.uri.fsPath
 			signal: AbortSignal.timeout(2000)
-		(paths or []).map (path) =>
-			path = dirname(path)
-			if path == '.' then path = ''
-			name: if path then "#{root.name}/#{path}" else root.name
-			path: join(root.uri.fsPath, path)
+		if not paths
+			(vscode.workspace.workspaceFolders or []).map (folder) =>
+				name: folder.uri.fsPath
+				path: folder.uri.fsPath
+		else
+			paths.map (path) =>
+				path = dirname(path)
+				if path == '.' then path = ''
+				name: if path then "#{root.name}/#{path}" else root.name
+				path: join(root.uri.fsPath, path)
 	).then (x) => x.flat()
 
 ``###* @type {vscode.FileSystemWatcher | null} ###
