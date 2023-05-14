@@ -278,7 +278,7 @@
 			"immediate": true,
 			"args": "checkout '$1'",
 			"params": [
-				"{BRANCH_NAME}"
+				"{LOCAL_BRANCH_NAME}"
 			]
 		},
 		{

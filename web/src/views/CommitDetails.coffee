@@ -5,6 +5,7 @@ import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
 ``###*
 # @typedef {import('./types').Commit} Commit
+# @typedef {import('./types').Branch} Branch
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
@@ -65,8 +66,8 @@ export default defineComponent
 			commit_actions(props.commit.hash).value
 		_stash_actions = computed =>
 			stash_actions(stash.value?.name or '').value
-		_branch_actions = computed => (###* @type string ### branch_name) =>
-			branch_actions(branch_name).value
+		_branch_actions = computed => (###* @type Branch ### branch) =>
+			branch_actions(branch).value
 		_tag_actions = computed => (###* @type string ### tag_name) =>
 			tag_actions(tag_name).value
 

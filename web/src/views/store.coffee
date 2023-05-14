@@ -91,8 +91,10 @@ export commit_actions = (###* @type string ### hash) => computed =>
 	parse_config_actions(config_commit_actions.value, [['{COMMIT_HASH}', hash]])
 export commits_actions = (###* @type string[] ### hashes) => computed =>
 	parse_config_actions(config_commits_actions.value, [['{COMMIT_HASHES}', hashes.join(' ')]])
-export branch_actions = (###* @type string ### branch_name) => computed =>
-	parse_config_actions(config_branch_actions.value, [['{BRANCH_NAME}', branch_name]])
+export branch_actions = (###* @type Branch ### branch) => computed =>
+	parse_config_actions(config_branch_actions.value, [
+		['{BRANCH_NAME}', branch.id]
+		['{LOCAL_BRANCH_NAME}', branch.name]])
 export tag_actions = (###* @type string ### tag_name) => computed =>
 	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name]])
 ``###* @type {Ref<ConfigGitAction[]>} ###
@@ -103,7 +105,7 @@ export stash_actions = (###* @type string ### stash_name) => computed =>
 _unparsed_combine_branches_actions = ref []
 export combine_branches_actions = computed =>
 	parse_config_actions(_unparsed_combine_branches_actions.value, [
-		['{SOURCE_BRANCH_NAME}', combine_branches_from_branch_name.value],
+		['{SOURCE_BRANCH_NAME}', combine_branches_from_branch_name.value]
 		['{TARGET_BRANCH_NAME}', combine_branches_to_branch_name.value]])
 
 export combine_branches_to_branch_name = ref ''

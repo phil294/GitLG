@@ -38,7 +38,7 @@ export default defineComponent
 			combine_branches(source_branch_name, props.git_ref.id)
 		context_menu_provider: computed => =>
 			if is_branch.value
-				to_context_menu_entries(branch_actions(props.git_ref.name).value)
+				to_context_menu_entries(branch_actions(props.git_ref).value)
 			else if props.git_ref.type == 'stash' and props.commit
 				to_context_menu_entries(stash_actions(props.git_ref.name).value)
 			else if props.git_ref.type == 'tag'
