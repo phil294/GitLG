@@ -123,17 +123,17 @@ Please consider opening an issue or PR if you think a certain action warrants a 
 Entries usually sorted by importance.
 
 ### 0.1.3 2023-05-14
-- [`7f85e51`](https://github.com/phil294/git-log--graph/commit/7f85e51) Keep extension open on vscode restart - so just like any other "editor" (tab), it will keep its position, pin status etc. Not the scroll position within the view though, as it doesn't seem like a good idea (?)
-- [`7e0f5c2`](https://github.com/phil294/git-log--graph/commit/7e0f5c2) Fix merging a remote branch: Falsely tried to merge the local counterpart instead
-- [`2139e8b`](https://github.com/phil294/git-log--graph/commit/2139e8b) Improve scroll snapping so it's less annoying (#7)
-- [`b957be9`](https://github.com/phil294/git-log--graph/commit/b957be9) Make scroll snapping optional with new option `git-log--graph.disable-scroll-snapping` (#7)
-- [`8988e6c`](https://github.com/phil294/git-log--graph/commit/8988e6c) Refresh main view on external changes, most notably when doing commits
-- [`244f353`](https://github.com/phil294/git-log--graph/commit/244f353) Force single instance: Switches to previously opened instance when attempting to open twice
-- [`8c9d8e5`](https://github.com/phil294/git-log--graph/commit/8c9d8e5) Make selected commit side bar's hash selectable again
-- [`441a4da`](https://github.com/phil294/git-log--graph/commit/441a4da) Start up slightly later to not slow initial vscode startup down
-- [`3fa388e`](https://github.com/phil294/git-log--graph/commit/3fa388e) Fix extension crash when folder loading took too long, and increase timeout for it from 200 to 2000ms
-- [`f3fdf62`](https://github.com/phil294/git-log--graph/commit/f3fdf62) Folder detection fallback for when initial folder scan took too long (>2s)
-- [`91ca149`](https://github.com/phil294/git-log--graph/commit/91ca149) Fix error message prompt on git log error
+- [`2912c4a`](https://github.com/phil294/git-log--graph/commit/2912c4a) Keep extension open on vscode restart - so just like any other "editor" (tab), it will keep its position, pin status etc. Not the scroll position within the view though, as it doesn't seem like a good idea (?)
+- [`0ab1161`](https://github.com/phil294/git-log--graph/commit/0ab1161) Fix merging a remote branch: Falsely tried to merge the local counterpart instead
+- [`d030697`](https://github.com/phil294/git-log--graph/commit/d030697) Improve scroll snapping so it's less annoying (#7)
+- [`1d020d5`](https://github.com/phil294/git-log--graph/commit/1d020d5) Make scroll snapping optional with new option `git-log--graph.disable-scroll-snapping` (#7)
+- [`a7167ed`](https://github.com/phil294/git-log--graph/commit/a7167ed) Refresh main view on external changes, most notably when doing commits
+- [`9d09389`](https://github.com/phil294/git-log--graph/commit/9d09389) Force single instance: Switches to previously opened instance when attempting to open twice
+- [`a91d226`](https://github.com/phil294/git-log--graph/commit/a91d226) Make selected commit side bar's hash selectable again
+- [`199da81`](https://github.com/phil294/git-log--graph/commit/199da81) Start up slightly later to not slow initial vscode startup down
+- [`7d8214b`](https://github.com/phil294/git-log--graph/commit/7d8214b) Fix extension crash when folder loading took too long, and increase timeout for it from 200 to 2000ms
+- [`da969db`](https://github.com/phil294/git-log--graph/commit/da969db) Folder detection fallback for when initial folder scan took too long (>2s)
+- [`09211a0`](https://github.com/phil294/git-log--graph/commit/09211a0) Fix error message prompt on git log error
 
 
 ### 0.1.2 2023-05-11
