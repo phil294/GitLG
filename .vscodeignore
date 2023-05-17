@@ -12,3 +12,4 @@ jsconfig.json
 yarn.lock
 CONTRIBUTING.md
 *.vsix
+**/*.d.ts
