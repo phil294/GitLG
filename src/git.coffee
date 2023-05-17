@@ -2,7 +2,6 @@ vscode = require 'vscode'
 util = require('util')
 { basename } = require('path')
 exec = util.promisify(require('child_process').exec)
-VSCodeGit = require('./vscode.git')
 
 ``###*
 # @param log {vscode.OutputChannel}
@@ -10,13 +9,13 @@ VSCodeGit = require('./vscode.git')
 ###
 module.exports.get_git = (log, { on_repo_external_state_change, on_repo_names_change }) =>
 	#
-	###* @type {VSCodeGit.API} ###
+	###* @type {import('./vscode.git').API} ###
 	api = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1) or throw 'VSCode official Git Extension not found, did you disable it?'
 	last_git_execution = 0
 
 	``###* @type {Record<string,string>} ###
 	repo_state_cache = {}
-	start_observing_repo = (###* @type {VSCodeGit.Repository} ### repo) =>
+	start_observing_repo = (###* @type {import('./vscode.git').Repository} ### repo) =>
 		log.appendLine "start observing repo "+repo.rootUri.fsPath
 		repo.state.onDidChange =>
 			# There's no event info available so we need to compare. (https://github.com/microsoft/vscode/issues/142313#issuecomment-1056939973)
@@ -34,7 +33,7 @@ module.exports.get_git = (log, { on_repo_external_state_change, on_repo_names_ch
 			log.appendLine 'repo watcher: external index/head change' # from external, e.g. cli or committed via vscode ui
 			on_repo_external_state_change()
 
-	``###* @type {VSCodeGit.Repository[]} ###
+	``###* @type {import('./vscode.git').Repository[]} ###
 	repos_cache = []
 	``###* @type {NodeJS.Timeout|null} ###
 	repos_changed_debouncer = null
