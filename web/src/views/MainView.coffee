@@ -308,4 +308,5 @@ export default
 			git_status: store.git_status
 			scroller_on_wheel
 			scroller_on_keydown
+			config_show_quick_branch_tips: store.config_show_quick_branch_tips
 		}

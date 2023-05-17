@@ -32,9 +32,36 @@
 				"category": "git log --graph"
 			}
 		],
+		"views": {
+			"scm": [
+				{
+					"type": "webview",
+					"id": "git-log--graph",
+					"name": "git-log--graph"
+				}
+			]
+		},
 		"configuration": {
 			"title": "git log --graph",
 			"properties": {
+				"git-log--graph.position": {
+					"description": "Decide how/where the extension should appear. Changing this option REQUIRES RELOAD.",
+					"type": "string",
+					"default": "editor",
+					"enum": [
+						"editor",
+						"view"
+					],
+					"enumDescriptions": [
+						"As a regular editor tab, so it will be treated like one of your open files",
+						"As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
+					]
+				},
+				"git-log--graph.hide-quick-branch-tips": {
+					"description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
+					"type": "boolean",
+					"default": false
+				},
 				"git-log--graph.disable-scroll-snapping": {
 					"description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
 					"type": "boolean",

@@ -30,11 +30,11 @@
 							i.codicon.codicon-refresh
 			#quick-branch-tips
 				all-branches @branch_selected="scroll_to_branch_tip($event)"
-				#git-status v-if="!invisible_branch_tips_of_visible_branches_elems.length"
+				#git-status v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length"
 					| Status: {{ git_status }}
-				button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.id)" title="Jump to branch tip" v-bind="branch_elem.bind"
+				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.id)" title="Jump to branch tip" v-bind="branch_elem.bind"
 					ref-tip :git_ref="branch_elem.branch"
-			#branches-connection
+			#branches-connection v-if="config_show_quick_branch_tips"
 				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
 				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"

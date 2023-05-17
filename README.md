@@ -6,6 +6,10 @@ This is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Fou
 
 ![demo](./demo6.png)
 
+Also available as a "view" with option `"git-log--graph.position": "view"`
+
+![demo](./demo7.png)
+
 ## Usage
 
 You can **install the extension in VSCode from [HERE](https://marketplace.visualstudio.com/items?itemName=phil294.git-log--graph)** or for VSCodium from [Open VSX Registry](https://open-vsx.org/extension/phil294/git-log--graph).
@@ -91,13 +95,31 @@ This is what you'll get:
 
 ![switch popup](./demo4.png)
 
-Please consider opening an issue or PR if you think a certain action warrants a place in the defaults.
+Please consider opening an issue or PR if you think a certain action or option warrants a place in the defaults.
 
 ### Other config options
 
 ```jsonc
 // VSCode settings.json
 {
+    "git-log--graph.position": {
+        "description": "Decide how/where the extension should appear. Changing this option REQUIRES RELOAD.",
+        "type": "string",
+        "default": "editor",
+        "enum": [
+            "editor",
+            "view"
+        ],
+        "enumDescriptions": [
+            "As a regular editor tab, so it will be treated like one of your open files",
+            "As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
+        ]
+    },
+    "git-log--graph.hide-quick-branch-tips": {
+        "description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
+        "type": "boolean",
+        "default": false
+    },
     "git-log--graph.disable-scroll-snapping": {
         "description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
         "type": "boolean",

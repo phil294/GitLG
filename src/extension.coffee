@@ -8,21 +8,21 @@ EXT_NAME = 'git log --graph'
 EXT_ID = 'git-log--graph'
 START_CMD = 'git-log--graph.start'
 
-``###* @type {vscode.WebviewPanel | null} ###
-panel = null
+``###* @type {vscode.WebviewPanel | vscode.WebviewView | null} ###
+webview_container = null
 
 log = vscode.window.createOutputChannel EXT_NAME
 module.exports.log = log
 
 # When you convert a folder into a workspace by adding another folder, the extension is de- and reactivated
-# but the webview panel isn't destroyed even though we instruct it to (with subscriptions).
+# but the webview webview_container isn't destroyed even though we instruct it to (with subscriptions).
 # This is an unresolved bug in VSCode and it seems there is nothing you can do. https://github.com/microsoft/vscode/issues/158839
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	log.appendLine "extension activate"
 
 	post_message = (###* @type BridgeMessage ### msg) =>
 		log.appendLine "send to webview: "+JSON.stringify(msg) if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
-		panel?.webview.postMessage msg
+		webview_container?.webview.postMessage msg
 
 	git = get_git log,
 		on_repo_external_state_change: =>
@@ -34,15 +34,12 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				type: 'push'
 				id: 'repo-names-change'
 				data: git.get_repo_names()
+	git.set_selected_repo_index(context.workspaceState.get('selected_repo_index') or 0)
 
-	populate_panel = =>
-		return if not panel
-		view = panel.webview
+	populate_webview = =>
+		return if not webview_container
+		view = webview_container.webview
 		view.options = { enableScripts: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] }
-		panel.onDidDispose => panel = null
-		context.subscriptions.push panel
-
-		git.set_selected_repo_index(context.workspaceState.get('selected_repo_index') or 0)
 
 		view.onDidReceiveMessage (###* @type BridgeMessage ### message) =>
 			log.appendLine "receive from webview: "+JSON.stringify(message)  if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
@@ -132,25 +129,54 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				<script src='#{get_web_uri 'js', 'app.js'}'></script>
 			</body>
 			</html>"
+		undefined
 	
+	# Needed for git diff views
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
 		provideTextDocumentContent: (uri) ->
 			(try await git.run "show \"#{uri.path}\"") or ''
 
+	# General start, will choose from creating/show editor panel or showing side nav view depending on config
 	context.subscriptions.push vscode.commands.registerCommand START_CMD, =>
 		log.appendLine "start command"
-		return panel.reveal() if panel
-		panel = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { retainContextWhenHidden: true })
-		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
-		populate_panel()
+		if vscode.workspace.getConfiguration(EXT_ID).get('position') == "editor"
+			if webview_container
+				# Repeated editor panel show
+				# @ts-ignore
+				return webview_container.reveal()
+			# First editor panel creation + show
+			log.appendLine "create new webview panel"
+			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { retainContextWhenHidden: true })
+			webview_container.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
+			webview_container.onDidDispose => webview_container = null
+			context.subscriptions.push webview_container
+			populate_webview()
+		else
+			# Repeated side nav view show
+			log.appendLine "show view"
+			# @ts-ignore
+			webview_container?.show()
 
-	# This bit is needed so the webview can keep open around restarts
+	# First editor panel creation + show, but automatically after restart / resume previous session.
+	# It would be possible to restore some web view state here too
 	vscode.window.registerWebviewPanelSerializer EXT_ID,
 		deserializeWebviewPanel: (deserialized_panel) ->
-			panel = deserialized_panel
 			log.appendLine "deserialize web panel (rebuild editor tab from last session)"
-			await populate_panel()
-			undefined
+			webview_container = deserialized_panel
+			webview_container.onDidDispose => webview_container = null
+			context.subscriptions.push webview_container
+			populate_webview()
+			Promise.resolve()
+
+	# Side nav view setup
+	context.subscriptions.push vscode.window.registerWebviewViewProvider EXT_ID, {
+		# Side nav view creation
+		resolveWebviewView: (view) =>
+			return if vscode.workspace.getConfiguration(EXT_ID).get('position') == "editor"
+			log.appendLine "provide view"
+			webview_container = view
+			populate_webview()
+		}, { webviewOptions: retainContextWhenHidden: true }
 
 	status_bar_item = vscode.window.createStatusBarItem vscode.StatusBarAlignment.Left
 	status_bar_item.command = START_CMD
