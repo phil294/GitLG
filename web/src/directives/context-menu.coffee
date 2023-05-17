@@ -1,4 +1,4 @@
-import Vue from 'vue'
+import Vue, { nextTick } from 'vue'
 
 ``###* @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry ###
 ``###* @typedef {{
@@ -53,14 +53,9 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=
 	context_menu_data =
 		oncontextmenu: (e) =>
 			e.preventDefault()
-			e.stopPropagation()
-			destroy_context_menu()
-			build_context_menu(e)
-		onglobalclick: =>
-			destroy_context_menu()
-		onglobalkeyup: (e) =>
-			if e.key == "Escape"
-				destroy_context_menu()
+			setTimeout (=>build_context_menu(e)), 0
+		onglobalclick: destroy_context_menu
+		onglobalkeyup: destroy_context_menu
 		entries_provider: entries_provider
 
 	el.addEventListener 'contextmenu', context_menu_data.oncontextmenu, false
