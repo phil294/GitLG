@@ -94,7 +94,8 @@ export commits_actions = (###* @type string[] ### hashes) => computed =>
 export branch_actions = (###* @type Branch ### branch) => computed =>
 	parse_config_actions(config_branch_actions.value, [
 		['{BRANCH_NAME}', branch.id]
-		['{LOCAL_BRANCH_NAME}', branch.name]])
+		['{LOCAL_BRANCH_NAME}', branch.name]
+		['{REMOTE_NAME}', branch.remote_name or 'MISSING_REMOTE_NAME']])
 export tag_actions = (###* @type string ### tag_name) => computed =>
 	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name]])
 ``###* @type {Ref<ConfigGitAction[]>} ###

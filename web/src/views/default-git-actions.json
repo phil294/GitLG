@@ -307,13 +307,49 @@
 			"title": "Pull",
 			"icon": "fold-down",
 			"description": "Pull",
-			"args": "pull"
+			"args": "pull '$1' '$2'",
+			"params": [
+				"{REMOTE_NAME}",
+				"{LOCAL_BRANCH_NAME}"
+			],
+			"options": [
+				{
+					"value": "--no-commit",
+					"default_active": false
+				},
+				{
+					"value": "--no-ff",
+					"default_active": false
+				},
+				{
+					"value": "--squash",
+					"default_active": false
+				}
+			]
 		},
 		{
 			"title": "Push",
 			"icon": "fold-up",
 			"description": "Push",
-			"args": "push"
+			"args": "push '$1' '$2'",
+			"params": [
+				"{REMOTE_NAME}",
+				"{LOCAL_BRANCH_NAME}"
+			],
+			"options": [
+				{
+					"value": "--tags",
+					"default_active": false
+				},
+				{
+					"value": "--force",
+					"default_active": false
+				},
+				{
+					"value": "--set-upstream",
+					"default_active": false
+				}
+			]
 		},
 		{
 			"title": "Rename",
