@@ -148,6 +148,20 @@ Please consider opening an issue or PR if you think a certain action or option w
 
 Entries usually sorted by importance.
 
+### 0.1.4 2023-05-17
+
+- [`4ec22f1`](https://github.com/phil294/git-log--graph/commit/4ec22f1) Allow showing the interface in a side bar ("view") instead of as a tab ("editor") with new option `git-log--graph.position` (#11)
+- [`4ec22f1`](https://github.com/phil294/git-log--graph/commit/4ec22f1) New option `git-log--graph.hide-quick-branch-tips` should you dislike the dotted branch lines at the top
+- [`ee797d7`](https://github.com/phil294/git-log--graph/commit/ee797d7) Commit details: show file name before path (#8)
+- [`a5cfa38`](https://github.com/phil294/git-log--graph/commit/a5cfa38) Detect new repos automatically as they are added, detect repos nested deeper than three folders, by depending on the (built-in) `vscode.git` extension
+- [`a8c5397`](https://github.com/phil294/git-log--graph/commit/a8c5397) Fix actions for branch pull/push: Now the remote is specified automatically and new options were added (the same as for merge)
+- [`a5cfa38`](https://github.com/phil294/git-log--graph/commit/a5cfa38) Fixes detection of working tree changes or head moves e.g. on `commit --amend` (#9)
+- [`07a3b80`](https://github.com/phil294/git-log--graph/commit/07a3b80) Auto-focus the command input in arg-less commands. In arg commands, args were already focussed. Now, it should always be possible to quick execute a command window by pressing return.
+- [`135f1fd`](https://github.com/phil294/git-log--graph/commit/135f1fd) Prevent multiple context menus at the same time (#10)
+- [`68bfb81`](https://github.com/phil294/git-log--graph/commit/68bfb81) Options reordering
+- [`a5cfa38`](https://github.com/phil294/git-log--graph/commit/a5cfa38) Add new `verbose-logging` option for message logging
+- [`a5cfa38`](https://github.com/phil294/git-log--graph/commit/a5cfa38) Add new output channel for dedicated log output
+
 ### 0.1.3 2023-05-14
 - [`2912c4a`](https://github.com/phil294/git-log--graph/commit/2912c4a) Keep extension open on vscode restart - so just like any other "editor" (tab), it will keep its position, pin status etc. Not the scroll position within the view though, as it doesn't seem like a good idea (?)
 - [`0ab1161`](https://github.com/phil294/git-log--graph/commit/0ab1161) Fix merging a remote branch: Falsely tried to merge the local counterpart instead
@@ -160,7 +174,6 @@ Entries usually sorted by importance.
 - [`7d8214b`](https://github.com/phil294/git-log--graph/commit/7d8214b) Fix extension crash when folder loading took too long, and increase timeout for it from 200 to 2000ms
 - [`da969db`](https://github.com/phil294/git-log--graph/commit/da969db) Folder detection fallback for when initial folder scan took too long (>2s)
 - [`09211a0`](https://github.com/phil294/git-log--graph/commit/09211a0) Fix error message prompt on git log error
-
 
 ### 0.1.2 2023-05-11
 - [`3024d97`](https://github.com/phil294/git-log--graph/commit/3024d97) Add status bar shortcut (#5), so now you can also click on the `Git Log` menu instead of running the command.
