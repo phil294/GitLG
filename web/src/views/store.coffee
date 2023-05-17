@@ -125,12 +125,13 @@ export config_width = ref ''
 export config_scroll_snapping_active = ref false
 
 ###* @type {Ref<string[]>} ###
-export folder_names = ref []
+export repo_names = ref []
 
 export init = =>
 	refresh_config()
-	folder_names.value = await exchange_message 'get-folder-names'
+	repo_names.value = await exchange_message 'get-repo-names'
 export refresh_config = =>
+	# TODO change to single request get_config and then use e.g. config.actions.global or at least config['actions.global'], branch-width etc
 	global_actions.value = default_git_actions['actions.global'].concat(await get_config 'actions.global')
 	config_branch_actions.value = default_git_actions['actions.branch'].concat(await get_config 'actions.branch')
 	config_commit_actions.value = default_git_actions['actions.commit'].concat(await get_config 'actions.commit')

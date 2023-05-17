@@ -1,8 +1,6 @@
 vscode = require 'vscode'
-{ join, dirname } = require('path')
-util = require('util')
-{ glob } = require('glob')
-exec = util.promisify(require('child_process').exec)
+
+{ get_git } = require './git'
 
 ``###* @typedef {{ type: 'response' | 'request' | 'push', command?: string, data?: any, error?: any, id: number | string }} BridgeMessage ###
 
@@ -10,76 +8,44 @@ EXT_NAME = 'git log --graph'
 EXT_ID = 'git-log--graph'
 START_CMD = 'git-log--graph.start'
 
-selected_folder_path = ''
-``###* @type {{name:string,path:string}[]} ###
-folders = []
-refresh_folders = =>
-	folders = await Promise.all((vscode.workspace.workspaceFolders or []).map (root) =>
-		paths = try await glob '**/.git',
-			ignore: 'node_modules/**' # TODO maybe use some kind of vscode setting for this
-			maxDepth: 3
-			cwd: root.uri.fsPath
-			signal: AbortSignal.timeout(2000)
-		if not paths
-			(vscode.workspace.workspaceFolders or []).map (folder) =>
-				name: folder.uri.fsPath
-				path: folder.uri.fsPath
-		else
-			paths.map (path) =>
-				path = dirname(path)
-				if path == '.' then path = ''
-				name: if path then "#{root.name}/#{path}" else root.name
-				path: join(root.uri.fsPath, path)
-	).then (x) => x.flat()
-
-``###* @type {vscode.FileSystemWatcher | null} ###
-index_watcher = null
-restart_index_watcher = =>
-	if index_watcher
-		index_watcher.dispose()
-		index_watcher = null
-	return if not selected_folder_path
-	index_watcher = vscode.workspace.createFileSystemWatcher "#{selected_folder_path}/.git/index"
-	index_change = =>
-		return if Date.now() - last_git_execution < 1500
-		console.info 'file watcher: git INDEX change' # from external, e.g. cli
-		post_message
-			type: 'push'
-			id: 'git-index-change'
-	index_watcher.onDidChange index_change
-	index_watcher.onDidCreate index_change
-	index_watcher.onDidDelete index_change
-
-last_git_execution = 0
-git = (###* @type string ### args) =>
-	{ stdout, stderr } = await exec 'git ' + args,
-		cwd: vscode.workspace.getConfiguration(EXT_ID).get('folder') or selected_folder_path
-		# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format is 538 MB or 7.4 MB for the first 15k commits
-		maxBuffer: 1024 * 1024 * 35
-	last_git_execution = Date.now()
-	stdout
-
 ``###* @type {vscode.WebviewPanel | null} ###
 panel = null
 
-post_message = (###* @type BridgeMessage ### msg) =>
-	panel?.webview.postMessage msg
+log = vscode.window.createOutputChannel EXT_NAME
+module.exports.log = log
 
+# When you convert a folder into a workspace by adding another folder, the extension is de- and reactivated
+# but the webview panel isn't destroyed even though we instruct it to (with subscriptions).
+# This is an unresolved bug in VSCode and it seems there is nothing you can do. https://github.com/microsoft/vscode/issues/158839
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
+	log.appendLine "extension activate"
+
+	post_message = (###* @type BridgeMessage ### msg) =>
+		log.appendLine "send to webview: "+JSON.stringify(msg) if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
+		panel?.webview.postMessage msg
+
+	git = get_git log,
+		on_repo_external_state_change: =>
+			post_message
+				type: 'push'
+				id: 'repo-external-state-change'
+		on_repo_names_change: =>
+			post_message
+				type: 'push'
+				id: 'repo-names-change'
+				data: git.get_repo_names()
+
 	populate_panel = =>
 		return if not panel
 		view = panel.webview
 		view.options = { enableScripts: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] }
-		panel.onDidDispose =>
-			panel = null
+		panel.onDidDispose => panel = null
+		context.subscriptions.push panel
 
-		await refresh_folders()
-		selected_folder_path = context.workspaceState.get('selected_folder_path') or ''
-		if not folders.some (folder) => folder.path == selected_folder_path
-			selected_folder_path = folders[0]?.path or ''
-		restart_index_watcher()
+		git.set_selected_repo_index(context.workspaceState.get('selected_repo_index') or 0)
 
 		view.onDidReceiveMessage (###* @type BridgeMessage ### message) =>
+			log.appendLine "receive from webview: "+JSON.stringify(message)  if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
 			d = message.data
 			h = (###* @type {() => any} ### func) =>
 				``###* @type BridgeMessage ###
@@ -95,7 +61,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				when 'request'
 					switch message.command
 						when 'git' then h =>
-							git d
+							git.run d
 						when 'show-error-message' then h =>
 							vscode.window.showErrorMessage d
 						when 'show-information-message' then h =>
@@ -114,15 +80,14 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} #{d.hashes[0]} vs. #{d.hashes[1]}"
 						when 'get-config' then h =>
 							vscode.workspace.getConfiguration(EXT_ID).get d
-						when 'get-folder-names' then h =>
-							folders.map (f) => f.name
-						when 'set-selected-folder-index' then h =>
-							selected_folder_path = folders[Number(d)]?.path or ''
-							context.workspaceState.update 'selected_folder_path', selected_folder_path
-							restart_index_watcher()
-						when 'get-selected-folder-index' then h =>
-							folders.findIndex (folder) =>
-								folder.path == selected_folder_path
+						when 'get-repo-names' then h =>
+							git.get_repo_names()
+						when 'set-selected-repo-index' then h =>
+							index = Number(d) or 0
+							context.workspaceState.update 'selected_repo_index', index
+							git.set_selected_repo_index(index)
+						when 'get-selected-repo-index' then h =>
+							git.get_selected_repo_index()
 		vscode.workspace.onDidChangeConfiguration (event) =>
 			if event.affectsConfiguration EXT_ID
 				post_message
@@ -170,19 +135,20 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
 		provideTextDocumentContent: (uri) ->
-			(try await git "show \"#{uri.path}\"") or ''
+			(try await git.run "show \"#{uri.path}\"") or ''
 
 	context.subscriptions.push vscode.commands.registerCommand START_CMD, =>
-		if panel
-			panel.reveal()
-			return
+		log.appendLine "start command"
+		return panel.reveal() if panel
 		panel = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { retainContextWhenHidden: true })
 		panel.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
 		populate_panel()
 
+	# This bit is needed so the webview can keep open around restarts
 	vscode.window.registerWebviewPanelSerializer EXT_ID,
 		deserializeWebviewPanel: (deserialized_panel) ->
 			panel = deserialized_panel
+			log.appendLine "deserialize web panel (rebuild editor tab from last session)"
 			await populate_panel()
 			undefined
 
@@ -192,3 +158,6 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	status_bar_item.text = "$(git-branch) Git Log"
 	status_bar_item.tooltip = "Open up the main view of the git-log--graph extension"
 	status_bar_item.show()
+
+module.exports.deactivate = =>
+	log.appendLine("extension deactivate")

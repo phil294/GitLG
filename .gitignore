@@ -7,4 +7,4 @@ web-dist
 *.ttf
 todo*
 *.vsix
-extension.js
+src/*.js

@@ -11,7 +11,7 @@ import Visualization from './Visualization.vue'
 import AllBranches from './AllBranches.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
-import FolderSelection from './FolderSelection.vue'
+import RepoSelection from './RepoSelection.vue'
 ``###*
 # @typedef {import('./types').Commit} Commit
 ###
@@ -19,7 +19,7 @@ import FolderSelection from './FolderSelection.vue'
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 export default
-	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction, FolderSelection }
+	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
 	setup: ->
 		#
 		###* @type {Ref<Commit[]>} ###

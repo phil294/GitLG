@@ -20,6 +20,9 @@
 		"onStartupFinished",
 		"onWebviewPanel:git-log--graph"
 	],
+	"extensionDependencies": [
+		"vscode.git"
+	],
 	"main": "./src/extension.js",
 	"contributes": {
 		"commands": [
@@ -433,6 +436,10 @@
 					"description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
 					"type": "boolean",
 					"default": false
+				},
+				"git-log--graph.verbose-logging": {
+					"type": "boolean",
+					"default": false
 				}
 			}
 		}
@@ -445,7 +452,5 @@
 		"coffeescript": "^2.7.0",
 		"esbuild": "^0.17.18"
 	},
-	"dependencies": {
-		"glob": "^10.2.2"
-	}
+	"dependencies": {}
 }

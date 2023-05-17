@@ -10,7 +10,7 @@
 				details.config.flex-1
 					summary Configure...
 					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
-				folder-selection
+				repo-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
 						#search-instructions v-if="txt_filter_type==='search'"
@@ -97,7 +97,7 @@ details.config
 		z-index 2
 		background #111111
 		border-bottom 1px solid #424242
-		#folder-selection
+		#repo-selection
 			overflow hidden
 		> aside
 			> section#search
