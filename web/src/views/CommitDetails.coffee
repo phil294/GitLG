@@ -33,7 +33,7 @@ export default defineComponent
 			props.commit.refs.find (ref) =>
 				ref.type == "stash"
 		
-		``###* @type {Ref<{path:string,insertions:number,deletions:number}[]>} ###
+		``###* @type {Ref<{filename:string,dir:string,insertions:number,deletions:number}[]>} ###
 		changed_files = ref []
 		body = ref ''
 		watchEffect =>
@@ -46,7 +46,9 @@ export default defineComponent
 			changed_files.value = (try await git get_files_command)
 				?.split('\n').map((l) =>
 					split = l.split('\t')
-					path: split[2]
+					path = split[2].split('/')
+					filename: path.at(-1) or '?'
+					dir: path.slice(0, -1).join('/')
 					insertions: Number split[1]
 					deletions: Number split[0]) or []
 

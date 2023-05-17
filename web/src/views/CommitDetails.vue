@@ -38,7 +38,9 @@ div
 			button.change.row.center.gap-5 @click="show_diff(file.path)"
 				.count {{ (file.insertions + file.deletions) || 0 }}
 				progress.diff :value="(file.insertions / (file.insertions + file.deletions)) || 0" title="Ratio insertions / deletions"
-				.path.flex-1 {{ file.path }}
+				.path.flex-1.row.gap-10.align-center
+					.filename {{ file.filename }}
+					.dir {{ file.dir }}
 </template>
 
 <script lang="coffee" src="./CommitDetails.coffee"></script>
@@ -54,14 +56,15 @@ h2.summary
 	overflow auto
 	.change
 		font-family monospace
+		font-size 90%
 		> .count
 			text-align right
 			width 2rem
 		> .path
 			white-space pre
-			// white-space pre-line
-			// text-indent -1rem
-			// padding-left 1rem
+			> .dir
+				color #aaa
+				font-size 90%
 .body
 	white-space pre-wrap
 	word-break break-word
