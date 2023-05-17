@@ -97,9 +97,13 @@ export default defineComponent
 
 		``###* @type {Ref<HTMLInputElement[]>} ###
 		params_input_refs = ref []
+		``###* @type {Ref<HTMLInputElement|null>} ###
+		command_input_ref = ref null
 		onMounted =>
 			if params_input_refs.value.length
 				params_input_refs.value[0].focus()
+			else
+				command_input_ref.value?.focus()
 
 		data = ref ''
 		error = ref ''
@@ -158,5 +162,6 @@ export default defineComponent
 			has_unsaved_changes
 			save
 			params_input_refs
+			command_input_ref
 			ref_form
 		}
