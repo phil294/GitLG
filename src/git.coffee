@@ -24,9 +24,24 @@ module.exports.get_git = (log, { on_repo_external_state_change, on_repo_names_ch
 			return if repo_state_cache[repo.rootUri.fsPath] == state_cache
 			repo_state_cache[repo.rootUri.fsPath] = state_cache
 			return if is_initial_change
-			# Changes done via interface already do a refresh afterwards, prevent a second one.
-			# This could probably be done a bit more elegantly though...
-			return if Date.now() - last_git_execution < 1500
+			# Changes done via interface already do a refresh afterwards, so prevent a second one.
+			# Another solution does not really seem feasible, as it's hard to tell when a change
+			# was made by the user. Some commands never do (log, branch --list, ...), others only
+			# sometimes, depending on work tree and command success. So it would be necessary to
+			# have a separate change detection logic based on .git/HEAD and .git/index because
+			# this one right here is too delayed. vscode.git keeps its own state and refreshes quite
+			# slowly but we need immediate refreshes in the interface while *not* doing duplicate
+			# refreshes for the same action. It seems the sanest solution is just a dumb timer.
+			# The delay margin should be as big as possible in case the repo is *very* big and
+			# a false positive resulting from a a too small margin can lead to *seconds* of
+			# unnecessary reloading, and it should be as small as possible to prevent actual external
+			# changes from being detected which could happen if the user e.g. checks out a branch in
+			# the extension's interface and then quickly commits something from VSCode's SCM view
+			# before the margin elapsed.
+			# Note that `last_git_execution` would usually refer to a `git log` action because any
+			# git action in the web view results in a refresh / log being sent afterwards.
+			margin = 4500
+			return if Date.now() - last_git_execution < margin
 			# We have to observe all repos even if they aren't the selected one because
 			# there is no apparent way to unsubscribe from repo state changes. So filter:
 			return if api.repositories.findIndex((r)=>r.rootUri.path==repo.rootUri.path) != selected_repo_index
