@@ -45,17 +45,19 @@ echo edit changelog
 pause
 changes=$(micro <<< "$changes")
 [ -z "$changes" ] && exit 1
+echo changes:
+echo "$changes"
 
 version=$(npm version patch --no-git-tag-version)
 echo version: $version
 pause
 
-sed -i $'/<!-- CHANGELOG_PLACEHOLDER -->/a \n### '${version} $(date +"%Y-%m-%d")$'\n\n'"$changes" README.md
+sed -i $'/<!-- CHANGELOG_PLACEHOLDER -->/r'<(echo $'\n### '${version} $(date +"%Y-%m-%d")$'\n\n'"$changes") README.md
 
 git add README.md
 git add package.json
 git commit -m "$version"
-git tag --annotate "$version"
+git tag "$version"
 echo 'patched package.json version patch, updated changelog, committed, tagged'
 pause
 
@@ -76,9 +78,9 @@ npx ovsx publish "$vsix_file" -p "$(cat ~/.open-vsx-access-token)"
 echo 'ovsx published'
 pause
 
-git push origin master
+git push --tags origin master
 
 echo 'will create github release'
 pause
-gh release create "$version" --target master
+gh release create "$version" --target master --title "$version" --notes "$changes" --verify-tag
 echo 'github release created'
