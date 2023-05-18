@@ -217,10 +217,11 @@ export default
 						if v.branch and invisible_branch_tips_of_visible_branches.value.includes(v.branch)
 							switch v.char
 								when '*', '|', '⎽*', '⎽|', '*⎽', '|⎽' then '|'
-								when '⎺*', '⎺|', '\\', '_', '.', '-'  then '⎽|'
+								when '⎺*', '⎺|', '\\', '.', '-'       then '⎽|'
 								when '*⎺', '|⎺', '/'                  then '|⎽'
 								when '⎺\\', '⎺\\⎽'                    then '⎽⎽|'
 								when '/⎺'                             then '|⎽⎽'
+								else ' '
 						else ' '
 				}
 			}
