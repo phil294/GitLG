@@ -150,6 +150,15 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.5 2023-05-18
+
+- [`c529816`](https://github.com/phil294/git-log--graph/commit/c529816) Fix file diff views (#12)
+- [`656bb08`](https://github.com/phil294/git-log--graph/commit/656bb08) Fix context menus on branches on top of commit
+- [`7d2e568`](https://github.com/phil294/git-log--graph/commit/7d2e568) Context menu (right click): run action on left mouse UP event, not just click (down+up), to align with how context menus typically work basically everywhere
+- [`75f7c66`](https://github.com/phil294/git-log--graph/commit/75f7c66) Increase external change delay margin from 1500 ms to 4500 ms to hopefully stop unnecessary duplicate reloads from occurring for good
+- [`b2174d0`](https://github.com/phil294/git-log--graph/commit/b2174d0) Don't refresh on external index or work tree changes in case the repository is very big, this could lead to unnecessary loading times as we don't really show index/worktree changes except the little grey status text at the start and this is acceptable given we're talking about external changes only
+- [`9bd4fc7`](https://github.com/phil294/git-log--graph/commit/9bd4fc7) Small visual bug: don't paint dotted vertical branch connection lines on top of / connecting to horizontal vis lines ____
+
 ### 0.1.4 2023-05-17
 
 - [`4ec22f1`](https://github.com/phil294/git-log--graph/commit/4ec22f1) Allow showing the interface in a side bar ("view") instead of as a tab ("editor") with new option `git-log--graph.position` (#11)
