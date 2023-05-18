@@ -12,18 +12,19 @@ if ! [ -z "$(git status --porcelain)" ]; then
     exit 1
 fi
 
-yarn upgrade
-pushd web
-yarn
-yarn upgrade
-popd
-git add yarn.lock
-git add package.json
-git add web/yarn.lock
-git add web/package.json
-git commit -m 'yarn upgrade' ||:
-echo yarn upgraded
-pause
+# # Cannot upgrade deps currently, TODO: https://github.com/vuejs/vue-loader/issues/2044
+# yarn upgrade
+# pushd web
+# yarn
+# yarn upgrade
+# popd
+# git add yarn.lock
+# git add package.json
+# git add web/yarn.lock
+# git add web/package.json
+# git commit -m 'yarn upgrade' ||:
+# echo yarn upgraded
+# pause
 
 yarn
 yarn coffee -c src/*.coffee
