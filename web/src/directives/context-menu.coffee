@@ -47,7 +47,8 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=
 			label_el.textContent = entry.label
 			entry_el.appendChild(icon_el)
 			entry_el.appendChild(label_el)
-			entry_el.onclick = entry.action
+			entry_el.onmouseup = (e) =>
+				entry.action() if e.button == 0
 			wrapper_el?.appendChild(entry_el)
 		document.body.appendChild(wrapper_el)
 	
