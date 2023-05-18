@@ -47,6 +47,7 @@ export default defineComponent
 				?.split('\n').map((l) =>
 					split = l.split('\t')
 					path = split[2].split('/')
+					path: split[2]
 					filename: path.at(-1) or '?'
 					dir: path.slice(0, -1).join('/')
 					insertions: Number split[1]
