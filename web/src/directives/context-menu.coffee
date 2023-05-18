@@ -1,16 +1,22 @@
-import Vue, { nextTick } from 'vue'
+import Vue from 'vue'
 
 ``###* @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry ###
 ``###* @typedef {{
 	oncontextmenu: (this: HTMLElement, ev: MouseEvent) => any
-	onglobalclick: (ev: MouseEvent) => any
-	onglobalkeyup: (ev: KeyboardEvent) => any
+	destroy: () => any
 	entries_provider: (ev: MouseEvent) => ContextMenuEntry[]
 }} ContextMenuData
 ###
 
 ``###* @type {Map<HTMLElement,ContextMenuData>} ### 
 context_menu_data_by_el = new Map
+
+remove_all_context_menus = =>
+	context_menu_data_by_el.forEach (menu) =>
+		menu.destroy()
+document.addEventListener 'contextmenu', remove_all_context_menus, false
+document.addEventListener 'click', remove_all_context_menus, false
+document.addEventListener 'keyup', remove_all_context_menus, false
 
 set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=>ContextMenuEntry[]} ### entries_provider) =>
 	existing_context_menu_data = context_menu_data_by_el.get el
@@ -24,7 +30,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=
 	# The element(s) created by this is quite similar to the template of <git-action-button>
 	build_context_menu = (###* @type MouseEvent ### event) =>
 		entries = entries_provider(event)
-		return if not entries
+		return if not entries or wrapper_el
 		wrapper_el = document.createElement('ul')
 		wrapper_el.setAttribute('aria-label', 'Context menu')
 		wrapper_el.classList.add 'context-menu-wrapper'
@@ -44,25 +50,20 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=
 			entry_el.onclick = entry.action
 			wrapper_el?.appendChild(entry_el)
 		document.body.appendChild(wrapper_el)
-	destroy_context_menu = =>
-		return if not wrapper_el
-		document.body.removeChild(wrapper_el)
-		wrapper_el = null
 	
 	``###* @type ContextMenuData ###
 	context_menu_data =
 		oncontextmenu: (e) =>
 			e.preventDefault()
-			setTimeout (=>build_context_menu(e)), 0
-		onglobalclick: destroy_context_menu
-		onglobalkeyup: destroy_context_menu
+			e.stopPropagation()
+			remove_all_context_menus()
+			build_context_menu(e)
+		destroy: =>
+			return if not wrapper_el
+			document.body.removeChild(wrapper_el)
+			wrapper_el = null
 		entries_provider: entries_provider
-
 	el.addEventListener 'contextmenu', context_menu_data.oncontextmenu, false
-	document.addEventListener 'contextmenu', context_menu_data.onglobalclick, false
-	document.addEventListener 'click', context_menu_data.onglobalclick, false
-	document.addEventListener 'keyup', context_menu_data.onglobalkeyup, false
-
 	context_menu_data_by_el.set el, context_menu_data
 
 disable_context_menu = (###* @type {HTMLElement} ### el) =>
@@ -70,9 +71,6 @@ disable_context_menu = (###* @type {HTMLElement} ### el) =>
 	if not context_menu_data
 		return
 	el.removeEventListener 'contextmenu', context_menu_data.oncontextmenu
-	document.removeEventListener 'contextmenu', context_menu_data.onglobalclick
-	document.removeEventListener 'click', context_menu_data.onglobalclick
-	document.removeEventListener 'keyup', context_menu_data.onglobalkeyup
 	context_menu_data_by_el.delete el
 
 ``###* @type {Vue.Directive} ###
