@@ -3,22 +3,24 @@ set -e
 set -o pipefail
 
 pause() {
-	read -r -n 1 -s -p 'Press any key to continue. . .'
-	echo
+    read -r -n 1 -s -p 'Press any key to continue. . .'
+    echo
 }
 
-git fetch
-changes=$(git log --reverse origin/master.. --pretty=format:"%h___%B" |grep . |sed -E 's/^([0-9a-f]{6,})___(.)/- [`\1`](https:\/\/github.com\/phil294\/git-log--graph\/commit\/\1) \U\2/' ||:)
+if ! [ -z "$(git status --porcelain)" ]; then
+    echo 'git working tree not clean'
+    exit 1
+fi
 
-echo 'CHANGES, generated from commits since last git push:'
-echo "$changes"
-echo "---- (put into clipboard)"
-echo "$changes" |xclip -sel c
-echo 'update changelog'
-pause
-
-echo 'patched package.json version to minor bump'
-npm version patch --no-git-tag-version
+yarn upgrade
+pushd web
+yarn
+yarn upgrade
+popd
+git add yarn.lock
+git add web/yarn.lock
+git commit -m 'yarn upgrade' ||:
+echo yarn upgraded
 pause
 
 yarn
@@ -28,34 +30,52 @@ yarn build
 popd
 rm web-dist/index.html
 
-# TODO: permission error postcss blah
-# yarn upgrade
-# pushd web
-# yarn
-# yarn upgrade
-# popd
-# git add yarn.lock
-# git add web/yarn.lock
-# git commit -m 'yarn upgrade' ||:
-
 npx esbuild src/extension.js --bundle --platform=node --outfile=src/extension.js --allow-overwrite --external:vscode
 
-echo 'clean up local files for vsix packaging'
+echo built
 pause
+
+git fetch
+changes=$(git log --reverse origin/master.. --pretty=format:"%h___%B" |grep . |sed -E 's/^([0-9a-f]{6,})___(.)/- [`\1`](https:\/\/github.com\/phil294\/git-log--graph\/commit\/\1) \U\2/' ||:)
+
+echo edit changelog
+pause
+changes=$(micro <<< "$changes")
+[ -z "$changes" ] && exit 1
+
+version=$(npm version patch --no-git-tag-version)
+echo version: $version
+pause
+
+sed -i $'/<!-- CHANGELOG_PLACEHOLDER -->/a \n### '${version} $(date +"%Y-%m-%d")$'\n\n'"$changes" README.md
+
+git add README.md
+git add package.json
+git commit -m "$version"
+git tag --annotate "$version"
+echo 'patched package.json version patch, updated changelog, committed, tagged'
 pause
 
 npx vsce package
 
-echo 'check vsix package'
+vsix_file=$(ls -tr git-log--graph-*.vsix* |tail -1)
+xdg-open "$vsix_file"
+echo 'check vsix package before publish'
+ls -ltr
 pause
 pause
 
 npx vsce publish
-echo 'vscd published.'
+echo 'vsce published'
+pause
 
-npx ovsx publish "$(ls -tr git-log--graph-*.vsix* |tail -1)" -p "$(cat ~/.open-vsx-access-token)"
-echo 'ovsx published.'
+npx ovsx publish "$vsix_file" -p "$(cat ~/.open-vsx-access-token)"
+echo 'ovsx published'
+pause
 
 git push origin master
 
-yarn
+echo 'will create github release'
+pause
+gh release create "$version" --target master
+echo 'github release created'

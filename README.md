@@ -148,6 +148,8 @@ Please consider opening an issue or PR if you think a certain action or option w
 
 Entries usually sorted by importance.
 
+<!-- CHANGELOG_PLACEHOLDER -->
+
 ### 0.1.4 2023-05-17
 
 - [`4ec22f1`](https://github.com/phil294/git-log--graph/commit/4ec22f1) Allow showing the interface in a side bar ("view") instead of as a tab ("editor") with new option `git-log--graph.position` (#11)
