@@ -19,7 +19,12 @@ module.exports.get_git = (log, { on_repo_external_state_change, on_repo_names_ch
 		log.appendLine "start observing repo "+repo.rootUri.fsPath
 		repo.state.onDidChange =>
 			# There's no event info available so we need to compare. (https://github.com/microsoft/vscode/issues/142313#issuecomment-1056939973)
-			state_cache = [repo.state.workingTreeChanges.map((c)=>c.uri.fsPath).join(','), repo.state.mergeChanges.map((c)=>c.uri.fsPath).join(','), repo.state.indexChanges.map((c)=>c.uri.fsPath).join(','), repo.state.HEAD?.commit].join(';')
+			# Skipping index/work tree changes just in case the repository is very big,
+			# this could lead to unnecessary loading times as we don't really show index/worktree
+			# changes except the little grey status text at the start and this is acceptable
+			# given we're talking about external changes only.
+			# repo.state.workingTreeChanges.map((c)=>c.uri.fsPath).join(','), repo.state.indexChanges.map((c)=>c.uri.fsPath).join(',')
+			state_cache = [repo.state.mergeChanges.map((c)=>c.uri.fsPath).join(','), repo.state.HEAD?.commit].join(';')
 			is_initial_change = not repo_state_cache[repo.rootUri.fsPath]
 			return if repo_state_cache[repo.rootUri.fsPath] == state_cache
 			repo_state_cache[repo.rootUri.fsPath] = state_cache
