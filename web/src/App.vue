@@ -40,6 +40,11 @@ body {
 	font-family: var(--vscode-font-family);
 	// background-color: var(--vscode-editor-background); TODO:
 	background-color: #161616;
+
+	&.vscode-light {
+		background-color: var(--vscode-editor-background);
+		filter: invert( 1 ) hue-rotate( 180deg );
+	}
 }
 
 ol, ul, *[role=list] {
