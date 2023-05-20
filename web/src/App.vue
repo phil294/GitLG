@@ -43,7 +43,7 @@ body {
 
 	&.vscode-light {
 		background-color: var(--vscode-editor-background);
-		filter: invert( 1 ) hue-rotate( 180deg );
+		filter: invert(1) hue-rotate(180deg);
 	}
 }
 
