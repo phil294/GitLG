@@ -45,7 +45,7 @@ module.exports.get_git = (log, { on_repo_external_state_change, on_repo_names_ch
 			# before the margin elapsed.
 			# Note that `last_git_execution` would usually refer to a `git log` action because any
 			# git action in the web view results in a refresh / log being sent afterwards.
-			margin = 4500
+			margin = 1500
 			return if Date.now() - last_git_execution < margin
 			# We have to observe all repos even if they aren't the selected one because
 			# there is no apparent way to unsubscribe from repo state changes. So filter:
