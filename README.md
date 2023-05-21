@@ -150,6 +150,17 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.6 2023-05-21
+
+- [`588832e`](https://github.com/phil294/git-log--graph/commit/588832e) Light theme support (#13, PR #14) thanks to @lens0021
+- [`5d60bc8`](https://github.com/phil294/git-log--graph/commit/5d60bc8) Higher res logo
+- [`d7b4d7e`](https://github.com/phil294/git-log--graph/commit/d7b4d7e) git push option `--set-upstream` default TRUE
+- [`901b2cf`](https://github.com/phil294/git-log--graph/commit/901b2cf) Log errors also into the dedicated output channel
+- [`fa7b557`](https://github.com/phil294/git-log--graph/commit/fa7b557) Fix pull/push on local branches, even if they don't have a remote configured yet. The most likely remote will be prefilled: remote name, tracking remote name or default remote.
+- [`1940cfa`](https://github.com/phil294/git-log--graph/commit/1940cfa) Color subject text of merge commits grey
+idk
+- [`112a67f`](https://github.com/phil294/git-log--graph/commit/112a67f) Focus scroller on startup so immediate keyboard scrolling is possible
+
 ### v0.1.5 2023-05-18
 
 - [`c529816`](https://github.com/phil294/git-log--graph/commit/c529816) Fix file diff views (#12)
