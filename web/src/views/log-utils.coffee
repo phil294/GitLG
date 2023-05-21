@@ -198,6 +198,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 						# commit is somewhere further down.
 						branch = new_virtual_branch()
 						char = '⎺\\'
+						commits[line_no-1].merge = true
 					else if ['|','⎺|','|⎺'].includes(v_nw?.char||'') or ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
 						branch = v_nw?.branch
 						if ['|','⎺|','|⎺'].includes(v_nw?.char||'')

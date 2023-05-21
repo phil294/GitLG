@@ -37,7 +37,7 @@
 			#branches-connection v-if="config_show_quick_branch_tips"
 				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
-				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
+				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash,merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
 					visualization.vis :commit="commit" :vis_max_length="vis_max_length"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
@@ -194,6 +194,8 @@ details.config
 					font-size 12px
 				.stats
 					width 93px
+			&.merge .subject
+				color grey
 
 #right
 	min-width 400px
