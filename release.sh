@@ -66,7 +66,7 @@ npx vsce package
 vsix_file=$(ls -tr git-log--graph-*.vsix* |tail -1)
 xdg-open "$vsix_file"
 echo 'check vsix package before publish'
-ls -ltr
+ls -hltr
 pause
 pause
 
