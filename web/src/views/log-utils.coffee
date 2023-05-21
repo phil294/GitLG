@@ -34,12 +34,13 @@ parse = (log_data, branch_data, stash_data, separator) =>
 	``###* @type {Branch[]} ###
 	branches = []
 	``###* @returns {Branch} ###
-	new_branch = (###* @type string ### branch_name, ###* @type string ### remote_name) =>
+	new_branch = (###* @type string ### branch_name, ###* @type string= ### remote_name, ###* @type string= ### tracking_remote_name) =>
 		branches.push
 			name: branch_name
 			color: undefined
 			type: "branch"
 			remote_name: remote_name
+			tracking_remote_name: tracking_remote_name
 			id: if remote_name then "#{remote_name}/#{branch_name}" else branch_name
 		branches[branches.length - 1]
 	new_virtual_branch = =>
@@ -48,12 +49,13 @@ parse = (log_data, branch_data, stash_data, separator) =>
 		branch
 
 	for branch_line from branch_data.split('\n')
-		# refs/heads/local-branch-name
-		# refs/remotes/origin-name/remote-branch-name
-		if branch_line.startsWith("refs/heads/")
-			new_branch(branch_line.slice(11))
+		# origin-name{SEP}refs/heads/local-branch-name
+		# {SEP}refs/remotes/origin-name/remote-branch-name
+		[tracking_remote_branch_name, ref_name] = branch_line.split(separator)
+		if ref_name.startsWith("refs/heads/")
+			new_branch(ref_name.slice(11), undefined, tracking_remote_branch_name)
 		else
-			[remote_name, ...remote_branch_name_parts] = branch_line.slice(13).split('/')
+			[remote_name, ...remote_branch_name_parts] = ref_name.slice(13).split('/')
 			new_branch(remote_branch_name_parts.join('/'), remote_name)
 	# Not actually a branch but since it's included in the log refs and is neither stash nor tag
 	# and checking it out works, we can just treat it as one:

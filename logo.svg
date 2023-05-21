@@ -1,0 +1,37 @@
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" height="114" width="114">
+  <g transform="translate(26,0)" style="stroke-width:3">
+    <g style="stroke-dasharray: 3;">
+      <line x1="10" x2="10" y1="0" y2="20" style="stroke: rgb(255, 51, 51); filter: drop-shadow(4px 0px 1px rgba(255,255,255,0.6)) drop-shadow(-4px 0px 1px rgba(255,255,255,0.6))"></line>
+      <line x1="30" x2="30" y1="0" y2="20" style="stroke: #afafff;"></line>
+      <line x1="50" x2="50" y1="0" y2="20" style="stroke: #d78700;"></line>
+    </g>
+    <g>
+      <line x1="10" x2="10" y1="20" y2="114" style="stroke: rgb(255, 51, 51); filter: drop-shadow(4px 0px 1px rgba(255,255,255,0.6)) drop-shadow(-4px 0px 1px rgba(255,255,255,0.6))"></line>
+      <line x1="30" x2="30" y1="20" y2="114" style="stroke: #afafff;"></line>
+      <line x1="50" x2="50" y1="20" y2="20" style="stroke: #d78700;"></line>
+    </g>
+    <g transform="translate(0,20)">
+        <line x1="50" x2="50" y1="0" y2="20" style="stroke: #d78700;"></line>
+        <circle cx="50" cy="10" r="6" style="stroke: #d78700;"></circle>
+    </g>
+    <g transform="translate(0,40)">
+        <line x1="50" x2="50" y1="0" y2="20" style="stroke: #d78700;"></line>
+        <circle cx="10" cy="10" r="6" style="stroke: rgb(255, 51, 51); fill: #fff"></circle>
+    </g>
+    <g transform="translate(0,60)">
+        <line x1="50" x2="50" y1="0" y2="20" style="stroke: #d78700;"></line>
+        <circle cx="50" cy="10" r="6" style="stroke: #d78700;"></circle>
+    </g>
+    <g transform="translate(0,80)">
+        <line x1="10" x2="10" y1="0" y2="6" style="stroke: rgb(255, 51, 51);"></line>
+        <line x1="50" x2="35" y1="0" y2="6" style="stroke: #d78700;"></line>
+    </g>
+    <g transform="translate(0,86)">
+        <line x1="10" x2="10" y1="0" y2="6" style="stroke: rgb(255, 51, 51);"></line>
+        <line x1="25" x2="15" y1="0" y2="6" style="stroke: #d78700;"></line>
+    </g>
+    <g transform="translate(0,92)">
+        <circle cx="10" cy="10" r="6" style="stroke: rgb(255, 51, 51);  fill: #fff"></circle>
+    </g>
+  </g>
+</svg>

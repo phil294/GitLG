@@ -347,7 +347,7 @@
 				},
 				{
 					"value": "--set-upstream",
-					"default_active": false
+					"default_active": true
 				}
 			]
 		},
