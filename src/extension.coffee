@@ -61,6 +61,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							git.run d
 						when 'show-error-message' then h =>
 							vscode.window.showErrorMessage d
+							log.appendLine "ERROR: #{d}"
 						when 'show-information-message' then h =>
 							vscode.window.showInformationMessage d
 						when 'get-global-state' then h =>
