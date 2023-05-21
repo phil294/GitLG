@@ -253,6 +253,7 @@ export default
 			document.addEventListener 'keyup', (e) =>
 				if e.key == "Escape"
 					selected_commits.value = []
+			commits_scroller_ref.value.$el.focus()
 
 
 		# It didn't work with normal context binding to the scroller's commit elements, either a bug
