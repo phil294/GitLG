@@ -30,6 +30,8 @@ export branches = ref []
 export head_branch = ref ''
 export vis_max_length = ref 0
 export git_status = ref ''
+###* @type {Ref<string|null>} ###
+export default_origin = ref ''
 
 export git_run_log = (###* @type string ### log_args) =>
 	sep = '^%^%^%^%^'
@@ -37,11 +39,12 @@ export git_run_log = (###* @type string ### log_args) =>
 	stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
 	log_args = log_args.replace("{STASH_REFS}", stash_refs.replaceAll('\n', ' '))
 	# errors will be handled by GitInput
-	[ log_data, branch_data, stash_data, status_data ] = await Promise.all [
+	[ log_data, branch_data, stash_data, status_data, head_data ] = await Promise.all [
 		git log_args
-		git "branch --list --all --format=\"%(refname)\""
+		git "branch --list --all --format=\"%(upstream:remotename)#{sep}%(refname)\""
 		try await git "stash list --format=\"%h %gd\""
 		git 'status'
+		git 'rev-parse --abbrev-ref HEAD'
 	]
 	return if not log_data
 	parsed = parse log_data, branch_data, stash_data, sep
@@ -49,8 +52,10 @@ export git_run_log = (###* @type string ### log_args) =>
 	branches.value = parsed.branches
 	# todo rename to vis_max_amount
 	vis_max_length.value = parsed.vis_max_length
-	head_branch.value = await git 'rev-parse --abbrev-ref HEAD'
+	head_branch.value = head_data
 	git_status.value = status_data
+	likely_default_branch = (branches.value.find (b) => b.name=='master'||b.name=='main') || branches.value[0]
+	default_origin.value = likely_default_branch?.remote_name or likely_default_branch?.tracking_remote_name or null
 ``###* @type {Ref<Ref<GitInputModel|null>|null>} ###
 export main_view_git_input_ref = ref null
 export refresh_main_view = =>
@@ -95,7 +100,7 @@ export branch_actions = (###* @type Branch ### branch) => computed =>
 	parse_config_actions(config_branch_actions.value, [
 		['{BRANCH_NAME}', branch.id]
 		['{LOCAL_BRANCH_NAME}', branch.name]
-		['{REMOTE_NAME}', branch.remote_name or 'MISSING_REMOTE_NAME']])
+		['{REMOTE_NAME}', branch.remote_name or branch.tracking_remote_name or default_origin.value or 'MISSING_REMOTE_NAME']])
 export tag_actions = (###* @type string ### tag_name) => computed =>
 	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name]])
 ``###* @type {Ref<ConfigGitAction[]>} ###

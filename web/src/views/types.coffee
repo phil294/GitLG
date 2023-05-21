@@ -3,13 +3,14 @@ import colors from "./colors.coffee"
 ``###*
 # @typedef {{
 #	name: string
-#   id: string
+#	id: string
 #	color?: colors[number]
 #	type: "tag" | "stash" | "branch"
 # }} GitRef
 # @typedef {GitRef & {
 #	type: "branch"
-#   remote_name?: string
+#	remote_name?: string
+#	tracking_remote_name?: string
 #	virtual?: boolean
 # }} Branch
 #
