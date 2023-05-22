@@ -29,7 +29,8 @@
 			{
 				"command": "git-log--graph.start",
 				"title": "Open graph view",
-				"category": "git log --graph"
+				"category": "git log --graph",
+				"icon": "$(git-branch)"
 			}
 		],
 		"views": {
@@ -38,6 +39,15 @@
 					"type": "webview",
 					"id": "git-log--graph",
 					"name": "git-log--graph"
+				}
+			]
+		},
+		"menus": {
+			"scm/title": [
+				{
+					"when": "scmProvider == git",
+					"command": "git-log--graph.start",
+					"group": "navigation"
 				}
 			]
 		},
