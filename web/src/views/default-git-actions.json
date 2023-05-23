@@ -361,9 +361,17 @@
 			]
 		},
 		{
+			"title": "Rebase",
+			"icon": "references",
+			"args": "rebase '$1'",
+			"params": [
+				"{BRANCH_NAME}"
+			]
+		},
+		{
 			"title": "Delete",
 			"icon": "trash",
-			"args": "branch -d '$1'",
+			"args": "branch --delete '$1'",
 			"params": [
 				"{BRANCH_NAME}"
 			],
@@ -375,11 +383,12 @@
 			]
 		},
 		{
-			"title": "Rebase",
-			"icon": "references",
-			"args": "rebase '$1'",
+			"title": "Delete (Remote)",
+			"icon": "trash",
+			"args": "push '$1' --delete '$2'",
 			"params": [
-				"{BRANCH_NAME}"
+				"{REMOTE_NAME}",
+				"{LOCAL_BRANCH_NAME}"
 			]
 		}
 	]
