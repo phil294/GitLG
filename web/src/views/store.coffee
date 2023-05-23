@@ -46,7 +46,7 @@ export git_run_log = (###* @type string ### log_args) =>
 		git 'status'
 		git 'rev-parse --abbrev-ref HEAD'
 	]
-	return if not log_data
+	return if not log_data?
 	parsed = parse log_data, branch_data, stash_data, sep
 	commits.value = parsed.commits
 	branches.value = parsed.branches
@@ -157,6 +157,7 @@ export refresh_config = =>
 
 export vis_v_width = computed =>
 	if not config_width.value or not Number(config_width.value)
+		# Linear drop from 10 to 2
 		Math.max(2, Math.min(10, Math.round(vis_max_length.value * (-1) * 8 / 50 + 18)))
 	else
 		Number(config_width.value)
