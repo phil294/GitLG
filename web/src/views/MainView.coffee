@@ -102,7 +102,7 @@ export default
 				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
 				commit.refs.some (ref) => ref.id == branch_id
 			if first_branch_commit_i == -1
-				return show_error_message "No commit found for branch #{branch_id}. No idea why :/"
+				return show_error_message "No commit found for branch #{branch_id}. Not enough commits loaded?"
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
