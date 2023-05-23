@@ -64,7 +64,13 @@ export default defineComponent
 			exchange_message 'open-diff',
 				hashes: [props.commit.hash+'~1', props.commit.hash]
 				filename: filepath
-		
+		view_rev = (###* @type string ### filepath) =>
+			exchange_message 'view-rev',
+				hash: props.commit.hash
+				filename: filepath
+		open_file = (###* @type string ### filepath) =>
+			exchange_message 'open-file',
+				filename: filepath
 		_commit_actions = computed =>
 			commit_actions(props.commit.hash).value
 		_stash_actions = computed =>
@@ -81,6 +87,8 @@ export default defineComponent
 			stash
 			changed_files
 			show_diff
+			view_rev
+			open_file
 			body
 			commit_actions: _commit_actions
 			branch_actions: _branch_actions
