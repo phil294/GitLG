@@ -225,14 +225,19 @@ parse = (log_data, branch_data, stash_data, separator) =>
 
 	# cannot do this at creation because branches list is not fixed before this (see wrong_branch)
 	i = -1
-	for branch from branches
+	for branch, i in branches
 		branch.color = switch branch.name
 			when 'master', 'main' then '#ff3333'
 			when 'development', 'develop', 'dev' then '#009000'
 			when 'stage', 'staging' then '#d7d700'
 			else
-				i++
-				colors[i % (colors.length - 1)]
+				branch_with_same_name = branches.slice(0, i).find (other_branch) =>
+					other_branch.name == branch.name
+				if branch_with_same_name
+					branch_with_same_name.color
+				else
+					i++
+					colors[i % (colors.length - 1)]
 	
 	branches = branches
 		.filter (branch) =>
