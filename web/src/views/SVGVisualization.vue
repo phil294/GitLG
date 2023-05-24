@@ -7,7 +7,7 @@
 		ref-tip v-for="ref of refs_elems.refs" :git_ref="ref" :commit="commit" :key="ref.id"
 </template>
 
-<script lang="coffee" src="./Visualization.coffee"></script>
+<script lang="coffee" src="./SVGVisualization.coffee"></script>
 
 <style lang="stylus" scoped>
 .vis

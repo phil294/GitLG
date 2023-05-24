@@ -9,7 +9,6 @@ export default defineComponent
 			required: true
 			###* @type {() => Commit} ###
 			type: Object
-	emits: ['branch_drop']
 	components: { RefTip }
 	setup: (props) ->
 		padding_left = 5

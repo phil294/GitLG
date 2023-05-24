@@ -137,6 +137,15 @@ Please consider opening an issue or PR if you think a certain action or option w
         "description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
         "type": "string"
     },
+    "git-log--graph.branch-visualization": {
+        "description": "How the branch lines displayed. SVG is recommended.",
+        "type": "string",
+        "default": "svg",
+        "enum": [
+            "svg",
+            "ascii"
+        ]
+    },
     "git-log--graph.verbose-logging": {
         "type": "boolean",
         "default": false
@@ -158,7 +167,6 @@ Entries usually sorted by importance.
 - [`901b2cf`](https://github.com/phil294/git-log--graph/commit/901b2cf) Log errors also into the dedicated output channel
 - [`fa7b557`](https://github.com/phil294/git-log--graph/commit/fa7b557) Fix pull/push on local branches, even if they don't have a remote configured yet. The most likely remote will be prefilled: remote name, tracking remote name or default remote.
 - [`1940cfa`](https://github.com/phil294/git-log--graph/commit/1940cfa) Color subject text of merge commits grey
-idk
 - [`112a67f`](https://github.com/phil294/git-log--graph/commit/112a67f) Focus scroller on startup so immediate keyboard scrolling is possible
 
 ### v0.1.5 2023-05-18

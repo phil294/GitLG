@@ -83,6 +83,15 @@
 					"type": "boolean",
 					"default": false
 				},
+				"git-log--graph.branch-visualization": {
+					"description": "How the branch lines displayed. SVG is recommended.",
+					"type": "string",
+					"default": "svg",
+					"enum": [
+						"svg",
+						"ascii"
+					]
+				},
 				"git-log--graph.actions.global": {
 					"description": "Please check the extension's README for documentation. BE CAREFUL EDITING THESE OPTIONS.",
 					"type": "array",

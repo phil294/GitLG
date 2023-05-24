@@ -7,7 +7,8 @@ import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import CommitDetails from './CommitDetails.vue'
 import CommitsDetails from './CommitsDetails.vue'
-import Visualization from './Visualization.vue'
+import SVGVisualization from './SVGVisualization.vue'
+import ASCIIVisualization from './ASCIIVisualization.vue'
 import AllBranches from './AllBranches.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
@@ -19,7 +20,7 @@ import RepoSelection from './RepoSelection.vue'
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 export default
-	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
+	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, SVGVisualization, ASCIIVisualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
 	setup: ->
 		#
 		###* @type {Ref<Commit[]>} ###
@@ -239,6 +240,14 @@ export default
 							top: 0 + row * 19 + 'px'
 				.filter(is_truthy)) or []
 
+			
+		
+		visualization_component = computed =>
+			if store.config_branch_visualization_type.value == 'svg'
+				SVGVisualization
+			else
+				ASCIIVisualization
+
 
 
 		
@@ -311,4 +320,5 @@ export default
 			scroller_on_wheel
 			scroller_on_keydown
 			config_show_quick_branch_tips: store.config_show_quick_branch_tips
+			visualization_component
 		}

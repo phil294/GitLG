@@ -133,6 +133,8 @@ export config_scroll_snapping_active = ref false
 ``###* @type {Ref<boolean>} ###
 export config_show_quick_branch_tips = ref false
 
+export config_branch_visualization_type = ref 'svg'
+
 ###* @type {Ref<string[]>} ###
 export repo_names = ref []
 
@@ -154,6 +156,8 @@ export refresh_config = =>
 	config_scroll_snapping_active.value = ! (await get_config 'disable-scroll-snapping')
 
 	config_show_quick_branch_tips.value = ! (await get_config 'hide-quick-branch-tips')
+
+	config_branch_visualization_type.value = await get_config 'branch-visualization'
 
 export vis_v_width = computed =>
 	if not config_width.value or not Number(config_width.value)
