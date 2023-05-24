@@ -1,4 +1,5 @@
 vscode = require 'vscode'
+path = require 'path'
 
 { get_git } = require './git'
 
@@ -76,6 +77,13 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							uri_1 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[0]}:#{d.filename}"
 							uri_2 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[1]}:#{d.filename}"
 							vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} #{d.hashes[0]} vs. #{d.hashes[1]}"
+						when 'view-rev' then h =>
+							uri = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hash}:#{d.filename}"
+							vscode.commands.executeCommand 'vscode.open', uri
+						when 'open-file' then h =>
+							workspace = vscode.workspace.workspaceFolders[git.get_selected_repo_index()].uri.fsPath
+							uri = vscode.Uri.file path.join workspace, d.filename
+							vscode.commands.executeCommand 'vscode.open', uri
 						when 'get-config' then h =>
 							vscode.workspace.getConfiguration(EXT_ID).get d
 						when 'get-repo-names' then h =>
