@@ -64,7 +64,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 	``###* @type {Commit[]} ###
 	commits = []
 	
-	vis_max_length = 0
+	vis_max_amount = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
 	for line, line_no in lines
 		# Example line:
@@ -105,7 +105,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 
 		``###* @type {typeof graph_chars} ###
 		vis = vis_str.trimEnd().split('')
-		vis_max_length = Math.max(vis_max_length, vis.length)
+		vis_max_amount = Math.max(vis_max_amount, vis.length)
 		if vis.some (v) => not graph_chars.includes(v)
 			throw new Error "unknown visuals syntax at line " + line_no
 		datetime =
@@ -258,6 +258,6 @@ parse = (log_data, branch_data, stash_data, separator) =>
 			type: "stash"
 			color: '#fff'
 
-	{ commits, branches, vis_max_length }
+	{ commits, branches, vis_max_amount }
 
 export { parse }

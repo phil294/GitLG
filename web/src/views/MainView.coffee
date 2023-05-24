@@ -288,7 +288,7 @@ export default
 			initialized
 			filtered_commits
 			branches: store.branches
-			vis_max_length: store.vis_max_length
+			vis_max_amount: store.vis_max_amount
 			head_branch: store.head_branch
 			git_input_ref
 			run_log

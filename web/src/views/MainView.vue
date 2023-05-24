@@ -35,10 +35,10 @@
 				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.id)" title="Jump to branch tip" v-bind="branch_elem.bind"
 					ref-tip :git_ref="branch_elem.branch"
 			#branches-connection v-if="config_show_quick_branch_tips"
-				component.vis :is="visualization_component" v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length"
+				component.vis :is="visualization_component" v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_amount="vis_max_amount"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
 				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash,merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
-					component.vis :is="visualization_component" :commit="commit" :vis_max_length="vis_max_length"
+					component.vis :is="visualization_component" :commit="commit" :vis_max_amount="vis_max_amount"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						button
 							.hash.flex-noshrink {{ commit.hash }}

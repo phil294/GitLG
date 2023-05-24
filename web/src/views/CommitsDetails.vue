@@ -36,7 +36,4 @@ h2.summary
 			width 2rem
 		> .path
 			white-space pre
-			// white-space pre-line
-			// text-indent -1rem
-			// padding-left 1rem
 </style>

@@ -28,7 +28,7 @@ export branches = ref []
 # this is either a branch id(name) or HEAD in which case it will simply not be shown
 # which is also not necessary because HEAD is then also visible as a branch tip.
 export head_branch = ref ''
-export vis_max_length = ref 0
+export vis_max_amount = ref 0
 export git_status = ref ''
 ###* @type {Ref<string|null>} ###
 export default_origin = ref ''
@@ -50,8 +50,7 @@ export git_run_log = (###* @type string ### log_args) =>
 	parsed = parse log_data, branch_data, stash_data, sep
 	commits.value = parsed.commits
 	branches.value = parsed.branches
-	# todo rename to vis_max_amount
-	vis_max_length.value = parsed.vis_max_length
+	vis_max_amount.value = parsed.vis_max_amount
 	head_branch.value = head_data
 	git_status.value = status_data
 	likely_default_branch = (branches.value.find (b) => b.name=='master'||b.name=='main') || branches.value[0]
@@ -171,6 +170,6 @@ export refresh_config = =>
 export vis_v_width = computed =>
 	if not config_width.value or not Number(config_width.value)
 		# Linear drop from 10 to 2
-		Math.max(2, Math.min(10, Math.round(vis_max_length.value * (-1) * 8 / 50 + 18)))
+		Math.max(2, Math.min(10, Math.round(vis_max_amount.value * (-1) * 8 / 50 + 18)))
 	else
 		Number(config_width.value)

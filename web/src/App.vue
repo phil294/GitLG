@@ -24,12 +24,10 @@ export default
 }
 
 body {
-	// color: var(--vscode-foreground); TODO:
 	color: #cccccc;
 	font-size: var(--vscode-font-size);
 	font-weight: var(--vscode-font-weight);
 	font-family: var(--vscode-font-family);
-	// background-color: var(--vscode-editor-background); TODO:
 	background-color: #161616;
 
 	&.vscode-light, &.vscode-high-contrast-light {
@@ -58,7 +56,7 @@ a:hover, a:active {
 
 code {
 	font-family: var(--vscode-editor-font-family);
-	color: #cccccc; // TODO:
+	color: #cccccc;
 }
 
 details
