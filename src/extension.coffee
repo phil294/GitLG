@@ -24,7 +24,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		log.appendLine "send to webview: "+JSON.stringify(msg) if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
 		webview_container?.webview.postMessage msg
 
-	git = get_git log,
+	git = get_git EXT_ID, log,
 		on_repo_external_state_change: =>
 			post_message
 				type: 'push'
