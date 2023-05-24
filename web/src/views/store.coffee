@@ -1,7 +1,7 @@
 import { ref, computed } from "vue"
 import default_git_actions from './default-git-actions.json'
 import { parse } from "./log-utils.coffee"
-import { git, get_config, exchange_message } from "../bridge.coffee"
+import { git, get_config, exchange_message, add_push_listener } from "../bridge.coffee"
 import { parse_config_actions } from "./GitInput.coffee"
 import GitInputModel from './GitInput.coffee'
 ``###*
@@ -140,7 +140,16 @@ export repo_names = ref []
 
 export init = =>
 	refresh_config()
+
 	repo_names.value = await exchange_message 'get-repo-names'
+	add_push_listener 'repo-names-change', ({ data: names }) =>
+		repo_names.value = names
+
+	add_push_listener 'config-change', =>
+		refresh_config()
+		refresh_main_view()
+	
+	add_push_listener 'repo-external-state-change', refresh_main_view
 export refresh_config = =>
 	# TODO change to single request get_config and then use e.g. config.actions.global or at least config['actions.global'], branch-width etc
 	global_actions.value = default_git_actions['actions.global'].concat(await get_config 'actions.global')

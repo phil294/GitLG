@@ -6,20 +6,11 @@
 <script lang="coffee">
 import MainView from './views/MainView.vue'
 import * as store from './views/store.coffee'
-import { add_push_listener } from './bridge.coffee'
 
 export default
 	components: { MainView }	
 	setup: ->
 		store.init()
-		# TODO these listeners should probably be in store instead?
-		add_push_listener 'config-change', =>
-			store.refresh_config()
-			store.refresh_main_view()
-		add_push_listener 'repo-external-state-change', =>
-			store.refresh_main_view()
-		add_push_listener 'repo-names-change', ({ data: names }) =>
-			store.repo_names.value = names
 		undefined
 </script>
 
