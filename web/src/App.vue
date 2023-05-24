@@ -41,7 +41,7 @@ body {
 	// background-color: var(--vscode-editor-background); TODO:
 	background-color: #161616;
 
-	&.vscode-light {
+	&.vscode-light, &.vscode-high-contrast-light {
 		background-color: var(--vscode-editor-background);
 		filter: invert(1) hue-rotate(180deg);
 	}
