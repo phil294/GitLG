@@ -86,11 +86,17 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							git.set_selected_repo_index(index)
 						when 'get-selected-repo-index' then h =>
 							git.get_selected_repo_index()
+
+		``###* @type {NodeJS.Timeout|null} ###
+		config_change_debouncer = null
 		vscode.workspace.onDidChangeConfiguration (event) =>
 			if event.affectsConfiguration EXT_ID
-				post_message
-					type: 'push'
-					id: 'config-change'
+				clearTimeout config_change_debouncer if config_change_debouncer
+				config_change_debouncer = setTimeout (=>
+					post_message
+						type: 'push'
+						id: 'config-change'
+				), 500
 
 		is_production = context.extensionMode == vscode.ExtensionMode.Production
 		dev_server_url = 'http://localhost:8080'
