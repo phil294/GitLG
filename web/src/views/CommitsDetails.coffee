@@ -2,6 +2,7 @@ import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.coffee'
 import { commits_actions } from './store.coffee'
 import GitActionButton from './GitActionButton.vue'
+import FilesDiffsList from './FilesDiffsList.vue'
 ``###*
 # @typedef {import('./types').Commit} Commit
 ###
@@ -9,7 +10,7 @@ import GitActionButton from './GitActionButton.vue'
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 export default defineComponent
-	components: { GitActionButton }
+	components: { GitActionButton, FilesDiffsList }
 	props:
 		commits:
 			###* @type {() => Commit[]} ###
@@ -33,6 +34,10 @@ export default defineComponent
 			exchange_message 'open-diff',
 				hashes: [props.commits[0].hash, props.commits[1].hash]
 				filename: filepath
+		view_rev = (###* @type string ### filepath) =>
+			exchange_message 'view-rev',
+				hash: props.commits[1].hash
+				filename: filepath
 		
 		_commits_actions = computed =>
 			commits_actions(props.commits.map((c)=>c.hash)).value
@@ -40,5 +45,6 @@ export default defineComponent
 		{
 			comparison_files
 			show_compare_diff
+			view_rev
 			commits_actions: _commits_actions
 		}

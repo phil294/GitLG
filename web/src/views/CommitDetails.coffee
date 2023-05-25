@@ -3,6 +3,7 @@ import { git, exchange_message } from '../bridge.coffee'
 import { commit_actions, stash_actions, branch_actions, tag_actions } from './store.coffee'
 import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
+import FilesDiffsList from './FilesDiffsList.vue'
 ``###*
 # @typedef {import('./types').Commit} Commit
 # @typedef {import('./types').Branch} Branch
@@ -11,7 +12,7 @@ import RefTip from './RefTip.vue'
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 export default defineComponent
-	components: { GitActionButton, RefTip }
+	components: { GitActionButton, RefTip, FilesDiffsList }
 	emits: ['hash_clicked']
 	props:
 		commit:
@@ -33,7 +34,7 @@ export default defineComponent
 			props.commit.refs.find (ref) =>
 				ref.type == "stash"
 		
-		``###* @type {Ref<{filename:string,dir:string,insertions:number,deletions:number}[]>} ###
+		``###* @type {Ref<import('./FilesDiffsList.coffee').FileDiff[]>} ###
 		changed_files = ref []
 		body = ref ''
 		watchEffect =>
@@ -46,10 +47,7 @@ export default defineComponent
 			changed_files.value = (try await git get_files_command)
 				?.split('\n').map((l) =>
 					split = l.split('\t')
-					path = split[2].split('/')
 					path: split[2]
-					filename: path.at(-1) or '?'
-					dir: path.slice(0, -1).join('/')
 					insertions: Number split[1]
 					deletions: Number split[0]) or []
 
@@ -68,9 +66,6 @@ export default defineComponent
 			exchange_message 'view-rev',
 				hash: props.commit.hash
 				filename: filepath
-		open_file = (###* @type string ### filepath) =>
-			exchange_message 'open-file',
-				filename: filepath
 		_commit_actions = computed =>
 			commit_actions(props.commit.hash).value
 		_stash_actions = computed =>
@@ -88,7 +83,6 @@ export default defineComponent
 			changed_files
 			show_diff
 			view_rev
-			open_file
 			body
 			commit_actions: _commit_actions
 			branch_actions: _branch_actions
