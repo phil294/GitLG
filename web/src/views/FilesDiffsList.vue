@@ -1,9 +1,9 @@
 <template lang="slm">
 ul.files-diffs-list
 	li.row v-for="file of files"
-		button.change.center.gap-5 @click="$emit('show_diff',file.path)"
+		button.change.center.gap-5 @click="$emit('show_diff',file.path)" :title="file.insertions+' insertions, '+file.deletions+' deletions'"
 			.count {{ (file.insertions + file.deletions) || 0 }}
-			progress.diff :value="(file.insertions / (file.insertions + file.deletions)) || 0" title="Ratio insertions / deletions"
+			progress.diff :value="(file.insertions / (file.insertions + file.deletions)) || 0"
 			.path.flex-1.row.gap-10.align-center
 				.filename {{ file.filename }}
 				.dir {{ file.dir }}
