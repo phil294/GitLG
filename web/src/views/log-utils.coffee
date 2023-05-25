@@ -231,9 +231,8 @@ parse = (log_data, branch_data, stash_data, separator) =>
 			when 'development', 'develop', 'dev' then '#009000'
 			when 'stage', 'staging' then '#d7d700'
 			else
-				branch_with_same_name = branches.slice(0, i).find (other_branch) =>
-					other_branch.name == branch.name
-				if branch_with_same_name
+				if branch.name and
+						branch_with_same_name = branches.slice(0, i).find (other_branch) => other_branch.name == branch.name
 					branch_with_same_name.color
 				else
 					i++
