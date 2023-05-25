@@ -41,7 +41,7 @@ div
 				.path.flex-1.row.gap-10.align-center
 					.filename {{ file.filename }}
 					.dir {{ file.dir }}
-			div.btns
+			div.btns.row
 				button.view-rev @click="view_rev(file.path)" title="View File at this Revision"
 					i.codicon.codicon-git-commit
 				button.open-file @click="open_file(file.path)" title="Open file"
