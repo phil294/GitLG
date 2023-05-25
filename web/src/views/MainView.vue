@@ -142,7 +142,6 @@ details.config
 			max-width clamp(300px, 70vw, 80vw)
 			background #161616dd
 			box-shadow 0 0 5px 2px #161616dd
-			padding 5px 10px 20px 20px
 			border-radius 5px
 	#log.scroller
 		&:focus
