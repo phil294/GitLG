@@ -161,13 +161,11 @@ export default
 			commits_start_index = if scroll_item_offset < 3 then 0 else scroll_item_offset + 2
 			visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index)
 		scroller_on_wheel = (###* @type WheelEvent ### event) =>
-			if not store.config_scroll_snapping_active.value
-				return
+			return if store.config.value['disable-scroll-snapping']
 			event.preventDefault()
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20) + 2
 		scroller_on_keydown = (###* @type KeyboardEvent ### event) =>
-			if not store.config_scroll_snapping_active.value
-				return
+			return if store.config.value['disable-scroll-snapping']
 			if event.key == 'ArrowDown'
 				event.preventDefault()
 				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 3
@@ -243,7 +241,7 @@ export default
 			
 		
 		visualization_component = computed =>
-			if store.config_branch_visualization_type.value == 'svg'
+			if store.config.value['branch-visualization'] == 'svg'
 				SVGVisualization
 			else
 				ASCIIVisualization
@@ -284,6 +282,11 @@ export default
 
 
 
+		config_show_quick_branch_tips = computed =>
+			not store.config.value['hide-quick-branch-tips']
+
+
+
 		{
 			initialized
 			filtered_commits
@@ -319,6 +322,6 @@ export default
 			git_status: store.git_status
 			scroller_on_wheel
 			scroller_on_keydown
-			config_show_quick_branch_tips: store.config_show_quick_branch_tips
+			config_show_quick_branch_tips
 			visualization_component
 		}

@@ -77,7 +77,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							uri_2 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[1]}:#{d.filename}"
 							vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} #{d.hashes[0]} vs. #{d.hashes[1]}"
 						when 'get-config' then h =>
-							vscode.workspace.getConfiguration(EXT_ID).get d
+							vscode.workspace.getConfiguration(EXT_ID)
 						when 'get-repo-names' then h =>
 							git.get_repo_names()
 						when 'set-selected-repo-index' then h =>

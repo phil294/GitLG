@@ -45,8 +45,6 @@ export get_global_state = (###* @type string ### key) =>
 	exchange_message 'get-global-state', key
 export set_global_state = (###* @type string ### key, ###* @type any ### value) =>
 	exchange_message 'set-global-state', { key, value }
-export get_config = (###* @type string ### key) =>
-	exchange_message 'get-config', key
 
 export add_push_listener = (###* @type string ### id, ###* @type {(r: BridgeMessage) => void} ### handler) =>
 	push_handlers[id] = handler
