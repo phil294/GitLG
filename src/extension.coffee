@@ -145,7 +145,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			</body>
 			</html>"
 		undefined
-	
+
 	# Needed for git diff views
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
 		provideTextDocumentContent: (uri) ->

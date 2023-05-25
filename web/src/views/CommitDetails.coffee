@@ -23,7 +23,7 @@ export default defineComponent
 		branch_tips = computed =>
 			props.commit.refs.filter (ref) =>
 				ref.type == "branch"
-		
+
 		tags = computed =>
 			props.commit.refs.filter (ref) =>
 				ref.type == "tag"
@@ -33,7 +33,7 @@ export default defineComponent
 		stash = computed =>
 			props.commit.refs.find (ref) =>
 				ref.type == "stash"
-		
+
 		``###* @type {Ref<import('./FilesDiffsList.coffee').FileDiff[]>} ###
 		changed_files = ref []
 		body = ref ''
@@ -57,7 +57,7 @@ export default defineComponent
 			for tag from tags.value
 				details = await git "show --format='' --quiet refs/tags/" + tag.name
 				tag_details.value.push details
-		
+
 		show_diff = (###* @type string ### filepath) =>
 			exchange_message 'open-diff',
 				hashes: [props.commit.hash+'~1', props.commit.hash]

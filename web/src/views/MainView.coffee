@@ -147,7 +147,7 @@ export default
 					selected_commits.value = [new_commit]
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
-		
+
 
 
 
@@ -199,7 +199,7 @@ export default
 			visible_branches.value.filter (branch) =>
 				not visible_branch_tips.value.includes branch
 
-		
+
 
 
 		# To paint a nice gradient between branches at the top and the vis below:
@@ -238,8 +238,8 @@ export default
 							top: 0 + row * 19 + 'px'
 				.filter(is_truthy)) or []
 
-			
-		
+
+
 		visualization_component = computed =>
 			if store.config.value['branch-visualization'] == 'svg'
 				SVGVisualization
@@ -248,10 +248,10 @@ export default
 
 
 
-		
+
 		global_actions = computed =>
 			store.global_actions.value
-		
+
 
 
 		onMounted =>

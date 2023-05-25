@@ -6,7 +6,7 @@ export default defineComponent
 	components: { GitInput }
 	setup: ->
 		keep_open = ref false
-		
+
 		success = =>
 			if not keep_open.value
 				selected_git_action.value = null

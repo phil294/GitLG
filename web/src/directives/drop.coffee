@@ -14,7 +14,7 @@ import Vue from 'vue'
 }} DragData
 ###
 
-###* @type {Map<HTMLElement,DragData>} ### 
+###* @type {Map<HTMLElement,DragData>} ###
 drag_data_by_el = new Map
 
 set_drop = (###* @type {HTMLElement} ### el, ###* @type {(payload: DropCallbackPayload) => void} ### drop_cb) =>
@@ -25,7 +25,7 @@ set_drop = (###* @type {HTMLElement} ### el, ###* @type {(payload: DropCallbackP
 
 	el.classList.add 'drop-target'
 	counter = 0
-	
+
 	#
 	###* @type DragData ###
 	drag_data =

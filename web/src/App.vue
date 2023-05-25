@@ -8,7 +8,7 @@ import MainView from './views/MainView.vue'
 import * as store from './views/store.coffee'
 
 export default
-	components: { MainView }	
+	components: { MainView }
 	setup: ->
 		store.init()
 		undefined

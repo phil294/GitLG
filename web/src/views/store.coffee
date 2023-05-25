@@ -143,5 +143,5 @@ export init = =>
 	add_push_listener 'config-change', =>
 		await refresh_config()
 		refresh_main_view()
-	
+
 	add_push_listener 'repo-external-state-change', refresh_main_view

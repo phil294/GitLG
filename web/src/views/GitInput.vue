@@ -2,7 +2,7 @@
 div.col.gap-10
 	promise-form.col.gap-5 :action="execute" ref="ref_form"
 		.row.align-center.gap-10
-			code git 
+			code git
 			input.command.flex-1 v-model="command" ref="command_input_ref"
 		.input-controls.justify-flex-end.align-center.gap-10
 			div.warn v-if="text_changed"
@@ -26,7 +26,7 @@ div.col.gap-10
 				i.codicon.codicon-check
 				| Execute
 	.error-response.padding-l v-if="error"
-		| Command failed: 
+		| Command failed:
 		| {{ error }}
 	.success-response.padding-l v-if="data"
 		| Successful result:<br>

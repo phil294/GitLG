@@ -15,7 +15,7 @@ div
 				ref-tip :git_ref="branch_tip" :commit="commit"
 				.row.gap-5.wrap
 					git-action-button v-for="action of branch_actions(branch_tip)" :git_action="action"
-	
+
 	div v-if="tags.length"
 		ul.tags v-for="tag, tag_i of tags"
 			li

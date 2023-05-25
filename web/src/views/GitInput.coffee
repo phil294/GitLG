@@ -148,7 +148,7 @@ export default defineComponent
 			if props.git_action.immediate
 				# @ts-ignore
 				await ref_form.value?.request_submit()
-		
+
 		{
 			command
 			options
