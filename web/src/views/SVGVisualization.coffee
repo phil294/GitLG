@@ -13,7 +13,8 @@ export default defineComponent
 	setup: (props) ->
 		padding_left = 5
 		padding_right = 20
-		vis_width = vis_max_amount.value * vis_v_width.value + padding_right
+		vis_width = computed =>
+			vis_max_amount.value * vis_v_width.value + padding_right
 		v_height = computed =>
 			props.commit.scroll_height
 		vis_style = computed =>
