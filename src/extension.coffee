@@ -122,6 +122,8 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
 			else
 				[dev_server_url, ...path_segments].join('/')
+		TODO: escape
+		custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
 		view.html = "
 			<!DOCTYPE html>
 			<html lang='en'>
@@ -142,10 +144,11 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				<div id='app'></div>
 				<script src='#{get_web_uri 'js', 'chunk-vendors.js'}'></script>
 				<script src='#{get_web_uri 'js', 'app.js'}'></script>
+				<style>#{custom_css}</style>
 			</body>
 			</html>"
 		undefined
-	
+
 	# Needed for git diff views
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
 		provideTextDocumentContent: (uri) ->
