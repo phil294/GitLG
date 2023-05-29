@@ -1,4 +1,4 @@
-import { git, get_global_state, set_global_state } from '../bridge.coffee'
+import { git, stateful_computed } from '../bridge.coffee'
 import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMounted } from 'vue'
 
 ``###*
@@ -45,7 +45,7 @@ export default defineComponent
 	###*
 	# To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
 	# both editable, the former modifying the latter but being locked when the latter is changed by hand.
-	# `saved_config` stores a snapshot of both.
+	# `config` stores a snapshot of both.
 	# `params` is never saved and user-edited only.
 	###
 	setup: (props, { emit }) ->
@@ -64,31 +64,30 @@ export default defineComponent
 		constructed_command = computed =>
 			to_cli options
 		command = ref ''
-		``###* @type {Ref<{ options: GitOption[], command: string } | null>} ###
-		saved_config = ref null
-		is_saved = computed =>
-			!! saved_config.value?.command
-		has_unsaved_changes = computed =>
-			saved_config.value?.command != command.value
 		config_key = "git input config " + props.git_action.config_key
-		get_saved = =>
-			saved_config.value = (await get_global_state config_key) or null
-			if saved_config.value
+		``###* @type {{ options: GitOption[], command: string } | null} ###
+		default_config = null
+		config = stateful_computed(config_key, default_config)
+		is_saved = computed =>
+			!! config.value?.command
+		has_unsaved_changes = computed =>
+			config.value?.command != command.value
+		watchEffect =>
+			if config.value
 				for option from options
-					saved = saved_config.value.options.find (o) =>
+					saved = config.value.options.find (o) =>
 						o.value == option.value
 					if saved
 						option.active = saved.active
 				# because modifying `options` this will have changed `command`
 				# via watchEffect, we need to wait before overwriting it
 				await nextTick()
-				command.value = saved_config.value.command
+				command.value = config.value.command
 		save = =>
 			new_saved =
 				options: options
 				command: command.value
-			await set_global_state config_key, JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
-			saved_config.value = new_saved
+			config.value = JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
 		reset_command = =>
 			command.value = constructed_command.value
 		watchEffect reset_command
@@ -148,7 +147,7 @@ export default defineComponent
 			if props.git_action.immediate
 				# @ts-ignore
 				await ref_form.value?.request_submit()
-		
+
 		{
 			command
 			options
