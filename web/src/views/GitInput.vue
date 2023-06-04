@@ -2,7 +2,7 @@
 div.col.gap-10
 	promise-form.col.gap-5 :action="execute" ref="ref_form"
 		.row.align-center.gap-10
-			code git 
+			code git
 			input.command.flex-1 v-model="command" ref="command_input_ref"
 		.input-controls.justify-flex-end.align-center.gap-10
 			div.warn v-if="text_changed"
@@ -26,7 +26,7 @@ div.col.gap-10
 				i.codicon.codicon-check
 				| Execute
 	.error-response.padding-l v-if="error"
-		| Command failed: 
+		| Command failed:
 		| {{ error }}
 	.success-response.padding-l v-if="data"
 		| Successful result:<br>
@@ -34,10 +34,13 @@ div.col.gap-10
 	div v-if="options.length"
 		div Common options
 		ul.options
-			li v-for="option of options" :class="{changed: option.active !== option.default_active}"
+			li.option v-for="option of options" :class="{changed: option.active !== option.default_active}"
 				label.row.align-center.gap-5
 					input type="checkbox" v-model="option.active" :disabled="text_changed"
 					| {{ option.value }}
+					details v-if="option.info"
+						summary {{ option.info }}
+						{{ option.info }}
 </template>
 
 <script lang="coffee" src="./GitInput.coffee"></script>
@@ -46,6 +49,11 @@ div.col.gap-10
 .options
 	.changed
 		border-left 2px solid #bc9550 // like vscode settings ui
+	details > summary
+		white-space pre
+		overflow hidden
+		text-overflow ellipsis
+		color grey
 .error-response, .success-response
 	white-space pre-wrap
 .param
