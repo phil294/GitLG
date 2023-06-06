@@ -128,10 +128,12 @@ export default
 			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
 			args: "log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
 			options: [
-				{ value: '--date-order', default_active: false }
-				{ value: '--author-date-order', default_active: true }
-				{ value: '--topo-order', default_active: false }
-				{ value: '--reflog', default_active: false }
+				{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' }
+				{ value: '--grep="Merge branch \'" --grep="Merge remote tracking branch \'"', default_active: false, info: 'Hide merge commits' }
+				{ value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' }
+				{ value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' }
+				{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' }
+				{ value: '--reflog', default_active: false, info: 'Pretend as if all objects mentioned by reflogs are listed on the command line as <commit>. / Reference logs, or "reflogs", record when the tips of branches and other references were updated in the local repository. Reflogs are useful in various Git commands, to specify the old value of a reference. For example, HEAD@{2} means "where HEAD used to be two moves ago", master@{one.week.ago} means "where master used to point to one week ago in this local repository", and so on. See gitrevisions(7) for more details.' }
 			]
 			config_key: "main-log"
 			immediate: true
@@ -147,7 +149,7 @@ export default
 					selected_commits.value = [new_commit]
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
-		
+
 
 
 
@@ -199,7 +201,7 @@ export default
 			visible_branches.value.filter (branch) =>
 				not visible_branch_tips.value.includes branch
 
-		
+
 
 
 		# To paint a nice gradient between branches at the top and the vis below:
@@ -238,8 +240,8 @@ export default
 							top: 0 + row * 19 + 'px'
 				.filter(is_truthy)) or []
 
-			
-		
+
+
 		visualization_component = computed =>
 			if store.config.value['branch-visualization'] == 'svg'
 				SVGVisualization
@@ -248,10 +250,10 @@ export default
 
 
 
-		
+
 		global_actions = computed =>
 			store.global_actions.value
-		
+
 
 
 		onMounted =>

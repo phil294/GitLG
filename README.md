@@ -26,7 +26,7 @@ This allows you to set params and modify the command before executing, both via 
 
 All Git actions (blue buttons) work like that. Even the main `git log` action itself is a modifiable field: By default it holds
 
-    log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
+    log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \"" --author-date-order
 
 You shouldn't edit the `--pretty` argument of course, but if you for example want to view the log of a subfolder or for a specific file, all you need to do is add ` -- subfolder` to the end of the command.
 
