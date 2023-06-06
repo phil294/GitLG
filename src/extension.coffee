@@ -1,5 +1,6 @@
 vscode = require 'vscode'
 path = require 'path'
+css = require 'css'
 
 { get_git } = require './git'
 
@@ -14,6 +15,9 @@ webview_container = null
 
 log = vscode.window.createOutputChannel EXT_NAME
 module.exports.log = log
+log_error = (###* @type string ### e) =>
+	vscode.window.showErrorMessage 'git-log--graph: '+e
+	log.appendLine "ERROR: #{e}"
 
 # When you convert a folder into a workspace by adding another folder, the extension is de- and reactivated
 # but the webview webview_container isn't destroyed even though we instruct it to (with subscriptions).
@@ -61,8 +65,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						when 'git' then h =>
 							git.run d
 						when 'show-error-message' then h =>
-							vscode.window.showErrorMessage d
-							log.appendLine "ERROR: #{d}"
+							log_error d
 						when 'show-information-message' then h =>
 							vscode.window.showInformationMessage d
 						when 'get-global-state' then h =>
@@ -122,8 +125,13 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
 			else
 				[dev_server_url, ...path_segments].join('/')
-		TODO: escape
 		custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
+		if custom_css
+			try
+				custom_css = css.stringify(css.parse(custom_css))
+			catch e
+				log_error("custom-css invalid: #{e.message}")
+
 		view.html = "
 			<!DOCTYPE html>
 			<html lang='en'>

@@ -95,7 +95,7 @@
 				"git-log--graph.custom-css": {
 					"description": "An abitrary string of CSS that will be injected into the main web view",
 					"type": "string",
-					"default": "",
+					"default": ""
 				},
 				"git-log--graph.actions.global": {
 					"description": "Please check the extension's README for documentation. BE CAREFUL EDITING THESE OPTIONS.",
