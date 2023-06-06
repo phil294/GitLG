@@ -12,6 +12,12 @@ if ! [ -z "$(git status --porcelain)" ]; then
     exit 1
 fi
 
+if grep -R -n --exclude='*.js' -E '\s$' src web/src; then
+    echo 'trailing whitespace found'
+    exit 1
+fi
+
+
 # # Cannot upgrade deps currently, TODO: https://github.com/vuejs/vue-loader/issues/2044
 # yarn upgrade
 # pushd web

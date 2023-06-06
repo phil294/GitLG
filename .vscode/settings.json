@@ -35,5 +35,6 @@
         "remotename",
         "scroller",
         "shortstat"
-    ]
+    ],
+    "files.trimTrailingWhitespace": true
 }
