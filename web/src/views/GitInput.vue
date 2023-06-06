@@ -34,26 +34,32 @@ div.col.gap-10
 	div v-if="options.length"
 		div Common options
 		ul.options
-			li.option v-for="option of options" :class="{changed: option.active !== option.default_active}"
-				label.row.align-center.gap-5
+			li.option.row.gap-10 v-for="option of options" :class="{changed: option.active !== option.default_active}"
+				label.row.align-center.flex-1
 					input type="checkbox" v-model="option.active" :disabled="text_changed"
 					| {{ option.value }}
-					details v-if="option.info"
-						summary {{ option.info }}
-						{{ option.info }}
+				details.flex-1 v-if="option.info"
+					summary {{ option.info }}
+					| {{ option.info }}
 </template>
 
 <script lang="coffee" src="./GitInput.coffee"></script>
 
 <style lang="stylus">
 .options
-	.changed
-		border-left 2px solid #bc9550 // like vscode settings ui
-	details > summary
-		white-space pre
-		overflow hidden
-		text-overflow ellipsis
-		color grey
+	.option
+		&.changed
+			border-left 2px solid #bc9550 // like vscode settings ui
+		label
+			white-space pre
+			display contents
+		details
+			white-space pre-line
+			overflow hidden
+			> summary
+				overflow hidden
+				text-overflow ellipsis
+				color grey
 .error-response, .success-response
 	white-space pre-wrap
 .param

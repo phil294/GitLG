@@ -51,7 +51,7 @@
 		{
 			"title": "Merge {SOURCE_BRANCH_NAME} into {TARGET_BRANCH_NAME}...",
 			"description": "git merge - Join both development histories together",
-			"info": "Incorporates changes from the named commits of the target branch (since the time their histories diverged from the current branch) into the current branch. This command is used by git pull to incorporate changes from another repository and can be used by hand to merge changes from one branch into another.\n\nThe syntax `git merge --abort` can only be run after the merge has resulted in conflicts. `git merge --abort` will abort the merge process and try to reconstruct the pre-merge state. However, if there were uncommitted changes when the merge started (and especially if those changes were further modified after the merge was started), `git merge --abort` will in some cases be unable to reconstruct the original (pre-merge) changes. Therefore:\n\nWarning: Running git merge with non-trivial uncommitted changes is discouraged: while possible, it may leave you in a state that is hard to back out of in the case of a conflict.\n\nThe syntax `git merge --continue` can only be run after the merge has resulted in conflicts.\n\nTo read the full documentation on this command, run `git help merge` in a terminal."
+			"info": "Incorporates changes from the named commits of the target branch (since the time their histories diverged from the current branch) into the current branch. This command is used by git pull to incorporate changes from another repository and can be used by hand to merge changes from one branch into another.\n\nThe syntax `git merge --abort` can only be run after the merge has resulted in conflicts. `git merge --abort` will abort the merge process and try to reconstruct the pre-merge state. However, if there were uncommitted changes when the merge started (and especially if those changes were further modified after the merge was started), `git merge --abort` will in some cases be unable to reconstruct the original (pre-merge) changes. Therefore:\n\nWarning: Running git merge with non-trivial uncommitted changes is discouraged: while possible, it may leave you in a state that is hard to back out of in the case of a conflict.\n\nThe syntax `git merge --continue` can only be run after the merge has resulted in conflicts.\n\nTo read the full documentation on this command, run `git help merge` in a terminal.",
 			"icon": "git-merge",
 			"args": "checkout '$2' && git merge '$1'",
 			"params": [
@@ -90,7 +90,7 @@
 				{
 					"value": "--soft",
 					"default_active": false,
-					"info": "Does not touch the index file or the working tree at all (but resets the head to <commit>, just like all modes do). This leaves all your changed files 'Changes to be committed', as `git status` would put it.",
+					"info": "Does not touch the index file or the working tree at all (but resets the head to <commit>, just like all modes do). This leaves all your changed files 'Changes to be committed', as `git status` would put it."
 				},
 				{
 					"value": "--hard",
@@ -229,7 +229,7 @@
 				{
 					"value": "--squash",
 					"default_active": false,
-					"squash": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
+					"info": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
 				}
 			]
 		}
@@ -332,7 +332,6 @@
 			"description": "git checkout - Switch branches or restore working tree files",
 			"info": "Updates files in the working tree to match the version in the index or the specified tree. If no pathspec was given, git checkout will also update HEAD to set the specified branch as the current branch.\n\nTo prepare for working on <branch>, switch to it by updating the index and the files in the working tree, and by pointing HEAD at the branch. Local modifications to the files in the working tree are kept, so that they can be committed to the <branch>.\n\nIf <branch> is not found but there does exist a tracking branch in exactly one remote (call it <remote>) with a matching name and --no-guess is not specified, treat as equivalent to `git checkout -b <branch> --track <remote>/<branch>`.\n\nYou could omit <branch>, in which case the command degenerates to 'check out the current branch', which is a glorified no-op with rather expensive side-effects to show only the tracking information, if exists, for the current branch.\n\nTo read the full documentation on this command, run `git help checkout` in a terminal.",
 			"icon": "git-commit",
-			"description": "",
 			"immediate": true,
 			"args": "checkout '$1'",
 			"params": [
@@ -342,7 +341,7 @@
 		{
 			"title": "Merge",
 			"description": "git merge - Join both development histories together",
-			"info": "Incorporates changes from the named commits of the target branch (since the time their histories diverged from the current branch) into the current branch. This command is used by git pull to incorporate changes from another repository and can be used by hand to merge changes from one branch into another.\n\nThe syntax `git merge --abort` can only be run after the merge has resulted in conflicts. `git merge --abort` will abort the merge process and try to reconstruct the pre-merge state. However, if there were uncommitted changes when the merge started (and especially if those changes were further modified after the merge was started), `git merge --abort` will in some cases be unable to reconstruct the original (pre-merge) changes. Therefore:\n\nWarning: Running git merge with non-trivial uncommitted changes is discouraged: while possible, it may leave you in a state that is hard to back out of in the case of a conflict.\n\nThe syntax `git merge --continue` can only be run after the merge has resulted in conflicts.\n\nTo read the full documentation on this command, run `git help merge` in a terminal."
+			"info": "Incorporates changes from the named commits of the target branch (since the time their histories diverged from the current branch) into the current branch. This command is used by git pull to incorporate changes from another repository and can be used by hand to merge changes from one branch into another.\n\nThe syntax `git merge --abort` can only be run after the merge has resulted in conflicts. `git merge --abort` will abort the merge process and try to reconstruct the pre-merge state. However, if there were uncommitted changes when the merge started (and especially if those changes were further modified after the merge was started), `git merge --abort` will in some cases be unable to reconstruct the original (pre-merge) changes. Therefore:\n\nWarning: Running git merge with non-trivial uncommitted changes is discouraged: while possible, it may leave you in a state that is hard to back out of in the case of a conflict.\n\nThe syntax `git merge --continue` can only be run after the merge has resulted in conflicts.\n\nTo read the full documentation on this command, run `git help merge` in a terminal.",
 			"icon": "git-merge",
 			"args": "merge '$1'",
 			"params": [
@@ -362,7 +361,7 @@
 				{
 					"value": "--squash",
 					"default_active": false,
-					"squash": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
+					"info": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
 				}
 			]
 		},
@@ -371,7 +370,6 @@
 			"description": "git pull - Fetch from and integrate with another repository or a local branch",
 			"info": "Incorporates changes from a remote repository into the current branch. If the current branch is behind the remote, then by default it will fast-forward the current branch to match the remote. If the current branch and the remote have diverged, the user needs to specify how to reconcile the divergent branches with --rebase or --no-rebase (or the corresponding configuration option in pull.rebase).\n\nMore precisely, git pull runs git fetch with the given parameters and then depending on configuration options or command line flags, will call either `git rebase` or `git merge` to reconcile diverging branches.\n\n<repository> should be the name of a remote repository as passed to git-fetch(1). <refspec> can name an arbitrary remote ref (for example, the name of a tag) or even a collection of refs with corresponding remote-tracking branches (e.g., refs/heads/*:refs/remotes/origin/*), but usually it is the name of a branch in the remote repository.\n\nDefault values for <repository> and <branch> are read from the 'remote' and 'merge' configuration for the current branch as set by git-branch(1) --track.\n\nSee git-merge(1) for details, including how conflicts are presented and handled.\n\nIn Git 1.7.0 or later, to cancel a conflicting merge, use git reset --merge. Warning: In older versions of Git, running git pull with uncommitted changes is discouraged: while possible, it leaves you in a state that may be hard to back out of in the case of a conflict.\n\nIf any of the remote changes overlap with local uncommitted changes, the merge will be automatically canceled and the work tree untouched. It is generally best to get any local changes in working order before pulling or stash them away with git-stash(1).\n\nTo read the full documentation on this command, run `git help pull` in a terminal.",
 			"icon": "fold-down",
-			"description": "Pull",
 			"args": "pull '$1' '$2'",
 			"params": [
 				"{REMOTE_NAME}",
@@ -391,7 +389,7 @@
 				{
 					"value": "--squash",
 					"default_active": false,
-					"squash": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
+					"info": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
 				}
 			]
 		},
@@ -400,7 +398,6 @@
 			"description": "git push - Update remote refs along with associated objects",
 			"info": "Updates remote refs using local refs, while sending objects necessary to complete the given refs.\n\nYou can make interesting things happen to a repository every time you push into it, by setting up hooks there. See documentation for git-receive-pack(1).\n\nWhen the command line does not specify where to push with the <repository> argument, branch.*.remote configuration for the current branch is consulted to determine where to push. If the configuration is missing, it defaults to origin.\n\nWhen the command line does not specify what to push with <refspec>... arguments or --all, --mirror, --tags options, the command finds the default <refspec> by consulting remote.*.push configuration, and if it is not found, honors push.default configuration to decide what to push (See git-config(1) for the meaning of push.default).\n\nWhen neither the command-line nor the configuration specify what to push, the default behavior is used, which corresponds to the simple value for push.default: the current branch is pushed to the corresponding upstream branch, but as a safety measure, the push is aborted if the upstream branch does not have the same name as the local one.\n\nTo read the full documentation on this command, run `git help push` in a terminal.",
 			"icon": "fold-up",
-			"description": "Push",
 			"args": "push '$1' '$2'",
 			"params": [
 				"{REMOTE_NAME}",
