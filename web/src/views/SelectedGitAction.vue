@@ -1,7 +1,10 @@
 <template lang="slm">
 .selected-git-action
 	p Execute Git command
-	git-input :git_action="selected_git_action" @success="success()" @executed="executed()"
+	suspense
+		git-input :git_action="selected_git_action" @success="success()" @executed="executed()"
+		template v-slot:fallback=""
+			| Loading command config...
 	label.row.align-center.gap-5
 		input type="checkbox" v-model="keep_open"
 		| Keep window open after success

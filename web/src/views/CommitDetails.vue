@@ -32,7 +32,6 @@ div
 	.row.gap-5.wrap
 		git-action-button v-for="action of commit_actions" :git_action="action"
 
-	h3 Changed files:
 	files-diffs-list :files="changed_files" @show_diff="show_diff" @view_rev="view_rev"
 </template>
 

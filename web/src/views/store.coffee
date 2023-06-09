@@ -21,14 +21,14 @@ import GitInputModel from './GitInput.coffee'
 #########################
 
 ``###* @template T ###
-export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default) =>
-	internal = default
-	do =>
-		internal = await get_global_state(key)
+export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value) =>
+	internal = ref await get_global_state(key)
+	if not internal.value
+		internal.value = default_value
 	computed
-		get: => internal
+		get: => internal.value
 		set: (###* @type {T} ### value) =>
-			internal = value
+			internal.value = value
 			set_global_state(key, value)
 
 ``###* @type {Ref<Commit[]|null>} ###

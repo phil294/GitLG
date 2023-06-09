@@ -1,7 +1,9 @@
 import { computed, defineComponent } from 'vue'
-import FilesDiffsListRow from './FilesDiffsListRow.vue'
-import FilesDiffsListTreeNode from './FilesDiffsListTreeNode.vue'
+import { exchange_message } from '../bridge.coffee'
+import { stateful_computed } from './store.coffee'
+import { createReusableTemplate } from '@vueuse/core'
 
+###* @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef ###
 ``###*
 # @typedef {{
 #	path: string
@@ -9,18 +11,31 @@ import FilesDiffsListTreeNode from './FilesDiffsListTreeNode.vue'
 #	deletions: number
 # }} FileDiff
 ###
+``###*
+# @typedef {{
+#	children: Record<string, TreeNode>
+#	files: FileDiff[]
+#	path: string
+# }} TreeNode
+###
 
-render_style = stateful_computed 'files-diffs-list-render-style', 'list'
+``###* @type {Promise<WritableComputedRef<'list'|'tree'>>} ###
+render_style_promise = stateful_computed 'files-diffs-list-render-style', 'list'
+
+[TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate()
+[TemplateFileActionsDefine, TemplateFileActionsReuse] = createReusableTemplate()
+[TemplateTreeNodeDefine, TemplateTreeNodeReuse] = createReusableTemplate()
 
 export default defineComponent
-	emits: ['show_diff', 'view_ref']
-	components: { FilesDiffsListRow, FilesDiffsListTreeNode }
+	emits: ['show_diff', 'view_rev']
+	components: { TemplateFileChangeDefine, TemplateFileChangeReuse, TemplateFileActionsDefine, TemplateFileActionsReuse, TemplateTreeNodeDefine, TemplateTreeNodeReuse }
 	props:
 		files:
 			###* @type {() => FileDiff[]} ###
 			type: Array
 			required: true
 	setup: (props) ->
+		render_style = await render_style_promise
 		files = computed =>
 			props.files.map (file) =>
 				# Even on Windows, the delimiter of git paths output is forward slash
@@ -32,11 +47,14 @@ export default defineComponent
 					dir_arr: path_arr.slice(0, -1)
 				}
 		files_list = computed =>
-			files.value if render_style.value == 'list'
+			files.value if render_style?.value == 'list'
 		files_tree = computed =>
-			return if render_style.value != 'tree'
+			return if render_style?.value != 'tree'
+			``###* @type TreeNode ###
 			out =
 				children: {}
+				files: []
+				path: 'Changes'
 			for file from files.value
 				curr = out
 				for dir_seg from file.dir_arr
@@ -47,25 +65,30 @@ export default defineComponent
 				curr.files.push file
 			# Now all available dir segments have their own entry in the tree, but they
 			# should be joined together as much as possible (i.e. when there are no files):
-			unify = (curr) =>
-				for child_i, child of curr.children
-					if ! child.files.length
-						for grand_child from child.children
-							grand_child.path = child.path + '/' + grand_child.path
-							curr.children[grand_child.path] = grand_child
-						delete curr.children[child_i]
-					else
-						unify(child)
+			unify = (###* @type TreeNode ### curr) =>
+				modified_children = true
+				while modified_children
+					modified_children = false
+					for child_i, child of curr.children
+						if ! child.files.length
+							for _, grand_child of child.children
+								grand_child.path = child.path + ' / ' + grand_child.path
+								curr.children[grand_child.path] = grand_child
+							delete curr.children[child_i]
+							modified_children = true
+						else
+							unify(child)
+				undefined
 			unify(out)
 			out
+		
+		open_file = (###* @type string ### filepath) =>
+			exchange_message 'open-file',
+				filename: filepath
+
 		{
 			files_list
 			files_tree
 			render_style
+			open_file
 		}
-
-
-
-
-
-
