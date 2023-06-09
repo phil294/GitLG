@@ -200,5 +200,8 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	status_bar_item.tooltip = "Open up the main view of the git-log--graph extension"
 	status_bar_item.show()
 
+	# public api of this extension:
+	{ git, post_message, webview_container, context }
+
 module.exports.deactivate = =>
 	log.appendLine("extension deactivate")
