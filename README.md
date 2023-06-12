@@ -47,7 +47,9 @@ Notable features:
  - By default, 15,000 commits are loaded and displayed at once (see log cmd) and rendered efficiently inside a virtual scroller. Because of this, you can quickly scroll over thousands of commits without slowing down or performance issues.
  - Show stashes
  - Green/red insertions/deletion stats
+ - `git help ...` texts collapsed baked into the default actions
  - Select multiple commits with Ctrl or Shift to compare or apply bulk actions (cherry-pick, revert)
+ - Custom CSS
 
 ## Configuration
 
@@ -158,7 +160,7 @@ Please consider opening an issue or PR if you think a certain action or option w
         "default": false
     },
     "git-log--graph.custom-css": {
-		"description": "An abitrary string of CSS that will be injected into the main web view",
+		"description": "An abitrary string of CSS that will be injected into the main web view. Example: * { text-transform: uppercase; }",
 		"type": "string",
 		"default": "",
 	},
