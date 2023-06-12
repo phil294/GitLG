@@ -1,5 +1,7 @@
 vscode = require 'vscode'
 path = require 'path'
+postcss = require 'postcss'
+postcss_sanitize = require 'postcss-sanitize'
 
 { get_git } = require './git'
 
@@ -14,6 +16,9 @@ webview_container = null
 
 log = vscode.window.createOutputChannel EXT_NAME
 module.exports.log = log
+log_error = (###* @type string ### e) =>
+	vscode.window.showErrorMessage 'git-log--graph: '+e
+	log.appendLine "ERROR: #{e}"
 
 # When you convert a folder into a workspace by adding another folder, the extension is de- and reactivated
 # but the webview webview_container isn't destroyed even though we instruct it to (with subscriptions).
@@ -61,8 +66,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						when 'git' then h =>
 							git.run d
 						when 'show-error-message' then h =>
-							vscode.window.showErrorMessage d
-							log.appendLine "ERROR: #{d}"
+							log_error d
 						when 'show-information-message' then h =>
 							vscode.window.showInformationMessage d
 						when 'get-global-state' then h =>
@@ -124,6 +128,10 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
 			else
 				[dev_server_url, ...path_segments].join('/')
+		custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css') or '{body:text-transform uppercase;}'
+		if custom_css
+			custom_css = try (await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined })).css
+
 		view.html = "
 			<!DOCTYPE html>
 			<html lang='en'>
@@ -144,10 +152,11 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				<div id='app'></div>
 				<script src='#{get_web_uri 'js', 'chunk-vendors.js'}'></script>
 				<script src='#{get_web_uri 'js', 'app.js'}'></script>
+				<style>#{custom_css}</style>
 			</body>
 			</html>"
 		undefined
-	
+
 	# Needed for git diff views
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
 		provideTextDocumentContent: (uri) ->

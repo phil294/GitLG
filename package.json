@@ -92,6 +92,11 @@
 						"ascii"
 					]
 				},
+				"git-log--graph.custom-css": {
+					"description": "An abitrary string of CSS that will be injected into the main web view",
+					"type": "string",
+					"default": ""
+				},
 				"git-log--graph.actions.global": {
 					"description": "Please check the extension's README for documentation. BE CAREFUL EDITING THESE OPTIONS.",
 					"type": "array",
@@ -488,5 +493,8 @@
 		"coffeescript": "^2.7.0",
 		"esbuild": "^0.17.18"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"postcss": "^8.4.24",
+		"postcss-sanitize": "^0.0.9"
+	}
 }

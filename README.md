@@ -156,7 +156,12 @@ Please consider opening an issue or PR if you think a certain action or option w
     "git-log--graph.verbose-logging": {
         "type": "boolean",
         "default": false
-    }
+    },
+    "git-log--graph.custom-css": {
+		"description": "An abitrary string of CSS that will be injected into the main web view",
+		"type": "string",
+		"default": "",
+	},
 }
 ```
 
