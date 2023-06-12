@@ -61,6 +61,7 @@ code {
 
 details
 	cursor pointer
+	overflow auto
 	> summary
 		// alternatively, list-style-type '⌄' and '›'
 		// but the below mirrors vscode style

@@ -55,7 +55,6 @@
 			display contents
 		details
 			white-space pre-line
-			overflow hidden
 			> summary
 				overflow hidden
 				text-overflow ellipsis
