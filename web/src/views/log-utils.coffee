@@ -63,7 +63,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 
 	``###* @type {Commit[]} ###
 	commits = []
-	
+
 	vis_max_amount = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
 	for line, line_no in lines
@@ -237,7 +237,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 				else
 					i++
 					colors[i % (colors.length - 1)]
-	
+
 	branches = branches
 		.filter (branch) =>
 			# these exist in vis (with colors), but don't mention them in the listing

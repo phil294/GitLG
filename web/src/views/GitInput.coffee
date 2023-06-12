@@ -79,7 +79,7 @@ export default defineComponent
 			to_cli options
 		command = ref ''
 		config_key = "git input config " + props.git_action.config_key
-		
+
 		``###* @type {{ options: GitOption[], command: string } | null} ###
 		default_config = { options: [], command: '' }
 

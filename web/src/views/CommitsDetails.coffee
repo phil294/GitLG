@@ -29,7 +29,7 @@ export default defineComponent
 					path: split[2]
 					insertions: Number split[1]
 					deletions: Number split[0]) or []
-		
+
 		show_compare_diff = (###* @type string ### filepath) =>
 			exchange_message 'open-diff',
 				hashes: [props.commits[0].hash, props.commits[1].hash]
@@ -38,7 +38,7 @@ export default defineComponent
 			exchange_message 'view-rev',
 				hash: props.commits[1].hash
 				filename: filepath
-		
+
 		_commits_actions = computed =>
 			commits_actions(props.commits.map((c)=>c.hash)).value
 

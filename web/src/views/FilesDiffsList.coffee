@@ -86,7 +86,7 @@ export default defineComponent
 				undefined
 			unify(out)
 			out
-		
+
 		open_file = (###* @type string ### filepath) =>
 			exchange_message 'open-file',
 				filename: filepath

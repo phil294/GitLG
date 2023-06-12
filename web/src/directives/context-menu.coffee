@@ -8,7 +8,7 @@ import Vue from 'vue'
 }} ContextMenuData
 ###
 
-``###* @type {Map<HTMLElement,ContextMenuData>} ### 
+``###* @type {Map<HTMLElement,ContextMenuData>} ###
 context_menu_data_by_el = new Map
 
 remove_all_context_menus = =>
@@ -51,7 +51,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=
 				entry.action() if e.button == 0
 			wrapper_el?.appendChild(entry_el)
 		document.body.appendChild(wrapper_el)
-	
+
 	``###* @type ContextMenuData ###
 	context_menu_data =
 		oncontextmenu: (e) =>
