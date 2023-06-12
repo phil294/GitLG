@@ -8,7 +8,7 @@ import MainView from './views/MainView.vue'
 import * as store from './views/store.coffee'
 
 export default
-	components: { MainView }	
+	components: { MainView }
 	setup: ->
 		store.init()
 		undefined
@@ -65,6 +65,7 @@ details
 		// alternatively, list-style-type '⌄' and '›'
 		// but the below mirrors vscode style
 		list-style-type none
+		height 100%
 	> summary::before
 		font 16px/1 codicon
 		user-select none
@@ -74,8 +75,10 @@ details
 		display inline-block
 		content '\eab6'
 	&[open]
-		> summary::before
-			content '\eab4'
+		> summary
+			height unset
+			&::before
+				content '\eab4'
 
 input:not([type='checkbox']):not([type='radio']), textarea {
 	display: block;

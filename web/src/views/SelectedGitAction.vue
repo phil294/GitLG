@@ -28,5 +28,4 @@
 			overflow hidden
 			text-overflow ellipsis
 			color grey
-			height 1.6em
 </style>
