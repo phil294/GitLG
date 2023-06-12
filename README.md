@@ -173,6 +173,26 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.7 2023-06-13
+
+- [`40ca14b`](https://github.com/phil294/git-log--graph/commit/40ca14b) Files listing: optionally show as tree. Can be toggled by clicking the respective icon, just like in normal vscode scm view (#8)
+- [`04f7dcd`](https://github.com/phil294/git-log--graph/commit/04f7dcd) Files listing: Add basic set of icons (#8)
+- [`4f04c78`](https://github.com/phil294/git-log--graph/commit/4f04c78) Hide remote branches: New quick option in the `Configure...` section on top (#17, #18)
+- [`454be25`](https://github.com/phil294/git-log--graph/commit/454be25) Hide merge commits: New quick option in the `Configure...` section on top (#17)
+- [`5c47b92`](https://github.com/phil294/git-log--graph/commit/5c47b92) Add `action.info` `action.option.info` fields for documentation around commands and options. The default actions were populated with help texts from `git help ...`. (#17)
+- [`63adec8`](https://github.com/phil294/git-log--graph/commit/63adec8) Custom CSS with new option `git-log--graph.custom-css` (#16)
+- [`415096f`](https://github.com/phil294/git-log--graph/commit/415096f) Ensure same color for same branch-name / origin/branch-name
+- [`55e0d46`](https://github.com/phil294/git-log--graph/commit/55e0d46) Add buttons in the changed files section for "show rev" and "open file". Thanks to @lens0021
+- [`cbe2c5a`](https://github.com/phil294/git-log--graph/commit/cbe2c5a) Fix branch visualization automatic width update (#10)
+- [`c6521c5`](https://github.com/phil294/git-log--graph/commit/c6521c5) Fix coloring for light *high contrast* themes
+- [`245115a`](https://github.com/phil294/git-log--graph/commit/245115a) Add branch action "Delete (Remote)" and move rebase before delete. "Delete (Remote)" is also shown for local branches out of simplicity (we don't discriminate between local branch actions and remote branch actions right now). Just like with Push/Pull, the remote name is inferred for both cases so it doesn't matter where you run it.
+- [`76c60e1`](https://github.com/phil294/git-log--graph/commit/76c60e1) allow for old ascii visualization via setting
+- [`9588225`](https://github.com/phil294/git-log--graph/commit/9588225) Fix "git-log--graph.folder" config setting
+- [`ae939c0`](https://github.com/phil294/git-log--graph/commit/ae939c0) Remove the shadow of all-branches button. Thanks to @lens0021
+- [`bfe75f6`](https://github.com/phil294/git-log--graph/commit/bfe75f6) File diff list: more detailed tooltip popup (insertions/deletions)
+- [`d345a32`](https://github.com/phil294/git-log--graph/commit/d345a32) Clear output on empty log return, such as when adding `-- nonexisting/file` to the end of the log command. So far, it was just ignored, falsely seeming to result in the same result as the previously executed one
+- [`a1373cf`](https://github.com/phil294/git-log--graph/commit/a1373cf) Expose some objects as extension api (undocumented). If you want you can now build another extension that requires this one and exposes a `git ...` execute action on the currently selected repository.
+
 ### v0.1.6 2023-05-21
 
 - [`588832e`](https://github.com/phil294/git-log--graph/commit/588832e) Light theme support (#13, PR #14) thanks to @lens0021
