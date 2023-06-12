@@ -7,6 +7,9 @@ pause() {
     echo
 }
 
+echo update readme
+pause
+
 if ! [ -z "$(git status --porcelain)" ]; then
     echo 'git working tree not clean'
     exit 1
@@ -71,8 +74,8 @@ npx vsce package
 
 vsix_file=$(ls -tr git-log--graph-*.vsix* |tail -1)
 xdg-open "$vsix_file"
-echo 'check vsix package before publish'
 ls -hltr
+echo 'check vsix package before publish'
 pause
 pause
 
@@ -86,6 +89,10 @@ pause
 
 git push --tags origin master
 
+if [[ -z $version || -z $changes ]];
+    echo version/changes empty
+    exit 1
+fi
 echo 'will create github release'
 pause
 gh release create "$version" --target master --title "$version" --notes "$changes" --verify-tag
