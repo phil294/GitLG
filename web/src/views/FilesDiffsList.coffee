@@ -2,6 +2,7 @@ import { computed, defineComponent } from 'vue'
 import { exchange_message } from '../bridge.coffee'
 import { stateful_computed } from './store.coffee'
 import { createReusableTemplate } from '@vueuse/core'
+import file_extension_icon_path_mapping from './file-extension-icon-path-mapping.json'
 
 ###* @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef ###
 ``###*
@@ -40,11 +41,15 @@ export default defineComponent
 			props.files.map (file) =>
 				# Even on Windows, the delimiter of git paths output is forward slash
 				path_arr = file.path.split('/')
+				# Icons have to be hardcoded because actual theme integration is more or less impossible:
+				# https://github.com/microsoft/vscode/issues/183893
+				icon = file_extension_icon_path_mapping[file.path.split('.').at(-1)] or 'default_file.svg'
 				{
 					...file
 					filename: path_arr.at(-1) or '?'
 					dir: path_arr.slice(0, -1).join('/')
 					dir_arr: path_arr.slice(0, -1)
+					icon_path: process.env.BASE_URL + 'file-icons/' + icon
 				}
 		files_list = computed =>
 			files.value if render_style?.value == 'list'

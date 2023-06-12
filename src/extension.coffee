@@ -116,7 +116,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			"font-src #{view.cspSource} " +
 				(if is_production then '' else dev_server_url) + '; ' +
 			"connect-src " +
-				(if is_production then '' else '*') + '; '
+				(if is_production then '' else '*') + '; ' +
+			"img-src #{view.cspSource} " +
+				(if is_production then '' else dev_server_url) + '; '
 		get_web_uri = (###* @type {string[]} ### ...path_segments) =>
 			if is_production
 				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments

@@ -24,9 +24,8 @@
 
 	ul.list v-if="files_list"
 		li.list-row.flex-1.row.align-center.gap-10 v-for="file of files_list" @click="$emit('show_diff',file.path)" role="button"
-			.flex-1.row.align-center.gap-10
-				// TODO
-				i.codicon.codicon-list-selection
+			.flex-1.fill-h.row.align-center.gap-10
+				img :src="file.icon_path" aria-hidden="true"
 				.filename :title="file.filename" {{ file.filename }}
 				.dir :title="file.dir" {{ file.dir }}
 			template-file-actions-reuse :file="file"
@@ -40,7 +39,7 @@
 				template-tree-node-reuse v-for="child of node.children" :node="child"
 				template v-for="file of node.files"
 					button.fill-w.row.align-center.gap-10 @click="$emit('show_diff',file.path)"
-						i.codicon.codicon-list-selection
+						img :src="file.icon_path" aria-hidden="true"
 						.filename.flex-1 :title="file.filename" {{ file.filename }}
 						template-file-actions-reuse :file="file"
 						template-file-change-reuse :file="file"
@@ -64,6 +63,7 @@
 		overflow hidden
 		text-overflow ellipsis
 		color #E5B567
+		flex-shrink 0
 	ul.list > li
 		padding-left 10px
 		position relative
@@ -73,7 +73,6 @@
 			white-space pre
 			overflow hidden
 			text-overflow ellipsis
-			flex-shrink 1000
 	.tree-node
 		position relative
 	aside.actions
