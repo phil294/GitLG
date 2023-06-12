@@ -1,6 +1,7 @@
 vscode = require 'vscode'
 path = require 'path'
-css = require 'css'
+postcss = require 'postcss'
+postcss_sanitize = require 'postcss-sanitize'
 
 { get_git } = require './git'
 
@@ -125,12 +126,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
 			else
 				[dev_server_url, ...path_segments].join('/')
-		custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
+		custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css') or '{body:text-transform uppercase;}'
 		if custom_css
-			try
-				custom_css = css.stringify(css.parse(custom_css))
-			catch e
-				log_error("custom-css invalid: #{e.message}")
+			custom_css = try (await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined })).css
 
 		view.html = "
 			<!DOCTYPE html>

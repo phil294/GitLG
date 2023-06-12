@@ -493,5 +493,8 @@
 		"coffeescript": "^2.7.0",
 		"esbuild": "^0.17.18"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"postcss": "^8.4.24",
+		"postcss-sanitize": "^0.0.9"
+	}
 }
