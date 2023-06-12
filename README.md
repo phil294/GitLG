@@ -173,6 +173,10 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.8 2023-06-13
+
+ 
+
 ### v0.1.7 2023-06-13
 
 - [`40ca14b`](https://github.com/phil294/git-log--graph/commit/40ca14b) Files listing: optionally show as tree. Can be toggled by clicking the respective icon, just like in normal vscode scm view (#8)
