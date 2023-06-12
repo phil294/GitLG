@@ -2,14 +2,18 @@
 #main-view.fill.col
 	.row.flex-1
 		#left.col
+			/ todo use suspend
 			p v-if="!initialized"
 				| Loading...
 			p v-else-if="!filtered_commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				details.config.flex-1
-					summary Configure...
-					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
+					summary.align-center Configure...
+					suspense
+						git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
+						template v-slot:fallback=""
+							| Loading log config...
 				repo-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
@@ -55,18 +59,23 @@
 								span.grey {{ commit.stats.files_changed }}
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
-		#right.col.flex-1 v-if="selected_commit"
-			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
-			button#close-selected-commit.center @click="selected_commits=[]" title="Close"
-				i.codicon.codicon-close
-			.resize-hint v-if="selected_commit"
-				| ← resize
-		#right.col.flex-1 v-else-if="selected_commits.length"
-			commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits"
-			button#close-selected-commits.center @click="selected_commits=[]" title="Close"
-				i.codicon.codicon-close
-			.resize-hint v-if="selected_commit"
-				| ← resize
+		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
+			suspense
+				template v-slot:fallback=""
+					| Loading...
+				.col.flex-1
+					template v-if="selected_commit"
+						commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
+						button#close-selected-commit.center @click="selected_commits=[]" title="Close"
+							i.codicon.codicon-close
+						.resize-hint v-if="selected_commit"
+							| ← resize
+					template v-else-if="selected_commits.length"
+						commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits"
+						button#close-selected-commits.center @click="selected_commits=[]" title="Close"
+							i.codicon.codicon-close
+						.resize-hint v-if="selected_commit"
+							| ← resize
 
 	popup v-if="combine_branches_from_branch_name" @close="combine_branches_from_branch_name=''"
 		.drag-drop-branch-actions.col.center.gap-5

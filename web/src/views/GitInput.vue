@@ -7,7 +7,7 @@ div.col.gap-10
 		.input-controls.justify-flex-end.align-center.gap-10
 			div.warn v-if="text_changed"
 				details
-					summary Edited. Be careful!
+					summary.center Edited. Be careful!
 					| Editing this field can be dangerous, as it is executed without escaping. If you do not know what you are doing, please click Reset.
 			button.btn.btn-2.gap-3 type="button" v-if="text_changed" @click="reset_command()"
 				i.codicon.codicon-discard

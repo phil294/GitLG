@@ -1,7 +1,7 @@
 import { ref, computed } from "vue"
 import default_git_actions from './default-git-actions.json'
 import { parse } from "./log-utils.coffee"
-import { git, exchange_message, add_push_listener } from "../bridge.coffee"
+import { git, exchange_message, add_push_listener, get_global_state, set_global_state } from "../bridge.coffee"
 import { parse_config_actions } from "./GitInput.coffee"
 import GitInputModel from './GitInput.coffee'
 ``###*
@@ -19,6 +19,17 @@ import GitInputModel from './GitInput.coffee'
 # This file should be used for state that is of importance for more than just one component.
 # It encompasses state, actions and getters (computed values).
 #########################
+
+``###* @template T ###
+export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value) =>
+	internal = ref await get_global_state(key)
+	if not internal.value
+		internal.value = default_value
+	computed
+		get: => internal.value
+		set: (###* @type {T} ### value) =>
+			internal.value = value
+			set_global_state(key, value)
 
 ``###* @type {Ref<Commit[]|null>} ###
 export commits = ref null
@@ -143,5 +154,5 @@ export init = =>
 	add_push_listener 'config-change', =>
 		await refresh_config()
 		refresh_main_view()
-	
+
 	add_push_listener 'repo-external-state-change', refresh_main_view

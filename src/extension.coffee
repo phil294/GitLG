@@ -116,7 +116,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			"font-src #{view.cspSource} " +
 				(if is_production then '' else dev_server_url) + '; ' +
 			"connect-src " +
-				(if is_production then '' else '*') + '; '
+				(if is_production then '' else '*') + '; ' +
+			"img-src #{view.cspSource} " +
+				(if is_production then '' else dev_server_url) + '; '
 		get_web_uri = (###* @type {string[]} ### ...path_segments) =>
 			if is_production
 				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
@@ -199,6 +201,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	status_bar_item.text = "$(git-branch) Git Log"
 	status_bar_item.tooltip = "Open up the main view of the git-log--graph extension"
 	status_bar_item.show()
+
+	# public api of this extension:
+	{ git, post_message, webview_container, context }
 
 module.exports.deactivate = =>
 	log.appendLine("extension deactivate")

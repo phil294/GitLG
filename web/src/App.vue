@@ -61,6 +61,21 @@ code {
 
 details
 	cursor pointer
+	> summary
+		// alternatively, list-style-type '⌄' and '›'
+		// but the below mirrors vscode style
+		list-style-type none
+	> summary::before
+		font 16px/1 codicon
+		user-select none
+		height 100%
+		padding-right 6px
+		vertical-align middle
+		display inline-block
+		content '\eab6'
+	&[open]
+		> summary::before
+			content '\eab4'
 
 input:not([type='checkbox']):not([type='radio']), textarea {
 	display: block;
@@ -158,6 +173,8 @@ button
 	user-select none
 	cursor pointer
 	color #E5B567 // var(--vscode-gitDecoration-modifiedResourceForeground)
+*[role=button]
+	cursor pointer
 .btn, input[type="submit"], input[type="reset"], input[type="button"]
 	display inline-flex
 	align-items center
