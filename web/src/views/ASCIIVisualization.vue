@@ -1,5 +1,5 @@
 <template lang="slm">
-.vis.row.align-center :style="vis_style"
+.vis.ascii.row.align-center :style="vis_style"
 	span.vis-v v-for="v of vis" v-bind="v"
 		| {{ v.char }}
 	.refs

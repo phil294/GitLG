@@ -1,8 +1,8 @@
 <template lang="slm">
-div
-	h2 {{ commits.length }} COMMITS SELECTED
+.commits-details
+	h2.count {{ commits.length }} COMMITS SELECTED
 
-	p {{ commits.map(c=>c.hash).join(' ') }}
+	p.hashes {{ commits.map(c=>c.hash).join(' ') }}
 
 	.row.gap-5.wrap
 		git-action-button v-for="action of commits_actions" :git_action="action"

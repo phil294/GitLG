@@ -1,5 +1,5 @@
 <template lang="slm">
-.vis :style="vis_style"
+.vis.svg :style="vis_style"
 	svg :width="vis_width" :height="v_height"
 		line.vis-v v-for="line of lines" v-bind="line"
 		circle.vis-v v-if="circle" v-bind="circle"

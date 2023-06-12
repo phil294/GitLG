@@ -3,9 +3,9 @@
 	.row.flex-1
 		#left.col
 			/ todo use suspend
-			p v-if="!initialized"
+			p.loading v-if="!initialized"
 				| Loading...
-			p v-else-if="!filtered_commits.length"
+			p.no-commits-found v-else-if="!filtered_commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				details.config.flex-1
@@ -48,14 +48,14 @@
 							.hash.flex-noshrink {{ commit.hash }}
 						.subject-wrapper.flex-1.row.align-center
 							div.vis.vis-v :style="commit.branch? {color:commit.branch.color} : undefined"
-								| ● 
+								| ●
 							.subject  {{ commit.subject }}
 						.author.flex-noshrink :title="commit.author_email"
 							| {{ commit.author_name }}
 						.stats.flex-noshrink.row.align-center.justify-flex-end.gap-5
 							.changes v-if="commit.stats" title="Changed lines in amount of files"
 								span: strong {{ commit.stats.insertions + commit.stats.deletions }}
-								span.grey  in 
+								span.grey  in
 								span.grey {{ commit.stats.files_changed }}
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
