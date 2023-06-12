@@ -20,6 +20,14 @@ import file_extension_icon_path_mapping from './file-extension-icon-path-mapping
 # }} TreeNode
 ###
 
+# Doesn't point to the *actual* publicPath because VSCode proxies this somehow:
+# base_url = process.env.BASE_URL
+# In vue.config.js, it's set to `localhost:8080`, but that is for development only,
+# and on production, the path is not deterministic. Is there a better solution?
+# So we determine manually whatever `view.asWebviewUri` in `extension.coffee` has yielded this time,
+# in this case by just copying the path from the last <script/> tag:
+base_url = (document.body.lastElementChild?.attributes.getNamedItem('src')?.value.match(/^(.+)\/js\/.+/)?[1] or '') + '/'
+
 ``###* @type {Promise<WritableComputedRef<'list'|'tree'>>} ###
 render_style_promise = stateful_computed 'files-diffs-list-render-style', 'list'
 
@@ -49,7 +57,7 @@ export default defineComponent
 					filename: path_arr.at(-1) or '?'
 					dir: path_arr.slice(0, -1).join('/')
 					dir_arr: path_arr.slice(0, -1)
-					icon_path: process.env.BASE_URL + 'file-icons/' + icon
+					icon_path: base_url + 'file-icons/' + icon
 				}
 		files_list = computed =>
 			files.value if render_style?.value == 'list'
