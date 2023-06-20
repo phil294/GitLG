@@ -17,7 +17,6 @@
 	white-space pre
 	margin 0 1px
 	&.head
-		border 3px solid white
 		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
 		&:after
 			content ' (HEAD)'

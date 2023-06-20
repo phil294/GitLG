@@ -22,7 +22,7 @@
 		opacity 85%
 	svg
 		> line.vis-v.is_head
-			filter drop-shadow(4px 0px 1px #ffffff99) drop-shadow(-4px 0px 1px #ffffff99)
+			filter drop-shadow(3px 0px 1px rgba(255,255,255,0.3)) drop-shadow(-3px 0px 1px rgba(255,255,255,0.3))
 		> circle.vis-v.is_head
 			fill white
 </style>
