@@ -134,16 +134,16 @@ parse = (log_data, branch_data, stash_data, separator) =>
 						branch = branch_tip
 						if ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
 							# This is branch tip but in previous above lines, this branch
-							# was already on display for merging without its actual name known (virtual substitute).
+							# may already have been on display for merging without its actual name known (virtual substitute).
 							# Fix these lines (min 1) now
 							wrong_branch = v_nw?.branch
-							if not wrong_branch then throw new Error "wrong branch missing at line " + line_no
-							k = line_no - 1
-							while (matches = commits[k]?.vis.filter (v) => v.branch == wrong_branch)?.length
-								for match from matches or []
-									match.branch = branch
-								k--
-							branches.splice branches.indexOf(wrong_branch), 1
+							if wrong_branch and wrong_branch.virtual
+								k = line_no - 1
+								while (matches = commits[k]?.vis.filter (v) => v.branch == wrong_branch)?.length
+									for match from matches or []
+										match.branch = branch
+									k--
+								branches.splice branches.indexOf(wrong_branch), 1
 							char = '⎺*'
 					else if v_n?.branch
 						branch = v_n?.branch
@@ -243,7 +243,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 			# these exist in vis (with colors), but don't mention them in the listing
 			not branch.virtual
 		.sort git_ref_sort
-		.slice(0, 350)
+		.slice(0, 10000)
 
 	# stashes were queried (git reflog show stash) but shown as commits. Need to add refs:
 	for stash from (stash_data or '').split('\n')
