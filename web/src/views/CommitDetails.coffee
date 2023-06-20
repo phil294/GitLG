@@ -1,6 +1,6 @@
 import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.coffee'
-import { commit_actions, stash_actions, branch_actions, tag_actions } from './store.coffee'
+import { commit_actions, stash_actions, branch_actions, tag_actions, config } from './store.coffee'
 import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
 import FilesDiffsList from './FilesDiffsList.vue'
@@ -75,6 +75,9 @@ export default defineComponent
 		_tag_actions = computed => (###* @type string ### tag_name) =>
 			tag_actions(tag_name).value
 
+		config_show_buttons = computed =>
+			not config.value['hide-sidebar-buttons']
+
 		{
 			branch_tips
 			tags
@@ -88,4 +91,5 @@ export default defineComponent
 			branch_actions: _branch_actions
 			tag_actions: _tag_actions
 			stash_actions: _stash_actions
+			config_show_buttons
 		}
