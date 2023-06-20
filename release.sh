@@ -7,10 +7,19 @@ pause() {
     echo
 }
 
+echo update readme
+pause
+
 if ! [ -z "$(git status --porcelain)" ]; then
     echo 'git working tree not clean'
     exit 1
 fi
+
+if grep -R -n --exclude='*.js' -E '\s$' src web/src; then
+    echo 'trailing whitespace found'
+    exit 1
+fi
+
 
 # # Cannot upgrade deps currently, TODO: https://github.com/vuejs/vue-loader/issues/2044
 # yarn upgrade
@@ -65,8 +74,8 @@ npx vsce package
 
 vsix_file=$(ls -tr git-log--graph-*.vsix* |tail -1)
 xdg-open "$vsix_file"
+ls -hltr
 echo 'check vsix package before publish'
-ls -ltr
 pause
 pause
 
@@ -80,6 +89,10 @@ pause
 
 git push --tags origin master
 
+if [[ -z $version || -z $changes ]]; then
+    echo version/changes empty
+    exit 1
+fi
 echo 'will create github release'
 pause
 gh release create "$version" --target master --title "$version" --notes "$changes" --verify-tag

@@ -3,7 +3,7 @@ import { branches } from './store.coffee'
 import RefTip from './RefTip.vue'
 
 export default
-	emit: ['branch_drop', 'branch_selected']
+	emit: ['branch_selected']
 	components: { RefTip }
 	setup: ->
 		show_all_branches = ref false

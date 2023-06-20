@@ -45,7 +45,7 @@ apply = (target, { value: { move_target, onmovestart, onmoveend, snap_back } = {
 
 		document.addEventListener 'mousemove', on_mousemove
 		document.addEventListener 'touchmove', on_mousemove
-		
+
 		on_mouseup = (###* @type MouseEvent | TouchEvent ### event) =>
 			event.preventDefault()
 			document.removeEventListener 'mousemove', on_mousemove
@@ -63,12 +63,12 @@ apply = (target, { value: { move_target, onmovestart, onmoveend, snap_back } = {
 						offset:
 							x: offset_x
 							y: offset_y
-		
+
 		document.addEventListener 'mouseup', on_mouseup
 		document.addEventListener 'touchend', on_mouseup
-		
+
 		target.ondragstart = => false
-	
+
 	target.onmousedown = start_move
 	target.ontouchstart = start_move
 

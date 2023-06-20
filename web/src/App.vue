@@ -6,20 +6,11 @@
 <script lang="coffee">
 import MainView from './views/MainView.vue'
 import * as store from './views/store.coffee'
-import { add_push_listener } from './bridge.coffee'
 
 export default
-	components: { MainView }	
+	components: { MainView }
 	setup: ->
 		store.init()
-		# TODO these listeners should probably be in store instead?
-		add_push_listener 'config-change', =>
-			store.refresh_config()
-			store.refresh_main_view()
-		add_push_listener 'repo-external-state-change', =>
-			store.refresh_main_view()
-		add_push_listener 'repo-names-change', ({ data: names }) =>
-			store.repo_names.value = names
 		undefined
 </script>
 
@@ -33,15 +24,13 @@ export default
 }
 
 body {
-	// color: var(--vscode-foreground); TODO:
 	color: #cccccc;
 	font-size: var(--vscode-font-size);
 	font-weight: var(--vscode-font-weight);
 	font-family: var(--vscode-font-family);
-	// background-color: var(--vscode-editor-background); TODO:
 	background-color: #161616;
 
-	&.vscode-light {
+	&.vscode-light, &.vscode-high-contrast-light {
 		background-color: var(--vscode-editor-background);
 		filter: invert(1) hue-rotate(180deg);
 	}
@@ -67,11 +56,30 @@ a:hover, a:active {
 
 code {
 	font-family: var(--vscode-editor-font-family);
-	color: #cccccc; // TODO:
+	color: #cccccc;
 }
 
 details
 	cursor pointer
+	overflow auto
+	> summary
+		// alternatively, list-style-type '⌄' and '›'
+		// but the below mirrors vscode style
+		list-style-type none
+		height 100%
+	> summary::before
+		font 16px/1 codicon
+		user-select none
+		height 100%
+		padding-right 6px
+		vertical-align middle
+		display inline-block
+		content '\eab6'
+	&[open]
+		> summary
+			height unset
+			&::before
+				content '\eab4'
 
 input:not([type='checkbox']):not([type='radio']), textarea {
 	display: block;
@@ -169,6 +177,8 @@ button
 	user-select none
 	cursor pointer
 	color #E5B567 // var(--vscode-gitDecoration-modifiedResourceForeground)
+*[role=button]
+	cursor pointer
 .btn, input[type="submit"], input[type="reset"], input[type="button"]
 	display inline-flex
 	align-items center

@@ -11,6 +11,7 @@ const options = {
 			"Access-Control-Allow-Origin": "*"
 		}
 	},
+	// For dev only, necessary for anything loaded dynamically (HMR websocket)
 	publicPath: 'http://localhost:8080',
 	css: {
 		loaderOptions: {

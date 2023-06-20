@@ -26,9 +26,9 @@ This allows you to set params and modify the command before executing, both via 
 
 All Git actions (blue buttons) work like that. Even the main `git log` action itself is a modifiable field: By default it holds
 
-    log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
+    log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \"" --author-date-order
 
-You shouldn't edit the `--pretty` argument of course, but if you for example want to view the log of a subfolder or for a specific file, all you need to do is add ` -- subfolder` to the end of the command.
+You shouldn't edit the `--pretty` argument of course, but if you for example want to view the log of a subfolder or for a specific file, all you need to do is add ` -- subfolder` to the end of the command. If you want to get rid of the entire branch visualization, remove the `--graph` part.
 
 Please *be careful editing any of the input fields or config*, as they are all passed to your command line AS IS, that is, without escaping. For example, if you change the above merge command to `merge '$1' --no-commi` (typo, `t` missing at the end), this will still be executed and result in a Git error. If you change it to `status; reboot`, your computer will attempt to shut down, so probably don't do that.
 
@@ -47,7 +47,9 @@ Notable features:
  - By default, 15,000 commits are loaded and displayed at once (see log cmd) and rendered efficiently inside a virtual scroller. Because of this, you can quickly scroll over thousands of commits without slowing down or performance issues.
  - Show stashes
  - Green/red insertions/deletion stats
+ - `git help ...` texts collapsed baked into the default actions
  - Select multiple commits with Ctrl or Shift to compare or apply bulk actions (cherry-pick, revert)
+ - Custom CSS
 
 ## Configuration
 
@@ -76,14 +78,21 @@ The only required parameters per action are `title` and `args`.
     {
         "title": "Switch", // Whatever you want to appear on the button itself. Title is also used as a cache key (see `Save` above).
         "icon": "arrow-swap", // An icon to display next to the title. Choose one from https://microsoft.github.io/vscode-codicons/dist/codicon.html
+        "description": "git switch - Switch branches", // An extended title that will be shown as tooltip on button mouse hover and as a subtitle in the action popup. For the defaults, this is the first NAME line of `git help [the-command]`.
+        // More detailed help to understand what this command is about: Will help more inexperienced users. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the DESCRIPTION section of `git help [the-command]`:
+        "info": "Switch to a specified branch. The working tree and the index are updated to match the branch. All new commits will be added to the tip of this branch.\n\nOptionally a new branch could be created with either -c, -C, automatically from a remote branch of bla bla etc",
         "args": "switch '$1'", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`.
         "params": [ "{LOCAL_BRANCH_NAME}" ], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: {BRANCH_NAME}, {LOCAL_BRANCH_NAME}, {REMOTE_NAME}, {COMMIT_HASH}, {COMMIT_HASHES}, {STASH_NAME}, {TAG_NAME}, {SOURCE_BRANCH_NAME} and {TARGET_BRANCH_NAME} (where it makes sense).
         // `options` are just an easy and quick way to toggle common trailing options. You can also specify them manually in `args` of course, given that `args` is also editable yet again at runtime.
         "options": [
-            { "value": "--detach", "default_active": false },
+            {
+            	"value": "--detach", // what is to be appended to the input field if toggled
+            	"default_active": false,
+            	// More detailed help to understand what this option is about. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the --option description text of `git help [the-command]`:
+            	"info": "For inspection and discardable experiments"
+            },
             { "value": "--force", "default_active": false },
         ],
-        "description": "Some button tooltip text",
         "immediate": false, // if true, the command executes without another user interaction step and closes again, except on error.
         "ignore_errors": false // can rarely be useful in combination with `immediate`
     }
@@ -133,14 +142,33 @@ Please consider opening an issue or PR if you think a certain action or option w
         ],
         "default": "auto"
     },
+    "git-log--graph.hide-sidebar-buttons": {
+        "description": "If active, the buttons for commit, branches, stashes and tags will not be shown anymore in the side bar for a selected commit. The actions are then only available via context menu (right click) in the main view itself.",
+        "type": "boolean",
+        "default": false
+    },
     "git-log--graph.folder": {
         "description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
         "type": "string"
     },
+    "git-log--graph.branch-visualization": {
+        "description": "How the branch lines displayed. SVG is recommended.",
+        "type": "string",
+        "default": "svg",
+        "enum": [
+            "svg",
+            "ascii"
+        ]
+    },
     "git-log--graph.verbose-logging": {
         "type": "boolean",
         "default": false
-    }
+    },
+    "git-log--graph.custom-css": {
+		"description": "An abitrary string of CSS that will be injected into the main web view. Example: * { text-transform: uppercase; }",
+		"type": "string",
+		"default": "",
+	},
 }
 ```
 
@@ -150,6 +178,30 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.8 2023-06-13
+
+
+
+### v0.1.7 2023-06-13
+
+- [`40ca14b`](https://github.com/phil294/git-log--graph/commit/40ca14b) Files listing: optionally show as tree. Can be toggled by clicking the respective icon, just like in normal vscode scm view (#8)
+- [`04f7dcd`](https://github.com/phil294/git-log--graph/commit/04f7dcd) Files listing: Add basic set of icons (#8)
+- [`4f04c78`](https://github.com/phil294/git-log--graph/commit/4f04c78) Hide remote branches: New quick option in the `Configure...` section on top (#17, #18)
+- [`454be25`](https://github.com/phil294/git-log--graph/commit/454be25) Hide merge commits: New quick option in the `Configure...` section on top (#17)
+- [`5c47b92`](https://github.com/phil294/git-log--graph/commit/5c47b92) Add `action.info` `action.option.info` fields for documentation around commands and options. The default actions were populated with help texts from `git help ...`. (#17)
+- [`63adec8`](https://github.com/phil294/git-log--graph/commit/63adec8) Custom CSS with new option `git-log--graph.custom-css` (#16)
+- [`415096f`](https://github.com/phil294/git-log--graph/commit/415096f) Ensure same color for same branch-name / origin/branch-name
+- [`55e0d46`](https://github.com/phil294/git-log--graph/commit/55e0d46) Add buttons in the changed files section for "show rev" and "open file". Thanks to @lens0021
+- [`cbe2c5a`](https://github.com/phil294/git-log--graph/commit/cbe2c5a) Fix branch visualization automatic width update (#10)
+- [`c6521c5`](https://github.com/phil294/git-log--graph/commit/c6521c5) Fix coloring for light *high contrast* themes
+- [`245115a`](https://github.com/phil294/git-log--graph/commit/245115a) Add branch action "Delete (Remote)" and move rebase before delete. "Delete (Remote)" is also shown for local branches out of simplicity (we don't discriminate between local branch actions and remote branch actions right now). Just like with Push/Pull, the remote name is inferred for both cases so it doesn't matter where you run it.
+- [`76c60e1`](https://github.com/phil294/git-log--graph/commit/76c60e1) allow for old ascii visualization via setting
+- [`9588225`](https://github.com/phil294/git-log--graph/commit/9588225) Fix "git-log--graph.folder" config setting
+- [`ae939c0`](https://github.com/phil294/git-log--graph/commit/ae939c0) Remove the shadow of all-branches button. Thanks to @lens0021
+- [`bfe75f6`](https://github.com/phil294/git-log--graph/commit/bfe75f6) File diff list: more detailed tooltip popup (insertions/deletions)
+- [`d345a32`](https://github.com/phil294/git-log--graph/commit/d345a32) Clear output on empty log return, such as when adding `-- nonexisting/file` to the end of the log command. So far, it was just ignored, falsely seeming to result in the same result as the previously executed one
+- [`a1373cf`](https://github.com/phil294/git-log--graph/commit/a1373cf) Expose some objects as extension api (undocumented). If you want you can now build another extension that requires this one and exposes a `git ...` execute action on the currently selected repository.
+
 ### v0.1.6 2023-05-21
 
 - [`588832e`](https://github.com/phil294/git-log--graph/commit/588832e) Light theme support (#13, PR #14) thanks to @lens0021
@@ -158,7 +210,6 @@ Entries usually sorted by importance.
 - [`901b2cf`](https://github.com/phil294/git-log--graph/commit/901b2cf) Log errors also into the dedicated output channel
 - [`fa7b557`](https://github.com/phil294/git-log--graph/commit/fa7b557) Fix pull/push on local branches, even if they don't have a remote configured yet. The most likely remote will be prefilled: remote name, tracking remote name or default remote.
 - [`1940cfa`](https://github.com/phil294/git-log--graph/commit/1940cfa) Color subject text of merge commits grey
-idk
 - [`112a67f`](https://github.com/phil294/git-log--graph/commit/112a67f) Focus scroller on startup so immediate keyboard scrolling is possible
 
 ### v0.1.5 2023-05-18

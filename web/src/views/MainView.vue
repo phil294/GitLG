@@ -2,14 +2,18 @@
 #main-view.fill.col
 	.row.flex-1
 		#left.col
-			p v-if="!initialized"
+			/ todo use suspend
+			p.loading v-if="!initialized"
 				| Loading...
-			p v-else-if="!filtered_commits.length"
+			p.no-commits-found v-else-if="!filtered_commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				details.config.flex-1
-					summary Configure...
-					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
+					summary.align-center Configure...
+					suspense
+						git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
+						template v-slot:fallback=""
+							| Loading log config...
 				repo-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
@@ -35,38 +39,43 @@
 				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.id)" title="Jump to branch tip" v-bind="branch_elem.bind"
 					ref-tip :git_ref="branch_elem.branch"
 			#branches-connection v-if="config_show_quick_branch_tips"
-				visualization.vis v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_length="vis_max_length"
+				component.vis :is="visualization_component" v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_amount="vis_max_amount"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
 				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash,merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
-					visualization.vis :commit="commit" :vis_max_length="vis_max_length"
+					component.vis :is="visualization_component" :commit="commit" :vis_max_amount="vis_max_amount"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
-						button
-							.hash.flex-noshrink {{ commit.hash }}
 						.subject-wrapper.flex-1.row.align-center
 							div.vis.vis-v :style="commit.branch? {color:commit.branch.color} : undefined"
-								| ● 
+								| ●
 							.subject  {{ commit.subject }}
-						.author.flex-noshrink :title="commit.author_email"
+						.author.flex-noshrink :title="commit.author_name+' <'+commit.author_email+'>'"
 							| {{ commit.author_name }}
 						.stats.flex-noshrink.row.align-center.justify-flex-end.gap-5
 							.changes v-if="commit.stats" title="Changed lines in amount of files"
 								span: strong {{ commit.stats.insertions + commit.stats.deletions }}
-								span.grey  in 
+								span.grey  in
 								span.grey {{ commit.stats.files_changed }}
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
-		#right.col.flex-1 v-if="selected_commit"
-			commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
-			button#close-selected-commit.center @click="selected_commits=[]" title="Close"
-				i.codicon.codicon-close
-			.resize-hint v-if="selected_commit"
-				| ← resize
-		#right.col.flex-1 v-else-if="selected_commits.length"
-			commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits"
-			button#close-selected-commits.center @click="selected_commits=[]" title="Close"
-				i.codicon.codicon-close
-			.resize-hint v-if="selected_commit"
-				| ← resize
+						button
+							.hash.flex-noshrink {{ commit.hash }}
+		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
+			suspense
+				template v-slot:fallback=""
+					| Loading...
+				.col.flex-1
+					template v-if="selected_commit"
+						commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
+						button#close-selected-commit.center @click="selected_commits=[]" title="Close"
+							i.codicon.codicon-close
+						.resize-hint v-if="selected_commit"
+							| ← resize
+					template v-else-if="selected_commits.length"
+						commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits"
+						button#close-selected-commits.center @click="selected_commits=[]" title="Close"
+							i.codicon.codicon-close
+						.resize-hint v-if="selected_commit"
+							| ← resize
 
 	popup v-if="combine_branches_from_branch_name" @close="combine_branches_from_branch_name=''"
 		.drag-drop-branch-actions.col.center.gap-5
@@ -142,7 +151,6 @@ details.config
 			max-width clamp(300px, 70vw, 80vw)
 			background #161616dd
 			box-shadow 0 0 5px 2px #161616dd
-			padding 5px 10px 20px 20px
 			border-radius 5px
 	#log.scroller
 		&:focus
@@ -192,8 +200,10 @@ details.config
 					color grey
 				> .datetime
 					font-size 12px
+				> .author
+					max-width 150px
 				.stats
-					width 93px
+					width 91px
 			&.merge .subject
 				color grey
 

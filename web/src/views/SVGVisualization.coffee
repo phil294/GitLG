@@ -1,5 +1,5 @@
 import { computed, defineComponent } from 'vue'
-import { vis_max_length, head_branch, vis_v_width } from './store.coffee'
+import { vis_max_amount, head_branch, vis_v_width } from './store.coffee'
 import RefTip from './RefTip.vue'
 ``###* @typedef {import('./log-utils').Commit} Commit ###
 
@@ -9,12 +9,12 @@ export default defineComponent
 			required: true
 			###* @type {() => Commit} ###
 			type: Object
-	emits: ['branch_drop']
 	components: { RefTip }
 	setup: (props) ->
 		padding_left = 5
 		padding_right = 20
-		vis_width = vis_max_length.value * vis_v_width.value + padding_right
+		vis_width = computed =>
+			vis_max_amount.value * vis_v_width.value + padding_right
 		v_height = computed =>
 			props.commit.scroll_height
 		vis_style = computed =>

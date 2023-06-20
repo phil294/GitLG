@@ -4,10 +4,11 @@ util = require('util')
 exec = util.promisify(require('child_process').exec)
 
 ``###*
+# @param EXT_ID {string}
 # @param log {vscode.OutputChannel}
 # @param args {{on_repo_external_state_change:()=>any, on_repo_names_change:()=>any}}
 ###
-module.exports.get_git = (log, { on_repo_external_state_change, on_repo_names_change }) =>
+module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_names_change }) =>
 	#
 	###* @type {import('./vscode.git').API} ###
 	api = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1) or throw 'VSCode official Git Extension not found, did you disable it?'
@@ -80,10 +81,13 @@ module.exports.get_git = (log, { on_repo_external_state_change, on_repo_names_ch
 		get_repo_names: =>
 			api.repositories.map (f) => basename f.rootUri.path
 		run: (###* @type string ### args) =>
-			repo = api.repositories[selected_repo_index]
-			throw 'No repository found/selected' if not repo
+			cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
+			if not cwd
+				repo = api.repositories[selected_repo_index]
+				throw 'No repository found/selected' if not repo
+				cwd = repo.rootUri.fsPath
 			{ stdout, stderr: _ } = await exec 'git ' + args,
-				cwd: repo.rootUri.fsPath
+				cwd: cwd
 				# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
 				# is 538 MB or 7.4 MB for the first 15k commits
 				maxBuffer: 1024 * 1024 * 35

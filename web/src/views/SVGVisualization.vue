@@ -1,5 +1,5 @@
 <template lang="slm">
-.vis :style="vis_style"
+.vis.svg :style="vis_style"
 	svg :width="vis_width" :height="v_height"
 		line.vis-v v-for="line of lines" v-bind="line"
 		circle.vis-v v-if="circle" v-bind="circle"
@@ -7,7 +7,7 @@
 		ref-tip v-for="ref of refs_elems.refs" :git_ref="ref" :commit="commit" :key="ref.id"
 </template>
 
-<script lang="coffee" src="./Visualization.coffee"></script>
+<script lang="coffee" src="./SVGVisualization.coffee"></script>
 
 <style lang="stylus" scoped>
 .vis
@@ -22,7 +22,7 @@
 		opacity 85%
 	svg
 		> line.vis-v.is_head
-			filter drop-shadow(4px 0px 1px #ffffff99) drop-shadow(-4px 0px 1px #ffffff99)
+			filter drop-shadow(3px 0px 1px rgba(255,255,255,0.3)) drop-shadow(-3px 0px 1px rgba(255,255,255,0.3))
 		> circle.vis-v.is_head
 			fill white
 </style>

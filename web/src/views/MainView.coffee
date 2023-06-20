@@ -7,7 +7,8 @@ import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import CommitDetails from './CommitDetails.vue'
 import CommitsDetails from './CommitsDetails.vue'
-import Visualization from './Visualization.vue'
+import SVGVisualization from './SVGVisualization.vue'
+import ASCIIVisualization from './ASCIIVisualization.vue'
 import AllBranches from './AllBranches.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
@@ -19,7 +20,7 @@ import RepoSelection from './RepoSelection.vue'
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 export default
-	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, Visualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
+	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, SVGVisualization, ASCIIVisualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
 	setup: ->
 		#
 		###* @type {Ref<Commit[]>} ###
@@ -28,6 +29,7 @@ export default
 			if selected_commits.value.length == 1
 				selected_commits.value[0]
 		commit_clicked = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
+			return if not commit.hash
 			selected_index = selected_commits.value.indexOf commit
 			if event.ctrlKey
 				if selected_index > -1
@@ -102,7 +104,7 @@ export default
 				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
 				commit.refs.some (ref) => ref.id == branch_id
 			if first_branch_commit_i == -1
-				return show_error_message "No commit found for branch #{branch_id}. No idea why :/"
+				return show_error_message "No commit found for branch #{branch_id}. Not enough commits loaded?"
 			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
@@ -127,10 +129,12 @@ export default
 			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
 			args: "log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
 			options: [
-				{ value: '--date-order', default_active: false }
-				{ value: '--author-date-order', default_active: true }
-				{ value: '--topo-order', default_active: false }
-				{ value: '--reflog', default_active: false }
+				{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' }
+				{ value: '--grep="^Merge branch \'" --grep="^Merge remote tracking branch \'" --grep="^Merge pull request"', default_active: false, info: 'Hide merge commits' }
+				{ value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' }
+				{ value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' }
+				{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' }
+				{ value: '--reflog', default_active: false, info: 'Pretend as if all objects mentioned by reflogs are listed on the command line as <commit>. / Reference logs, or "reflogs", record when the tips of branches and other references were updated in the local repository. Reflogs are useful in various Git commands, to specify the old value of a reference. For example, HEAD@{2} means "where HEAD used to be two moves ago", master@{one.week.ago} means "where master used to point to one week ago in this local repository", and so on. See gitrevisions(7) for more details.' }
 			]
 			config_key: "main-log"
 			immediate: true
@@ -146,7 +150,7 @@ export default
 					selected_commits.value = [new_commit]
 			await new Promise (ok) => setTimeout(ok, 0)
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset
-		
+
 
 
 
@@ -160,13 +164,11 @@ export default
 			commits_start_index = if scroll_item_offset < 3 then 0 else scroll_item_offset + 2
 			visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index)
 		scroller_on_wheel = (###* @type WheelEvent ### event) =>
-			if not store.config_scroll_snapping_active.value
-				return
+			return if store.config.value['disable-scroll-snapping']
 			event.preventDefault()
 			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20) + 2
 		scroller_on_keydown = (###* @type KeyboardEvent ### event) =>
-			if not store.config_scroll_snapping_active.value
-				return
+			return if store.config.value['disable-scroll-snapping']
 			if event.key == 'ArrowDown'
 				event.preventDefault()
 				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 3
@@ -200,7 +202,7 @@ export default
 			visible_branches.value.filter (branch) =>
 				not visible_branch_tips.value.includes branch
 
-		
+
 
 
 		# To paint a nice gradient between branches at the top and the vis below:
@@ -241,10 +243,18 @@ export default
 
 
 
-		
+		visualization_component = computed =>
+			if store.config.value['branch-visualization'] == 'svg'
+				SVGVisualization
+			else
+				ASCIIVisualization
+
+
+
+
 		global_actions = computed =>
 			store.global_actions.value
-		
+
 
 
 		onMounted =>
@@ -275,11 +285,16 @@ export default
 
 
 
+		config_show_quick_branch_tips = computed =>
+			not store.config.value['hide-quick-branch-tips']
+
+
+
 		{
 			initialized
 			filtered_commits
 			branches: store.branches
-			vis_max_length: store.vis_max_length
+			vis_max_amount: store.vis_max_amount
 			head_branch: store.head_branch
 			git_input_ref
 			run_log
@@ -310,5 +325,6 @@ export default
 			git_status: store.git_status
 			scroller_on_wheel
 			scroller_on_keydown
-			config_show_quick_branch_tips: store.config_show_quick_branch_tips
+			config_show_quick_branch_tips
+			visualization_component
 		}

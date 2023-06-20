@@ -1,7 +1,7 @@
 import { ref, computed } from "vue"
 import default_git_actions from './default-git-actions.json'
 import { parse } from "./log-utils.coffee"
-import { git, get_config, exchange_message } from "../bridge.coffee"
+import { git, exchange_message, add_push_listener, get_global_state, set_global_state } from "../bridge.coffee"
 import { parse_config_actions } from "./GitInput.coffee"
 import GitInputModel from './GitInput.coffee'
 ``###*
@@ -20,6 +20,17 @@ import GitInputModel from './GitInput.coffee'
 # It encompasses state, actions and getters (computed values).
 #########################
 
+``###* @template T ###
+export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value) =>
+	internal = ref await get_global_state(key)
+	if not internal.value
+		internal.value = default_value
+	computed
+		get: => internal.value
+		set: (###* @type {T} ### value) =>
+			internal.value = value
+			set_global_state(key, value)
+
 ``###* @type {Ref<Commit[]|null>} ###
 export commits = ref null
 
@@ -28,7 +39,7 @@ export branches = ref []
 # this is either a branch id(name) or HEAD in which case it will simply not be shown
 # which is also not necessary because HEAD is then also visible as a branch tip.
 export head_branch = ref ''
-export vis_max_length = ref 0
+export vis_max_amount = ref 0
 export git_status = ref ''
 ###* @type {Ref<string|null>} ###
 export default_origin = ref ''
@@ -46,12 +57,11 @@ export git_run_log = (###* @type string ### log_args) =>
 		git 'status'
 		git 'rev-parse --abbrev-ref HEAD'
 	]
-	return if not log_data
+	return if not log_data?
 	parsed = parse log_data, branch_data, stash_data, sep
 	commits.value = parsed.commits
 	branches.value = parsed.branches
-	# todo rename to vis_max_amount
-	vis_max_length.value = parsed.vis_max_length
+	vis_max_amount.value = parsed.vis_max_amount
 	head_branch.value = head_data
 	git_status.value = status_data
 	likely_default_branch = (branches.value.find (b) => b.name=='master'||b.name=='main') || branches.value[0]
@@ -82,35 +92,41 @@ export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 				stat.deletions = Number(words[0])
 		commits[commits.findIndex((cp)=>cp.hash==hash)].stats = stat
 
+``###* @type {Ref<GitAction|null>} ###
+export selected_git_action = ref null
+
+###* @type {Ref<string[]>} ###
+export repo_names = ref []
+
+``###* @type {Ref<any>} ###
+export config = ref {}
+export refresh_config = =>
+	config.value = await exchange_message 'get-config'
+
 ``###* @type {Ref<ConfigGitAction[]>} ###
-export global_actions = ref []
-``###* @type {Ref<ConfigGitAction[]>} ###
-config_branch_actions = ref []
-``###* @type {Ref<ConfigGitAction[]>} ###
-config_tag_actions = ref []
-``###* @type {Ref<ConfigGitAction[]>} ###
-config_commit_actions = ref []
-``###* @type {Ref<ConfigGitAction[]>} ###
-config_commits_actions = ref []
+export global_actions = computed =>
+	default_git_actions['actions.global'].concat(config.value.actions?.global or [])
 export commit_actions = (###* @type string ### hash) => computed =>
-	parse_config_actions(config_commit_actions.value, [['{COMMIT_HASH}', hash]])
+	config_commit_actions = default_git_actions['actions.commit'].concat(config.value.actions?.commit or [])
+	parse_config_actions(config_commit_actions, [['{COMMIT_HASH}', hash]])
 export commits_actions = (###* @type string[] ### hashes) => computed =>
-	parse_config_actions(config_commits_actions.value, [['{COMMIT_HASHES}', hashes.join(' ')]])
+	config_commits_actions = default_git_actions['actions.commits'].concat(config.value.actions?.commits or [])
+	parse_config_actions(config_commits_actions, [['{COMMIT_HASHES}', hashes.join(' ')]])
 export branch_actions = (###* @type Branch ### branch) => computed =>
-	parse_config_actions(config_branch_actions.value, [
+	config_branch_actions = default_git_actions['actions.branch'].concat(config.value.actions?.branch or [])
+	parse_config_actions(config_branch_actions, [
 		['{BRANCH_NAME}', branch.id]
 		['{LOCAL_BRANCH_NAME}', branch.name]
 		['{REMOTE_NAME}', branch.remote_name or branch.tracking_remote_name or default_origin.value or 'MISSING_REMOTE_NAME']])
 export tag_actions = (###* @type string ### tag_name) => computed =>
-	parse_config_actions(config_tag_actions.value, [['{TAG_NAME}', tag_name]])
-``###* @type {Ref<ConfigGitAction[]>} ###
-config_stash_actions = ref []
+	config_tag_actions = default_git_actions['actions.tag'].concat(config.value.actions?.tag or [])
+	parse_config_actions(config_tag_actions, [['{TAG_NAME}', tag_name]])
 export stash_actions = (###* @type string ### stash_name) => computed =>
-	parse_config_actions(config_stash_actions.value, [['{STASH_NAME}', stash_name]])
-``###* @type {Ref<ConfigGitAction[]>} ###
-_unparsed_combine_branches_actions = ref []
+	config_stash_actions = default_git_actions['actions.stash'].concat(config.value.actions?.stash or [])
+	parse_config_actions(config_stash_actions, [['{STASH_NAME}', stash_name]])
 export combine_branches_actions = computed =>
-	parse_config_actions(_unparsed_combine_branches_actions.value, [
+	config_combine_branches_actions = default_git_actions['actions.branch-drop'].concat(config.value.actions?['branch-drop'] or [])
+	parse_config_actions(config_combine_branches_actions, [
 		['{SOURCE_BRANCH_NAME}', combine_branches_from_branch_name.value]
 		['{TARGET_BRANCH_NAME}', combine_branches_to_branch_name.value]])
 
@@ -121,42 +137,22 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 	combine_branches_to_branch_name.value = to_branch_name
 	combine_branches_from_branch_name.value = from_branch_name
 
-``###* @type {Ref<GitAction|null>} ###
-export selected_git_action = ref null
-
-``###* @type {Ref<number|string>} ###
-export config_width = ref ''
-
-``###* @type {Ref<boolean>} ###
-export config_scroll_snapping_active = ref false
-
-``###* @type {Ref<boolean>} ###
-export config_show_quick_branch_tips = ref false
-
-###* @type {Ref<string[]>} ###
-export repo_names = ref []
+export vis_v_width = computed =>
+	if not config.value['branch-width'] or not Number(config.value['branch-width'])
+		# Linear drop from 10 to 2
+		Math.max(1, Math.min(10, Math.round(vis_max_amount.value * (-1) * 8 / 50 + 18)))
+	else
+		Number(config.value['branch-width'])
 
 export init = =>
 	refresh_config()
+
 	repo_names.value = await exchange_message 'get-repo-names'
-export refresh_config = =>
-	# TODO change to single request get_config and then use e.g. config.actions.global or at least config['actions.global'], branch-width etc
-	global_actions.value = default_git_actions['actions.global'].concat(await get_config 'actions.global')
-	config_branch_actions.value = default_git_actions['actions.branch'].concat(await get_config 'actions.branch')
-	config_commit_actions.value = default_git_actions['actions.commit'].concat(await get_config 'actions.commit')
-	config_commits_actions.value = default_git_actions['actions.commits'].concat(await get_config 'actions.commits')
-	config_stash_actions.value = default_git_actions['actions.stash'].concat(await get_config 'actions.stash')
-	config_tag_actions.value = default_git_actions['actions.tag'].concat(await get_config 'actions.tag')
-	_unparsed_combine_branches_actions.value = default_git_actions['actions.branch-drop'].concat(await get_config 'actions.branch-drop')
+	add_push_listener 'repo-names-change', ({ data: names }) =>
+		repo_names.value = names
 
-	config_width.value = await get_config 'branch-width'
+	add_push_listener 'config-change', =>
+		await refresh_config()
+		refresh_main_view()
 
-	config_scroll_snapping_active.value = ! (await get_config 'disable-scroll-snapping')
-
-	config_show_quick_branch_tips.value = ! (await get_config 'hide-quick-branch-tips')
-
-export vis_v_width = computed =>
-	if not config_width.value or not Number(config_width.value)
-		Math.max(2, Math.min(10, Math.round(vis_max_length.value * (-1) * 8 / 50 + 18)))
-	else
-		Number(config_width.value)
+	add_push_listener 'repo-external-state-change', refresh_main_view

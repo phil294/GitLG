@@ -46,7 +46,7 @@ export default
 			@$emit 'submit', event
 
 			form_data = new FormData event.target
-			
+
 			values = {}
 			# There can be multiple values for the same form data key, e.g.
 			# <input type=file multiple>

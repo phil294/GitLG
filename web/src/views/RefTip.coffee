@@ -24,10 +24,15 @@ export default defineComponent
 					selected_git_action.value = action
 
 		bind: computed =>
+			is_head = props.git_ref.id == head_branch.value
 			style:
 				color: props.git_ref.color
+				border:
+					if is_head
+						"2px solid #{props.git_ref.color}"
+					else undefined
 			class:
-				'head': props.git_ref.id == head_branch.value
+				'head': is_head
 				'branch': is_branch.value
 		drag: computed =>
 			if is_branch.value then props.git_ref.id

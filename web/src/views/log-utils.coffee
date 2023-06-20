@@ -63,8 +63,8 @@ parse = (log_data, branch_data, stash_data, separator) =>
 
 	``###* @type {Commit[]} ###
 	commits = []
-	
-	vis_max_length = 0
+
+	vis_max_amount = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
 	for line, line_no in lines
 		# Example line:
@@ -105,7 +105,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 
 		``###* @type {typeof graph_chars} ###
 		vis = vis_str.trimEnd().split('')
-		vis_max_length = Math.max(vis_max_length, vis.length)
+		vis_max_amount = Math.max(vis_max_amount, vis.length)
 		if vis.some (v) => not graph_chars.includes(v)
 			throw new Error "unknown visuals syntax at line " + line_no
 		datetime =
@@ -134,16 +134,16 @@ parse = (log_data, branch_data, stash_data, separator) =>
 						branch = branch_tip
 						if ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
 							# This is branch tip but in previous above lines, this branch
-							# was already on display for merging without its actual name known (virtual substitute).
+							# may already have been on display for merging without its actual name known (virtual substitute).
 							# Fix these lines (min 1) now
 							wrong_branch = v_nw?.branch
-							if not wrong_branch then throw new Error "wrong branch missing at line " + line_no
-							k = line_no - 1
-							while (matches = commits[k]?.vis.filter (v) => v.branch == wrong_branch)?.length
-								for match from matches or []
-									match.branch = branch
-								k--
-							branches.splice branches.indexOf(wrong_branch), 1
+							if wrong_branch and wrong_branch.virtual
+								k = line_no - 1
+								while (matches = commits[k]?.vis.filter (v) => v.branch == wrong_branch)?.length
+									for match from matches or []
+										match.branch = branch
+									k--
+								branches.splice branches.indexOf(wrong_branch), 1
 							char = '⎺*'
 					else if v_n?.branch
 						branch = v_n?.branch
@@ -225,21 +225,25 @@ parse = (log_data, branch_data, stash_data, separator) =>
 
 	# cannot do this at creation because branches list is not fixed before this (see wrong_branch)
 	i = -1
-	for branch from branches
+	for branch, i in branches
 		branch.color = switch branch.name
 			when 'master', 'main' then '#ff3333'
 			when 'development', 'develop', 'dev' then '#009000'
 			when 'stage', 'staging' then '#d7d700'
 			else
-				i++
-				colors[i % (colors.length - 1)]
-	
+				if branch.name and
+						branch_with_same_name = branches.slice(0, i).find (other_branch) => other_branch.name == branch.name
+					branch_with_same_name.color
+				else
+					i++
+					colors[i % (colors.length - 1)]
+
 	branches = branches
 		.filter (branch) =>
 			# these exist in vis (with colors), but don't mention them in the listing
 			not branch.virtual
 		.sort git_ref_sort
-		.slice(0, 350)
+		.slice(0, 10000)
 
 	# stashes were queried (git reflog show stash) but shown as commits. Need to add refs:
 	for stash from (stash_data or '').split('\n')
@@ -253,6 +257,6 @@ parse = (log_data, branch_data, stash_data, separator) =>
 			type: "stash"
 			color: '#fff'
 
-	{ commits, branches, vis_max_length }
+	{ commits, branches, vis_max_amount }
 
 export { parse }
