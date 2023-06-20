@@ -27,18 +27,17 @@ log_error = (###* @type string ### e) =>
 module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	log.appendLine "extension activate"
 
-	# todo add push_message
 	post_message = (###* @type BridgeMessage ### msg) =>
 		log.appendLine "send to webview: "+JSON.stringify(msg) if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
 		webview_container?.webview.postMessage msg
-
-	on_repo_external_state_change = =>
+	push_message_id = (###* @type {string} ### id) =>
 		post_message
 			type: 'push'
-			# todo rename to distinguish more from 'state-update'
-			id: 'repo-external-state-change'
+			id: id
+
 	git = get_git EXT_ID, log,
-		on_repo_external_state_change: on_repo_external_state_change
+		on_repo_external_state_change: =>
+			push_message_id 'repo-external-state-change'
 		on_repo_names_change: =>
 			state('repo-names').set(git.get_repo_names())
 
@@ -124,9 +123,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			if event.affectsConfiguration EXT_ID
 				clearTimeout config_change_debouncer if config_change_debouncer
 				config_change_debouncer = setTimeout (=>
-					post_message
-						type: 'push'
-						id: 'config-change'
+					push_message_id 'config-change'
 				), 500
 
 		is_production = context.extensionMode == vscode.ExtensionMode.Production
