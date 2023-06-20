@@ -1,4 +1,4 @@
-import { ref, computed } from "vue"
+import { ref, computed, shallowRef } from "vue"
 import default_git_actions from './default-git-actions.json'
 import { parse } from "./log-utils.coffee"
 import { git, exchange_message, add_push_listener, get_global_state, set_global_state } from "../bridge.coffee"
@@ -21,10 +21,12 @@ import GitInputModel from './GitInput.coffee'
 #########################
 
 ``###* @template T ###
-export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value) =>
-	internal = ref await get_global_state(key)
-	if not internal.value
-		internal.value = default_value
+export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value, ###* @type {()=>any} ### on_load) =>
+	# shallow because type error https://github.com/vuejs/composition-api/issues/483
+	internal = shallowRef default_value
+	do =>
+		internal.value = await get_global_state(key)
+		on_load?()
 	computed
 		get: => internal.value
 		set: (###* @type {T} ### value) =>

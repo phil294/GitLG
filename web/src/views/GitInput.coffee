@@ -9,6 +9,7 @@ import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMoun
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
+###* @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef ###
 
 ``###*
 # @param actions {ConfigGitAction[]}
@@ -50,20 +51,7 @@ export default defineComponent
 	# `params` is never saved and user-edited only.
 	###
 	setup: (props, { emit }) ->
-		# typing doesn't work https://github.com/vuejs/composition-api/issues/402
-		### @type {Ref<InstanceType<import('../components/PromiseForm.vue')>|null>} ###
-		# so we need the ts-ignore below. TODO
-		ref_form = ref null
-		onMounted =>
-			if props.git_action.immediate
-				# @ts-ignore
-				await ref_form.value?.request_submit()
-			if params_input_refs.value.length
-				params_input_refs.value[0].focus()
-			else
-				command_input_ref.value?.focus()
-
-		``###* @type {GitOption[]} ###
+		###* @type {GitOption[]} ###
 		options = reactive (props.git_action.options or []).map (option) => {
 			...option
 			active: option.default_active
@@ -79,18 +67,18 @@ export default defineComponent
 			to_cli options
 		command = ref ''
 		config_key = "git input config " + props.git_action.config_key
-
 		``###* @type {{ options: GitOption[], command: string } | null} ###
 		default_config = { options: [], command: '' }
-
-		config = await stateful_computed(config_key, default_config)
-
+		``###* @type {WritableComputedRef<typeof default_config>} ###
+		config = null
+		config_load_promise = new Promise (loaded) =>
+			config = stateful_computed(config_key, default_config, loaded)
 		is_saved = computed =>
-			!! config.value.command
+			!! config.value?.command
 		has_unsaved_changes = computed =>
-			config.value.command != command.value
+			config.value?.command != command.value
 		watchEffect =>
-			if config.value.command
+			if is_saved.value
 				for option from options
 					saved = config.value.options.find (o) =>
 						o.value == option.value
@@ -115,6 +103,11 @@ export default defineComponent
 		params_input_refs = ref []
 		``###* @type {Ref<HTMLInputElement|null>} ###
 		command_input_ref = ref null
+		onMounted =>
+			if params_input_refs.value.length
+				params_input_refs.value[0].focus()
+			else
+				command_input_ref.value?.focus()
 
 		data = ref ''
 		error = ref ''
@@ -149,6 +142,17 @@ export default defineComponent
 			if not props.hide_result
 				data.value = result
 			emit 'success', result
+
+		# typing doesn't work https://github.com/vuejs/composition-api/issues/402
+		### @type {Ref<InstanceType<import('../components/PromiseForm.vue')>|null>} ###
+		# so we need the ts-ignore below. TODO
+		ref_form = ref null
+		onMounted =>
+			await config_load_promise
+			if props.git_action.immediate
+				# @ts-ignore
+				await ref_form.value?.request_submit()
+
 		{
 			command
 			options

@@ -28,8 +28,8 @@ import file_extension_icon_path_mapping from './file-extension-icon-path-mapping
 # in this case by just copying the path from the last <script/> tag:
 base_url = (document.body.lastElementChild?.attributes.getNamedItem('src')?.value.match(/^(.+)\/js\/.+/)?[1] or '') + '/'
 
-``###* @type {Promise<WritableComputedRef<'list'|'tree'>>} ###
-render_style_promise = stateful_computed 'files-diffs-list-render-style', 'list'
+``###* @type {WritableComputedRef<'list'|'tree'>} ###
+render_style = stateful_computed 'files-diffs-list-render-style', 'list'
 
 [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate()
 [TemplateFileActionsDefine, TemplateFileActionsReuse] = createReusableTemplate()
@@ -44,7 +44,6 @@ export default defineComponent
 			type: Array
 			required: true
 	setup: (props) ->
-		render_style = await render_style_promise
 		files = computed =>
 			props.files.map (file) =>
 				# Even on Windows, the delimiter of git paths output is forward slash
