@@ -48,7 +48,7 @@
 							div.vis.vis-v :style="commit.branch? {color:commit.branch.color} : undefined"
 								| ●
 							.subject  {{ commit.subject }}
-						.author.flex-noshrink :title="commit.author_email"
+						.author.flex-noshrink :title="commit.author_name+' <'+commit.author_email+'>'"
 							| {{ commit.author_name }}
 						.stats.flex-noshrink.row.align-center.justify-flex-end.gap-5
 							.changes v-if="commit.stats" title="Changed lines in amount of files"
