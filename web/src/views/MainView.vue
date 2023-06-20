@@ -200,8 +200,10 @@ details.config
 					color grey
 				> .datetime
 					font-size 12px
+				> .author
+					max-width 150px
 				.stats
-					width 93px
+					width 91px
 			&.merge .subject
 				color grey
 
