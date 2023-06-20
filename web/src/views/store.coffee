@@ -140,7 +140,7 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 export vis_v_width = computed =>
 	if not config.value['branch-width'] or not Number(config.value['branch-width'])
 		# Linear drop from 10 to 2
-		Math.max(2, Math.min(10, Math.round(vis_max_amount.value * (-1) * 8 / 50 + 18)))
+		Math.max(1, Math.min(10, Math.round(vis_max_amount.value * (-1) * 8 / 50 + 18)))
 	else
 		Number(config.value['branch-width'])
 
