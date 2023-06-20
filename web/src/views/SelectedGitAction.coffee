@@ -10,12 +10,10 @@ export default defineComponent
 		success = =>
 			if not keep_open.value
 				selected_git_action.value = null
-		executed = =>
-			refresh_main_view()
 
 		{
 			keep_open
 			success
-			executed
+			refresh_main_view
 			selected_git_action
 		}

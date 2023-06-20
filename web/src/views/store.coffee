@@ -1,7 +1,7 @@
 import { ref, computed, shallowRef } from "vue"
 import default_git_actions from './default-git-actions.json'
 import { parse } from "./log-utils.coffee"
-import { git, exchange_message, add_push_listener, get_global_state, set_global_state } from "../bridge.coffee"
+import { git, exchange_message, add_push_listener } from "../bridge.coffee"
 import { parse_config_actions } from "./GitInput.coffee"
 import GitInputModel from './GitInput.coffee'
 ``###*
@@ -14,24 +14,41 @@ import GitInputModel from './GitInput.coffee'
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
+###* @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef ###
 
 #########################
 # This file should be used for state that is of importance for more than just one component.
 # It encompasses state, actions and getters (computed values).
 #########################
 
-``###* @template T ###
+``###* @type {Record<string, WritableComputedRef<any>>} ###
+_stateful_computeds = {}
+add_push_listener 'state-update', ({ data: { key, value } }) =>
+	if _stateful_computeds[key]
+		_stateful_computeds[key].value = value
+``###* @template T
+# This utility returns a `WritableComputed` that will persist its state or react to changes on the
+# backend somehow. The caller doesn't know where it's stored though, this is up to extension.coffee
+# to decide based on the *key*.
+###
 export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value, ###* @type {()=>any} ### on_load) =>
+	return _stateful_computeds[key] if _stateful_computeds[key]
 	# shallow because type error https://github.com/vuejs/composition-api/issues/483
 	internal = shallowRef default_value
-	do =>
-		internal.value = await get_global_state(key)
-		on_load?()
-	computed
+	ret = computed
 		get: => internal.value
 		set: (###* @type {T} ### value) =>
+			if internal.value != value
+				exchange_message 'set-state', { key, value }
 			internal.value = value
-			set_global_state(key, value)
+	_stateful_computeds[key] = ret
+	do =>
+		stored = await exchange_message 'get-state', key
+		if stored?
+			internal.value = stored # to skip the unnecessary roundtrip to backend
+			ret.value = stored
+		on_load?()
+	ret
 
 ``###* @type {Ref<Commit[]|null>} ###
 export commits = ref null
@@ -97,9 +114,6 @@ export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 ``###* @type {Ref<GitAction|null>} ###
 export selected_git_action = ref null
 
-###* @type {Ref<string[]>} ###
-export repo_names = ref []
-
 ``###* @type {Ref<any>} ###
 export config = ref {}
 export refresh_config = =>
@@ -148,10 +162,6 @@ export vis_v_width = computed =>
 
 export init = =>
 	refresh_config()
-
-	repo_names.value = await exchange_message 'get-repo-names'
-	add_push_listener 'repo-names-change', ({ data: names }) =>
-		repo_names.value = names
 
 	add_push_listener 'config-change', =>
 		await refresh_config()
