@@ -29,6 +29,7 @@ export default
 			if selected_commits.value.length == 1
 				selected_commits.value[0]
 		commit_clicked = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
+			return if not commit.hash
 			selected_index = selected_commits.value.indexOf commit
 			if event.ctrlKey
 				if selected_index > -1
