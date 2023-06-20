@@ -44,8 +44,6 @@
 				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash,merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
 					component.vis :is="visualization_component" :commit="commit" :vis_max_amount="vis_max_amount"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
-						button
-							.hash.flex-noshrink {{ commit.hash }}
 						.subject-wrapper.flex-1.row.align-center
 							div.vis.vis-v :style="commit.branch? {color:commit.branch.color} : undefined"
 								| ●
@@ -59,6 +57,8 @@
 								span.grey {{ commit.stats.files_changed }}
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
+						button
+							.hash.flex-noshrink {{ commit.hash }}
 		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
 			suspense
 				template v-slot:fallback=""
