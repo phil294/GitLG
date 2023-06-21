@@ -17,14 +17,20 @@ import RepoSelection from './RepoSelection.vue'
 # @typedef {import('./types').Commit} Commit
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
-###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 
 export default
 	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, SVGVisualization, ASCIIVisualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
 	setup: ->
-		#
-		###* @type {Ref<Commit[]>} ###
-		selected_commits = ref []
+		``###* @type {string[]} ###
+		default_selected_commits_hashes = []
+		selected_commits_hashes = store.stateful_computed 'selected-commits-hashes', default_selected_commits_hashes
+		selected_commits = computed
+			get: =>
+				selected_commits_hashes.value
+					.map (hash) => filtered_commits.value.find (commit) => commit.hash == hash
+					.filter is_truthy
+			set: (commits) =>
+				selected_commits_hashes.value = commits.map (commit) => commit.hash
 		selected_commit = computed =>
 			if selected_commits.value.length == 1
 				selected_commits.value[0]
@@ -141,18 +147,25 @@ export default
 			]
 			config_key: "main-log"
 			immediate: true
+		is_first_log_run = true
 		### Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
 		This function exists so we can modify the args before sending to git, otherwise
 		GitInput would have done the git call ###
 		run_log = (###* @type string ### log_args) =>
 			await store.git_run_log(log_args)
-			if selected_commit.value
-				new_commit = filtered_commits.value.find (commit) =>
-					commit.hash == selected_commit.value?.hash
-				if new_commit
-					selected_commits.value = [new_commit]
 			await new Promise (ok) => setTimeout(ok, 0)
-			commits_scroller_ref.value?.scrollToItem scroll_item_offset
+			if is_first_log_run
+				first_selected_hash = selected_commits.value[0]?.hash
+				if first_selected_hash
+					scroll_to_commit first_selected_hash
+				is_first_log_run = false
+			else
+				if selected_commit.value
+					new_commit = filtered_commits.value.find (commit) =>
+						commit.hash == selected_commit.value?.hash
+					if new_commit
+						selected_commits.value = [new_commit]
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset
 
 
 

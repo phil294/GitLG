@@ -41,13 +41,15 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		on_repo_names_change: =>
 			state('repo-names').set(git.get_repo_names())
 
+	# something to be synchronized with the web view - initialization, storage,
+	# update and retrieval is supported in both directions
 	state = do =>
 		global_state_memento = (###* @type string ### key) =>
 			get: => context.globalState.get(key)
 			set: (###* @type any ### v) => context.globalState.update(key, v)
-		# workspace_state_memento = (###* @type string ### key) =>
-		# 	get: => context.workspaceState.get(key)
-		# 	set: (###* @type any ### v) => context.workspaceState.update(key, v)
+		workspace_state_memento = (###* @type string ### key) =>
+			get: => context.workspaceState.get(key)
+			set: (###* @type any ### v) => context.workspaceState.update(key, v)
 		``###* @type {Record<string, {get:()=>any,set:(value:any)=>any}>} ###
 		kv =
 			'selected-repo-index':
@@ -58,7 +60,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			'repo-names':
 				get: => git.get_repo_names()
 				set: =>
-			# 'abc': global_state_memento('def')
+			'selected-commits-hashes': workspace_state_memento('selected-commits-hashes')
 		default_memento = global_state_memento
 		(###* @type string ### key) =>
 			memento = kv[key] or default_memento(key)
