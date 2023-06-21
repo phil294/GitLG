@@ -173,8 +173,10 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			(try await git.run "show \"#{uri.path}\"") or ''
 
 	# General start, will choose from creating/show editor panel or showing side nav view depending on config
-	context.subscriptions.push vscode.commands.registerCommand START_CMD, =>
+	context.subscriptions.push vscode.commands.registerCommand START_CMD, (args) =>
 		log.appendLine "start command"
+		if args?.handle? # invoked via menu scm/title
+			state('selected-repo-index').set(args.handle)
 		if vscode.workspace.getConfiguration(EXT_ID).get('position') == "editor"
 			if webview_container
 				# Repeated editor panel show
