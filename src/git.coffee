@@ -84,7 +84,10 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 			cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
 			if not cwd
 				repo = api.repositories[selected_repo_index]
-				throw 'No repository found/selected' if not repo
+				if not repo and selected_repo_index > 0
+					selected_repo_index = 0
+					repo = api.repositories[selected_repo_index]
+					throw 'No repository found' if not repo
 				cwd = repo.rootUri.fsPath
 			{ stdout, stderr: _ } = await exec 'git ' + args,
 				cwd: cwd

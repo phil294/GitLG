@@ -41,10 +41,6 @@ export show_information_message = (###* @type string ### msg) =>
 	exchange_message 'show-information-message', msg
 export show_error_message = (###* @type string ### msg) =>
 	exchange_message 'show-error-message', msg
-export get_global_state = (###* @type string ### key) =>
-	exchange_message 'get-global-state', key
-export set_global_state = (###* @type string ### key, ###* @type any ### value) =>
-	exchange_message 'set-global-state', { key, value }
 
 export add_push_listener = (###* @type string ### id, ###* @type {(r: BridgeMessage) => void} ### handler) =>
 	push_handlers[id] = handler

@@ -14,6 +14,7 @@ START_CMD = 'git-log--graph.start'
 ``###* @type {vscode.WebviewPanel | vscode.WebviewView | null} ###
 webview_container = null
 
+# todo proper log with timestamps like e.g. git or extension host
 log = vscode.window.createOutputChannel EXT_NAME
 module.exports.log = log
 log_error = (###* @type string ### e) =>
@@ -29,18 +30,47 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	post_message = (###* @type BridgeMessage ### msg) =>
 		log.appendLine "send to webview: "+JSON.stringify(msg) if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
 		webview_container?.webview.postMessage msg
+	push_message_id = (###* @type {string} ### id) =>
+		post_message
+			type: 'push'
+			id: id
 
 	git = get_git EXT_ID, log,
 		on_repo_external_state_change: =>
-			post_message
-				type: 'push'
-				id: 'repo-external-state-change'
+			push_message_id 'repo-external-state-change'
 		on_repo_names_change: =>
-			post_message
-				type: 'push'
-				id: 'repo-names-change'
-				data: git.get_repo_names()
-	git.set_selected_repo_index(context.workspaceState.get('selected_repo_index') or 0)
+			state('repo-names').set(git.get_repo_names())
+
+	state = do =>
+		global_state_memento = (###* @type string ### key) =>
+			get: => context.globalState.get(key)
+			set: (###* @type any ### v) => context.globalState.update(key, v)
+		# workspace_state_memento = (###* @type string ### key) =>
+		# 	get: => context.workspaceState.get(key)
+		# 	set: (###* @type any ### v) => context.workspaceState.update(key, v)
+		``###* @type {Record<string, {get:()=>any,set:(value:any)=>any}>} ###
+		kv =
+			'selected-repo-index':
+				get: => context.workspaceState.get('selected-repo-index')
+				set: (v) =>
+					context.workspaceState.update('selected-repo-index', v)
+					git.set_selected_repo_index(Number(v) or 0)
+			'repo-names':
+				get: => git.get_repo_names()
+				set: =>
+			# 'abc': global_state_memento('def')
+		default_memento = global_state_memento
+		(###* @type string ### key) =>
+			memento = kv[key] or default_memento(key)
+			get: memento.get
+			set: (###* @type any ### value, ###* @type {{broadcast?:boolean}} ### options = {}) =>
+				memento.set(value)
+				if options.broadcast != false
+					post_message
+						type: 'push'
+						id: 'state-update'
+						data: { key, value }
+				undefined
 
 	populate_webview = =>
 		return if not webview_container
@@ -48,7 +78,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		view.options = { enableScripts: true, localResourceRoots: [ vscode.Uri.joinPath(context.extensionUri, 'web-dist') ] }
 
 		view.onDidReceiveMessage (###* @type BridgeMessage ### message) =>
-			log.appendLine "receive from webview: "+JSON.stringify(message)  if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
+			log.appendLine "receive from webview: "+JSON.stringify(message) if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
 			d = message.data
 			h = (###* @type {() => any} ### func) =>
 				``###* @type BridgeMessage ###
@@ -69,14 +99,12 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							log_error d
 						when 'show-information-message' then h =>
 							vscode.window.showInformationMessage d
-						when 'get-global-state' then h =>
-							context.globalState.get d
-						when 'set-global-state' then h =>
-							context.globalState.update d.key, d.value
-						when 'get-workspace-state' then h =>
-							context.workspaceState.get d
-						when 'set-workspace-state' then h =>
-							context.workspaceState.update d.key, d.value
+						when 'get-config' then h =>
+							vscode.workspace.getConfiguration(EXT_ID)
+						when 'get-state' then h =>
+							state(d).get()
+						when 'set-state' then h =>
+							state(d.key).set(d.value, broadcast: false)
 						when 'open-diff' then h =>
 							uri_1 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[0]}:#{d.filename}"
 							uri_2 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[1]}:#{d.filename}"
@@ -88,16 +116,6 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							workspace = vscode.workspace.workspaceFolders[git.get_selected_repo_index()].uri.fsPath
 							uri = vscode.Uri.file path.join workspace, d.filename
 							vscode.commands.executeCommand 'vscode.open', uri
-						when 'get-config' then h =>
-							vscode.workspace.getConfiguration(EXT_ID)
-						when 'get-repo-names' then h =>
-							git.get_repo_names()
-						when 'set-selected-repo-index' then h =>
-							index = Number(d) or 0
-							context.workspaceState.update 'selected_repo_index', index
-							git.set_selected_repo_index(index)
-						when 'get-selected-repo-index' then h =>
-							git.get_selected_repo_index()
 
 		``###* @type {NodeJS.Timeout|null} ###
 		config_change_debouncer = null
@@ -105,9 +123,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			if event.affectsConfiguration EXT_ID
 				clearTimeout config_change_debouncer if config_change_debouncer
 				config_change_debouncer = setTimeout (=>
-					post_message
-						type: 'push'
-						id: 'config-change'
+					push_message_id 'config-change'
 				), 500
 
 		is_production = context.extensionMode == vscode.ExtensionMode.Production
@@ -157,8 +173,10 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			(try await git.run "show \"#{uri.path}\"") or ''
 
 	# General start, will choose from creating/show editor panel or showing side nav view depending on config
-	context.subscriptions.push vscode.commands.registerCommand START_CMD, =>
+	context.subscriptions.push vscode.commands.registerCommand START_CMD, (args) =>
 		log.appendLine "start command"
+		if args?.handle? # invoked via menu scm/title
+			state('selected-repo-index').set(args.handle)
 		if vscode.workspace.getConfiguration(EXT_ID).get('position') == "editor"
 			if webview_container
 				# Repeated editor panel show
@@ -206,7 +224,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	status_bar_item.show()
 
 	# public api of this extension:
-	{ git, post_message, webview_container, context }
+	{ git, post_message, webview_container, context, state }
 
 module.exports.deactivate = =>
 	log.appendLine("extension deactivate")

@@ -7,10 +7,7 @@
 	details.padding v-if="selected_git_action.info"
 		summary {{ selected_git_action.info }}
 		| {{ selected_git_action.info }}
-	suspense
-		git-input :git_action="selected_git_action" @success="success()" @executed="executed()"
-		template v-slot:fallback=""
-			| Loading command config...
+	git-input :git_action="selected_git_action" @success="success()" @executed="refresh_main_view()"
 	br
 	label.row.align-center.gap-5
 		input type="checkbox" v-model="keep_open"
