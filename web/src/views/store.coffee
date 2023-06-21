@@ -32,7 +32,9 @@ add_push_listener 'state-update', ({ data: { key, value } }) =>
 # to decide based on the *key*.
 ###
 export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value, ###* @type {()=>any} ### on_load) =>
-	return _stateful_computeds[key] if _stateful_computeds[key]
+	``###* @type {WritableComputedRef<T>|undefined} ###
+	ret = _stateful_computeds[key]
+	return ret if ret
 	# shallow because type error https://github.com/vuejs/composition-api/issues/483
 	internal = shallowRef default_value
 	ret = computed
