@@ -179,6 +179,27 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.9 2023-06-21
+
+- [`59c407f`](https://github.com/phil294/git-log--graph/commit/59c407f) Add git blame functionality. Shown in three places: status bar, as a new command, and as context menu in editor. Will open up the result of git blame on the currently selected line. (#40)
+- [`6dfe584`](https://github.com/phil294/git-log--graph/commit/6dfe584) [`2179e1f`](https://github.com/phil294/git-log--graph/commit/2179e1f) Add new icon to open graph view from SCM view. Thanks to @lens0021
+- [`17bc0d7`](https://github.com/phil294/git-log--graph/commit/17bc0d7) Add `"git-log--graph.hide-sidebar-buttons": true` (#2)
+- [`79eb04c`](https://github.com/phil294/git-log--graph/commit/79eb04c) Make the styling for currently checked out branch a bit more subtle (#28)
+- [`1d59395`](https://github.com/phil294/git-log--graph/commit/1d59395) Move commit hash to the very end (#22)
+- [`8abde36`](https://github.com/phil294/git-log--graph/commit/8abde36) Add small "scroll to top" button (#36)
+- [`355b12e`](https://github.com/phil294/git-log--graph/commit/355b12e) Show parent commits at bottom of commit details (#39)
+- [`ad04152`](https://github.com/phil294/git-log--graph/commit/ad04152) Remember selected commit(s) from last time and re-focus on startup, and scroll to first selected commit automatically
+- [`ac40792`](https://github.com/phil294/git-log--graph/commit/ac40792) Fix popup close button (#30)
+- [`aba640f`](https://github.com/phil294/git-log--graph/commit/aba640f) Reduce width of branches by 50% for very large repositories (many branches) (#22)
+- [`c3cb6f3`](https://github.com/phil294/git-log--graph/commit/c3cb6f3) Add options `--no-ff` and `--squash` to branch drop merge action
+- [`e611d4b`](https://github.com/phil294/git-log--graph/commit/e611d4b) Fix rare case of missing branch tips (#22)
+- [`11a4674`](https://github.com/phil294/git-log--graph/commit/11a4674) Add a generous max-width to author field for cases where author name is insanely long (#22)
+- [`a5c2e5a`](https://github.com/phil294/git-log--graph/commit/a5c2e5a) Improve author tooltip to show both name and email
+- [`852315c`](https://github.com/phil294/git-log--graph/commit/852315c) Ignore clicks on filler rows (#22)
+- [`056f249`](https://github.com/phil294/git-log--graph/commit/056f249) Fix "merge branch commits" option. Didn't consider GH PRs
+- [`22aee98`](https://github.com/phil294/git-log--graph/commit/22aee98) For automatic scroll actions, scroll to middle instead of top
+- [`08d5c84`](https://github.com/phil294/git-log--graph/commit/08d5c84) Fix rare error after removing a folder from workspace
+
 ### v0.1.8 2023-06-13
 
 
