@@ -7,7 +7,8 @@
 				header
 					div.titlebar.center v-moveable="{move_target}"
 						| ⠿⠿⠿⠿⠿
-					button.close @click="close" type="button" 🗙
+					button.close @click="close" type="button"
+						i.codicon.codicon-close
 				.popup-content
 					slot
 </template>
@@ -62,7 +63,7 @@ export default
 .close
 	position absolute
 	top 0
-	right 1.5vmax
+	right 1.3vmax
 	font-family revert
 .popup-content
 	padding 0 2vmax 3vmax
