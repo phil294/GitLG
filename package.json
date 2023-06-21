@@ -31,6 +31,12 @@
 				"title": "Open graph view",
 				"category": "git log --graph",
 				"icon": "$(git-branch)"
+			},
+			{
+				"command": "git-log--graph.blame-line",
+				"title": "Blame: Focus last commit at cursor position in graph view",
+				"category": "git log --graph",
+				"icon": "$(git-commit)"
 			}
 		],
 		"views": {
@@ -48,6 +54,12 @@
 					"when": "scmProvider == git",
 					"command": "git-log--graph.start",
 					"group": "navigation"
+				}
+			],
+			"editor/context": [
+				{
+					"command": "git-log--graph.blame-line",
+					"group": "1_git-log--graph"
 				}
 			]
 		},
@@ -509,6 +521,7 @@
 		"esbuild": "^0.17.18"
 	},
 	"dependencies": {
+		"@yaireo/relative-time": "1.0.3",
 		"postcss": "^8.4.24",
 		"postcss-sanitize": "^0.0.9"
 	}

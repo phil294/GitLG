@@ -127,6 +127,11 @@
   resolved "https://registry.yarnpkg.com/@types/vscode/-/vscode-1.79.1.tgz#ab568315f9c844a8f4fa8f168b2d6dbf1f58dd02"
   integrity sha512-Ikwc4YbHABzqthrWfeAvItaAIfX9mdjMWxqNgTpGjhgOu0TMRq9LzyZ2yBK0JhYqoSjEubEPawf6zJgnl6Egtw==
 
+"@yaireo/relative-time@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@yaireo/relative-time/-/relative-time-1.0.3.tgz#e99a16fd83b4d411d7ebcf21901e83dd98ba5d97"
+  integrity sha512-CJGxyWjb4SnkqubyfiPNQeg0YrJKnVu+11DOP65ltXFxDsjjnm3IByXS9O1Ny9AU9Oxqg0a7Gt26tzXtcijicg==
+
 coffeescript@^2.7.0:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/coffeescript/-/coffeescript-2.7.0.tgz#a43ec03be6885d6d1454850ea70b9409c391279c"

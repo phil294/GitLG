@@ -2,6 +2,8 @@ vscode = require 'vscode'
 path = require 'path'
 postcss = require 'postcss'
 postcss_sanitize = require 'postcss-sanitize'
+RelativeTime = require '@yaireo/relative-time'
+relative_time = new RelativeTime
 
 { get_git } = require './git'
 
@@ -10,6 +12,7 @@ postcss_sanitize = require 'postcss-sanitize'
 EXT_NAME = 'git log --graph'
 EXT_ID = 'git-log--graph'
 START_CMD = 'git-log--graph.start'
+BLAME_CMD = 'git-log--graph.blame-line'
 
 ``###* @type {vscode.WebviewPanel | vscode.WebviewView | null} ###
 webview_container = null
@@ -224,6 +227,49 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	status_bar_item.text = "$(git-branch) Git Log"
 	status_bar_item.tooltip = "Open up the main view of the git-log--graph extension"
 	status_bar_item.show()
+
+	status_bar_item_blame = vscode.window.createStatusBarItem vscode.StatusBarAlignment.Right, 500
+	status_bar_item_blame.command = BLAME_CMD
+	context.subscriptions.push status_bar_item_blame
+	status_bar_item_blame.text = ""
+	status_bar_item_blame.tooltip = "Show and focus this commit in the main view of the git-log--graph extension"
+	status_bar_item_blame.show()
+
+	current_line = -1
+	current_line_repo_index = -1
+	current_line_long_hash = ''
+	``###* @type {NodeJS.Timeout|null} ###
+	line_change_debouncer = null
+	hide_blame = =>
+		clearTimeout line_change_debouncer if line_change_debouncer
+		current_line_long_hash = ''
+		status_bar_item_blame.text = ""
+	vscode.workspace.onDidCloseTextDocument hide_blame
+	vscode.window.onDidChangeActiveTextEditor hide_blame
+	vscode.window.onDidChangeTextEditorSelection ({ textEditor: text_editor }) =>
+		uri = text_editor.document.uri
+		return if text_editor.selection.active.line == current_line
+		current_line = text_editor.selection.active.line
+		clearTimeout line_change_debouncer if line_change_debouncer
+		line_change_debouncer = setTimeout (=>
+			current_line_repo_index = git.get_repo_index_for_uri uri
+			return hide_blame() if current_line_repo_index < 0
+			blamed = try (await git.run "blame -L#{current_line},#{current_line} --porcelain -- #{uri.fsPath}", current_line_repo_index).split('\n')
+			return hide_blame() if not blamed
+			# apparently impossible to get the short form right away in easy machine readable format?
+			current_line_long_hash = blamed[0].slice(0, 40)
+			author = blamed[1].slice(7)
+			time = relative_time.from(blamed[3].slice(12)*1000)
+			status_bar_item_blame.text = "$(git-commit) #{author}, #{time}"
+		), 150
+	context.subscriptions.push vscode.commands.registerCommand BLAME_CMD, =>
+		log.appendLine 'blame cmd'
+		return if not current_line_long_hash
+		state('selected-repo-index').set(current_line_repo_index)
+		focus_commit_hash = (await git.run "rev-parse --short #{current_line_long_hash}").trim() # todo error here goes unnoticed
+		current_line_long_hash = ''
+		state('selected-commits-hashes').set([focus_commit_hash])
+		vscode.commands.executeCommand(START_CMD)
 
 	# public api of this extension:
 	{ git, post_message, webview_container, context, state }

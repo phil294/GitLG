@@ -1,6 +1,6 @@
 vscode = require 'vscode'
 util = require('util')
-{ basename } = require('path')
+{ basename, relative, isAbsolute } = require('path')
 exec = util.promisify(require('child_process').exec)
 
 ``###*
@@ -80,13 +80,14 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 	{
 		get_repo_names: =>
 			api.repositories.map (f) => basename f.rootUri.path
-		run: (###* @type string ### args) =>
+		run: (###* @type string ### args, ###* @type {number|undefined} ### repo_index) =>
+			repo_index ?= selected_repo_index
 			cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
 			if not cwd
-				repo = api.repositories[selected_repo_index]
-				if not repo and selected_repo_index > 0
-					selected_repo_index = 0
-					repo = api.repositories[selected_repo_index]
+				repo = api.repositories[repo_index]
+				if not repo and repo_index > 0
+					repo_index = 0
+					repo = api.repositories[repo_index]
 					throw 'No repository found' if not repo
 				cwd = repo.rootUri.fsPath
 			{ stdout, stderr: _ } = await exec 'git ' + args,
@@ -100,4 +101,11 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 			log.appendLine "set selected repo index "+index
 			selected_repo_index = index
 		get_selected_repo_index: => selected_repo_index
+		get_repo_index_for_uri: (###* @type vscode.Uri ### uri) =>
+			for repo, index in api.repositories
+				rel = relative repo.rootUri.path, uri.path
+				# if repo includes uri: stackoverflow.com/q/37521893
+				if rel and not rel.startsWith('..') and not isAbsolute(rel)
+					return index
+			-1
 	}
