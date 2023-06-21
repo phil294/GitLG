@@ -63,6 +63,16 @@
 					"value": "--no-commit",
 					"default_active": false,
 					"info": "Perform the merge and stop just before creating a merge commit, to give the user a chance to inspect and further tweak the merge result before committing.\n\nNote that fast-forward updates do not create a merge commit and therefore there is no way to stop those merges with `--no-commit`. Thus, if you want to ensure your branch is not changed or updated by the merge command, use --no-ff with --no-commit."
+				},
+				{
+					"value": "--no-ff",
+					"default_active": false,
+					"info": "Specifies how a merge is handled when the merged-in history is already a descendant of the current history.  --ff is the default unless merging an annotated (and possibly signed) tag that is not stored in its natural place in the refs/tags/ hierarchy, in which case --no-ff is assumed.\n\nWith --ff, when possible resolve the merge as a fast-forward (only update the branch pointer to match the merged branch; do not create a merge commit). When not possible (when the merged-in history is not a descendant of the current history), create a merge commit.\n\nWith --no-ff, create a merge commit in all cases, even when the merge could instead be resolved as a fast-forward.\n\nWith --ff-only, resolve the merge as a fast-forward when possible. When not possible, refuse to merge and exit with a non-zero status."
+				},
+				{
+					"value": "--squash",
+					"default_active": false,
+					"info": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
 				}
 			]
 		},
