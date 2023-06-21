@@ -58,7 +58,7 @@ export default
 			if selected_commit.value
 				selected_i = filtered_commits.value.findIndex (c) => c == selected_commit.value
 				await nextTick()
-				commits_scroller_ref.value?.scrollToItem selected_i - Math.floor(visible_commits.value.length / 2) + 2
+				scroll_to_item_centered selected_i
 		``###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
@@ -90,7 +90,7 @@ export default
 					next_match_index = txt_filter_last_i + 1 + next
 				else
 					next_match_index = 0
-			commits_scroller_ref.value?.scrollToItem next_match_index - Math.floor(visible_commits.value.length / 2) + 2
+			scroll_to_item_centered next_match_index
 			txt_filter_last_i = next_match_index
 			window.clearTimeout select_searched_commit_debouncer
 			select_searched_commit_debouncer = window.setTimeout (=>
@@ -105,7 +105,7 @@ export default
 				commit.refs.some (ref) => ref.id == branch_id
 			if first_branch_commit_i == -1
 				return show_error_message "No commit found for branch #{branch_id}. Not enough commits loaded?"
-			commits_scroller_ref.value?.scrollToItem first_branch_commit_i
+			scroll_to_item_centered first_branch_commit_i
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
 			selected_commits.value = [filtered_commits.value[first_branch_commit_i]]
@@ -114,7 +114,7 @@ export default
 				commit.hash == hash
 			if commit_i == -1
 				return show_error_message "No commit found for hash #{hash}. No idea why :/"
-			commits_scroller_ref.value?.scrollToItem commit_i
+			scroll_to_item_centered commit_i
 			selected_commits.value = [filtered_commits.value[commit_i]]
 		scroll_to_top = =>
 			commits_scroller_ref.value?.scrollToItem 0
@@ -178,6 +178,8 @@ export default
 			else if event.key == 'ArrowUp'
 				event.preventDefault()
 				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
+		scroll_to_item_centered = (###* @type number ### index) =>
+			commits_scroller_ref.value?.scrollToItem index - Math.floor(visible_commits.value.length / 2) + 2
 
 
 
