@@ -35,6 +35,8 @@
 					| Status: {{ git_status }}
 				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.id)" title="Jump to branch tip" v-bind="branch_elem.bind"
 					ref-tip :git_ref="branch_elem.branch"
+				button#jump-to-top @click="scroll_to_top()" title="Scroll to top"
+					i.codicon.codicon-arrow-circle-up
 			#branches-connection v-if="config_show_quick_branch_tips"
 				component.vis :is="visualization_component" v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_amount="vis_max_amount"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
@@ -145,6 +147,10 @@ details.config
 			background #161616dd
 			box-shadow 0 0 5px 2px #161616dd
 			border-radius 5px
+		> #jump-to-top
+			right -2px
+			top 96px
+			color #555555
 	#log.scroller
 		&:focus
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here

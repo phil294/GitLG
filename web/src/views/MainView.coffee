@@ -115,6 +115,8 @@ export default
 			if commit_i == -1
 				return show_error_message "No commit found for hash #{hash}. No idea why :/"
 			commits_scroller_ref.value?.scrollToItem commit_i
+		scroll_to_top = =>
+			commits_scroller_ref.value?.scrollToItem 0
 
 
 
@@ -304,6 +306,7 @@ export default
 			commits_scroller_ref
 			scroll_to_branch_tip
 			scroll_to_commit
+			scroll_to_top
 			selected_commit
 			selected_commits
 			commit_clicked
