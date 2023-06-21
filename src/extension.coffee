@@ -221,12 +221,12 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			populate_webview()
 		}, { webviewOptions: retainContextWhenHidden: true }
 
-	status_bar_item = vscode.window.createStatusBarItem vscode.StatusBarAlignment.Left
-	status_bar_item.command = START_CMD
-	context.subscriptions.push status_bar_item
-	status_bar_item.text = "$(git-branch) Git Log"
-	status_bar_item.tooltip = "Open up the main view of the git-log--graph extension"
-	status_bar_item.show()
+	status_bar_item_command = vscode.window.createStatusBarItem vscode.StatusBarAlignment.Left
+	status_bar_item_command.command = START_CMD
+	context.subscriptions.push status_bar_item_command
+	status_bar_item_command.text = "$(git-branch) Git Log"
+	status_bar_item_command.tooltip = "Open up the main view of the git-log--graph extension"
+	status_bar_item_command.show()
 
 	status_bar_item_blame = vscode.window.createStatusBarItem vscode.StatusBarAlignment.Right, 500
 	status_bar_item_blame.command = BLAME_CMD
