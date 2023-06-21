@@ -7,7 +7,6 @@
 		button v-if="render_style==='tree'" @click="render_style='list'" title="View as list"
 			i.codicon.codicon-list-tree
 		button v-else="" @click="render_style='tree'" title="View as tree"
-			/ somehow slighly different icon than vscode scm view even though the name is identical?
 			i.codicon.codicon-list-flat
 
 	template-file-change-define v-slot="{ file }"

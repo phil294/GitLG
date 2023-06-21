@@ -1535,10 +1535,10 @@
   dependencies:
     "@types/node" "*"
 
-"@vscode/codicons@^0.0.20":
-  version "0.0.20"
-  resolved "https://registry.yarnpkg.com/@vscode/codicons/-/codicons-0.0.20.tgz#8f52b8caf3b89fbb66bb3cd856c723e7696d5a46"
-  integrity sha512-LlO6K7nzrIWDCZN1Zi6J6ibxrpMibSAct+zNjAwpkNkwup6cJLx5diYvsOJODMPWOuQlBO21qkxtdkSRzW6+Jw==
+"@vscode/codicons@^0.0.33":
+  version "0.0.33"
+  resolved "https://registry.yarnpkg.com/@vscode/codicons/-/codicons-0.0.33.tgz#a56243ab5492801fff04e53c0aab0d18a6521751"
+  integrity sha512-VdgpnD75swH9hpXjd34VBgQ2w2quK63WljodlUcOoJDPKiV+rPjHrcUc2sjLCNKxhl6oKqmsZgwOWcDAY2GKKQ==
 
 "@vue/cli-overlay@^5.0.8":
   version "5.0.8"
