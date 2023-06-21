@@ -37,6 +37,8 @@ export default defineComponent
 		``###* @type {Ref<import('./FilesDiffsList.coffee').FileDiff[]>} ###
 		changed_files = ref []
 		body = ref ''
+		``###* @type {Ref<string[]>} ###
+		parent_hashes = ref []
 		watchEffect =>
 			get_files_command =
 				if stash.value
@@ -57,6 +59,8 @@ export default defineComponent
 			for tag from tags.value
 				details = await git "show --format='' --quiet refs/tags/" + tag.name
 				tag_details.value.push details
+
+			parent_hashes.value = (await git "log --pretty=%p -n 1 #{props.commit.hash}").split ' '
 
 		show_diff = (###* @type string ### filepath) =>
 			exchange_message 'open-diff',
@@ -92,4 +96,5 @@ export default defineComponent
 			tag_actions: _tag_actions
 			stash_actions: _stash_actions
 			config_show_buttons
+			parent_hashes
 		}

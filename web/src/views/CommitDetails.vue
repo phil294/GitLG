@@ -35,6 +35,13 @@
 				git-action-button v-for="action of commit_actions" :git_action="action"
 
 	files-diffs-list :files="changed_files" @show_diff="show_diff" @view_rev="view_rev"
+
+	h3 Parent commits
+	ul
+		li v-for="parent_hash of parent_hashes"
+			| {{ parent_hash }}
+			button @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
+				i.codicon.codicon-link
 </template>
 
 <script lang="coffee" src="./CommitDetails.coffee"></script>
