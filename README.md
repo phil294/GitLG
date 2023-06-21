@@ -50,6 +50,7 @@ Notable features:
  - `git help ...` texts collapsed baked into the default actions
  - Select multiple commits with Ctrl or Shift to compare or apply bulk actions (cherry-pick, revert)
  - Custom CSS
+ - Blame: Shows last commit for current line in status bar to focus and open in main view
 
 ## Configuration
 
