@@ -161,6 +161,12 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				<meta http-equiv='Content-Security-Policy' content=\"#{csp}\">
 				<meta name='viewport' content='width=device-width, initial-scale=1.0'>
 				<link href='#{get_web_uri 'css', 'app.css'}' rel='stylesheet'>
+				<style>
+					@font-face {
+						font-family: 'codicon';
+						src: url('#{get_web_uri 'fonts', 'codicon.ttf'}') format('truetype');
+					}
+				</style>
 				<title>#{EXT_NAME}</title>
 			</head>
 			<body>
