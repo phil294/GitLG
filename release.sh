@@ -44,7 +44,11 @@ rm web-dist/index.html
 
 npx esbuild src/extension.js --bundle --platform=node --outfile=src/extension.js --allow-overwrite --external:vscode
 
-echo built
+echo built. manual tests:
+pause
+
+vscodium --extensionDevelopmentPath="$PWD" --disableExtensions
+pause
 pause
 
 git fetch
