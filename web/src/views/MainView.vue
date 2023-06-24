@@ -223,10 +223,10 @@ details.config
 </style>
 
 <style lang="stylus">
-.vue-recycle-scroller__item-view.hover > .commit
+.vue-recycle-scroller__item-view.hover > .commit:not(.empty)
 	background #323232
 
-// TODO: see above
-.vue-recycle-scroller__item-view.hover > .commit .info:hover
-	background #323232 !important
+	// TODO: see above
+	.info:hover
+		background #323232 !important
 </style>
