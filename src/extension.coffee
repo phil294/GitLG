@@ -187,7 +187,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.commands.registerCommand START_CMD, (args) =>
 		log.appendLine "start command"
 		if args?.handle? # invoked via menu scm/title
-			state('selected-repo-index').set(args.handle)
+			state('selected-repo-index').set(await git.get_repo_index_for_uri(args.rootUri))
 		if vscode.workspace.getConfiguration(EXT_ID).get('position') == "editor"
 			if webview_container
 				# Repeated editor panel show
