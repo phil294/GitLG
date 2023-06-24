@@ -179,6 +179,13 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.10 2023-06-24
+
+- [`7c17b30`](https://github.com/phil294/git-log--graph/commit/7c17b30) Fix icons (#41)
+- [`781e6da`](https://github.com/phil294/git-log--graph/commit/781e6da) Fix git blame line if soft links are involved (#40)
+- [`d955a87`](https://github.com/phil294/git-log--graph/commit/d955a87) Fix SCM menu submodule selection (#42)
+- [`ecba6c8`](https://github.com/phil294/git-log--graph/commit/ecba6c8) Remove hover effect from empty lines (#43, #22)
+
 ### v0.1.9 2023-06-21
 
 - [`59c407f`](https://github.com/phil294/git-log--graph/commit/59c407f) Add git blame functionality. Shown in three places: status bar, as a new command, and as context menu in editor. Will open up the result of git blame on the currently selected line. (#40)
