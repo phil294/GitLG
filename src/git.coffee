@@ -1,6 +1,7 @@
 vscode = require 'vscode'
 util = require('util')
 { basename, relative, isAbsolute } = require('path')
+{ realpath } = require('fs').promises
 exec = util.promisify(require('child_process').exec)
 
 ``###*
@@ -102,10 +103,12 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 			selected_repo_index = index
 		get_selected_repo_index: => selected_repo_index
 		get_repo_index_for_uri: (###* @type vscode.Uri ### uri) =>
+			uri_path = await realpath(uri.path)
 			for repo, index in api.repositories
-				rel = relative repo.rootUri.path, uri.path
 				# if repo includes uri: stackoverflow.com/q/37521893
-				if rel and not rel.startsWith('..') and not isAbsolute(rel)
+				repo_path = await realpath(repo.rootUri.path)
+				rel = relative repo_path, uri_path
+				if rel? and not rel.startsWith('..') and not isAbsolute(rel)
 					return index
 			-1
 	}

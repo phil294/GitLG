@@ -31,6 +31,7 @@
         "oneline",
         "onglobalclick",
         "onglobalkeyup",
+        "realpath",
         "reflog",
         "remotename",
         "scroller",
