@@ -131,7 +131,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 					push_message_id 'config-change'
 				), 500
 
-		is_production = context.extensionMode == vscode.ExtensionMode.Production
+		is_production = context.extensionMode == vscode.ExtensionMode.Production or process.env.GIT_LOG__GRAPH_MODE == 'production'
 		dev_server_url = 'http://localhost:8080'
 		csp = "default-src 'none'; " +
 			"style-src #{view.cspSource} 'unsafe-inline' " +

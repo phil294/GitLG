@@ -47,7 +47,7 @@ npx esbuild src/extension.js --bundle --platform=node --outfile=src/extension.js
 echo built. manual tests:
 pause
 
-vscodium --extensionDevelopmentPath="$PWD" --disableExtensions
+GIT_LOG__GRAPH_MODE=production vscodium --extensionDevelopmentPath="$PWD" --disable-extensions
 pause
 pause
 
