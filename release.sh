@@ -99,5 +99,5 @@ if [[ -z $version || -z $changes ]]; then
 fi
 echo 'will create github release'
 pause
-gh release create "$version" --target master --title "$version" --notes "$changes" --verify-tag
+gh release create "$version" --target master --title "$version" --notes "$changes" --verify-tag "$vsix_file"
 echo 'github release created'
