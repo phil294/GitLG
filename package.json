@@ -518,7 +518,9 @@
 		"@types/vscode": "^1.47.0",
 		"@types/vscode-webview": "^1.57.0",
 		"coffeescript": "^2.7.0",
-		"esbuild": "^0.17.18"
+		"esbuild": "^0.17.18",
+		"ovsx": "^0.8.1",
+		"vsce": "^2.15.0"
 	},
 	"dependencies": {
 		"@yaireo/relative-time": "1.0.3",
