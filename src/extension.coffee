@@ -260,7 +260,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		line_change_debouncer = setTimeout (=>
 			current_line_repo_index = await git.get_repo_index_for_uri uri
 			return hide_blame() if current_line_repo_index < 0
-			blamed = try (await git.run "blame -L#{current_line},#{current_line} --porcelain -- #{uri.fsPath}", current_line_repo_index).split('\n')
+			blamed = try (await git.run "blame -L#{current_line+1},#{current_line+1} --porcelain -- #{uri.fsPath}", current_line_repo_index).split('\n')
 			return hide_blame() if not blamed
 			# apparently impossible to get the short form right away in easy machine readable format?
 			current_line_long_hash = blamed[0].slice(0, 40)
