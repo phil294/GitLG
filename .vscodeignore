@@ -6,7 +6,7 @@ web
 todo*
 build.sh
 release.sh
-demo*.png
+img/demo*.png
 .gitignore
 jsconfig.json
 yarn.lock

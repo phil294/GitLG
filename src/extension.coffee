@@ -196,7 +196,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			# First editor panel creation + show
 			log.appendLine "create new webview panel"
 			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn or 1, { retainContextWhenHidden: true })
-			webview_container.iconPath = vscode.Uri.joinPath(context.extensionUri, "logo.png")
+			webview_container.iconPath = vscode.Uri.joinPath(context.extensionUri, "img", "logo.png")
 			webview_container.onDidDispose => webview_container = null
 			context.subscriptions.push webview_container
 			populate_webview()

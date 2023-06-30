@@ -4,11 +4,11 @@ Customizable Git explorer.
 
 This is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Four_essential_freedoms_of_Free_Software), feature-oriented and maintained alternative to [Git Graph by mhutchie](https://github.com/mhutchie/vscode-git-graph/). More details at the bottom of this Readme.
 
-![demo](./demo6.png)
+![demo](./img/demo6.png)
 
 Also available as a "view" with option `"git-log--graph.position": "view"`
 
-![demo](./demo7.png)
+![demo](./img/demo7.png)
 
 ## Usage
 
@@ -20,7 +20,7 @@ Then run the command: `git log --graph: Open graph view` or just click the `Git 
 
 When you click on the `Merge` button for example, a window like this opens:
 
-![demo](./demo2.png)
+![demo](./img/demo2.png)
 
 This allows you to set params and modify the command before executing, both via option toggling and direct editing. To keep the state saved for next time, you can click `Save`.
 
@@ -101,9 +101,9 @@ The only required parameters per action are `title` and `args`.
 ```
 This is what you'll get:
 
-![switch button](./demo3.png)
+![switch button](./img/demo3.png)
 
-![switch popup](./demo4.png)
+![switch popup](./img/demo4.png)
 
 Please consider opening an issue or PR if you think a certain action or option warrants a place in the defaults.
 
