@@ -43,6 +43,9 @@ popd
 rm web-dist/index.html
 
 yarn esbuild src/extension.js --bundle --platform=node --outfile=src/extension.js --allow-overwrite --external:vscode
+mv src/extension.js .
+rm src/*.js
+mv extension.js src
 
 echo built. manual tests:
 pause
