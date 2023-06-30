@@ -179,6 +179,10 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.11 2023-06-30
+
+- [`582ed6f`](https://github.com/phil294/git-log--graph/commit/582ed6f) Fix git blame line no (#47)
+
 ### v0.1.10 2023-06-24
 
 - [`7c17b30`](https://github.com/phil294/git-log--graph/commit/7c17b30) Fix icons (#41)
