@@ -11,5 +11,5 @@ img/demo*.png
 jsconfig.json
 yarn.lock
 CONTRIBUTING.md
-*.vsix
+vsix-out
 **/*.d.ts

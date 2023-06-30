@@ -6,5 +6,5 @@ dist
 web-dist
 *.ttf
 todo*
-*.vsix
+vsix-out
 src/*.js
