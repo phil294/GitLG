@@ -42,7 +42,7 @@ yarn build
 popd
 rm web-dist/index.html
 
-npx esbuild src/extension.js --bundle --platform=node --outfile=src/extension.js --allow-overwrite --external:vscode
+yarn esbuild src/extension.js --bundle --platform=node --outfile=src/extension.js --allow-overwrite --external:vscode
 
 echo built. manual tests:
 pause
@@ -74,7 +74,7 @@ git tag "$version"
 echo 'patched package.json version patch, updated changelog, committed, tagged'
 pause
 
-npx vsce package
+yarn vsce package
 
 vsix_file=$(ls -tr git-log--graph-*.vsix* |tail -1)
 xdg-open "$vsix_file"
@@ -83,11 +83,11 @@ echo 'check vsix package before publish'
 pause
 pause
 
-npx vsce publish
+yarn vsce publish
 echo 'vsce published'
 pause
 
-npx ovsx publish "$vsix_file" -p "$(cat ~/.open-vsx-access-token)"
+yarn ovsx publish "$vsix_file" -p "$(cat ~/.open-vsx-access-token)"
 echo 'ovsx published'
 pause
 
