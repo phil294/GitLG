@@ -39,15 +39,15 @@ export default
 			selected_index = selected_commits.value.indexOf commit
 			if event.ctrlKey
 				if selected_index > -1
-					selected_commits.value.splice selected_index, 1
+					selected_commits.value = selected_commits.value.filter (_, i) => i != selected_index
 				else
-					selected_commits.value.push commit
+					selected_commits.value = [...selected_commits.value, commit]
 			else if event.shiftKey
 				total_index = filtered_commits.value.indexOf commit
 				last_total_index = filtered_commits.value.indexOf selected_commits.value.at(-1)
-				if total_index > last_total_index and total_index - last_total_index < 100
-					selected_commits.value.push ...filtered_commits.value.slice(last_total_index, total_index+1).filter (commit) =>
-						not selected_commits.value.includes commit
+				if total_index > last_total_index and total_index - last_total_index < 1000
+					selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index+1).filter (commit) =>
+						not selected_commits.value.includes commit)
 			else
 				if selected_index > -1
 					selected_commits.value = []
