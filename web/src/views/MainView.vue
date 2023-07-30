@@ -14,7 +14,7 @@
 				repo-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
-						#search-instructions v-if="txt_filter_type==='search'"
+						#search-instructions v-if="txt_filter_type==='jump'"
 							| Jump between matches with ENTER / SHIFT+ENTER
 						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
 						button#clear-filter v-if="txt_filter" @click="clear_filter()"
@@ -22,9 +22,9 @@
 						label#filter-type-filter.row.align-center
 							input type="radio" v-model="txt_filter_type" value="filter"
 							| Filter
-						label#filter-type-search.row.align-center
-							input type="radio" v-model="txt_filter_type" value="search"
-							| Search
+						label#filter-type-jump.row.align-center
+							input type="radio" v-model="txt_filter_type" value="jump"
+							| Jump
 					section#actions.center.gap-5 aria-roledescription="Global actions"
 						git-action-button.global-action v-for="action of global_actions" :git_action="action"
 						button#refresh.btn.center @click="refresh_main_view()" title="Refresh"

@@ -57,7 +57,7 @@ export default
 
 
 		txt_filter = ref ''
-		``###* @type {Ref<'filter' | 'search'>} ###
+		``###* @type {Ref<'filter' | 'jump'>} ###
 		txt_filter_type = ref 'filter'
 		clear_filter = =>
 			txt_filter.value = ''
@@ -74,7 +74,7 @@ export default
 		initialized = computed =>
 			!! store.commits.value
 		filtered_commits = computed =>
-			if not txt_filter.value or txt_filter_type.value == 'search'
+			if not txt_filter.value or txt_filter_type.value == 'jump'
 				return store.commits.value or []
 			(store.commits.value or []).filter txt_filter_filter
 		txt_filter_last_i = -1
