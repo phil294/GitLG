@@ -77,6 +77,8 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						data: { key, value }
 				undefined
 
+	git.set_selected_repo_index(context.workspaceState.get('selected-repo-index') or 0)
+
 	populate_webview = =>
 		return if not webview_container
 		view = webview_container.webview
