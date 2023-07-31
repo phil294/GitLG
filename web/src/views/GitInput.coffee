@@ -149,6 +149,7 @@ export default defineComponent
 		ref_form = ref null
 		onMounted =>
 			await config_load_promise
+			await nextTick()
 			if props.git_action.immediate
 				# @ts-ignore
 				await ref_form.value?.request_submit()
