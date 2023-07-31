@@ -95,7 +95,8 @@ parse = (log_data, branch_data, stash_data, separator) =>
 					if branch_match
 						branch_match
 					else
-						console.error "Could not find ref '#{id}' in list of branches for commit '#{hash}'"
+						# Can happen with grafted branches
+						console.warn "Could not find ref '#{id}' in list of branches for commit '#{hash}'"
 						undefined
 			.filter is_truthy
 			.sort git_ref_sort
