@@ -68,9 +68,10 @@ version=$(npm version patch --no-git-tag-version)
 echo version: $version
 pause
 
-sed -i $'/<!-- CHANGELOG_PLACEHOLDER -->/r'<(echo $'\n### '${version} $(date +"%Y-%m-%d")$'\n\n'"$changes") README.md
+sed -i $'/<!-- CHANGELOG_PLACEHOLDER -->/r'<(echo $'\n### '${version} $(date +"%Y-%m-%d")$'\n\n'"$changes") CHANGELOG.md
 
 git add README.md
+git add CHANGELOG.md
 git add package.json
 git commit -m "$version"
 git tag "$version"
