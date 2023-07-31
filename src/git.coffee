@@ -104,11 +104,16 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 		get_selected_repo_index: => selected_repo_index
 		get_repo_index_for_uri: (###* @type vscode.Uri ### uri) =>
 			uri_path = await realpath(uri.path)
-			for repo, index in api.repositories
-				# if repo includes uri: stackoverflow.com/q/37521893
+			((await Promise.all(api.repositories.map (repo, index) =>
 				repo_path = await realpath(repo.rootUri.path)
+				{ repo_path, index }))
+			.filter ({ repo_path }) =>
+				# if repo includes uri: stackoverflow.com/q/37521893
 				rel = relative repo_path, uri_path
-				if rel? and not rel.startsWith('..') and not isAbsolute(rel)
-					return index
-			-1
+				rel? and not rel.startsWith('..') and not isAbsolute(rel)
+			# There can be multiple matches with git submodules, in which case the longest
+			# path will be the right one
+			.sort (a, b) =>
+				b.repo_path.length - a.repo_path.length
+			)[0]?.index ? -1
 	}

@@ -22,7 +22,6 @@ window.addEventListener 'message', (msg_event) =>
 			push_handlers[message.id] message
 
 export exchange_message = (###* @type string ### command, ###* @type any ### data) =>
-	console.info "exchange_message", command, data
 	id++
 	``###* @type BridgeMessage ###
 	request = { command, data, id, type: 'request' }
@@ -31,6 +30,7 @@ export exchange_message = (###* @type string ### command, ###* @type any ### dat
 	resp = await new Promise (ok) =>
 		response_handlers[id] = (data) =>
 			ok data
+	console.info "exchange_message", command, data # , resp
 	if resp.error then throw resp.error
 	resp.data
 
