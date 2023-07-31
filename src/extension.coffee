@@ -151,7 +151,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				view.asWebviewUri vscode.Uri.joinPath context.extensionUri, 'web-dist', ...path_segments
 			else
 				[dev_server_url, ...path_segments].join('/')
-		custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css') or '{body:text-transform uppercase;}'
+		custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
 		if custom_css
 			custom_css = try (await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined })).css
 
