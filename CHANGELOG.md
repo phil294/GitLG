@@ -4,6 +4,23 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.12 2023-07-31
+
+- [`94e4805`](https://github.com/phil294/git-log--graph/commit/94e4805) Fix repeated invocations of auto-execute actions: they weren't auto-executing properly from the second time on
+- [`9ac2817`](https://github.com/phil294/git-log--graph/commit/3e0063a) Prevent git actions (including main log view) from executing before its respective saved configuration has been loaded and applied (#48)
+- [`1b73ebe`](https://github.com/phil294/git-log--graph/commit/1b73ebe) Prevent duplicate log execution at startup (#48)
+- [`edf12fd`](https://github.com/phil294/git-log--graph/commit/edf12fd) Fix wrong selected repo at startup
+- [`8c54e93`](https://github.com/phil294/git-log--graph/commit/8c54e93) Fix automatic repo selection when git submodules are involved (#42)
+- [`254c8fd`](https://github.com/phil294/git-log--graph/commit/70088e5) Fix refreshing after stashing (#27)
+- [`6dfe240`](https://github.com/phil294/git-log--graph/commit/6dfe240) Fix commit multi-select
+- [`995ab86`](https://github.com/phil294/git-log--graph/commit/995ab86) Add optional --simplify-by-decoration to git log (#22)
+- [`8efde3e`](https://github.com/phil294/git-log--graph/commit/8efde3e) Rename "Filter / Search" -> "Filter / Jump"
+- [`3a0d7cd`](https://github.com/phil294/git-log--graph/commit/3a0d7cd) Fix image links in extension description
+- [`8ca41b5`](https://github.com/phil294/git-log--graph/commit/837054b) Move changelog into CHANGELOG.md (#28)
+- [`e549b07`](https://github.com/phil294/git-log--graph/commit/e549b07) Attach built `.vsix` file to each future github release so you can also manually download them
+- [`e4efa2a`](https://github.com/phil294/git-log--graph/commit/e4efa2a) Don't throw errors for grafted branches that don't actually exist
+- [`5bd6be8`](https://github.com/phil294/git-log--graph/commit/5bd6be8) Skip unneeded source files inside /src
+
 ### v0.1.11 2023-06-30
 
 - [`582ed6f`](https://github.com/phil294/git-log--graph/commit/582ed6f) Fix git blame line no (#47)
