@@ -99,7 +99,7 @@ pause
 
 git push --tags origin master
 
-if [[ -z $version || -z $changes ]]; then
+if [[ -z $version || -z $changes || -z $vsix_file ]]; then
     echo version/changes empty
     exit 1
 fi
