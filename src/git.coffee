@@ -100,9 +100,9 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 			selected_repo_index = index
 		get_selected_repo_index: => selected_repo_index
 		get_repo_index_for_uri: (###* @type vscode.Uri ### uri) =>
-			uri_path = await realpath(uri.path)
+			uri_path = await realpath(uri.fsPath)
 			((await Promise.all(api.repositories.map (repo, index) =>
-				repo_path = await realpath(repo.rootUri.path)
+				repo_path = await realpath(repo.rootUri.fsPath)
 				{ repo_path, index }))
 			.filter ({ repo_path }) =>
 				# if repo includes uri: stackoverflow.com/q/37521893
