@@ -267,8 +267,10 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			# apparently impossible to get the short form right away in easy machine readable format?
 			current_line_long_hash = blamed[0].slice(0, 40)
 			author = blamed[1].slice(7)
+			commit_msg = blamed.filter((line) => line.startsWith('summary '))[0].slice('summary '.length)
 			time = relative_time.from(blamed[3].slice(12)*1000)
 			status_bar_item_blame.text = "$(git-commit) #{author}, #{time}"
+			status_bar_item_blame.tooltip = "Show `#{commit_msg}` in git-log--graph"
 		), 150
 	context.subscriptions.push vscode.commands.registerCommand BLAME_CMD, =>
 		log.appendLine 'blame cmd'
