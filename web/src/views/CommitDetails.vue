@@ -42,6 +42,11 @@
 			| {{ parent_hash }}
 			button @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
 				i.codicon.codicon-link
+
+	br
+	details
+		summary.align-center Compare...
+		| In order to compare this commit with another one, do <kbd>Ctrl</kbd>+Click on any other commit in the main view
 </template>
 
 <script lang="coffee" src="./CommitDetails.coffee"></script>
