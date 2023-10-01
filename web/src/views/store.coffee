@@ -67,6 +67,53 @@ export git_status = ref ''
 ###* @type {Ref<string|null>} ###
 export default_origin = ref ''
 
+parse_mailmap_response_into_name_email = (###* @type String ### mailmap_line) =>
+	index = mailmap_line.lastIndexOf('<')
+	if index == 0
+		# mailmap did not have an entry
+		return null
+
+	if index == -1
+		# unexpected return format
+		return null
+
+	# "The Name <email@address>"
+	author_name = mailmap_line.slice(0, index - 1)
+	author_email = mailmap_line.slice(index + 1, mailmap_line.length - 1)
+
+	{ author_name, author_email }
+
+apply_mailmap = (###* @type Commit[] ### commits) =>
+	uniqueContacts = {}
+	for commit in commits
+		author_email = commit.author_email
+		contact = "#{commit.author_name} <#{author_email}>"
+		uniqueContacts[author_email] = contact
+
+	# Unconditionally maps everything into a single invocation of git check-mailmap.
+	# This may be a problem on operating systems which limit the length of the command line.
+	# If this every happens, we can revisit this - the code in itself is fail-safe, so
+	# only some effort on calling git to fail is wasted.
+	contactsString = ("'#{uniqueContacts[author_email]}'" for author_email of uniqueContacts).join ' '
+	[ mailmapped ] = await Promise.all [
+		git "check-mailmap #{contactsString}"
+	]
+
+	mailmap_lines = mailmapped.split '\n'
+	idx = 0
+	for author_email of uniqueContacts
+		uniqueContacts[author_email] = parse_mailmap_response_into_name_email mailmap_lines[idx]
+		idx += 1
+
+	# Having set up everything (well), update the commit information in place
+	for commit in commits
+		mapped = uniqueContacts[commit.author_email]
+		if mapped != null
+			# Consider formatting mailmapped entries in particular way
+			# commit.author_name = "! #{mapped.author_name}"
+			commit.author_name = mapped.author_name
+			commit.author_email = mapped.author_email
+
 export git_run_log = (###* @type string ### log_args) =>
 	sep = '^%^%^%^%^'
 	log_args = log_args.replace(" --pretty={EXT_FORMAT}", " --pretty=format:\"#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s\"")
@@ -82,6 +129,7 @@ export git_run_log = (###* @type string ### log_args) =>
 	]
 	return if not log_data?
 	parsed = parse log_data, branch_data, stash_data, sep
+	apply_mailmap parsed.commits
 	commits.value = parsed.commits
 	branches.value = parsed.branches
 	vis_max_amount.value = parsed.vis_max_amount
