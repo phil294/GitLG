@@ -2,29 +2,6 @@
 	"actions.global": [
 		{
 			"title": "",
-			"icon": "chevron-up",
-			"description": "git stash --include-untracked (Stash the changes in a dirty working directory away)",
-			"info": "Saves your local modifications to a new stash entry and rolls them back to HEAD (in the working tree and in the index).\n\nUse git stash when you want to record the current state of the working directory and the index, but want to go back to a clean working directory. The command saves your local modifications away and reverts the working directory to match the HEAD commit.\n\nThe modifications stashed away by this command can be listed with `git stash list`, inspected with `git stash show`, and restored (potentially on top of a different commit) with `git stash apply`. A stash is by default listed as 'WIP on branchname ...', but you can give a more descriptive message on the command line when you create one.\n\nThe latest stash you created is stored in refs/stash; older stashes are found in the reflog of this reference and can be named using the usual reflog syntax (e.g. stash@{0} is the most recently created stash, stash@{1} is the one before it, stash@{2.hours.ago} is also possible). Stashes may also be referenced by specifying just the stash index (e.g. the integer n is equivalent to stash@{n}).\n\nTo read the full documentation on this command, run `git help stash` in a terminal.",
-			"args": "stash",
-			"options": [
-				{
-					"value": "--include-untracked",
-					"default_active": true,
-					"info": "All untracked files are also stashed and then cleaned up with `git clean`."
-				}
-			],
-			"immediate": true
-		},
-		{
-			"title": "",
-			"info": "Remove the last stashed state from the stash list and apply it on top of the current working tree state, i.e., do the inverse operation of git stash [push]. \n\nApplying the state can fail with conflicts; in this case, it is not removed from the stash list. You need to resolve the conflicts by hand and call git stash drop manually afterwards.\n\nTo read the full documentation on this command, run `git help stash` in a terminal.",
-			"icon": "chevron-down",
-			"description": "git stash pop",
-			"args": "stash pop",
-			"immediate": true
-		},
-		{
-			"title": "",
 			"icon": "cloud-download",
 			"description": "git fetch --all (Download objects and refs from all other repositories",
 			"info": "Fetch branches and/or tags (collectively, 'refs') from one or more other repositories, along with the objects necessary to complete their histories. Remote-tracking branches are updated (see the description of <refspec> below for ways to control this behavior).\n\nBy default, any tag that points into the histories being fetched is also fetched; the effect is to fetch tags that point at branches that you are interested in. This default behavior can be changed by using the --tags or --no-tags options or by configuring remote.<name>.tagOpt. By using a refspec that fetches tags explicitly, you can fetch tags that do not point into branches you are interested in as well.\n\n`git fetch` can fetch from either a single named repository or URL, or from several repositories at once if <group> is given and there is a remotes.<group> entry in the configuration file. (See git-config(1)).\n\nWhen no remote is specified, by default the origin remote will be used, unless there’s an upstream branch configured for the current branch.\n\nThe names of refs that are fetched, together with the object names they point at, are written to .git/FETCH_HEAD. This information may be used by scripts or other git commands, such as git-pull(1).\n\nTo read the full documentation on this command, run `git help fetch` in a terminal.",
@@ -242,6 +219,16 @@
 					"info": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
 				}
 			]
+		},
+		{
+			"title": "Copy Hash",
+			"description": "Copy hash of this commit",
+			"info": "Copy hash of this commit",
+			"icon": "copy",
+			"args": "special:copy-commit-hashes",
+			"params": [
+				"{COMMIT_HASH}"
+			]
 		}
 	],
 	"actions.commits": [
@@ -277,6 +264,16 @@
 					"default_active": false,
 					"info": "Usually the command automatically creates some commits with commit log messages stating which commits were reverted. This flag applies the changes necessary to revert the named commits to your working tree and the index, but does not make the commits. In addition, when this option is used, your index does not have to match the HEAD commit. The revert is done against the beginning state of your index.\n\nThis is useful when reverting more than one commits' effect to your index in a row."
 				}
+			]
+		},
+		{
+			"title": "Copy Hashes",
+			"description": "Copy hashes of commits",
+			"info": "Copy hashes of commits",
+			"icon": "copy",
+			"args": "special:copy-commit-hashes",
+			"params": [
+				"{COMMIT_HASHES}"
 			]
 		}
 	],
@@ -437,6 +434,16 @@
 			"params": [
 				"{BRANCH_NAME}",
 				"new_branch_name"
+			]
+		},
+		{
+			"title": "Copy Branch Name",
+			"description": "Copy branch name",
+			"info": "Copy branch name",
+			"icon": "copy",
+			"args": "special:copy-branch-name",
+			"params": [
+				"{BRANCH_NAME}"
 			]
 		},
 		{

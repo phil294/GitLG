@@ -27,15 +27,27 @@ export default
 		selected_commits = computed
 			get: =>
 				selected_commits_hashes.value
-					.map (hash) => filtered_commits.value.find (commit) => commit.hash == hash
+					.map (hash) => filtered_commits.value.find (commit) => commit.full_hash == hash
 					.filter is_truthy
 			set: (commits) =>
-				selected_commits_hashes.value = commits.map (commit) => commit.hash
+				selected_commits_hashes.value = commits.map (commit) => commit.full_hash
 		selected_commit = computed =>
 			if selected_commits.value.length == 1
 				selected_commits.value[0]
+		sticky_selected_commits = ref []
+		sticky_selected_commits_map = computed =>
+			result_map = {}
+			sticky_selected_commits.value.forEach (c) =>
+				result_map[c.full_hash] = true
+			return result_map
+		sticky_selected_commits_reverted = ref false
+		watch(
+			store.commits
+			=>
+				sticky_selected_commits.value = []
+		)
 		commit_clicked = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
-			return if not commit.hash
+			return if not commit.full_hash
 			selected_index = selected_commits.value.indexOf commit
 			if event.ctrlKey
 				if selected_index > -1
@@ -54,11 +66,27 @@ export default
 				else
 					selected_commits.value = [commit]
 
+		commit_sticky_selected = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
+			event.stopPropagation()
+			return if not commit.full_hash
+			if sticky_selected_commits.value.length > 0
+				if sticky_selected_commits.value[0].full_hash == commit.full_hash
+					if sticky_selected_commits_reverted.value
+						sticky_selected_commits.value = []
+					else
+						sticky_selected_commits_reverted.value = true
+				else
+					selected_commits.value = if sticky_selected_commits_reverted.value then [commit, sticky_selected_commits.value[0]] else [sticky_selected_commits.value[0], commit]
+					sticky_selected_commits.value = []
+			else
+				sticky_selected_commits.value = [commit]
+				sticky_selected_commits_reverted.value = false
+
 
 
 		txt_filter = ref ''
-		``###* @type {Ref<'filter' | 'jump'>} ###
-		txt_filter_type = ref 'filter'
+		``###* @type {Ref<'filter' | 'jump' | 'jumphash'>} ###
+		txt_filter_type = ref 'jumphash'
 		clear_filter = =>
 			txt_filter.value = ''
 			if selected_commit.value
@@ -69,12 +97,15 @@ export default
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
 			search_for = txt_filter.value.toLowerCase()
-			for str from [commit.subject, commit.hash, commit.author_name, commit.author_email, commit.branch?.id]
+			for str from [commit.subject, commit.full_hash, commit.author_name, commit.author_email, commit.branch?.id]
 				return true if str?.includes(search_for)
+		hash_filter = (###* @type Commit ### commit) =>
+			search_for = txt_filter.value.toLowerCase()
+			return true if commit.full_hash.startsWith(search_for)
 		initialized = computed =>
 			!! store.commits.value
 		filtered_commits = computed =>
-			if not txt_filter.value or txt_filter_type.value == 'jump'
+			if not txt_filter.value or txt_filter_type.value == 'jump' or txt_filter_type.value == 'jumphash'
 				return store.commits.value or []
 			(store.commits.value or []).filter txt_filter_filter
 		txt_filter_last_i = -1
@@ -84,18 +115,35 @@ export default
 		select_searched_commit_debouncer = -1
 		txt_filter_enter = (###* @type KeyboardEvent ### event) =>
 			return if txt_filter_type.value == 'filter'
+
+			txt_filter_or_hash_filter = txt_filter_filter
+			if txt_filter_type.value == 'jumphash'
+				txt_filter_or_hash_filter = hash_filter
+
 			if event.shiftKey
-				next = [...filtered_commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_filter)
+				next = [...filtered_commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_or_hash_filter)
 				if next > -1
 					next_match_index = txt_filter_last_i - 1 - next
 				else
-					next_match_index = filtered_commits.value.length - 1
+					next = filtered_commits.value.reverse().findIndex(txt_filter_or_hash_filter)
+					if next > -1
+						next_match_index = filtered_commits.value.length - 1 - next
+					else
+						next_match_index = -1
 			else
-				next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_filter)
+				next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_or_hash_filter)
 				if next > -1
 					next_match_index = txt_filter_last_i + 1 + next
 				else
-					next_match_index = 0
+					next = filtered_commits.value.findIndex(txt_filter_or_hash_filter)
+					if next > -1
+						next_match_index = next
+					else
+						next_match_index = -1
+			if next_match_index == -1
+				show_error_message 'Can\'t find commit' + (if txt_filter_type.value == 'jumphash' then ' with hash ' else ' that matches ') + txt_filter.value + '.'
+				return
+
 			scroll_to_item_centered next_match_index
 			txt_filter_last_i = next_match_index
 			window.clearTimeout select_searched_commit_debouncer
@@ -109,6 +157,9 @@ export default
 			first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
 				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
 				commit.refs.some (ref) => ref.id == branch_id
+			if first_branch_commit_i == -1 && branch_id == 'HEAD'
+				first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
+					commit.refs.some (ref) => ref.id == store.head_branch.value
 			if first_branch_commit_i == -1
 				return show_error_message "No commit found for branch #{branch_id}. Not enough commits loaded?"
 			scroll_to_item_centered first_branch_commit_i
@@ -117,7 +168,7 @@ export default
 			selected_commits.value = [filtered_commits.value[first_branch_commit_i]]
 		scroll_to_commit = (###* @type string ### hash) =>
 			commit_i = filtered_commits.value.findIndex (commit) =>
-				commit.hash == hash
+				commit.full_hash == hash
 			if commit_i == -1
 				return show_error_message "No commit found for hash #{hash}. No idea why :/"
 			scroll_to_item_centered commit_i
@@ -130,6 +181,8 @@ export default
 		``###* @type {Ref<GitInputModel | null>} ###
 		git_input_ref = ref null
 		store.main_view_git_input_ref.value = git_input_ref
+		all_branches_ref = ref null
+		store.main_view_all_branches_ref.value = all_branches_ref
 		log_action =
 			# rearding the -greps: Under normal circumstances, when showing stashes in
 			# git log, each of the stashes 2 or 3 parents are being shown. That because of
@@ -157,14 +210,14 @@ export default
 			await store.git_run_log(log_args)
 			await new Promise (ok) => setTimeout(ok, 0)
 			if is_first_log_run
-				first_selected_hash = selected_commits.value[0]?.hash
+				first_selected_hash = selected_commits.value[0]?.full_hash
 				if first_selected_hash
 					scroll_to_commit first_selected_hash
 				is_first_log_run = false
 			else
 				if selected_commit.value
 					new_commit = filtered_commits.value.find (commit) =>
-						commit.hash == selected_commit.value?.hash
+						commit.full_hash == selected_commit.value?.full_hash
 					if new_commit
 						selected_commits.value = [new_commit]
 				commits_scroller_ref.value?.scrollToItem scroll_item_offset
@@ -195,13 +248,14 @@ export default
 				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
 		scroll_to_item_centered = (###* @type number ### index) =>
 			commits_scroller_ref.value?.scrollToItem index - Math.floor(visible_commits.value.length / 2) + 2
-
+		temporary_view_commit_only = () =>
+			store.temporary_view_commit_only(selected_commit.value)
 
 
 
 		watch visible_commits, =>
 			visible_cp = [...visible_commits.value] # to avoid race conditions
-				.filter (commit) => commit.hash and not commit.stats
+				.filter (commit) => commit.full_hash and not commit.stats
 			if not visible_cp.length then return
 			await store.update_commit_stats(visible_cp)
 		visible_branches = computed =>
@@ -317,6 +371,7 @@ export default
 			vis_max_amount: store.vis_max_amount
 			head_branch: store.head_branch
 			git_input_ref
+			all_branches_ref
 			run_log
 			log_action
 			commits_scroller_updated
@@ -327,7 +382,11 @@ export default
 			scroll_to_top
 			selected_commit
 			selected_commits
+			sticky_selected_commits
+			sticky_selected_commits_map
+			sticky_selected_commits_reverted
 			commit_clicked
+			commit_sticky_selected
 			txt_filter
 			txt_filter_ref
 			txt_filter_type
@@ -341,7 +400,10 @@ export default
 			invisible_branch_tips_of_visible_branches_elems
 			connection_fake_commit
 			refresh_main_view: store.refresh_main_view
+			go_to_head: store.go_to_head
 			selected_git_action: store.selected_git_action
+			reset_command: store.reset_command
+			temporary_view_commit_only: temporary_view_commit_only
 			commit_context_menu_provider
 			git_status: store.git_status
 			scroller_on_wheel

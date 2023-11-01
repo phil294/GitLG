@@ -25,12 +25,13 @@ export exchange_message = (###* @type string ### command, ###* @type any ### dat
 	id++
 	``###* @type BridgeMessage ###
 	request = { command, data, id, type: 'request' }
-	vscode.postMessage request
 	``###* @type {BridgeMessage} ###
-	resp = await new Promise (ok) =>
+	respPromise = new Promise (ok) =>
 		response_handlers[id] = (data) =>
 			ok data
+	vscode.postMessage request
 	console.info "exchange_message", command, data # , resp
+	resp = await respPromise
 	if resp.error then throw resp.error
 	resp.data
 
@@ -41,6 +42,8 @@ export show_information_message = (###* @type string ### msg) =>
 	exchange_message 'show-information-message', msg
 export show_error_message = (###* @type string ### msg) =>
 	exchange_message 'show-error-message', msg
+export copy_to_clipboard = (###* @type string ### text) =>
+	exchange_message 'copy-to-clipboard', text
 
 export add_push_listener = (###* @type string ### id, ###* @type {(r: BridgeMessage) => void} ### handler) =>
 	push_handlers[id] = handler

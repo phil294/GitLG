@@ -1,4 +1,5 @@
-import { ref, computed, shallowRef } from "vue"
+import { ref, computed, shallowRef, watch, nextTick } from "vue"
+import { show_information_message, copy_to_clipboard } from '../bridge.coffee'
 import default_git_actions from './default-git-actions.json'
 import { parse } from "./log-utils.coffee"
 import { git, exchange_message, add_push_listener } from "../bridge.coffee"
@@ -69,14 +70,14 @@ export default_origin = ref ''
 
 export git_run_log = (###* @type string ### log_args) =>
 	sep = '^%^%^%^%^'
-	log_args = log_args.replace(" --pretty={EXT_FORMAT}", " --pretty=format:\"#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s\"")
-	stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
+	log_args = log_args.replace(" --pretty={EXT_FORMAT}", " --pretty=format:\"#{sep}%H#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s\"")
+	stash_refs = try await git 'reflog show --format="%H" stash' catch then ""
 	log_args = log_args.replace("{STASH_REFS}", stash_refs.replaceAll('\n', ' '))
 	# errors will be handled by GitInput
 	[ log_data, branch_data, stash_data, status_data, head_data ] = await Promise.all [
 		git log_args
 		git "branch --list --all --format=\"%(upstream:remotename)#{sep}%(refname)\""
-		try await git "stash list --format=\"%h %gd\""
+		try await git "stash list --format=\"%H %gd\""
 		git 'status'
 		git 'rev-parse --abbrev-ref HEAD'
 	]
@@ -91,17 +92,26 @@ export git_run_log = (###* @type string ### log_args) =>
 	default_origin.value = likely_default_branch?.remote_name or likely_default_branch?.tracking_remote_name or null
 ``###* @type {Ref<Ref<GitInputModel|null>|null>} ###
 export main_view_git_input_ref = ref null
+export main_view_all_branches_ref = ref null
 export refresh_main_view = =>
 	console.warn('refreshing main view')
 	main_view_git_input_ref.value?.value?.execute()
+export go_to_head = =>
+	main_view_all_branches_ref.value?.value?.go_to_head()
+export temporary_view_commit_only = (commit) =>
+	console.warn('temporary_view_commit_only', commit)
+	main_view_git_input_ref.value?.value?.temporary_view_commit_only(commit.full_hash)
+export reset_command = =>
+	main_view_git_input_ref.value?.value?.reset_command()
+	main_view_git_input_ref.value?.value?.execute()
 
 export update_commit_stats = (###* @type {Commit[]} ### commits) =>
-	data = await git "show --format=\"%h\" --shortstat " + commits.map((c)=>c.hash).join(' ')
+	data = await git "show --format=\"%H\" --shortstat " + commits.map((c)=>c.full_hash).join(' ')
 	return if not data
-	hash = ''
+	full_hash = ''
 	for line from data.split('\n').filter(Boolean)
 		if not line.startsWith ' '
-			hash = line
+			full_hash = line
 			continue
 		stat = files_changed: 0, insertions: 0, deletions: 0
 		#  3 files changed, 87 insertions(+), 70 deletions(-)
@@ -113,10 +123,31 @@ export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 				stat.insertions = Number(words[0])
 			else if words[1].startsWith 'deletion'
 				stat.deletions = Number(words[0])
-		commits[commits.findIndex((cp)=>cp.hash==hash)].stats = stat
+		commits[commits.findIndex((cp)=>cp.full_hash==full_hash)].stats = stat
 
 ``###* @type {Ref<GitAction|null>} ###
 export selected_git_action = ref null
+
+watch(
+	selected_git_action
+	(new_selected_git_action) ->
+		return if !new_selected_git_action
+		if new_selected_git_action.args == 'special:copy-branch-name'
+			branch_name = new_selected_git_action.params[0]
+			copy_to_clipboard branch_name
+			show_information_message 'Copied branch "' + branch_name + '"'
+			nextTick().then ->
+				selected_git_action.value = null
+		else if new_selected_git_action.args == 'special:copy-commit-hashes'
+			commit_hashes = new_selected_git_action.params[0]
+			copy_to_clipboard commit_hashes
+			show_information_message 'Copied current commit(s) hash(es).'
+			nextTick().then ->
+				selected_git_action.value = null
+	{
+		flush: 'post'
+	}
+)
 
 ``###* @type {Ref<any>} ###
 export config = ref {}

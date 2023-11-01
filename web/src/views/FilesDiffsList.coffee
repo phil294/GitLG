@@ -1,4 +1,4 @@
-import { computed, defineComponent } from 'vue'
+import { ref, computed, defineComponent, watch } from 'vue'
 import { exchange_message } from '../bridge.coffee'
 import { stateful_computed } from './store.coffee'
 import { createReusableTemplate } from '@vueuse/core'
@@ -44,19 +44,47 @@ export default defineComponent
 			type: Array
 			required: true
 	setup: (props) ->
+		walkthrough_file_view_map = ref {}
+
+		watch(
+			() =>
+				props.files
+			() =>
+				walkthrough_file_view_map.value = {}
+				undefined
+		)
+
 		files = computed =>
 			props.files.map (file) =>
-				# Even on Windows, the delimiter of git paths output is forward slash
-				path_arr = file.path.split('/')
-				# Icons have to be hardcoded because actual theme integration is more or less impossible:
-				# https://github.com/microsoft/vscode/issues/183893
-				icon = file_extension_icon_path_mapping[file.path.split('.').at(-1)] or 'default_file.svg'
-				{
+				path_moved = file.path.split(' => ', 2)
+				if path_moved.length == 2
+					path1 = path_moved[0]
+					path2 = path_moved[1]
+					# Even on Windows, the delimiter of git paths output is forward slash
+					path1_arr = path_moved[0].split('/')
+					path2_arr = path_moved[1].split('/')
+					# Icons have to be hardcoded because actual theme integration is more or less impossible:
+					# https://github.com/microsoft/vscode/issues/183893
+					icon = file_extension_icon_path_mapping[path_moved[1].split('.').at(-1)] or 'default_file.svg'
+					file_desc = (path1_arr.at(-1) or '?') + ' => ' + path2
+				else
+					path1 = path_moved[0]
+					path2 = path_moved[0]
+					path1_arr = path_moved[0].split('/')
+					path2_arr = path1_arr
+					icon = file_extension_icon_path_mapping[path_moved[0].split('.').at(-1)] or 'default_file.svg'
+					file_desc = (path1_arr.at(-1) or '?')
+				return {
 					...file
-					filename: path_arr.at(-1) or '?'
-					dir: path_arr.slice(0, -1).join('/')
-					dir_arr: path_arr.slice(0, -1)
+					path1: path1
+					path2: path2
+					filename1: path1_arr.at(-1) or '?'
+					filename2: path2_arr.at(-1) or '?'
+					dir: path1_arr.slice(0, -1).join('/')
+					dir_arr: path1_arr.slice(0, -1)
 					icon_path: base_url + 'file-icons/' + icon
+					file_desc: file_desc
+					is_viewed: false
 				}
 		files_list = computed =>
 			files.value if render_style?.value == 'list'
@@ -94,13 +122,18 @@ export default defineComponent
 			unify(out)
 			out
 
+		mark_file_viewed = (file) =>
+			walkthrough_file_view_map.value[file.path2] = true
+
 		open_file = (###* @type string ### filepath) =>
 			exchange_message 'open-file',
 				filename: filepath
 
 		{
+			walkthrough_file_view_map
 			files_list
 			files_tree
 			render_style
+			mark_file_viewed
 			open_file
 		}

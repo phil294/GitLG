@@ -16,16 +16,19 @@
 
 	template-file-actions-define v-slot="{ file }"
 		.file-actions.row.align-center
-			button.row.view-rev @click.stop="$emit('view_rev',file.path)" title="View File at this Revision"
+			button.row.view-rev @click.stop="mark_file_viewed(file), $emit('view_rev',file.path2)" title="View File at this Revision"
 				i.codicon.codicon-git-commit
-			button.row.open-file @click.stop="open_file(file.path)" title="Open file"
+			button.row.open-file @click.stop="mark_file_viewed(file), open_file(file, file.path2)" title="Open file"
 				i.codicon.codicon-go-to-file
 
 	ul.list v-if="files_list"
-		li.list-row.flex-1.row.align-center.gap-10 v-for="file of files_list" @click="$emit('show_diff',file.path)" role="button"
+		li.list-row.flex-1.row.align-center.gap-10 v-for="file of files_list" @click="mark_file_viewed(file), $emit('show_diff', file.path1, file.path2)" role="button"
 			.flex-1.fill-h.row.align-center.gap-10
 				img :src="file.icon_path" aria-hidden="true"
-				.filename :title="file.filename" {{ file.filename }}
+				div :class="{ 'walkthrough-not-viewed': !walkthrough_file_view_map[file.path2], filename: true  }" :title="file.file_desc"
+					div {{ file.filename1 }}
+					div v-if="file.path1 !== file.path2"
+						| => {{ file.path2 }}
 				.dir :title="file.dir" {{ file.dir }}
 			template-file-actions-reuse :file="file"
 			template-file-change-reuse :file="file"
@@ -37,9 +40,12 @@
 			.body
 				template-tree-node-reuse v-for="child of node.children" :node="child"
 				template v-for="file of node.files"
-					button.fill-w.row.align-center.gap-10 @click="$emit('show_diff',file.path)"
+					button.fill-w.row.align-center.gap-10 @click="mark_file_viewed(file), $emit('show_diff', file.path1, file.path2)"
 						img :src="file.icon_path" aria-hidden="true"
-						.filename.flex-1 :title="file.filename" {{ file.filename }}
+						div :class="{ 'walkthrough-not-viewed': !walkthrough_file_view_map[file.path2], filename: true, 'flex-1': true }" :title="file.file_desc"
+							div {{ file.filename1 }}
+							div v-if="file.path1 !== file.path2"
+								| => {{ file.path2 }}
 						template-file-actions-reuse :file="file"
 						template-file-change-reuse :file="file"
 	.tree v-if="files_tree"
@@ -85,7 +91,10 @@
 	.file-actions
 		display none
 	.list-row, .tree-node > summary, .tree-node > .body > .row
-		height 20px
+		img
+			height 20px
+		.walkthrough-not-viewed
+			font-weight bold
 		&:hover
 			background #2a2d2e
 			> .file-actions

@@ -14,11 +14,14 @@
 				repo-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
-						#search-instructions v-if="txt_filter_type==='jump'"
+						#search-instructions v-if="txt_filter_type==='jump' || txt_filter_type==='jumphash'"
 							| Jump between matches with ENTER / SHIFT+ENTER
 						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
 						button#clear-filter v-if="txt_filter" @click="clear_filter()"
 							| ✖
+						label#filter-type-filter.row.align-center
+							input type="radio" v-model="txt_filter_type" value="jumphash"
+							| Jump (Hash)
 						label#filter-type-filter.row.align-center
 							input type="radio" v-model="txt_filter_type" value="filter"
 							| Filter
@@ -27,10 +30,16 @@
 							| Jump
 					section#actions.center.gap-5 aria-roledescription="Global actions"
 						git-action-button.global-action v-for="action of global_actions" :git_action="action"
+						button#refresh.btn.center @click="go_to_head()" title="Go To HEAD"
+							i.codicon.codicon-git-merge
+						button#refresh.btn.center :disabled="!selected_commit" @click="temporary_view_commit_only()" title="Current Commit Only"
+							i.codicon.codicon-telescope
+						button#refresh.btn.center @click="reset_command()" title="Reset Git Log Command"
+							i.codicon.codicon-redo
 						button#refresh.btn.center @click="refresh_main_view()" title="Refresh"
 							i.codicon.codicon-refresh
 			#quick-branch-tips
-				all-branches @branch_selected="scroll_to_branch_tip($event)"
+				all-branches @branch_selected="scroll_to_branch_tip($event)" ref="all_branches_ref"
 				#git-status v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length"
 					| Status: {{ git_status }}
 				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.id)" title="Jump to branch tip" v-bind="branch_elem.bind"
@@ -40,9 +49,9 @@
 			#branches-connection v-if="config_show_quick_branch_tips"
 				component.vis :is="visualization_component" v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_amount="vis_max_amount"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
-				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash,merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
+				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.full_hash,merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.full_hash"
 					component.vis :is="visualization_component" :commit="commit" :vis_max_amount="vis_max_amount"
-					.info.flex-1.row.gap-20 v-if="commit.hash"
+					.info.flex-1.row.gap-20 v-if="commit.full_hash"
 						.subject-wrapper.flex-1.row.align-center
 							div.vis.vis-v :style="commit.branch? {color:commit.branch.color} : undefined"
 								| ●
@@ -56,6 +65,13 @@
 								span.grey {{ commit.stats.files_changed }}
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
+						button @click="commit_sticky_selected(commit,$event)" style="width: 20px"
+							div v-if="!sticky_selected_commits_map[commit.full_hash]"
+								| ◯
+							div v-if="sticky_selected_commits_map[commit.full_hash] && !sticky_selected_commits_reverted"
+								| ①
+							div v-if="sticky_selected_commits_map[commit.full_hash] && sticky_selected_commits_reverted"
+								| ②
 						button
 							.hash.flex-noshrink {{ commit.hash }}
 		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
@@ -66,7 +82,7 @@
 				.resize-hint v-if="selected_commit"
 					| ← resize
 			template v-else-if="selected_commits.length"
-				commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits"
+				commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits" @hash_clicked="scroll_to_commit($event)"
 				button#close-selected-commits.center @click="selected_commits=[]" title="Close"
 					i.codicon.codicon-close
 				.resize-hint v-if="selected_commit"
@@ -75,7 +91,7 @@
 	popup v-if="combine_branches_from_branch_name" @close="combine_branches_from_branch_name=''"
 		.drag-drop-branch-actions.col.center.gap-5
 			git-action-button.drag-drop-branch-action v-for="action of combine_branches_actions" :git_action="action"
-	popup v-if="selected_git_action" @close="selected_git_action=null"
+	popup v-if="selected_git_action && !selected_git_action.args.startsWith('special:')" @close="selected_git_action=null"
 		selected-git-action
 </template>
 

@@ -5,7 +5,7 @@ import RefTip from './RefTip.vue'
 export default
 	emit: ['branch_selected']
 	components: { RefTip }
-	setup: ->
+	setup: (props, { emit }) ->
 		show_all_branches = ref false
 		txt_filter = ref ''
 		filtered_branches = computed =>
@@ -27,8 +27,11 @@ export default
 			document.addEventListener 'mouseup', on_mouse_up
 		onUnmounted =>
 			document.removeEventListener 'mouseup', on_mouse_up
+		go_to_head = () =>
+			emit 'branch_selected', 'HEAD'
 		{
 			show_all_branches
 			filtered_branches
 			txt_filter
+			go_to_head
 		}

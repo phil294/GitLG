@@ -72,7 +72,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 		# but can be anything due to different user input.
 		# The vis part could be colored by supplying option `--color=always` in MainView.vue, but
 		# this is not helpful as these colors are non-consistent and not bound to any branches
-		[ vis_str = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = line.split separator
+		[ vis_str = '', full_hash = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = line.split separator
 		if vis_str.at(-1) != ' '
 			console.warn "unknown git graph syntax returned at line " + line_no
 		refs = refs_csv
@@ -96,7 +96,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 						branch_match
 					else
 						# Can happen with grafted branches
-						console.warn "Could not find ref '#{id}' in list of branches for commit '#{hash}'"
+						console.warn "Could not find ref '#{id}' in list of branches for commit '#{full_hash}'"
 						undefined
 			.filter is_truthy
 			.sort git_ref_sort
@@ -116,8 +116,9 @@ parse = (log_data, branch_data, stash_data, separator) =>
 		commits[line_no] = {
 			i: line_no
 			vis: []
-			hash, author_name, author_email, datetime, refs, subject
-			scroll_height: if hash then 20 else 6 # must be synced with css (v-bind doesn't work with coffee)
+			full_hash, author_name, author_email, datetime, refs, subject
+			hash: if hash then hash else if full_hash then full_hash.substring(0, 8) else ''
+			scroll_height: if full_hash then 20 else 6 # must be synced with css (v-bind doesn't work with coffee)
 		}
 		for char, i in vis by -1
 			``###* @type {Branch | null | undefined } ###
@@ -250,7 +251,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 	for stash from (stash_data or '').split('\n')
 		# 7c37db63 stash@{11}
 		split = stash.split(' ')
-		commit = commits.find((c) => c.hash == split[0])
+		commit = commits.find((c) => c.full_hash == split[0])
 		name = split.slice(1).join(' ')
 		commit?.refs.push
 			name: name

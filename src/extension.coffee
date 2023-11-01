@@ -102,6 +102,8 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 					switch message.command
 						when 'git' then h =>
 							git.run d
+						when 'copy-to-clipboard' then h =>
+							vscode.env.clipboard.writeText d
 						when 'show-error-message' then h =>
 							log_error d
 						when 'show-information-message' then h =>
@@ -113,9 +115,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						when 'set-state' then h =>
 							state(d.key).set(d.value, broadcast: false)
 						when 'open-diff' then h =>
-							uri_1 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[0]}:#{d.filename}"
-							uri_2 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[1]}:#{d.filename}"
-							vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filename} #{d.hashes[0]} vs. #{d.hashes[1]}"
+							uri_1 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[0]}:#{d.filepath1}"
+							uri_2 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[1]}:#{d.filepath2}"
+							vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filepath1} #{d.hashes[0]} vs. " + (if (d.filepath1 == d.filepath2) then  "" else d.filepath2) + " #{d.hashes[1]}"
 						when 'view-rev' then h =>
 							uri = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hash}:#{d.filename}"
 							vscode.commands.executeCommand 'vscode.open', uri

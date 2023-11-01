@@ -143,6 +143,10 @@ export default defineComponent
 				data.value = result
 			emit 'success', result
 
+		temporary_view_commit_only = (commit_name) =>
+			command.value = constructed_command.value.replaceAll('--all', commit_name)
+			execute()
+
 		# typing doesn't work https://github.com/vuejs/composition-api/issues/402
 		### @type {Ref<InstanceType<import('../components/PromiseForm.vue')>|null>} ###
 		# so we need the ts-ignore below. TODO
@@ -169,4 +173,5 @@ export default defineComponent
 			params_input_refs
 			command_input_ref
 			ref_form
+			temporary_view_commit_only
 		}

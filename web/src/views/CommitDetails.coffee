@@ -43,35 +43,36 @@ export default defineComponent
 			get_files_command =
 				if stash.value
 					# so we can see untracked as well
-					"stash show --include-untracked --numstat --format=\"\" #{props.commit.hash}"
+					"stash show --include-untracked --numstat --format=\"\" #{props.commit.full_hash}"
 				else
-					"diff --numstat --format=\"\" #{props.commit.hash} #{props.commit.hash}~1"
+					"log -c --numstat --format=\"\" -n 1 #{props.commit.full_hash}"
 			changed_files.value = (try await git get_files_command)
-				?.split('\n').map((l) =>
+				?.split('\n').filter((l) => l && !!l.trim()).map((l) =>
 					split = l.split('\t')
 					path: split[2]
-					insertions: Number split[1]
-					deletions: Number split[0]) or []
+					insertions: Number split[0]
+					deletions: Number split[1]) or []
 
-			body.value = await git "show -s --format=\"%b\" #{props.commit.hash}"
+			body.value = await git "show -s --format=\"%B\" #{props.commit.full_hash}"
 
 			tag_details.value = []
 			for tag from tags.value
 				details = await git "show --format='' --quiet refs/tags/" + tag.name
 				tag_details.value.push details
 
-			parent_hashes.value = (await git "log --pretty=%p -n 1 #{props.commit.hash}").split ' '
+			parent_hashes.value = (await git "log --pretty=%P -n 1 #{props.commit.full_hash}").split ' '
 
-		show_diff = (###* @type string ### filepath) =>
+		show_diff = (###* @type string ### filepath1, ###* @type string ### filepath2) =>
 			exchange_message 'open-diff',
-				hashes: [props.commit.hash+'~1', props.commit.hash]
-				filename: filepath
+				hashes: [props.commit.full_hash+'~1', props.commit.full_hash]
+				filepath1: filepath1
+				filepath2: filepath2
 		view_rev = (###* @type string ### filepath) =>
 			exchange_message 'view-rev',
-				hash: props.commit.hash
+				hash: props.commit.full_hash
 				filename: filepath
 		_commit_actions = computed =>
-			commit_actions(props.commit.hash).value
+			commit_actions(props.commit.full_hash).value
 		_stash_actions = computed =>
 			stash_actions(stash.value?.name or '').value
 		_branch_actions = computed => (###* @type Branch ### branch) =>

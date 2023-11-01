@@ -1,7 +1,7 @@
 {
 	"name": "git-log--graph",
 	"description": "git log --graph, an interactive Git Graph frontend",
-	"version": "0.1.12",
+	"version": "0.1.12-shunf4-mod-1",
 	"icon": "img/logo.png",
 	"publisher": "phil294",
 	"private": false,

@@ -4,6 +4,13 @@
 
 	p.body {{ body }}
 
+	h3 Parent commits
+	ul
+		li v-for="parent_hash of parent_hashes"
+			| {{ parent_hash }}
+			button @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
+				i.codicon.codicon-link
+
 	template v-if="config_show_buttons"
 		.stash v-if="stash"
 			h3 Stash:
@@ -27,8 +34,8 @@
 
 		.commit
 			h3
-				| This commit {{ commit.hash }}
-				button @click="$emit('hash_clicked',commit.hash)" title="Jump to commit"
+				| This commit {{ commit.full_hash }}
+				button @click="$emit('hash_clicked',commit.full_hash)" title="Jump to commit"
 					i.codicon.codicon-link
 				| :
 			.row.gap-5.wrap
@@ -36,12 +43,6 @@
 
 	files-diffs-list :files="changed_files" @show_diff="show_diff" @view_rev="view_rev"
 
-	h3 Parent commits
-	ul
-		li v-for="parent_hash of parent_hashes"
-			| {{ parent_hash }}
-			button @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
-				i.codicon.codicon-link
 </template>
 
 <script lang="coffee" src="./CommitDetails.coffee"></script>
