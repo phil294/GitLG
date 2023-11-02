@@ -135,7 +135,7 @@ watch(
 		if new_selected_git_action.args == 'special:copy-branch-name'
 			branch_name = new_selected_git_action.params[0]
 			copy_to_clipboard branch_name
-			show_information_message 'Copied branch "' + branch_name + '"'
+			show_information_message 'Copied branch name "' + branch_name + '"'
 			nextTick().then ->
 				selected_git_action.value = null
 		else if new_selected_git_action.args == 'special:copy-commit-hashes'

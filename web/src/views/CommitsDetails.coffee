@@ -29,8 +29,8 @@ export default defineComponent
 				?.split('\n').filter((l) => l && !!l.trim()).map((l) =>
 					split = l.split('\t')
 					path: split[2]
-					insertions: Number split[1]
-					deletions: Number split[0]) or []
+					insertions: Number split[0]
+					deletions: Number split[1]) or []
 			get_merge_base_command = "merge-base --all #{props.commits[0].full_hash} #{props.commits[1].full_hash}"
 			merge_bases.value = (try await git get_merge_base_command)
 				?.split('\n') or []

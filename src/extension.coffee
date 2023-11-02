@@ -277,10 +277,11 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	context.subscriptions.push vscode.commands.registerCommand BLAME_CMD, =>
 		log.appendLine 'blame cmd'
 		return if not current_line_long_hash
+
 		state('selected-repo-index').set(current_line_repo_index)
-		focus_commit_hash = (await git.run "rev-parse --short #{current_line_long_hash}").trim() # todo error here goes unnoticed
+		# focus_commit_hash = (await git.run "rev-parse --short #{current_line_long_hash}").trim() # todo error here goes unnoticed
+		state('selected-commits-hashes').set([current_line_long_hash])
 		current_line_long_hash = ''
-		state('selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)
 
 	# public api of this extension:

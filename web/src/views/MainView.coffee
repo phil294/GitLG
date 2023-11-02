@@ -35,9 +35,15 @@ export default
 			if selected_commits.value.length == 1
 				selected_commits.value[0]
 		sticky_selected_commits = ref []
+		selected_commits_from_sticky = ref []
 		sticky_selected_commits_map = computed =>
 			result_map = {}
 			sticky_selected_commits.value.forEach (c) =>
+				result_map[c.full_hash] = true
+			return result_map
+		selected_commits_from_sticky_map = computed =>
+			result_map = {}
+			selected_commits_from_sticky.value.forEach (c) =>
 				result_map[c.full_hash] = true
 			return result_map
 		sticky_selected_commits_reverted = ref false
@@ -47,6 +53,7 @@ export default
 				sticky_selected_commits.value = []
 		)
 		commit_clicked = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
+			selected_commits_from_sticky.value = []
 			return if not commit.full_hash
 			selected_index = selected_commits.value.indexOf commit
 			if event.ctrlKey
@@ -78,7 +85,9 @@ export default
 				else
 					selected_commits.value = if sticky_selected_commits_reverted.value then [commit, sticky_selected_commits.value[0]] else [sticky_selected_commits.value[0], commit]
 					sticky_selected_commits.value = []
+					selected_commits_from_sticky.value = selected_commits.value
 			else
+				selected_commits_from_sticky.value = []
 				sticky_selected_commits.value = [commit]
 				sticky_selected_commits_reverted.value = false
 
@@ -384,6 +393,8 @@ export default
 			selected_commits
 			sticky_selected_commits
 			sticky_selected_commits_map
+			selected_commits_from_sticky
+			selected_commits_from_sticky_map
 			sticky_selected_commits_reverted
 			commit_clicked
 			commit_sticky_selected

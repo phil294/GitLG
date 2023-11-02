@@ -66,6 +66,8 @@
 							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 						.datetime.flex-noshrink {{ commit.datetime }}
 						button @click="commit_sticky_selected(commit,$event)" style="width: 20px"
+							div v-if="selected_commits_from_sticky_map[commit.full_hash]"
+								| ◍
 							div v-if="!sticky_selected_commits_map[commit.full_hash]"
 								| ◯
 							div v-if="sticky_selected_commits_map[commit.full_hash] && !sticky_selected_commits_reverted"

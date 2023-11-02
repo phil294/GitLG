@@ -39,6 +39,7 @@ export default defineComponent
 		body = ref ''
 		``###* @type {Ref<string[]>} ###
 		parent_hashes = ref []
+		contained_in_branches = ref []
 		watchEffect =>
 			get_files_command =
 				if stash.value
@@ -57,10 +58,11 @@ export default defineComponent
 
 			tag_details.value = []
 			for tag from tags.value
-				details = await git "show --format='' --quiet refs/tags/" + tag.name
+				details = await git "show --format=\"\" --quiet refs/tags/" + tag.name
 				tag_details.value.push details
 
 			parent_hashes.value = (await git "log --pretty=%P -n 1 #{props.commit.full_hash}").split ' '
+			contained_in_branches.value = (await git "branch --list --all --contains #{props.commit.full_hash} --format=\"%(refname:short)\"").split('\n').filter((l) => !!l && !!l.trim())
 
 		show_diff = (###* @type string ### filepath1, ###* @type string ### filepath2) =>
 			exchange_message 'open-diff',
@@ -98,4 +100,5 @@ export default defineComponent
 			stash_actions: _stash_actions
 			config_show_buttons
 			parent_hashes
+			contained_in_branches
 		}

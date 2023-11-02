@@ -7,9 +7,13 @@
 	h3 Parent commits
 	ul
 		li v-for="parent_hash of parent_hashes"
-			| {{ parent_hash }}
 			button @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
 				i.codicon.codicon-link
+			| {{ parent_hash }}
+
+	h3 Contained in branches
+	div.contained-in-branch v-for="branch of contained_in_branches"
+		| {{ branch }}
 
 	template v-if="config_show_buttons"
 		.stash v-if="stash"
@@ -34,9 +38,11 @@
 
 		.commit
 			h3
-				| This commit {{ commit.full_hash }}
+				| This commit
+				br
 				button @click="$emit('hash_clicked',commit.full_hash)" title="Jump to commit"
 					i.codicon.codicon-link
+				| {{ commit.full_hash }}
 				| :
 			.row.gap-5.wrap
 				git-action-button v-for="action of commit_actions" :git_action="action"
@@ -59,4 +65,14 @@ h2.summary
 .branch-tips, .tags
 	.ref-tip
 		margin 20px 10px 10px
+
+.contained-in-branch
+	margin 3px 5px 3px 5px
+	background #000
+	display inline-block
+	padding 1px 3px
+	border 1px solid #505050
+	border-radius 7px
+	white-space pre
+
 </style>
