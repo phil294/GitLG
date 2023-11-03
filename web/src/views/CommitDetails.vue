@@ -7,7 +7,7 @@
 	h3 Parent commits
 	ul
 		li v-for="parent_hash of parent_hashes"
-			button @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
+			button style="margin-right: 3px;" @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
 				i.codicon.codicon-link
 			| {{ parent_hash }}
 
@@ -15,6 +15,7 @@
 	div.contained-in-branch v-for="branch of contained_in_branches"
 		| {{ branch }}
 
+	h3 Commit related to Refs
 	template v-if="config_show_buttons"
 		.stash v-if="stash"
 			h3 Stash:
@@ -40,7 +41,7 @@
 			h3
 				| This commit
 				br
-				button @click="$emit('hash_clicked',commit.full_hash)" title="Jump to commit"
+				button style="margin-right: 3px;" @click="$emit('hash_clicked',commit.full_hash)" title="Jump to commit"
 					i.codicon.codicon-link
 				| {{ commit.full_hash }}
 				| :

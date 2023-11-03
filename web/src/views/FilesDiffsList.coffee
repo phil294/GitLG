@@ -60,9 +60,18 @@ export default defineComponent
 				if path_moved.length == 2
 					path1 = path_moved[0]
 					path2 = path_moved[1]
+					if path1.includes('{') && path2.includes('}')
+						path1_split_brace_left = path1.split('{', 2)
+						common_path_prefix = path1_split_brace_left[0]
+						path1_specific = path1_split_brace_left[1]
+						path2_split_brace_right = path2.split('}', 2)
+						common_path_suffix = path2_split_brace_right[1]
+						path2_specific = path2_split_brace_right[0]
+						path1 = common_path_prefix + path1_specific + common_path_suffix
+						path2 = common_path_prefix + path2_specific + common_path_suffix
 					# Even on Windows, the delimiter of git paths output is forward slash
-					path1_arr = path_moved[0].split('/')
-					path2_arr = path_moved[1].split('/')
+					path1_arr = path1.split('/')
+					path2_arr = path2.split('/')
 					# Icons have to be hardcoded because actual theme integration is more or less impossible:
 					# https://github.com/microsoft/vscode/issues/183893
 					icon = file_extension_icon_path_mapping[path_moved[1].split('.').at(-1)] or 'default_file.svg'

@@ -61,7 +61,7 @@ export default defineComponent
 				details = await git "show --format=\"\" --quiet refs/tags/" + tag.name
 				tag_details.value.push details
 
-			parent_hashes.value = (await git "log --pretty=%P -n 1 #{props.commit.full_hash}").split ' '
+			parent_hashes.value = (await git "log --pretty=%P -n 1 #{props.commit.full_hash}").split(' ').filter((l) => !!l && !!l.trim())
 			contained_in_branches.value = (await git "branch --list --all --contains #{props.commit.full_hash} --format=\"%(refname:short)\"").split('\n').filter((l) => !!l && !!l.trim())
 
 		show_diff = (###* @type string ### filepath1, ###* @type string ### filepath2) =>

@@ -50,6 +50,7 @@ export default
 		watch(
 			store.commits
 			=>
+				# console.log('store.commits', store.commits.value)
 				sticky_selected_commits.value = []
 		)
 		commit_clicked = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
