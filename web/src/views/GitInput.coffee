@@ -144,7 +144,7 @@ export default defineComponent
 			emit 'success', result
 
 		temporary_view_commit_only = (commit_name) =>
-			command.value = constructed_command.value.replaceAll('--all', commit_name)
+			command.value = constructed_command.value.replaceAll('--all {STASH_REFS}', commit_name)
 			execute()
 
 		# typing doesn't work https://github.com/vuejs/composition-api/issues/402
