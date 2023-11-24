@@ -9,118 +9,54 @@ export default defineComponent
 			required: true
 			###* @type {() => Commit} ###
 			type: Object
+		height:
+			required: true
+			type: Number
 	components: { RefTip }
+	# TODO: move more parts of this into log-utils directly so it doesn't need to be recalculated while scrolling? does it matter performance-wise?
+	# even html svg elem pre creation?
 	setup: (props) ->
 		padding_left = 5
 		padding_right = 20
+		# TODO: naming
 		vis_width = computed =>
 			vis_max_amount.value * vis_v_width.value + padding_right
-		v_height = computed =>
-			props.commit.scroll_height
 		vis_style = computed =>
 			'min-width': "max(min(50vw, #{vis_width}px),210px)"
 			'max-width': '60vw'
 		lines = computed =>
-			props.commit.vis
-				.map (v, i) =>
-					return null if v.char == ' '
-					coords = switch v.char
-						when '*', '|'
-							x1: padding_left + vis_v_width.value * (i + 0.5)
-							x2: padding_left + vis_v_width.value * (i + 0.5)
-							y1: 0
-							y2: v_height.value
-						when '⎺*', '⎺|'
-							x1: padding_left + vis_v_width.value * i
-							x2: padding_left + vis_v_width.value * (i + 0.5)
-							y1: 0
-							y2: v_height.value
-						when '*⎺', '|⎺'
-							x1: padding_left + vis_v_width.value * (i + 1)
-							x2: padding_left + vis_v_width.value * (i + 0.5)
-							y1: 0
-							y2: v_height.value
-						when '⎽*', '⎽|'
-							x1: padding_left + vis_v_width.value * (i + 0.5)
-							x2: padding_left + vis_v_width.value * i
-							y1: 0
-							y2: v_height.value
-						when '⎽⎽|'
-							x1: padding_left + vis_v_width.value * (i - 0.5)
-							x2: padding_left + vis_v_width.value * (i + 0.5)
-							y1: v_height.value
-							y2: 0
-						when '*⎽', '|⎽'
-							x1: padding_left + vis_v_width.value * (i + 0.5)
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: 0
-							y2: v_height.value
-						when '|⎽⎽'
-							x1: padding_left + vis_v_width.value * (i + 0.5)
-							x2: padding_left + vis_v_width.value * (i + 1.5)
-							y1: 0
-							y2: v_height.value
-						when '_'
-							x1: padding_left + vis_v_width.value * i
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: v_height.value
-							y2: v_height.value
-						when '\\'
-							x1: padding_left + vis_v_width.value * i
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: 0
-							y2: v_height.value
-						when '⎺\\'
-							x1: padding_left + vis_v_width.value * (i - 0.5)
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: 0
-							y2: v_height.value
-						when '⎺\\⎽'
-							x1: padding_left + vis_v_width.value * (i - 0.5)
-							x2: padding_left + vis_v_width.value * (i + 1.5)
-							y1: 0
-							y2: v_height.value
-						when '/'
-							x1: padding_left + vis_v_width.value * (i + 1)
-							x2: padding_left + vis_v_width.value * i
-							y1: 0
-							y2: v_height.value
-						when '/⎺'
-							x1: padding_left + vis_v_width.value * (i + 1.5)
-							x2: padding_left + vis_v_width.value * i
-							y1: 0
-							y2: v_height.value
-						when '.', '-'
-							x1: padding_left + vis_v_width.value * i
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: 0
-							y2: 0
-						else
-							throw new Error 'unexpected vis char '+v.char
-					{
-						style:
-							stroke: v.branch?.color
-						class:
-							is_head: v.branch?.id == head_branch.value
-						...coords
-					}
-				.filter Boolean
-		vis_circle_index = computed =>
-			props.commit.vis.findIndex (v) =>
-				['*', '⎺*', '*⎺'].includes v.char
-		circle = computed =>
-			if vis_circle_index.value > -1
-				v = props.commit.vis[vis_circle_index.value]
+			props.commit.vis_lines.map (vis_line) =>
+				vis_line: vis_line
+				x1: padding_left + vis_line.from * vis_v_width.value
+				x2: padding_left + vis_line.to * vis_v_width.value
+				y1: 0
+				y2: props.height
 				style:
-					stroke: v.branch?.color
+					stroke: vis_line.branch?.color
 				class:
-					is_head: v.branch?.id == head_branch.value
-				cx: padding_left + vis_v_width.value * (vis_circle_index.value + 0.5)
-				cy: v_height.value * 0.5
-				r: 4
+					is_head: vis_line.branch?.id == head_branch.value
+		branch_line = computed =>
+			return null if ! props.commit.branch
+			lines.value.find (line) =>
+				line.vis_line.branch == props.commit.branch
+		circle = computed =>
+			return null if ! branch_line.value || ! props.commit.branch
+			style:
+				stroke: props.commit.branch.color
+			class:
+				is_head: props.commit.branch.id == head_branch.value
+			cx:
+				if branch_line.value.x1 - branch_line.value.x2 > vis_v_width.value * 2.1
+					# Something at the end of very long lines, like stashes
+					branch_line.value.x1
+				else
+					# Normal commits
+					(branch_line.value.x1 + branch_line.value.x2) / 2
+			cy: props.height * 0.5
+			r: 4
 		refs_elems = computed =>
 			refs: props.commit.refs
 			style:
-				left: padding_left + vis_v_width.value * (vis_circle_index.value + 1) - 2 + 'px'
+				left: (circle.value?.cx || padding_left) + vis_v_width.value - 2 + 'px'
 
-		{ vis_style, lines, vis_width, circle, refs_elems, v_height }
+		{ vis_style, lines, vis_width, circle, refs_elems }

@@ -5,6 +5,7 @@ import { is_truthy } from "./types"
 # @typedef {import('./types').GitRef} GitRef
 # @typedef {import('./types').Branch} Branch
 # @typedef {import('./types').Vis} Vis
+# @typedef {import('./types').VisLine} VisLine
 # @typedef {import('./types').Commit} Commit
 ###
 
@@ -44,7 +45,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 			id: if remote_name then "#{remote_name}/#{branch_name}" else branch_name
 		branches[branches.length - 1]
 	new_virtual_branch = =>
-		branch = new_branch ''
+		branch = new_branch "virtual #{branches.length-1}"
 		branch.virtual = true
 		branch
 
@@ -64,8 +65,19 @@ parse = (log_data, branch_data, stash_data, separator) =>
 	``###* @type {Commit[]} ###
 	commits = []
 
+	``###* @type Vis ###
+	last_vis = []
+
+	``###* vis svg lines are accumulated possibly spanning multiple output rows until
+	# there is a commit ("*") in which case the lines are saved as collected.
+	# This means that we only show commit rows and the various connection lines are
+	# densened together.
+	# @type {Record<string, VisLine>} ###
+	ongoing_vis_line_by_branch_id = {}
+
 	vis_max_amount = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
+	# TODO: rename line to row everywhere
 	for line, line_no in lines
 		# Example line:
 		# | | | * {SEP}fced73ef{SEP}phil294{SEP}e@mail.com{SEP}1557084465{SEP}HEAD -> master, origin/master, tag: xyz{SEP}Subject line
@@ -105,124 +117,158 @@ parse = (log_data, branch_data, stash_data, separator) =>
 		branch_tip = branch_tips[0]
 
 		``###* @type {typeof graph_chars} ###
-		vis = vis_str.trimEnd().split('')
-		vis_max_amount = Math.max(vis_max_amount, vis.length)
-		if vis.some (v) => not graph_chars.includes(v)
+		vis_chars = vis_str.trimEnd().split('')
+		# TODO:
+		vis_max_amount = Math.max(vis_max_amount, vis_chars.length)
+		if vis_chars.some (v) => not graph_chars.includes(v)
 			throw new Error "unknown visuals syntax at line " + line_no
 		datetime =
 			if timestamp
 				new Date(Number(timestamp) * 1000).toISOString().slice(0,19).replace("T"," ")
 			else undefined
-		commits[line_no] = {
-			i: line_no
-			vis: []
-			hash, author_name, author_email, datetime, refs, subject
-			scroll_height: if hash then 20 else 6 # must be synced with css (v-bind doesn't work with coffee)
-		}
-		for char, i in vis by -1
+		``###* We only keep track of the chars used by git output to be able to reconstruct
+		# branch lines accordingly, as git has no internal concept of this.
+		# This is achieved by comparing the vis chars to its neighbors (`last_vis`).
+		# Once this process is complete, the vis chars are dismissed and we only keep the
+		# vis lines per commit spanning 1-n rows to be rendered eventually.
+		# @type Vis ###
+		vis = []
+		``###* @type {Record<string, VisLine>} ###
+		row_vis_line_by_branch_id = {}
+		``###* @type {Branch|undefined} ###
+		commit_branch = undefined
+		for char, i in vis_chars by -1
 			``###* @type {Branch | null | undefined } ###
-			branch = undefined
-			v_n = commits[line_no-1]?.vis[i]
-			v_nw = commits[line_no-1]?.vis[i-1]
-			v_w_char = vis[i-1] # not yet in commits[] as iteration is rtl
-			v_ne = commits[line_no-1]?.vis[i+1]
-			v_nee = commits[line_no-1]?.vis[i+2]
-			v_e = commits[line_no]?.vis[i+1]
-			v_ee = commits[line_no]?.vis[i+2]
+			v_branch = undefined
+			v_n = last_vis[i]
+			v_nw = last_vis[i-1]
+			v_w_char = vis_chars[i-1] # not yet in vis[] as iteration is rtl
+			v_ne = last_vis[i+1]
+			v_nee = last_vis[i+2]
+			v_e = vis[i+1]
+			v_ee = vis[i+2]
+			``###* Parsing from top to bottom (reverse chronologically). The flow is
+			# generally rtl horizontally. So for example, the "/" char would direct the
+			# branch line from top right to bottom left and thus yield a {from:1,to:0} vis line.
+			# @type VisLine ###
+			vis_line = {}
 			switch char
 				when '*'
 					if branch_tip
-						branch = branch_tip
-						if ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
+						v_branch = branch_tip
+						if v_nw?.char == '\\'
 							# This is branch tip but in previous above lines, this branch
 							# may already have been on display for merging without its actual name known (virtual substitute).
 							# Fix these lines (min 1) now
 							wrong_branch = v_nw?.branch
 							if wrong_branch and wrong_branch.virtual
-								k = line_no - 1
-								while (matches = commits[k]?.vis.filter (v) => v.branch == wrong_branch)?.length
+								k = commits.length - 1
+								while (matches = commits[k]?.vis_lines.filter (v) => v.branch == wrong_branch)?.length
 									for match from matches or []
 										match.branch = branch
 									k--
 								branches.splice branches.indexOf(wrong_branch), 1
-							char = '⎺*'
 					else if v_n?.branch
-						branch = v_n?.branch
-					else if ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
-						branch = v_nw?.branch
-						char = '⎺*'
-					else if ['/','/⎺'].includes(v_ne?.char||'')
-						branch = v_ne?.branch
-						char = '*⎺'
+						v_branch = v_n?.branch
+					else if v_nw?.char == '\\'
+						v_branch = v_nw?.branch
+					else if v_ne?.char == '/'
+						v_branch = v_ne?.branch
 					else
-						branch = new_virtual_branch()
-					commits[line_no].branch = branch if branch
+						# todo: why/how? add comment
+						# debugger
+						v_branch = new_virtual_branch()
+					commit_branch = v_branch
+					vis_line = { from: 0.5, to: 0.5 }
 				when '|'
 					if v_n?.branch
-						branch = v_n?.branch
-					else if ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
-						branch = v_nw?.branch
-						char = '⎺|'
-					else if ['/','/⎺'].includes(v_ne?.char||'')
-						branch = v_ne?.branch
-						char = '|⎺'
+						v_branch = v_n?.branch
+					else if v_nw?.char == '\\'
+						v_branch = v_nw?.branch
+					else if v_ne?.char == '/'
+						v_branch = v_ne?.branch
 					else
 						throw new Error 'no neighbor found for | at line ' + line_no
+					vis_line = { from: 0.5, to: 0.5 }
 				when '_'
-					branch = v_ee?.branch
+					v_branch = v_ee?.branch
+					vis_line = { from: 1, to: 0 }
 				when '/'
-					if ['*','⎺*','*⎺'].includes(v_ne?.char||'')
-						branch = v_ne?.branch
-						char = '/⎺'
-					else if ['|','⎺|','|⎺'].includes(v_ne?.char||'')
-						if ['/','/⎺'].includes(v_nee?.char||'') or v_nee?.char == '_'
-							branch = v_nee?.branch
+					if v_ne?.char == '*'
+						v_branch = v_ne?.branch
+					else if v_ne?.char == '|'
+						if v_nee?.char == '/' or v_nee?.char == '_'
+							v_branch = v_nee?.branch
 						else
-							branch = v_ne?.branch
-							char = '/⎺'
-					else if ['/','/⎺'].includes(v_ne?.char||'')
-						branch = v_ne?.branch
-					else if['\\','⎺\\⎽','⎺\\'].includes( v_n?.char||'') or ['|','⎺|','|⎺'].includes(v_n?.char||'')
-						branch = v_n?.branch
-						# TODO:
-						# if ['|','⎺|','|⎺'].includes(v_n?.char||'')
-						#	char = ?
+							v_branch = v_ne?.branch
+					else if v_ne?.char == '/'
+						v_branch = v_ne?.branch
+					else if v_n?.char == '\\' or v_n?.char == '|'
+						v_branch = v_n?.branch
 					else
 						throw new Error 'no neighbor found for / at line ' + line_no
+					vis_line = { from: 1, to: -0.5 }
 				when '\\'
-					if ['|','⎺|','|⎺'].includes(v_e?.char||'')
-						branch = v_e?.branch
-						char = '⎺\\⎽'
-					else if ['|','⎺|','|⎺'].includes(v_w_char)
+					if v_e?.char == '|'
+						v_branch = v_e?.branch
+					else if v_w_char == '|'
 						# right before (chronologically) a merge commit (which would be at v_nw).
 						# we can't know the actual branch yet (if it even still exists at all), the last branch
 						# commit is somewhere further down.
-						branch = new_virtual_branch()
-						char = '⎺\\'
-						commits[line_no-1].merge = true
-					else if ['|','⎺|','|⎺'].includes(v_nw?.char||'') or ['\\','⎺\\⎽','⎺\\'].includes(v_nw?.char||'')
-						branch = v_nw?.branch
-						if ['|','⎺|','|⎺'].includes(v_nw?.char||'')
-							char = '⎺\\'
+						# It will be corrected retroactively at [see "virtual substitute"].
+						v_branch = new_virtual_branch()
+						commits.at(-1)?.merge = true
+					else if v_nw?.char == '|' or v_nw?.char == '\\'
+						v_branch = v_nw?.branch
 					else if v_nw?.char == '.' or v_nw?.char == '-'
 						k = i - 2
-						while (match = commits[line_no-1].vis[k])?.char == '-'
+						while (match = last_vis[k])?.char == '-'
 							k--
-						branch = match.branch
-					else if v_nw?.char == '.' and commits[line_no-1]?.vis[i-2].char == '-'
-						branch = commits[line_no-1]?.vis[i-3].branch
+						v_branch = match.branch
+					else if v_nw?.char == '.' and last_vis[i-2].char == '-'
+						v_branch = last_vis[i-3].branch
 					else
 						throw new Error 'no neighbor found for \\ at line ' + line_no
+					vis_line = { from: -0.5, to: 1 }
 				when ' ', '.', '-'
-					branch = null
+					v_branch = null
 					# TODO:
 					# set char to ⎺-like?
-			if branch == undefined
-				throw new Error 'unexpected undefined branch at line ' + line_no
-			commits[line_no].vis[i] = {
+			if v_branch == undefined
+				throw new Error "could not identify branch in line #{line_no} at char #{i}"
+			vis[i] = {
 				char
-				branch
+				branch: v_branch
 			}
+			if v_branch
+				vis_line.from += i
+				vis_line.to += i
+				row_vis_line_by_branch_id[v_branch.id] = vis_line
+				row_vis_line_by_branch_id[v_branch.id].branch = v_branch
+				if ongoing_vis_line_by_branch_id[v_branch.id]
+					ongoing_vis_line_by_branch_id[v_branch.id].to = vis_line.to
+				else
+					vis_line.branch = v_branch
+					ongoing_vis_line_by_branch_id[v_branch.id] = vis_line
+		if commit_branch
+			# After 1-n parsed rows, we have now arrived at what will become one row
+			# in *our* application too.
+			commits.push {
+				i: line_no
+				# Reverse so leftmost branches come first in the listing - only matters for the
+				# connection_fake_commit currently
+				vis_lines: Object.values(ongoing_vis_line_by_branch_id).reverse()
+				branch: commit_branch
+				hash, author_name, author_email, datetime, refs, subject
+			}
+			# Get rid of branches that "end" here (those that were born with this very commit)
+			# as won't paint their lines anymore in future (= older) commits, *and*
+			# get rid of collected connection lines - freshly start at this commit again
+			ongoing_vis_line_by_branch_id = {}
+			for branch_id, vis_line of row_vis_line_by_branch_id
+				# Upcoming rows should connect to the end of where we leave off in this row
+				ongoing_vis_line_by_branch_id[branch_id] = from: vis_line.to, to: 0, branch: vis_line.branch
+		last_vis = vis
 
 	# cannot do this at creation because branches list is not fixed before this (see wrong_branch)
 	i = -1
@@ -258,6 +304,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 			type: "stash"
 			color: '#fff'
 
+	# TODO: shouln't this be called something else than "commit" given that it can contain empty stuff?
 	{ commits, branches, vis_max_amount }
 
 export { parse }

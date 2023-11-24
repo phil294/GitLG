@@ -14,14 +14,27 @@ import colors from "./colors.coffee"
 #	virtual?: boolean
 # }} Branch
 #
+# TODO: typedef comment doesn't work? Same below
+# Chars as they are returned from git, with proper branch association
 # @typedef {{
 #	char: string
 #	branch: Branch | null
 # }[]} Vis
 #
+# Vis chars are transformed by us into vis lines (as in: a svg line) that have an
+# x0 and an x1 "coordinate" (from / to). These coordinates will have to be mapped
+# to the actual svg grid as there is no spacing here yet.
+# Every commit will have at least one vis line.
+# TODO: The naming of all of this is annoying, find something better
+# @typedef {{
+#	from: number
+#	to: number
+#	branch?: Branch | undefined
+# }} VisLine
+#
 # @typedef {{
 #	i: number
-#	vis: Vis
+#	vis_lines: VisLine[]
 #	branch?: Branch
 #	hash: string
 #	author_name: string
@@ -35,7 +48,6 @@ import colors from "./colors.coffee"
 #		insertions?: number
 #		deletions?: number
 #	}
-#	scroll_height: number
 # }} Commit
 #
 # @typedef {{

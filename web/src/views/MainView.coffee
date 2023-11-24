@@ -8,7 +8,6 @@ import GitActionButton from './GitActionButton.vue'
 import CommitDetails from './CommitDetails.vue'
 import CommitsDetails from './CommitsDetails.vue'
 import SVGVisualization from './SVGVisualization.vue'
-import ASCIIVisualization from './ASCIIVisualization.vue'
 import AllBranches from './AllBranches.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
@@ -19,7 +18,7 @@ import RepoSelection from './RepoSelection.vue'
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 
 export default
-	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, SVGVisualization, ASCIIVisualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
+	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, SVGVisualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
 	setup: ->
 		``###* @type {string[]} ###
 		default_selected_commits_hashes = []
@@ -179,22 +178,22 @@ export default
 		scroll_item_offset = 0
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>
 			scroll_item_offset = start_index
-			commits_start_index = if scroll_item_offset < 3 then 0 else scroll_item_offset + 2
+			commits_start_index = if scroll_item_offset < 3 then 0 else scroll_item_offset
 			visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index)
 		scroller_on_wheel = (###* @type WheelEvent ### event) =>
 			return if store.config.value['disable-scroll-snapping']
 			event.preventDefault()
-			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20) + 2
+			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20)
 		scroller_on_keydown = (###* @type KeyboardEvent ### event) =>
 			return if store.config.value['disable-scroll-snapping']
 			if event.key == 'ArrowDown'
 				event.preventDefault()
-				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 3
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
 			else if event.key == 'ArrowUp'
 				event.preventDefault()
-				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset - 1
 		scroll_to_item_centered = (###* @type number ### index) =>
-			commits_scroller_ref.value?.scrollToItem index - Math.floor(visible_commits.value.length / 2) + 2
+			commits_scroller_ref.value?.scrollToItem index - Math.floor(visible_commits.value.length / 2)
 
 
 
@@ -207,7 +206,7 @@ export default
 		visible_branches = computed =>
 			[...new Set(visible_commits.value
 				.flatMap (commit) =>
-					commit.vis.map (v) => v.branch)]
+					(commit.vis_lines || []).map (v) => v.branch)]
 			.filter(is_truthy)
 			.filter (branch) => not branch.virtual
 		visible_branch_tips = computed =>
@@ -229,46 +228,32 @@ export default
 		connection_fake_commit = computed =>
 			commit = visible_commits.value[0]
 			return null if not commit
-			{
-				...commit
-				scroll_height: 110
-				refs: []
-				vis: commit.vis.map (v) => {
-					...v
-					char:
-						if v.branch and invisible_branch_tips_of_visible_branches.value.includes(v.branch)
-							switch v.char
-								when '*', '|', '⎽*', '⎽|', '*⎽', '|⎽' then '|'
-								when '⎺*', '⎺|', '\\', '.', '-'       then '⎽|'
-								when '*⎺', '|⎺', '/'                  then '|⎽'
-								when '⎺\\', '⎺\\⎽'                    then '⎽⎽|'
-								when '/⎺'                             then '|⎽⎽'
-								else ' '
-						else ' '
+			refs: []
+			vis_lines: commit.vis_lines
+				.filter (line) =>
+					line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch)
+				.map (line) => {
+					...line
+					to: line.from
 				}
-			}
+		# To show branch tips on top of connection_fake_commit lines
 		invisible_branch_tips_of_visible_branches_elems = computed =>
 			row = -1
-			(connection_fake_commit.value?.vis
-				.map (v, i) =>
-					return null if not v.branch or v.char == ' '
+			(connection_fake_commit.value?.vis_lines
+				.map (line) =>
+					return null if not line.branch
 					row++
 					row = 0 if row > 5
-					branch: v.branch
+					branch: line.branch
 					bind:
 						style:
-							left: 0 + store.vis_v_width.value * i + 'px'
+							left: 0 + store.vis_v_width.value * line.from + 'px'
 							top: 0 + row * 19 + 'px'
 				.filter(is_truthy)) or []
 
 
-
-		visualization_component = computed =>
-			if store.config.value['branch-visualization'] == 'svg'
-				SVGVisualization
-			else
-				ASCIIVisualization
-
+			# TODO:
+			# if store.config.value['branch-visualization'] == 'svg'
 
 
 
@@ -347,5 +332,4 @@ export default
 			scroller_on_wheel
 			scroller_on_keydown
 			config_show_quick_branch_tips
-			visualization_component
 		}
