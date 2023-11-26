@@ -16,6 +16,7 @@ export default defineComponent
 	# TODO: move more parts of this into log-utils directly so it doesn't need to be recalculated while scrolling? does it matter performance-wise?
 	# even html svg elem pre creation?
 	setup: (props) ->
+		# TODO: can be part of parent svg declaration (?)
 		padding_left = 5
 		padding_right = 20
 		# TODO: naming
@@ -26,11 +27,8 @@ export default defineComponent
 			'max-width': '60vw'
 		lines = computed =>
 			props.commit.vis_lines.map (vis_line) =>
+				d: "M#{padding_left + vis_line.x0 * vis_v_width.value},#{vis_line.y0 * props.height} C#{padding_left + vis_line.xcs * vis_v_width.value},#{vis_line.ycs * props.height} #{padding_left + vis_line.xce * vis_v_width.value},#{vis_line.yce * props.height} #{padding_left + vis_line.xn * vis_v_width.value},#{vis_line.yn * props.height}"
 				vis_line: vis_line
-				x1: padding_left + vis_line.from * vis_v_width.value
-				x2: padding_left + vis_line.to * vis_v_width.value
-				y1: 0
-				y2: props.height
 				style:
 					stroke: vis_line.branch?.color
 				class:

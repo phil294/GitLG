@@ -73,7 +73,11 @@ parse = (log_data, branch_data, stash_data, separator) =>
 	# This means that we only show commit rows and the various connection lines are
 	# densened together.
 	# @type {Record<string, VisLine>} ###
-	ongoing_vis_line_by_branch_id = {}
+	densened_vis_line_by_branch_id = {}
+	###* @type {Record<string, VisLine>} ###
+	last_densened_vis_line_by_branch_id = {}
+	``###* @type {Record<string, number>} ###
+	xn_by_branch_id = {}
 
 	vis_max_amount = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
@@ -133,8 +137,6 @@ parse = (log_data, branch_data, stash_data, separator) =>
 		# vis lines per commit spanning 1-n rows to be rendered eventually.
 		# @type Vis ###
 		vis = []
-		``###* @type {Record<string, VisLine>} ###
-		row_vis_line_by_branch_id = {}
 		``###* @type {Branch|undefined} ###
 		commit_branch = undefined
 		for char, i in vis_chars by -1
@@ -149,7 +151,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 			v_ee = vis[i+2]
 			``###* Parsing from top to bottom (reverse chronologically). The flow is
 			# generally rtl horizontally. So for example, the "/" char would direct the
-			# branch line from top right to bottom left and thus yield a {from:1,to:0} vis line.
+			# branch line from top right to bottom left and thus yield a {x0:1,xn:0} vis line.
 			# @type VisLine ###
 			vis_line = {}
 			switch char
@@ -179,7 +181,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 						# debugger
 						v_branch = new_virtual_branch()
 					commit_branch = v_branch
-					vis_line = { from: 0.5, to: 0.5 }
+					vis_line = { x0: 0.5, xn: 0.5 }
 				when '|'
 					if v_n?.branch
 						v_branch = v_n?.branch
@@ -189,10 +191,10 @@ parse = (log_data, branch_data, stash_data, separator) =>
 						v_branch = v_ne?.branch
 					else
 						throw new Error 'no neighbor found for | at line ' + line_no
-					vis_line = { from: 0.5, to: 0.5 }
+					vis_line = { x0: 0.5, xn: 0.5 }
 				when '_'
 					v_branch = v_ee?.branch
-					vis_line = { from: 1, to: 0 }
+					vis_line = { x0: 1, xn: 0 }
 				when '/'
 					if v_ne?.char == '*'
 						v_branch = v_ne?.branch
@@ -207,7 +209,8 @@ parse = (log_data, branch_data, stash_data, separator) =>
 						v_branch = v_n?.branch
 					else
 						throw new Error 'no neighbor found for / at line ' + line_no
-					vis_line = { from: 1, to: -0.5 }
+					# TODO: perhaps these can be reverted to 0 instead of -0.5
+					vis_line = { x0: 1, xn: -0.5 }
 				when '\\'
 					if v_e?.char == '|'
 						v_branch = v_e?.branch
@@ -229,7 +232,7 @@ parse = (log_data, branch_data, stash_data, separator) =>
 						v_branch = last_vis[i-3].branch
 					else
 						throw new Error 'no neighbor found for \\ at line ' + line_no
-					vis_line = { from: -0.5, to: 1 }
+					vis_line = { x0: -0.5, xn: 1 }
 				when ' ', '.', '-'
 					v_branch = null
 					# TODO:
@@ -241,33 +244,68 @@ parse = (log_data, branch_data, stash_data, separator) =>
 				branch: v_branch
 			}
 			if v_branch
-				vis_line.from += i
-				vis_line.to += i
-				row_vis_line_by_branch_id[v_branch.id] = vis_line
-				row_vis_line_by_branch_id[v_branch.id].branch = v_branch
-				if ongoing_vis_line_by_branch_id[v_branch.id]
-					ongoing_vis_line_by_branch_id[v_branch.id].to = vis_line.to
+				vis_line.x0 += i
+				vis_line.xn += i
+				if densened_vis_line_by_branch_id[v_branch.id]
+					densened_vis_line_by_branch_id[v_branch.id].xn = vis_line.xn
 				else
 					vis_line.branch = v_branch
-					ongoing_vis_line_by_branch_id[v_branch.id] = vis_line
+					densened_vis_line_by_branch_id[v_branch.id] = vis_line
+					if xn_by_branch_id[v_branch.id]?
+						# TODO check if this is really necessary
+						densened_vis_line_by_branch_id[v_branch.id].x0 = xn_by_branch_id[v_branch.id]
+				xn_by_branch_id[v_branch.id] = vis_line.xn
 		if commit_branch
 			# After 1-n parsed rows, we have now arrived at what will become one row
 			# in *our* application too.
+			for branch_id, vis_line of densened_vis_line_by_branch_id
+				# y is always the same
+				vis_line.y0 = 0
+				vis_line.yn = 1
+				# For now, no curvature at the end
+				vis_line.xce = vis_line.xn
+				vis_line.yce = vis_line.yn
+				# Make round?
+				if last_vis_line = last_densened_vis_line_by_branch_id?[branch_id]
+					# Should be between 0.3 and 0.6 or things start to look angular (ew).
+					# There doesn't seem to be a huge difference between both boundaries though.
+					curve_radius = 0.4
+					# Things get wobbly with a different value here
+					curve_bend = curve_radius
+					# So far, a line is simply defined as the connection between x0 and xn with
+					# y0 and y1 being 0 and 1, respectively. The lines all connect to each
+					# other. But between them, there is no curvature yet (hard edge).
+					# Determining two control points near this junction:
+					# (see VisLine JSDoc for naming info)
+					last_xce = last_vis_line.x0 + (last_vis_line.xn - last_vis_line.x0) * (1 - curve_radius)
+					xcs = vis_line.x0 + (vis_line.xn - vis_line.x0) * curve_radius
+					# ...and the strategy for creating a curve is to mark the control points fixed
+					# but move the actual junction point's x toward the average between both control
+					# points:
+					middle_x = (xcs + last_xce) / 2
+					last_vis_line.xn = middle_x
+					last_vis_line.xce = last_xce
+					last_vis_line.yce = 1 - curve_bend
+					vis_line.x0 = middle_x
+					vis_line.xcs = xcs
+					vis_line.ycs = curve_bend
+				else
+					# First time this branch appeared, so we never want any curvature at the start:
+					vis_line.xcs = vis_line.x0
+					vis_line.ycs = vis_line.y0
 			commits.push {
 				i: line_no
 				# Reverse so leftmost branches come first in the listing - only matters for the
 				# connection_fake_commit currently
-				vis_lines: Object.values(ongoing_vis_line_by_branch_id).reverse()
+				vis_lines: Object.values(densened_vis_line_by_branch_id).reverse()
 				branch: commit_branch
 				hash, author_name, author_email, datetime, refs, subject
 			}
+			last_densened_vis_line_by_branch_id = densened_vis_line_by_branch_id
 			# Get rid of branches that "end" here (those that were born with this very commit)
 			# as won't paint their lines anymore in future (= older) commits, *and*
 			# get rid of collected connection lines - freshly start at this commit again
-			ongoing_vis_line_by_branch_id = {}
-			for branch_id, vis_line of row_vis_line_by_branch_id
-				# Upcoming rows should connect to the end of where we leave off in this row
-				ongoing_vis_line_by_branch_id[branch_id] = from: vis_line.to, to: 0, branch: vis_line.branch
+			densened_vis_line_by_branch_id = {}
 		last_vis = vis
 
 	# cannot do this at creation because branches list is not fixed before this (see wrong_branch)
