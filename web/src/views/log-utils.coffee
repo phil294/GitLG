@@ -259,13 +259,18 @@ parse = (log_data, branch_data, stash_data, separator) =>
 			# After 1-n parsed rows, we have now arrived at what will become one row
 			# in *our* application too.
 			for branch_id, vis_line of densened_vis_line_by_branch_id
-				# y is always the same
+				# Usually constant
 				vis_line.y0 = 0
 				vis_line.yn = 1
-				# For now, no curvature at the end
+				# We don't know yet if this line is the last one of rows for this branch
+				# or if more will be to come. The latter case is handled later, so for the former
+				# case to look nice, some downwards angle is added by default by moving the end
+				# control point upwards. This makes sense because the last line is the birth
+				# spot and branches are always based on another branch, so this draws an
+				# upwards splitting effect
 				vis_line.xce = vis_line.xn
-				vis_line.yce = vis_line.yn
-				# Make round?
+				vis_line.yce = 0.6
+				# Make connection to previous row's branch line curvy?
 				if last_vis_line = last_densened_vis_line_by_branch_id?[branch_id]
 					# Should be between 0.3 and 0.6 or things start to look angular (ew).
 					# There doesn't seem to be a huge difference between both boundaries though.
