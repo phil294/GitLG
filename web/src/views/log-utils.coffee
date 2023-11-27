@@ -295,9 +295,12 @@ parse = (log_data, branch_data, stash_data, separator) =>
 					vis_line.xcs = xcs
 					vis_line.ycs = curve_bend
 				else
-					# First time this branch appeared, so we never want any curvature at the start:
+					# First time this branch appeared, so we want an upwards curvature, just like
+					# the logic around initializing xce above, but reversed:
 					vis_line.xcs = vis_line.x0
-					vis_line.ycs = vis_line.y0
+					# TODO: make this and the other one configurable
+					vis_line.ycs = 0.4
+					# TODO: down arrow doesnt work anymore
 			commits.push {
 				i: line_no
 				# Reverse so leftmost branches come first in the listing - only matters for the
