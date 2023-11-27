@@ -44,12 +44,9 @@ export default defineComponent
 			class:
 				is_head: props.commit.branch.id == head_branch.value
 			cx:
-				if branch_line.value.x1 - branch_line.value.x2 > vis_v_width.value * 2.1
-					# Something at the end of very long lines, like stashes
-					branch_line.value.x1
-				else
-					# Normal commits
-					(branch_line.value.x1 + branch_line.value.x2) / 2
+				# I guess this could also be calculated more elegantly, but this kind of
+				# approximation seems to be good enough for all cases
+				padding_left + (branch_line.value.vis_line.x0 + branch_line.value.vis_line.xn + branch_line.value.vis_line.xcs + branch_line.value.vis_line.xce) / 4 * vis_v_width.value
 			cy: props.height * 0.5
 			r: 4
 		refs_elems = computed =>
