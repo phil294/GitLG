@@ -234,7 +234,10 @@ export default
 					line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch)
 				.map (line) => {
 					...line
-					to: line.from
+					xn: line.x0
+					x0: line.x0 + (line.xcs - line.x0) * (-1)
+					xcs: line.x0 + (line.xcs - line.x0) * (-1)
+					xce: line.x0 + (line.xcs - line.x0) * (-3)
 				}
 		# To show branch tips on top of connection_fake_commit lines
 		invisible_branch_tips_of_visible_branches_elems = computed =>
@@ -247,7 +250,7 @@ export default
 					branch: line.branch
 					bind:
 						style:
-							left: 0 + store.vis_v_width.value * line.from + 'px'
+							left: 0 + store.vis_v_width.value * line.x0 + 'px'
 							top: 0 + row * 19 + 'px'
 				.filter(is_truthy)) or []
 
