@@ -40,6 +40,7 @@
 			#branches-connection v-if="config_show_quick_branch_tips"
 				/ TODO: vis naming
 				SVGVisualization.vis :height="110" v-if="connection_fake_commit" :commit="connection_fake_commit"
+			/ TODO: performance improved by increasing buffer?
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" :item-size="20" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
 				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.hash,merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
 					SVGVisualization.vis :height="20" :commit="commit"

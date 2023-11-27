@@ -295,6 +295,9 @@ parse = (log_data, branch_data, stash_data, separator) =>
 					vis_line.xcs = xcs
 					vis_line.ycs = curve_bend
 				else
+					# if branch_id == commit_branch.id
+					# 	# First commit of a new standalone branch = there's nothing on top
+					# 	vis_line.y0 = 0.5
 					# First time this branch appeared, so we want an upwards curvature, just like
 					# the logic around initializing xce above, but reversed:
 					vis_line.xcs = vis_line.x0

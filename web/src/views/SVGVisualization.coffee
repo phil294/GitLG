@@ -16,7 +16,6 @@ export default defineComponent
 	# TODO: move more parts of this into log-utils directly so it doesn't need to be recalculated while scrolling? does it matter performance-wise?
 	# even html svg elem pre creation?
 	setup: (props) ->
-		# TODO: can be part of parent svg declaration (?)
 		padding_left = 5
 		padding_right = 20
 		# TODO: naming
@@ -33,6 +32,9 @@ export default defineComponent
 					stroke: vis_line.branch?.color
 				class:
 					is_head: vis_line.branch?.id == head_branch.value
+				# https://stackoverflow.com/q/44040163
+				# TODO: Didn't find a working solution yet to fix the gaps between the svg elements.
+				'vector-effect': 'non-scaling-stroke'
 		branch_line = computed =>
 			return null if ! props.commit.branch
 			lines.value.find (line) =>
