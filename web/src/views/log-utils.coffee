@@ -309,6 +309,8 @@ parse = (log_data, branch_data, stash_data, separator) =>
 				# Reverse so leftmost branches come first in the listing - only matters for the
 				# connection_fake_commit currently
 				vis_lines: Object.values(densened_vis_line_by_branch_id).reverse()
+					# Leftmost branches should appear later so they are on top of the rest
+					.sort (a, b) => b.xcs + b.xce - a.xcs - a.xce
 				branch: commit_branch
 				hash, author_name, author_email, datetime, refs, subject
 			}
