@@ -188,10 +188,10 @@ export default
 			return if store.config.value['disable-scroll-snapping']
 			if event.key == 'ArrowDown'
 				event.preventDefault()
-				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 2
 			else if event.key == 'ArrowUp'
 				event.preventDefault()
-				commits_scroller_ref.value?.scrollToItem scroll_item_offset - 1
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset - 2
 		scroll_to_item_centered = (###* @type number ### index) =>
 			commits_scroller_ref.value?.scrollToItem index - Math.floor(visible_commits.value.length / 2)
 

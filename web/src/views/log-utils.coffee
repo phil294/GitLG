@@ -303,7 +303,6 @@ parse = (log_data, branch_data, stash_data, separator) =>
 					vis_line.xcs = vis_line.x0
 					# TODO: make this and the other one configurable
 					vis_line.ycs = 0.4
-					# TODO: down arrow doesnt work anymore
 			commits.push {
 				i: line_no
 				# Reverse so leftmost branches come first in the listing - only matters for the
