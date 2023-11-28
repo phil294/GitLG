@@ -211,7 +211,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_n?.branch
 					else
 						throw new Error 'no neighbor found for / at row ' + row_no
-					# TODO: perhaps these can be reverted to 0 instead of -0.5
 					vis_line = { x0: 1, xn: -0.5 }
 				when '\\'
 					if v_e?.char == '|'
@@ -237,8 +236,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					vis_line = { x0: -0.5, xn: 1 }
 				when ' ', '.', '-'
 					v_branch = null
-					# TODO:
-					# set char to ⎺-like?
 			if v_branch == undefined
 				throw new Error "could not identify branch in row #{row_no} at char #{i}"
 			vis[i] = {
@@ -348,7 +345,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			type: "stash"
 			color: '#fff'
 
-	# TODO: shouln't this be called something else than "commit" given that it can contain empty stuff?
 	{ commits, branches, vis_max_amount }
 
 export { parse }
