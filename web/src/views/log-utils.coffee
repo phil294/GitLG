@@ -270,7 +270,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 				# spot and branches are always based on another branch, so this draws an
 				# upwards splitting effect
 				vis_line.xce = vis_line.xn
-				vis_line.yce = 0.6
+				vis_line.yce = 1 - curve_radius
 				# Make connection to previous row's branch line curvy?
 				if last_vis_line = last_densened_vis_line_by_branch_id?[branch_id]
 					# So far, a line is simply defined as the connection between x0 and xn with
@@ -297,8 +297,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					# First time this branch appeared, so we want an upwards curvature, just like
 					# the logic around initializing xce above, but reversed:
 					vis_line.xcs = vis_line.x0
-					# TODO: make this and the other one configurable
-					vis_line.ycs = 0.4
+					vis_line.ycs = curve_radius
 			commits.push {
 				i: line_no
 				# Reverse so leftmost branches come first in the listing - only matters for the
