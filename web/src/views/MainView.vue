@@ -124,7 +124,7 @@ details.config
 		padding-left var(--container-padding)
 	#branches-connection
 		height 110px
-		:deep(>.vis>svg>line.vis-v)
+		:deep(>.vis>svg>path.vis-line)
 			stroke-dasharray 4
 	#git-status
 		color #555
