@@ -17,7 +17,9 @@
 		stroke-width 2
 	.refs
 		position absolute
-		top 0
+		top 50%
+		// center vertically
+		transform translateY(-50%)
 		line-height 1em
 		opacity 85%
 	svg

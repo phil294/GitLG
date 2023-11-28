@@ -117,6 +117,12 @@
 					"maximum": 1,
 					"default": 0.4
 				},
+				"git-log--graph.row-height": {
+					"description": "The height in pixels of the rows in the scrollable main view.",
+					"type": "number",
+					"minimum": 1,
+					"default": 20
+				},
 				"git-log--graph.custom-css": {
 					"description": "An abitrary string of CSS that will be injected into the main web view",
 					"type": "string",

@@ -194,6 +194,8 @@ export default
 				commits_scroller_ref.value?.scrollToItem scroll_item_offset - 2
 		scroll_to_item_centered = (###* @type number ### index) =>
 			commits_scroller_ref.value?.scrollToItem index - Math.floor(visible_commits.value.length / 2)
+		scroll_item_height = computed =>
+			store.config.value['row-height']
 
 
 
@@ -331,4 +333,5 @@ export default
 			scroller_on_wheel
 			scroller_on_keydown
 			config_show_quick_branch_tips
+			scroll_item_height
 		}
