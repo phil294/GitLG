@@ -255,10 +255,6 @@ export default
 				.filter(is_truthy)) or []
 
 
-			# TODO:
-			# if store.config.value['branch-visualization'] == 'svg'
-
-
 
 		global_actions = computed =>
 			store.global_actions.value
