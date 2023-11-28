@@ -198,7 +198,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_ne?.branch
 					else
 						throw new Error 'no neighbor found for | at row ' + row_no
-					vis_line = { x0: 0.5, xn: 0.5 }
+					vis_line = { x0: 0.5, xn: 0.5, yn: 0.5 }
 				when '_'
 					v_branch = v_ee?.branch
 					vis_line = { x0: 1, xn: 0 }
@@ -263,7 +263,8 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 				# Usually constant
 				if ! vis_line.y0?
 					vis_line.y0 = 0
-				vis_line.yn = 1
+				if ! vis_line.yn?
+					vis_line.yn = 1
 				# We don't know yet if this line is the last one of rows for this branch
 				# or if more will be to come. The latter case is handled later, so for the former
 				# case to look nice, some downwards angle is added by default by moving the end
@@ -288,6 +289,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					last_vis_line.xn = middle_x
 					last_vis_line.xce = last_xce
 					last_vis_line.yce = 1 - curve_radius
+					last_vis_line.yn = 1
 					vis_line.x0 = middle_x
 					vis_line.xcs = xcs
 					vis_line.ycs = curve_radius
