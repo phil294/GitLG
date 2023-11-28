@@ -18,7 +18,6 @@ export default defineComponent
 	setup: (props) ->
 		padding_left = 5
 		padding_right = 20
-		# TODO: naming
 		vis_width = computed =>
 			vis_max_amount.value * vis_v_width.value + padding_right
 		vis_style = computed =>
