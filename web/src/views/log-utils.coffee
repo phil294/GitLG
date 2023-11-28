@@ -178,11 +178,13 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					else if v_ne?.char == '/'
 						v_branch = v_ne?.branch
 					else
-						# todo: why/how? add comment
-						# debugger
+						# Stashes
 						v_branch = new_virtual_branch()
 					commit_branch = v_branch
 					vis_line = { x0: 0.5, xn: 0.5 }
+					if ! last_vis[i] || ! last_vis[i].char || last_vis[i].char == ' '
+						# Branch or virtual branch starts here visually (ends here logically)
+						vis_line.y0 = 0.5
 				when '|'
 					if v_n?.branch
 						v_branch = v_n?.branch
@@ -252,16 +254,14 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 				else
 					vis_line.branch = v_branch
 					densened_vis_line_by_branch_id[v_branch.id] = vis_line
-					if xn_by_branch_id[v_branch.id]?
-						# TODO check if this is really necessary
-						densened_vis_line_by_branch_id[v_branch.id].x0 = xn_by_branch_id[v_branch.id]
 				xn_by_branch_id[v_branch.id] = vis_line.xn
 		if commit_branch
 			# After 1-n parsed rows, we have now arrived at what will become one row
 			# in *our* application too.
 			for branch_id, vis_line of densened_vis_line_by_branch_id
 				# Usually constant
-				vis_line.y0 = 0
+				if ! vis_line.y0?
+					vis_line.y0 = 0
 				vis_line.yn = 1
 				# We don't know yet if this line is the last one of rows for this branch
 				# or if more will be to come. The latter case is handled later, so for the former
