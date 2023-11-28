@@ -156,6 +156,13 @@ Please consider opening an issue or PR if you think a certain action or option w
         "type": "boolean",
         "default": false
     },
+    "git-log--graph.curve-radius": {
+        "description": "How curvy the branch visualization should look. Set to 0 to disable curviness. Otherwise, it's recommended to set between 0.3 and 0.6 or things look weird.",
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "default": 0.4
+    },
     "git-log--graph.custom-css": {
 		"description": "An abitrary string of CSS that will be injected into the main web view. Example: * { text-transform: uppercase; }",
 		"type": "string",
