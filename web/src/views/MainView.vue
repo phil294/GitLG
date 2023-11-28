@@ -46,7 +46,7 @@
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						.subject-wrapper.flex-1.row.align-center
 							div.vis.vis-v :style="commit.branch? {color:commit.branch.color} : undefined"
-								| ●
+								| ●&nbsp;
 							.subject  {{ commit.subject }}
 						.author.flex-noshrink :title="commit.author_name+' <'+commit.author_email+'>'"
 							| {{ commit.author_name }}
