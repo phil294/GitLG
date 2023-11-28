@@ -110,6 +110,13 @@
 					"type": "boolean",
 					"default": false
 				},
+				"git-log--graph.curve-radius": {
+					"description": "How curvy the branch visualization should look. Set to 0 to disable curviness. Otherwise, it's recommended to be between 0.3 and 0.6 or things look weird.",
+					"type": "number",
+					"minimum": 0,
+					"maximum": 1,
+					"default": 0.4
+				},
 				"git-log--graph.branch-visualization": {
 					"description": "How the branch lines displayed. SVG is recommended.",
 					"type": "string",

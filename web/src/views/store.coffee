@@ -81,7 +81,7 @@ export git_run_log = (###* @type string ### log_args) =>
 		git 'rev-parse --abbrev-ref HEAD'
 	]
 	return if not log_data?
-	parsed = parse log_data, branch_data, stash_data, sep
+	parsed = parse log_data, branch_data, stash_data, sep, config.value['curve-radius']
 	commits.value = parsed.commits
 	branches.value = parsed.branches
 	vis_max_amount.value = parsed.vis_max_amount

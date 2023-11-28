@@ -28,8 +28,9 @@ git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 # @param branch_data {string}
 # @param stash_data {string}
 # @param separator {string}
+# @param curve_radius {number}
 ###
-parse = (log_data, branch_data, stash_data, separator) =>
+parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	lines = log_data.split '\n'
 
 	``###* @type {Branch[]} ###
@@ -272,11 +273,6 @@ parse = (log_data, branch_data, stash_data, separator) =>
 				vis_line.yce = 0.6
 				# Make connection to previous row's branch line curvy?
 				if last_vis_line = last_densened_vis_line_by_branch_id?[branch_id]
-					# Should be between 0.3 and 0.6 or things start to look angular (ew).
-					# There doesn't seem to be a huge difference between both boundaries though.
-					curve_radius = 0.4
-					# Things get wobbly with a different value here
-					curve_bend = curve_radius
 					# So far, a line is simply defined as the connection between x0 and xn with
 					# y0 and y1 being 0 and 1, respectively. The lines all connect to each
 					# other. But between them, there is no curvature yet (hard edge).
@@ -290,10 +286,10 @@ parse = (log_data, branch_data, stash_data, separator) =>
 					middle_x = (xcs + last_xce) / 2
 					last_vis_line.xn = middle_x
 					last_vis_line.xce = last_xce
-					last_vis_line.yce = 1 - curve_bend
+					last_vis_line.yce = 1 - curve_radius
 					vis_line.x0 = middle_x
 					vis_line.xcs = xcs
-					vis_line.ycs = curve_bend
+					vis_line.ycs = curve_radius
 				else
 					# if branch_id == commit_branch.id
 					# 	# First commit of a new standalone branch = there's nothing on top
