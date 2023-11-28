@@ -152,15 +152,6 @@ Please consider opening an issue or PR if you think a certain action or option w
         "description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
         "type": "string"
     },
-    "git-log--graph.branch-visualization": {
-        "description": "How the branch lines displayed. SVG is recommended.",
-        "type": "string",
-        "default": "svg",
-        "enum": [
-            "svg",
-            "ascii"
-        ]
-    },
     "git-log--graph.verbose-logging": {
         "type": "boolean",
         "default": false

@@ -117,15 +117,6 @@
 					"maximum": 1,
 					"default": 0.4
 				},
-				"git-log--graph.branch-visualization": {
-					"description": "How the branch lines displayed. SVG is recommended.",
-					"type": "string",
-					"default": "svg",
-					"enum": [
-						"svg",
-						"ascii"
-					]
-				},
 				"git-log--graph.custom-css": {
 					"description": "An abitrary string of CSS that will be injected into the main web view",
 					"type": "string",
