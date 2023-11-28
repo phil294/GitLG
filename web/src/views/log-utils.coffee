@@ -1,7 +1,7 @@
 import colors from "./colors.coffee"
 import { is_truthy } from "./types"
 
-``###*
+###*
 # @typedef {import('./types').GitRef} GitRef
 # @typedef {import('./types').Branch} Branch
 # @typedef {import('./types').Vis} Vis
@@ -19,11 +19,11 @@ git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 		# prefer local branch over remote branch
 		a.id.indexOf("/") - b.id.indexOf("/")
 
-``###* @return {ref is Branch} ###
+###* @return {ref is Branch} ###
 is_branch = (###* @type {GitRef} ### ref) =>
 	ref.type == "branch"
 
-``###*
+###*
 # @returns all known branches *from that data* (branches outside are invisible) and the very
 # data transformed into commits. A commit is git commit info and its vis
 # (git graph visual representation branch lines). This vis-branch association
@@ -37,9 +37,9 @@ is_branch = (###* @type {GitRef} ### ref) =>
 parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	rows = log_data.split '\n'
 
-	``###* @type {Branch[]} ###
+	###* @type {Branch[]} ###
 	branches = []
-	``###* @returns {Branch} ###
+	###* @returns {Branch} ###
 	new_branch = (###* @type string ### branch_name, ###* @type string= ### remote_name, ###* @type string= ### tracking_remote_name) =>
 		branches.push
 			name: branch_name
@@ -67,13 +67,13 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	# and checking it out works, we can just treat it as one:
 	new_branch 'HEAD'
 
-	``###* @type {Commit[]} ###
+	###* @type {Commit[]} ###
 	commits = []
 
-	``###* @type Vis ###
+	###* @type Vis ###
 	last_vis = []
 
-	``###* vis svg lines are accumulated possibly spanning multiple output rows until
+	###* vis svg lines are accumulated possibly spanning multiple output rows until
 	# there is a commit ("*") in which case the lines are saved as collected.
 	# This means that we only show commit rows and the various connection lines are
 	# densened together.
@@ -81,7 +81,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	densened_vis_line_by_branch_id = {}
 	###* @type {Record<string, VisLine>} ###
 	last_densened_vis_line_by_branch_id = {}
-	``###* @type {Record<string, number>} ###
+	###* @type {Record<string, number>} ###
 	xn_by_branch_id = {}
 
 	vis_max_amount = 0
@@ -125,7 +125,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			.filter is_branch
 		branch_tip = branch_tips[0]
 
-		``###* @type {typeof graph_chars} ###
+		###* @type {typeof graph_chars} ###
 		vis_chars = vis_str.trimEnd().split('')
 		# TODO:
 		vis_max_amount = Math.max(vis_max_amount, vis_chars.length)
@@ -135,17 +135,17 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			if timestamp
 				new Date(Number(timestamp) * 1000).toISOString().slice(0,19).replace("T"," ")
 			else undefined
-		``###* We only keep track of the chars used by git output to be able to reconstruct
+		###* We only keep track of the chars used by git output to be able to reconstruct
 		# branch lines accordingly, as git has no internal concept of this.
 		# This is achieved by comparing the vis chars to its neighbors (`last_vis`).
 		# Once this process is complete, the vis chars are dismissed and we only keep the
 		# vis lines per commit spanning 1-n rows to be rendered eventually.
 		# @type Vis ###
 		vis = []
-		``###* @type {Branch|undefined} ###
+		###* @type {Branch|undefined} ###
 		commit_branch = undefined
 		for char, i in vis_chars by -1
-			``###* @type {Branch | null | undefined } ###
+			###* @type {Branch | null | undefined } ###
 			v_branch = undefined
 			v_n = last_vis[i]
 			v_nw = last_vis[i-1]
@@ -154,7 +154,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			v_nee = last_vis[i+2]
 			v_e = vis[i+1]
 			v_ee = vis[i+2]
-			``###* Parsing from top to bottom (reverse chronologically). The flow is
+			###* Parsing from top to bottom (reverse chronologically). The flow is
 			# generally rtl horizontally. So for example, the "/" char would direct the
 			# branch line from top right to bottom left and thus yield a {x0:1,xn:0} vis line.
 			# @type VisLine ###

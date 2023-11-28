@@ -12,7 +12,7 @@ import AllBranches from './AllBranches.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
 import RepoSelection from './RepoSelection.vue'
-``###*
+###*
 # @typedef {import('./types').Commit} Commit
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
@@ -20,7 +20,7 @@ import RepoSelection from './RepoSelection.vue'
 export default
 	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, SVGVisualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
 	setup: ->
-		``###* @type {string[]} ###
+		###* @type {string[]} ###
 		default_selected_commits_hashes = []
 		selected_commits_hashes = store.stateful_computed 'selected-commits-hashes', default_selected_commits_hashes
 		selected_commits = computed
@@ -56,7 +56,7 @@ export default
 
 
 		txt_filter = ref ''
-		``###* @type {Ref<'filter' | 'jump'>} ###
+		###* @type {Ref<'filter' | 'jump'>} ###
 		txt_filter_type = ref 'filter'
 		clear_filter = =>
 			txt_filter.value = ''
@@ -64,7 +64,7 @@ export default
 				selected_i = filtered_commits.value.findIndex (c) => c == selected_commit.value
 				await nextTick()
 				scroll_to_item_centered selected_i
-		``###* @type {Ref<HTMLElement | null>} ###
+		###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
 			search_for = txt_filter.value.toLowerCase()
@@ -126,7 +126,7 @@ export default
 
 
 
-		``###* @type {Ref<GitInputModel | null>} ###
+		###* @type {Ref<GitInputModel | null>} ###
 		git_input_ref = ref null
 		store.main_view_git_input_ref.value = git_input_ref
 		log_action =
@@ -171,9 +171,9 @@ export default
 
 
 
-		``###* @type {Ref<any | null>} ###
+		###* @type {Ref<any | null>} ###
 		commits_scroller_ref = ref null
-		``###* @type {Ref<Commit[]>} ###
+		###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
 		scroll_item_offset = 0
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>

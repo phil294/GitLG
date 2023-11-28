@@ -1,16 +1,16 @@
-``###* @typedef {import('@extension/extension.coffee').BridgeMessage} BridgeMessage ###
+###* @typedef {import('@extension/extension.coffee').BridgeMessage} BridgeMessage ###
 
 vscode = acquireVsCodeApi()
 
-``###* @type {Record<string, (r: BridgeMessage) => void>} ###
+###* @type {Record<string, (r: BridgeMessage) => void>} ###
 response_handlers = {}
 id = 0
 
-``###* @type {Record<string, (r: BridgeMessage) => void>} ###
+###* @type {Record<string, (r: BridgeMessage) => void>} ###
 push_handlers = {}
 
 window.addEventListener 'message', (msg_event) =>
-	``###* @type BridgeMessage ###
+	###* @type BridgeMessage ###
 	message = msg_event.data
 	switch message.type
 		when 'response'
@@ -23,10 +23,10 @@ window.addEventListener 'message', (msg_event) =>
 
 export exchange_message = (###* @type string ### command, ###* @type any ### data) =>
 	id++
-	``###* @type BridgeMessage ###
+	###* @type BridgeMessage ###
 	request = { command, data, id, type: 'request' }
 	vscode.postMessage request
-	``###* @type {BridgeMessage} ###
+	###* @type {BridgeMessage} ###
 	resp = await new Promise (ok) =>
 		response_handlers[id] = (data) =>
 			ok data
@@ -34,7 +34,7 @@ export exchange_message = (###* @type string ### command, ###* @type any ### dat
 	if resp.error then throw resp.error
 	resp.data
 
-``###* @return {Promise<string>} ###
+###* @return {Promise<string>} ###
 export git = (###* @type string ### args) =>
 	(await exchange_message 'git', args).trim()
 export show_information_message = (###* @type string ### msg) =>

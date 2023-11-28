@@ -1,14 +1,14 @@
 import Vue from 'vue'
 
-``###* @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry ###
-``###* @typedef {{
+###* @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry ###
+###* @typedef {{
 	oncontextmenu: (this: HTMLElement, ev: MouseEvent) => any
 	destroy: () => any
 	entries_provider: (ev: MouseEvent) => ContextMenuEntry[]
 }} ContextMenuData
 ###
 
-``###* @type {Map<HTMLElement,ContextMenuData>} ###
+###* @type {Map<HTMLElement,ContextMenuData>} ###
 context_menu_data_by_el = new Map
 
 remove_all_context_menus = =>
@@ -24,7 +24,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=
 		existing_context_menu_data.entries_provider = entries_provider
 		return
 
-	``###* @type {HTMLElement | null} ###
+	###* @type {HTMLElement | null} ###
 	wrapper_el = null
 
 	# The element(s) created by this is quite similar to the template of <git-action-button>
@@ -52,7 +52,7 @@ set_context_menu = (###* @type HTMLElement ### el, ###* @type {(ev: MouseEvent)=
 			wrapper_el?.appendChild(entry_el)
 		document.body.appendChild(wrapper_el)
 
-	``###* @type ContextMenuData ###
+	###* @type ContextMenuData ###
 	context_menu_data =
 		oncontextmenu: (e) =>
 			e.preventDefault()
@@ -74,7 +74,7 @@ disable_context_menu = (###* @type {HTMLElement} ### el) =>
 	el.removeEventListener 'contextmenu', context_menu_data.oncontextmenu
 	context_menu_data_by_el.delete el
 
-``###* @type {Vue.Directive} ###
+###* @type {Vue.Directive} ###
 directive =
 	mounted: (el, { value }) ->
 		if value

@@ -2,7 +2,7 @@ import { git } from '../bridge.coffee'
 import { stateful_computed } from './store.coffee'
 import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMounted } from 'vue'
 
-``###*
+###*
 # @typedef {import('./types').GitOption} GitOption
 # @typedef {import('./types').ConfigGitAction} ConfigGitAction
 # @typedef {import('./types').GitAction} GitAction
@@ -11,7 +11,7 @@ import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMoun
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 ###* @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef ###
 
-``###*
+###*
 # @param actions {ConfigGitAction[]}
 # @param replacements {[string,string][]}
 # @return {GitAction[]}
@@ -67,9 +67,9 @@ export default defineComponent
 			to_cli options
 		command = ref ''
 		config_key = "git input config " + props.git_action.config_key
-		``###* @type {{ options: GitOption[], command: string } | null} ###
+		###* @type {{ options: GitOption[], command: string } | null} ###
 		default_config = { options: [], command: '' }
-		``###* @type {WritableComputedRef<typeof default_config>} ###
+		###* @type {WritableComputedRef<typeof default_config>} ###
 		config = null
 		config_load_promise = new Promise (loaded) =>
 			config = stateful_computed(config_key, default_config, loaded)
@@ -99,9 +99,9 @@ export default defineComponent
 		text_changed = computed =>
 			command.value != constructed_command.value
 
-		``###* @type {Ref<HTMLInputElement[]>} ###
+		###* @type {Ref<HTMLInputElement[]>} ###
 		params_input_refs = ref []
-		``###* @type {Ref<HTMLInputElement|null>} ###
+		###* @type {Ref<HTMLInputElement|null>} ###
 		command_input_ref = ref null
 		onMounted =>
 			if params_input_refs.value.length

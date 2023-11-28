@@ -1,7 +1,7 @@
 import { computed, defineComponent } from 'vue'
 import { vis_max_amount, head_branch, vis_v_width } from './store.coffee'
 import RefTip from './RefTip.vue'
-``###* @typedef {import('./log-utils').Commit} Commit ###
+###* @typedef {import('./log-utils').Commit} Commit ###
 
 export default defineComponent
 	props:

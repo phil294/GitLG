@@ -1,8 +1,8 @@
 import { defineComponent, computed } from 'vue'
 import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action } from './store.coffee'
-``###* @typedef {import('./types').GitRef} GitRef ###
-``###* @typedef {import('./types').Commit} Commit ###
-``###* @typedef {import('./types').GitAction} GitAction ###
+###* @typedef {import('./types').GitRef} GitRef ###
+###* @typedef {import('./types').Commit} Commit ###
+###* @typedef {import('./types').GitAction} GitAction ###
 
 export default defineComponent
 	props:

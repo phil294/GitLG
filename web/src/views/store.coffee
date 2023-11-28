@@ -4,7 +4,7 @@ import { parse } from "./log-utils.coffee"
 import { git, exchange_message, add_push_listener } from "../bridge.coffee"
 import { parse_config_actions } from "./GitInput.coffee"
 import GitInputModel from './GitInput.coffee'
-``###*
+###*
 # @typedef {import('./types').GitRef} GitRef
 # @typedef {import('./types').Branch} Branch
 # @typedef {import('./types').Vis} Vis
@@ -21,18 +21,18 @@ import GitInputModel from './GitInput.coffee'
 # It encompasses state, actions and getters (computed values).
 #########################
 
-``###* @type {Record<string, WritableComputedRef<any>>} ###
+###* @type {Record<string, WritableComputedRef<any>>} ###
 _stateful_computeds = {}
 add_push_listener 'state-update', ({ data: { key, value } }) =>
 	if _stateful_computeds[key]
 		_stateful_computeds[key].value = value
-``###* @template T
+###* @template T
 # This utility returns a `WritableComputed` that will persist its state or react to changes on the
 # backend somehow. The caller doesn't know where it's stored though, this is up to extension.coffee
 # to decide based on the *key*.
 ###
 export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value, ###* @type {()=>any} ### on_load) =>
-	``###* @type {WritableComputedRef<T>|undefined} ###
+	###* @type {WritableComputedRef<T>|undefined} ###
 	ret = _stateful_computeds[key]
 	if ret
 		do on_load
@@ -54,10 +54,10 @@ export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### defa
 		on_load?()
 	ret
 
-``###* @type {Ref<Commit[]|null>} ###
+###* @type {Ref<Commit[]|null>} ###
 export commits = ref null
 
-``###* @type {Ref<Branch[]>} ###
+###* @type {Ref<Branch[]>} ###
 export branches = ref []
 # this is either a branch id(name) or HEAD in which case it will simply not be shown
 # which is also not necessary because HEAD is then also visible as a branch tip.
@@ -89,7 +89,7 @@ export git_run_log = (###* @type string ### log_args) =>
 	git_status.value = status_data
 	likely_default_branch = (branches.value.find (b) => b.name=='master'||b.name=='main') || branches.value[0]
 	default_origin.value = likely_default_branch?.remote_name or likely_default_branch?.tracking_remote_name or null
-``###* @type {Ref<Ref<GitInputModel|null>|null>} ###
+###* @type {Ref<Ref<GitInputModel|null>|null>} ###
 export main_view_git_input_ref = ref null
 export refresh_main_view = =>
 	console.warn('refreshing main view')
@@ -115,15 +115,15 @@ export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 				stat.deletions = Number(words[0])
 		commits[commits.findIndex((cp)=>cp.hash==hash)].stats = stat
 
-``###* @type {Ref<GitAction|null>} ###
+###* @type {Ref<GitAction|null>} ###
 export selected_git_action = ref null
 
-``###* @type {Ref<any>} ###
+###* @type {Ref<any>} ###
 export config = ref {}
 export refresh_config = =>
 	config.value = await exchange_message 'get-config'
 
-``###* @type {Ref<ConfigGitAction[]>} ###
+###* @type {Ref<ConfigGitAction[]>} ###
 export global_actions = computed =>
 	default_git_actions['actions.global'].concat(config.value.actions?.global or [])
 export commit_actions = (###* @type string ### hash) => computed =>

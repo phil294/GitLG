@@ -1,6 +1,6 @@
 import colors from "./colors.coffee"
 
-``###*
+###*
 # @typedef {{
 #	name: string
 #	id: string
@@ -81,7 +81,7 @@ import colors from "./colors.coffee"
 # }} GitAction
 ###
 
-``###*
+###*
 # To use in place of `.filter(Boolean)` for type safety with strict null checks.
 # @template T
 # @param value {T | undefined | null | false}

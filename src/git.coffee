@@ -4,7 +4,7 @@ util = require('util')
 { realpath } = require('fs').promises
 exec = util.promisify(require('child_process').exec)
 
-``###*
+###*
 # @param EXT_ID {string}
 # @param log {vscode.OutputChannel}
 # @param args {{on_repo_external_state_change:()=>any, on_repo_names_change:()=>any}}
@@ -15,7 +15,7 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 	api = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1) or throw 'VSCode official Git Extension not found, did you disable it?'
 	last_git_execution = 0
 
-	``###* @type {Record<string,string>} ###
+	###* @type {Record<string,string>} ###
 	repo_state_cache = {}
 	start_observing_repo = (###* @type {import('./vscode.git').Repository} ### repo) =>
 		log.appendLine "start observing repo "+repo.rootUri.fsPath
@@ -52,9 +52,9 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 			log.appendLine 'repo watcher: external index/head change' # from external, e.g. cli or committed via vscode ui
 			on_repo_external_state_change()
 
-	``###* @type {import('./vscode.git').Repository[]} ###
+	###* @type {import('./vscode.git').Repository[]} ###
 	repos_cache = []
-	``###* @type {NodeJS.Timeout|null} ###
+	###* @type {NodeJS.Timeout|null} ###
 	repos_changed_debouncer = null
 	repos_changed = =>
 		# onDidOpenRepository fires multiple times. At first, there isn't even a repos change..

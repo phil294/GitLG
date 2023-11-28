@@ -7,14 +7,14 @@ relative_time = new RelativeTime
 
 { get_git } = require './git'
 
-``###* @typedef {{ type: 'response' | 'request' | 'push', command?: string, data?: any, error?: any, id: number | string }} BridgeMessage ###
+###* @typedef {{ type: 'response' | 'request' | 'push', command?: string, data?: any, error?: any, id: number | string }} BridgeMessage ###
 
 EXT_NAME = 'git log --graph'
 EXT_ID = 'git-log--graph'
 START_CMD = 'git-log--graph.start'
 BLAME_CMD = 'git-log--graph.blame-line'
 
-``###* @type {vscode.WebviewPanel | vscode.WebviewView | null} ###
+###* @type {vscode.WebviewPanel | vscode.WebviewView | null} ###
 webview_container = null
 
 # todo proper log with timestamps like e.g. git or extension host
@@ -53,7 +53,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		workspace_state_memento = (###* @type string ### key) =>
 			get: => context.workspaceState.get(key)
 			set: (###* @type any ### v) => context.workspaceState.update(key, v)
-		``###* @type {Record<string, {get:()=>any,set:(value:any)=>any}>} ###
+		###* @type {Record<string, {get:()=>any,set:(value:any)=>any}>} ###
 		kv =
 			'selected-repo-index':
 				get: => context.workspaceState.get('selected-repo-index')
@@ -88,7 +88,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			log.appendLine "receive from webview: "+JSON.stringify(message) if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
 			d = message.data
 			h = (###* @type {() => any} ### func) =>
-				``###* @type BridgeMessage ###
+				###* @type BridgeMessage ###
 				resp =
 					type: 'response'
 					id: message.id
@@ -124,7 +124,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							uri = vscode.Uri.file path.join workspace, d.filename
 							vscode.commands.executeCommand 'vscode.open', uri
 
-		``###* @type {NodeJS.Timeout|null} ###
+		###* @type {NodeJS.Timeout|null} ###
 		config_change_debouncer = null
 		vscode.workspace.onDidChangeConfiguration (event) =>
 			if event.affectsConfiguration EXT_ID
@@ -246,7 +246,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	current_line = -1
 	current_line_repo_index = -1
 	current_line_long_hash = ''
-	``###* @type {NodeJS.Timeout|null} ###
+	###* @type {NodeJS.Timeout|null} ###
 	line_change_debouncer = null
 	hide_blame = =>
 		clearTimeout line_change_debouncer if line_change_debouncer
