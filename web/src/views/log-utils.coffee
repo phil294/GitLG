@@ -4,9 +4,16 @@ import { is_truthy } from "./types"
 ###*
 # @typedef {import('./types').GitRef} GitRef
 # @typedef {import('./types').Branch} Branch
-# @typedef {import('./types').Vis} Vis
 # @typedef {import('./types').VisLine} VisLine
 # @typedef {import('./types').Commit} Commit
+###
+
+###*
+# @typedef {{
+#	char: string
+#	branch: Branch | null
+# }[]} Vis
+# Chars as they are returned from git, with proper branch association
 ###
 
 git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
@@ -246,7 +253,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			vis[i] = {
 				char
 				branch: v_branch
-				vis_line
 			}
 			if v_branch
 				vis_line.x0 += i

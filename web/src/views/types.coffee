@@ -14,21 +14,6 @@ import colors from "./colors.coffee"
 #	virtual?: boolean
 # }} Branch
 #
-# TODO: typedef comment doesn't work? Same below
-# Chars as they are returned from git, with proper branch association
-# @typedef {{
-#	char: string
-#	branch: Branch | null
-# }[]} Vis
-#
-# TODO: comment outdated
-# Vis chars are transformed by us into vis lines (as in: a svg line) that have an
-# x0 and an x1 "coordinate" (from / to). These coordinates will have to be mapped
-# to the actual svg grid as there is no spacing here yet.
-# Every commit will have at least one vis line.
-# For what x0, ycs and so on stand for, please refer to the documentation at
-# https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#cubic_b%C3%A9zier_curve
-# TODO: The naming of all of this is annoying, find something better
 # @typedef {{
 #	branch?: Branch | undefined
 #	x0: number
@@ -40,6 +25,12 @@ import colors from "./colors.coffee"
 #	xce?: number
 #	yce?: number
 # }} VisLine
+# Vis chars are transformed by us into vis lines (as in: a svg line) that have an
+# `x0` and an `x1` "coordinate" (from / to). These coordinates will have to be mapped
+# to the actual svg grid as there is no spacing here yet.
+# Every commit will have at least one vis line.
+# For what `x0`, `ycs` and so on stand for, please refer to the documentation at
+# https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#cubic_b%C3%A9zier_curve
 #
 # @typedef {{
 #	i: number
