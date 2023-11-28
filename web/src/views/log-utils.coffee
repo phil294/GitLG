@@ -31,7 +31,7 @@ git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 # @param curve_radius {number}
 ###
 parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
-	lines = log_data.split '\n'
+	rows = log_data.split '\n'
 
 	``###* @type {Branch[]} ###
 	branches = []
@@ -82,16 +82,15 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 
 	vis_max_amount = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
-	# TODO: rename line to row everywhere
-	for line, line_no in lines
-		# Example line:
-		# | | | * {SEP}fced73ef{SEP}phil294{SEP}e@mail.com{SEP}1557084465{SEP}HEAD -> master, origin/master, tag: xyz{SEP}Subject line
+	for row, row_no in rows
+		# Example row:
+		# | | | * {SEP}fced73ef{SEP}phil294{SEP}e@mail.com{SEP}1557084465{SEP}HEAD -> master, origin/master, tag: xyz{SEP}Subject row
 		# but can be anything due to different user input.
 		# The vis part could be colored by supplying option `--color=always` in MainView.vue, but
 		# this is not helpful as these colors are non-consistent and not bound to any branches
-		[ vis_str = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = line.split separator
+		[ vis_str = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = row.split separator
 		if vis_str.at(-1) != ' '
-			console.warn "unknown git graph syntax returned at line " + line_no
+			console.warn "unknown git graph syntax returned at row " + row_no
 		refs = refs_csv
 			.split ', '
 			# map to ["master", "origin/master", "tag: xyz"]
@@ -126,7 +125,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 		# TODO:
 		vis_max_amount = Math.max(vis_max_amount, vis_chars.length)
 		if vis_chars.some (v) => not graph_chars.includes(v)
-			throw new Error "unknown visuals syntax at line " + line_no
+			throw new Error "unknown visuals syntax at row " + row_no
 		datetime =
 			if timestamp
 				new Date(Number(timestamp) * 1000).toISOString().slice(0,19).replace("T"," ")
@@ -193,7 +192,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					else if v_ne?.char == '/'
 						v_branch = v_ne?.branch
 					else
-						throw new Error 'no neighbor found for | at line ' + line_no
+						throw new Error 'no neighbor found for | at row ' + row_no
 					vis_line = { x0: 0.5, xn: 0.5 }
 				when '_'
 					v_branch = v_ee?.branch
@@ -211,7 +210,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					else if v_n?.char == '\\' or v_n?.char == '|'
 						v_branch = v_n?.branch
 					else
-						throw new Error 'no neighbor found for / at line ' + line_no
+						throw new Error 'no neighbor found for / at row ' + row_no
 					# TODO: perhaps these can be reverted to 0 instead of -0.5
 					vis_line = { x0: 1, xn: -0.5 }
 				when '\\'
@@ -234,14 +233,14 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					else if v_nw?.char == '.' and last_vis[i-2].char == '-'
 						v_branch = last_vis[i-3].branch
 					else
-						throw new Error 'no neighbor found for \\ at line ' + line_no
+						throw new Error 'no neighbor found for \\ at row ' + row_no
 					vis_line = { x0: -0.5, xn: 1 }
 				when ' ', '.', '-'
 					v_branch = null
 					# TODO:
 					# set char to ⎺-like?
 			if v_branch == undefined
-				throw new Error "could not identify branch in line #{line_no} at char #{i}"
+				throw new Error "could not identify branch in row #{row_no} at char #{i}"
 			vis[i] = {
 				char
 				branch: v_branch
@@ -299,7 +298,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					vis_line.xcs = vis_line.x0
 					vis_line.ycs = curve_radius
 			commits.push {
-				i: line_no
+				i: row_no
 				# Reverse so leftmost branches come first in the listing - only matters for the
 				# connection_fake_commit currently
 				vis_lines: Object.values(densened_vis_line_by_branch_id).reverse()
