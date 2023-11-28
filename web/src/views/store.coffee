@@ -76,7 +76,7 @@ export git_run_log = (###* @type string ### log_args) =>
 	[ log_data, branch_data, stash_data, status_data, head_data ] = await Promise.all [
 		git log_args
 		git "branch --list --all --format=\"%(upstream:remotename)#{sep}%(refname)\""
-		try await git "stash list --format=\"%h %gd\""
+		(try await git "stash list --format=\"%h %gd\"") || ''
 		git 'status'
 		git 'rev-parse --abbrev-ref HEAD'
 	]

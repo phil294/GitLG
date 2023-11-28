@@ -25,7 +25,7 @@ export default defineComponent
 			'max-width': '60vw'
 		lines = computed =>
 			props.commit.vis_lines.map (vis_line) =>
-				d: "M#{padding_left + vis_line.x0 * vis_v_width.value},#{vis_line.y0 * props.height} C#{padding_left + vis_line.xcs * vis_v_width.value},#{vis_line.ycs * props.height} #{padding_left + vis_line.xce * vis_v_width.value},#{vis_line.yce * props.height} #{padding_left + vis_line.xn * vis_v_width.value},#{vis_line.yn * props.height}"
+				d: "M#{padding_left + vis_line.x0 * vis_v_width.value},#{(vis_line.y0 || 0) * props.height} C#{padding_left + (vis_line.xcs || 0) * vis_v_width.value},#{(vis_line.ycs || 0) * props.height} #{padding_left + (vis_line.xce || 0) * vis_v_width.value},#{(vis_line.yce || 0) * props.height} #{padding_left + vis_line.xn * vis_v_width.value},#{(vis_line.yn || 0) * props.height}"
 				vis_line: vis_line
 				style:
 					stroke: vis_line.branch?.color
@@ -47,7 +47,7 @@ export default defineComponent
 			cx:
 				# I guess this could also be calculated more elegantly, but this kind of
 				# approximation seems to be good enough for all cases
-				padding_left + (branch_line.value.vis_line.x0 + branch_line.value.vis_line.xn + branch_line.value.vis_line.xcs + branch_line.value.vis_line.xce) / 4 * vis_v_width.value
+				padding_left + (branch_line.value.vis_line.x0 + branch_line.value.vis_line.xn + (branch_line.value.vis_line.xcs || 0) + (branch_line.value.vis_line.xce || 0)) / 4 * vis_v_width.value
 			cy: props.height * 0.5
 			r: 4
 		refs_elems = computed =>

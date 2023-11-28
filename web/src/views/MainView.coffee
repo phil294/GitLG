@@ -43,7 +43,7 @@ export default
 					selected_commits.value = [...selected_commits.value, commit]
 			else if event.shiftKey
 				total_index = filtered_commits.value.indexOf commit
-				last_total_index = filtered_commits.value.indexOf selected_commits.value.at(-1)
+				last_total_index = filtered_commits.value.indexOf selected_commits.value[selected_commits.value.length-1]
 				if total_index > last_total_index and total_index - last_total_index < 1000
 					selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index+1).filter (commit) =>
 						not selected_commits.value.includes commit)
@@ -235,9 +235,9 @@ export default
 				.map (line) => {
 					...line
 					xn: line.x0
-					x0: line.x0 + (line.xcs - line.x0) * (-1)
-					xcs: line.x0 + (line.xcs - line.x0) * (-1)
-					xce: line.x0 + (line.xcs - line.x0) * (-3)
+					x0: line.x0 + ((line.xcs || 0) - line.x0) * (-1)
+					xcs: line.x0 + ((line.xcs || 0) - line.x0) * (-1)
+					xce: line.x0 + ((line.xcs || 0) - line.x0) * (-3)
 				}
 		# To show branch tips on top of connection_fake_commit lines
 		invisible_branch_tips_of_visible_branches_elems = computed =>

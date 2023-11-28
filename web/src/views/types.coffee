@@ -32,13 +32,13 @@ import colors from "./colors.coffee"
 # @typedef {{
 #	branch?: Branch | undefined
 #	x0: number
-#	y0: number
+#	y0?: number
 #	xn: number
-#	yn: number
-#	xcs: number
-#	ycs: number
-#	xce: number
-#	yce: number
+#	yn?: number
+#	xcs?: number
+#	ycs?: number
+#	xce?: number
+#	yce?: number
 # }} VisLine
 #
 # @typedef {{

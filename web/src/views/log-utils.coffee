@@ -19,6 +19,10 @@ git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 		# prefer local branch over remote branch
 		a.id.indexOf("/") - b.id.indexOf("/")
 
+``###* @return {ref is Branch} ###
+is_branch = (###* @type {GitRef} ### ref) =>
+	ref.type == "branch"
+
 ``###*
 # @returns all known branches *from that data* (branches outside are invisible) and the very
 # data transformed into commits. A commit is git commit info and its vis
@@ -82,6 +86,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 
 	vis_max_amount = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
+	hash = '' # Fixing type error idk
 	for row, row_no in rows
 		# Example row:
 		# | | | * {SEP}fced73ef{SEP}phil294{SEP}e@mail.com{SEP}1557084465{SEP}HEAD -> master, origin/master, tag: xyz{SEP}Subject row
@@ -117,7 +122,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			.filter is_truthy
 			.sort git_ref_sort
 		branch_tips = refs
-			.filter (r) => r.type == "branch"
+			.filter is_branch
 		branch_tip = branch_tips[0]
 
 		``###* @type {typeof graph_chars} ###
@@ -165,9 +170,9 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 							wrong_branch = v_nw?.branch
 							if wrong_branch and wrong_branch.virtual
 								k = commits.length - 1
-								while (matches = commits[k]?.vis_lines.filter (v) => v.branch == wrong_branch)?.length
-									for match from matches or []
-										match.branch = branch
+								while (wrong_branch_matches = commits[k]?.vis_lines.filter (v) => v.branch == wrong_branch)?.length
+									for wrong_branch_match from wrong_branch_matches or []
+										wrong_branch_match.branch = v_branch
 									k--
 								branches.splice branches.indexOf(wrong_branch), 1
 					else if v_n?.branch
@@ -179,7 +184,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					else
 						# Stashes
 						v_branch = new_virtual_branch()
-					commit_branch = v_branch
+					commit_branch = v_branch || undefined
 					vis_line = { x0: 0.5, xn: 0.5 }
 					if ! last_vis[i] || ! last_vis[i].char || last_vis[i].char == ' '
 						# Branch or virtual branch starts here visually (ends here logically)
@@ -226,9 +231,9 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_nw?.branch
 					else if v_nw?.char == '.' or v_nw?.char == '-'
 						k = i - 2
-						while (match = last_vis[k])?.char == '-'
+						while (w_char_match = last_vis[k])?.char == '-'
 							k--
-						v_branch = match.branch
+						v_branch = w_char_match.branch
 					else if v_nw?.char == '.' and last_vis[i-2].char == '-'
 						v_branch = last_vis[i-3].branch
 					else
@@ -297,7 +302,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 				# connection_fake_commit currently
 				vis_lines: Object.values(densened_vis_line_by_branch_id).reverse()
 					# Leftmost branches should appear later so they are on top of the rest
-					.sort (a, b) => b.xcs + b.xce - a.xcs - a.xce
+					.sort (a, b) => (b.xcs || 0) + (b.xce || 0) - (a.xcs || 0) - (a.xce || 0)
 				branch: commit_branch
 				hash, author_name, author_email, datetime, refs, subject
 			}
