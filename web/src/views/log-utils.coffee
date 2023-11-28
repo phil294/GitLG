@@ -216,7 +216,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_n?.branch
 					else
 						throw new Error 'no neighbor found for / at row ' + row_no
-					vis_line = { x0: 1, xn: -0.5 }
+					vis_line = { x0: 1, xn: -0.5, xce: 0.5 }
 				when '\\'
 					if v_e?.char == '|'
 						v_branch = v_e?.branch
@@ -246,12 +246,18 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			vis[i] = {
 				char
 				branch: v_branch
+				vis_line
 			}
 			if v_branch
 				vis_line.x0 += i
 				vis_line.xn += i
+				if vis_line.xcs?
+					vis_line.xcs += i
+				if vis_line.xce?
+					vis_line.xce += i
 				if densened_vis_line_by_branch_id[v_branch.id]
 					densened_vis_line_by_branch_id[v_branch.id].xn = vis_line.xn
+					densened_vis_line_by_branch_id[v_branch.id].xce = vis_line.xce
 				else
 					vis_line.branch = v_branch
 					densened_vis_line_by_branch_id[v_branch.id] = vis_line
@@ -265,14 +271,16 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					vis_line.y0 = 0
 				if ! vis_line.yn?
 					vis_line.yn = 1
-				# We don't know yet if this line is the last one of rows for this branch
-				# or if more will be to come. The latter case is handled later, so for the former
-				# case to look nice, some downwards angle is added by default by moving the end
-				# control point upwards. This makes sense because the last line is the birth
-				# spot and branches are always based on another branch, so this draws an
-				# upwards splitting effect
-				vis_line.xce = vis_line.xn
-				vis_line.yce = 1 - (curve_radius / 2) # Must not be too strong
+				if ! vis_line.xce?
+					# We don't know yet if this line is the last one of rows for this branch
+					# or if more will be to come. The latter case is handled later, so for the former
+					# case to look nice, some downwards angle is added by default by moving the end
+					# control point upwards. This makes sense because the last line is the birth
+					# spot and branches are always based on another branch, so this draws an
+					# upwards splitting effect
+					vis_line.xce = vis_line.xn
+				if ! vis_line.yce?
+					vis_line.yce = 1 - (curve_radius / 2) # Must not be too strong
 				# Make connection to previous row's branch line curvy?
 				if last_vis_line = last_densened_vis_line_by_branch_id?[branch_id]
 					# So far, a line is simply defined as the connection between x0 and xn with
@@ -294,9 +302,14 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					vis_line.xcs = xcs
 					vis_line.ycs = curve_radius
 				else
-					# First time this branch appeared, so we want an upwards curvature, just like
-					# the logic around initializing xce above, but reversed:
-					vis_line.xcs = vis_line.x0
+					if ! vis_line.xcs?
+						# First time this branch appeared
+						if vis_line.xn > vis_line.x0
+							# so we want an upwards curvature, just like
+							# the logic around initializing xce at '/' above, but reversed:
+							vis_line.xcs = vis_line.x0 + 1
+						else
+							vis_line.xcs = vis_line.x0
 					vis_line.ycs = curve_radius
 			commits.push {
 				i: row_no
