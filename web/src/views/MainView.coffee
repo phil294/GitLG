@@ -267,7 +267,7 @@ export default
 		# To show branch tips on top of connection_fake_commit lines
 		invisible_branch_tips_of_visible_branches_elems = computed =>
 			row = -1
-			(connection_fake_commit.value?.vis_lines
+			([...(connection_fake_commit.value?.vis_lines || [])].reverse()
 				.map (line) =>
 					return null if not line.branch
 					row++
