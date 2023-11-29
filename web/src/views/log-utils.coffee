@@ -91,7 +91,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	###* @type {Record<string, number>} ###
 	xn_by_branch_id = {}
 
-	vis_max_amount = 0
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
 	hash = '' # Fixing type error idk
 	for row, row_no in rows
@@ -134,8 +133,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 
 		###* @type {typeof graph_chars} ###
 		vis_chars = vis_str.trimEnd().split('')
-		# TODO:
-		vis_max_amount = Math.max(vis_max_amount, vis_chars.length)
 		if vis_chars.some (v) => not graph_chars.includes(v)
 			throw new Error "unknown visuals syntax at row " + row_no
 		datetime =
@@ -368,6 +365,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			type: "stash"
 			color: '#fff'
 
-	{ commits, branches, vis_max_amount }
+	{ commits, branches }
 
 export { parse }
