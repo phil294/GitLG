@@ -1,6 +1,6 @@
 <template lang="slm">
-.vis.svg :style="vis_style"
-	svg :width="vis_width" :height="height"
+.vis.svg
+	svg :height="height" :style="style"
 		path.vis-line v-for="line of lines" v-bind="line"
 		circle.vis-line v-if="circle" v-bind="circle"
 	.refs.row.align-center :style="refs_elems.style"

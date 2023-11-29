@@ -12,6 +12,8 @@ export default defineComponent
 		height:
 			required: true
 			type: Number
+		style:
+			type: Object
 	components: { RefTip }
 	# TODO: move more parts of this into log-utils directly so it doesn't need to be recalculated while scrolling? does it matter performance-wise?
 	# even html svg elem pre creation?
@@ -20,9 +22,6 @@ export default defineComponent
 		padding_right = 20
 		vis_width = computed =>
 			vis_max_amount.value * vis_v_width.value + padding_right
-		vis_style = computed =>
-			'min-width': "max(min(50vw, #{vis_width}px),210px)"
-			'max-width': '60vw'
 		lines = computed =>
 			props.commit.vis_lines.map (vis_line) =>
 				d: "M#{padding_left + vis_line.x0 * vis_v_width.value},#{(vis_line.y0 || 0) * props.height} C#{padding_left + (vis_line.xcs || 0) * vis_v_width.value},#{(vis_line.ycs || 0) * props.height} #{padding_left + (vis_line.xce || 0) * vis_v_width.value},#{(vis_line.yce || 0) * props.height} #{padding_left + vis_line.xn * vis_v_width.value},#{(vis_line.yn || 0) * props.height}"
@@ -55,4 +54,4 @@ export default defineComponent
 			style:
 				left: (circle.value?.cx || padding_left) + vis_v_width.value - 2 + 'px'
 
-		{ vis_style, lines, vis_width, circle, refs_elems }
+		{ lines, vis_width, circle, refs_elems }
