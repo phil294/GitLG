@@ -31,8 +31,8 @@ is_branch = (###* @type {GitRef} ### ref) =>
 	ref.type == "branch"
 
 ###*
-# @returns all known branches *from that data* (branches outside are invisible) and the very
-# data transformed into commits. A commit is git commit info and its vis
+# @returns all branches and the very
+# data transformed into commits. A commit is git commit info and its vis lines
 # (git graph visual representation branch lines). This vis-branch association
 # extraction is the main purpose of this function.
 # @param log_data {string}
@@ -46,7 +46,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 
 	###* @type {Branch[]} ###
 	branches = []
-	###* @returns {Branch} ###
 	new_branch = (###* @type string ### branch_name, ###* @type string= ### remote_name, ###* @type string= ### tracking_remote_name) =>
 		branches.push
 			name: branch_name
@@ -100,8 +99,9 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 		# The vis part could be colored by supplying option `--color=always` in MainView.vue, but
 		# this is not helpful as these colors are non-consistent and not bound to any branches
 		[ vis_str = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = row.split separator
-		if vis_str.at(-1) != ' '
-			console.warn "unknown git graph syntax returned at row " + row_no
+		# Much, much slower than everything else so better not log
+		# if vis_str.at(-1) != ' '
+		# 	console.warn "unknown git graph syntax returned at row " + row_no
 		refs = refs_csv
 			.split ', '
 			# map to ["master", "origin/master", "tag: xyz"]
@@ -265,7 +265,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					vis_line.branch = v_branch
 					densened_vis_line_by_branch_id[v_branch.id] = vis_line
 				xn_by_branch_id[v_branch.id] = vis_line.xn
-		if commit_branch
+		if subject
 			# After 1-n parsed rows, we have now arrived at what will become one row
 			# in *our* application too.
 			for branch_id, vis_line of densened_vis_line_by_branch_id
