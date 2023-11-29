@@ -45,7 +45,7 @@
 					SVGVisualization.vis :height="scroll_item_height" :commit="commit" :style="vis_style"
 					.info.flex-1.row.gap-20 v-if="commit.hash"
 						.subject-wrapper.flex-1.row.align-center
-							.vis.vis-v.vis-resize-handle :style="commit.branch? {color:commit.branch.color} : undefined" @mousedown="vis_resize_handle_mousedown"
+							.vis-ascii-circle.vis-resize-handle :style="commit.branch? {color:commit.branch.color} : undefined" @mousedown="vis_resize_handle_mousedown"
 								| ●&nbsp;
 							.subject  {{ commit.subject }}
 						.author.flex-noshrink.align-center :title="commit.author_name+' <'+commit.author_email+'>'"
