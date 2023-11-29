@@ -15,8 +15,6 @@ export default defineComponent
 		style:
 			type: Object
 	components: { RefTip }
-	# TODO: move more parts of this into log-utils directly so it doesn't need to be recalculated while scrolling? does it matter performance-wise?
-	# even html svg elem pre creation?
 	setup: (props) ->
 		padding_left = 5
 		lines = computed =>
