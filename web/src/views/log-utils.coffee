@@ -1,5 +1,5 @@
 import colors from "./colors.coffee"
-import { is_truthy } from "./types"
+import { is_truthy, is_branch } from "./types"
 
 ###*
 # @typedef {import('./types').GitRef} GitRef
@@ -26,10 +26,6 @@ git_ref_sort = (###* @type {GitRef} ### a, ###* @type {GitRef} ### b) =>
 		# prefer local branch over remote branch
 		a.id.indexOf("/") - b.id.indexOf("/")
 
-###* @return {ref is Branch} ###
-is_branch = (###* @type {GitRef} ### ref) =>
-	ref.type == "branch"
-
 ###*
 # @returns all branches and the very
 # data transformed into commits. A commit is git commit info and its vis lines
@@ -47,17 +43,15 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	###* @type {Branch[]} ###
 	branches = []
 	new_branch = (###* @type string ### branch_name, ###* @type string= ### remote_name, ###* @type string= ### tracking_remote_name) =>
-		branches.push
+		###* @type Branch ###
+		branch =
 			name: branch_name
 			color: undefined
 			type: "branch"
 			remote_name: remote_name
 			tracking_remote_name: tracking_remote_name
 			id: if remote_name then "#{remote_name}/#{branch_name}" else branch_name
-		branches[branches.length - 1]
-	new_virtual_branch = =>
-		branch = new_branch "virtual #{branches.length-1}"
-		branch.virtual = true
+		branches.push branch
 		branch
 
 	for branch_line from branch_data.split('\n')
@@ -169,10 +163,10 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = branch_tip
 						if v_nw?.char == '\\'
 							# This is branch tip but in previous above lines, this branch
-							# may already have been on display for merging without its actual name known (virtual substitute).
+							# may already have been on display for merging without its actual name known (inferred substitute).
 							# Fix these lines (min 1) now
 							wrong_branch = v_nw?.branch
-							if wrong_branch and wrong_branch.virtual
+							if wrong_branch
 								k = commits.length - 1
 								while (wrong_branch_matches = commits[k]?.vis_lines.filter (v) => v.branch == wrong_branch)?.length
 									for wrong_branch_match from wrong_branch_matches or []
@@ -187,11 +181,12 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_ne?.branch
 					else
 						# Stashes
-						v_branch = new_virtual_branch()
+						v_branch = new_branch "inferred~#{branches.length-1}"
+						v_branch.inferred = true
 					commit_branch = v_branch || undefined
 					vis_line = { x0: 0.5, xn: 0.5 }
 					if ! last_vis[i] || ! last_vis[i].char || last_vis[i].char == ' '
-						# Branch or virtual branch starts here visually (ends here logically)
+						# Branch or inferred branch starts here visually (ends here logically)
 						vis_line.y0 = 0.5
 				when '|'
 					if v_n?.branch
@@ -226,11 +221,22 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_e?.branch
 					else if v_w_char == '|'
 						# right before (chronologically) a merge commit (which would be at v_nw).
-						# we can't know the actual branch yet (if it even still exists at all), the last branch
-						# commit is somewhere further down.
-						# It will be corrected retroactively at [see "virtual substitute"].
-						v_branch = new_virtual_branch()
-						commits.at(-1)?.merge = true
+						last_commit = commits.at(-1)
+						last_commit?.merge = true
+						# The actual branch name isn't known for sure yet: It will either a.) be visible with a branch tip
+						# in the next commit or never directly exposed, in which case we'll b.) try to infer it from the
+						# merge commit message, or if failing to do so, c.) create a inferred branch without name.
+						# b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
+						if subject_merge_match = last_commit?.subject.match /^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/
+							branch_id = (subject_merge_match[1] || subject_merge_match[2]) + '~' + (branches.length - 1)
+							split = branch_id.split '/'
+							if split.length
+								v_branch = new_branch split.at(-1)||'', split.slice(0, split.length - 1).join('/')
+							else
+								v_branch = new_branch branch_id
+						else
+							v_branch = new_branch "~#{branches.length-1}"
+						v_branch.inferred = true
 					else if v_nw?.char == '|' or v_nw?.char == '\\'
 						v_branch = v_nw?.branch
 					else if v_nw?.char == '.' or v_nw?.char == '-'
@@ -329,13 +335,13 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			densened_vis_line_by_branch_id = {}
 		last_vis = vis
 
-	# cannot do this at creation because branches list is not fixed before this (see wrong_branch)
+	# cannot do this at creation because branches list is not fixed before this (see "inferred substitute")
 	i = -1
 	for branch, i in branches
 		branch.color = switch branch.name
 			when 'master', 'main' then '#ff3333'
 			when 'development', 'develop', 'dev' then '#009000'
-			when 'stage', 'staging' then '#d7d700'
+			when 'stage', 'staging', 'production' then '#d7d700'
 			else
 				if branch.name and
 						branch_with_same_name = branches.slice(0, i).find (other_branch) => other_branch.name == branch.name
@@ -347,7 +353,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	branches = branches
 		.filter (branch) =>
 			# these exist in vis (with colors), but don't mention them in the listing
-			not branch.virtual
+			not branch.inferred
 		.sort git_ref_sort
 		.slice(0, 10000)
 

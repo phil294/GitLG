@@ -14,6 +14,7 @@ import RefTip from './RefTip.vue'
 import RepoSelection from './RepoSelection.vue'
 ###*
 # @typedef {import('./types').Commit} Commit
+# @typedef {import('./types').Branch} Branch
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 
@@ -104,12 +105,18 @@ export default
 
 
 
-		scroll_to_branch_tip = (###* @type string ### branch_id) =>
+		scroll_to_branch_tip = (###* @type Branch ### branch) =>
 			first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
-				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
-				commit.refs.some (ref) => ref.id == branch_id
+				if branch.inferred
+					commit.vis_lines.some (vis_line) => vis_line.branch == branch
+				else
+					commit.refs.some (ref) => ref == branch
 			if first_branch_commit_i == -1
-				return show_error_message "No commit found for branch #{branch_id}. Not enough commits loaded?"
+				return show_error_message "No commit found for branch #{branch.id}. Not enough commits loaded?"
+			if branch.inferred
+				# We want to go the the actual merge commit, not the first any-commit where
+				# this line appeared (could be entirely unrelated)
+				first_branch_commit_i--
 			scroll_to_item_centered first_branch_commit_i
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
@@ -210,17 +217,17 @@ export default
 				.flatMap (commit) =>
 					(commit.vis_lines || []).map (v) => v.branch)]
 			.filter(is_truthy)
-			.filter (branch) => not branch.virtual
 		visible_branch_tips = computed =>
 			[...new Set(visible_commits.value
 				.flatMap (commit) =>
 					commit.refs)]
 			.filter (ref) =>
 				# @ts-ignore
-				ref.type == 'branch' and not ref.virtual
+				ref.type == 'branch' and not ref.inferred
 		invisible_branch_tips_of_visible_branches = computed =>
-			# alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.virtual and not visible_branch_tips.value.includes(ref)) or []
+			# alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
 			visible_branches.value.filter (branch) =>
+				(! branch.inferred || store.config.value['show-inferred-quick-branch-tips']) &&
 				not visible_branch_tips.value.includes branch
 
 
@@ -328,7 +335,6 @@ export default
 			run_log
 			log_action
 			commits_scroller_updated
-			visible_branches
 			commits_scroller_ref
 			scroll_to_branch_tip
 			scroll_to_commit

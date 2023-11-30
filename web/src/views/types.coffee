@@ -11,7 +11,7 @@ import colors from "./colors.coffee"
 #	type: "branch"
 #	remote_name?: string
 #	tracking_remote_name?: string
-#	virtual?: boolean
+#	inferred?: boolean
 # }} Branch
 #
 # @typedef {{
@@ -79,3 +79,7 @@ import colors from "./colors.coffee"
 # @return {value is T}
 ###
 export is_truthy = (value) => !!value
+
+###* @return {ref is Branch} ###
+export is_branch = (###* @type {GitRef} ### ref) =>
+	ref.type == "branch"

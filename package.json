@@ -84,6 +84,11 @@
 					"type": "boolean",
 					"default": false
 				},
+				"git-log--graph.show-inferred-quick-branch-tips": {
+					"description": "(Depends on 'hide-quick-branch-tips' to be false) If active, the area at the top with the dotted branch lines will also include inferred branch lines, meaning branches that have been deleted or are unavailable but whose name could be reconstructed based on merge commit message.",
+					"type": "boolean",
+					"default": false
+				},
 				"git-log--graph.disable-scroll-snapping": {
 					"description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
 					"type": "boolean",
