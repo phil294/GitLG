@@ -38,26 +38,9 @@
 				button#jump-to-top @click="scroll_to_top()" title="Scroll to top"
 					i.codicon.codicon-arrow-circle-up
 			#branches-connection v-if="config_show_quick_branch_tips"
-				SVGVisualization.vis :height="110" v-if="connection_fake_commit" :commit="connection_fake_commit" :style="vis_style"
+				commit-row.vis :height="110" v-if="connection_fake_commit" :commit="connection_fake_commit"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" :item-size="scroll_item_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
-				.row.commit :class="{selected_commit:selected_commits.includes(commit),merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
-					SVGVisualization.vis :height="scroll_item_height" :commit="commit" :style="vis_style"
-					.info.flex-1.row.gap-20 v-if="commit.hash"
-						.subject-wrapper.flex-1.row.align-center
-							.vis-ascii-circle.vis-resize-handle :style="commit.branch? {color:commit.branch.color} : undefined" @mousedown="vis_resize_handle_mousedown"
-								| ●&nbsp;
-							.subject  {{ commit.subject }}
-						.author.flex-noshrink.align-center :title="commit.author_name+' <'+commit.author_email+'>'"
-							| {{ commit.author_name }}
-						.stats.flex-noshrink.row.align-center.justify-flex-end.gap-5
-							.changes v-if="commit.stats" title="Changed lines in amount of files"
-								span: strong {{ commit.stats.insertions + commit.stats.deletions }}
-								span.grey  in
-								span.grey {{ commit.stats.files_changed }}
-							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
-						.datetime.flex-noshrink.align-center {{ commit.datetime }}
-						button
-							.hash.flex-noshrink {{ commit.hash }}
+				commit-row :commit="commit" :class="{selected_commit:selected_commits.includes(commit)}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
 		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
 			template v-if="selected_commit"
 				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
@@ -123,7 +106,7 @@ details.config
 		padding-left var(--container-padding)
 	#branches-connection
 		height 110px
-		:deep(>.vis>svg>path.vis-line)
+		:deep(>.commit>.vis>svg>path.vis-line)
 			stroke-dasharray 4
 	#git-status
 		color #555
@@ -151,15 +134,12 @@ details.config
 			right -2px
 			top 96px
 			color #555555
-	.vis-resize-handle
-		cursor col-resize
 	#log.scroller
 		&:focus
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
 			outline none
 		.commit
 			cursor pointer
-			user-select none
 			&.selected_commit
 				box-shadow 0 0 3px 0px gold
 				background #292616
@@ -169,39 +149,12 @@ details.config
 			// .vis:has(+.info:hover)
 			// 	overflow hidden
 			// Workaround until then (also see.vue-recycle-scroller__item-view.hover > .commit:
-			.info:hover
+			:deep(.info:hover)
 				z-index 1
 				background #161616
-			&.selected_commit .info:hover
+			:deep(&.selected_commit .info:hover)
 				background #292616
 
-
-			.info
-				border-top 1px solid #2e2e2e
-				> *
-					white-space pre
-					overflow hidden
-					text-overflow ellipsis
-				.datetime, .hash
-					font-family monospace
-				> .subject-wrapper
-					min-width 150px
-					display inline-flex
-					> *
-						text-overflow ellipsis
-					> .subject
-						overflow hidden
-						flex 1 1 30%
-				> .datetime, > .author
-					color grey
-				> .datetime
-					font-size 12px
-				> .author
-					max-width 150px
-				.stats
-					width 91px
-			&.merge .subject
-				color grey
 
 #right
 	min-width 400px

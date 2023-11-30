@@ -7,7 +7,7 @@ import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import CommitDetails from './CommitDetails.vue'
 import CommitsDetails from './CommitsDetails.vue'
-import SVGVisualization from './SVGVisualization.vue'
+import CommitRow from './CommitRow.vue'
 import AllBranches from './AllBranches.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
@@ -19,7 +19,7 @@ import RepoSelection from './RepoSelection.vue'
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 
 export default
-	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, SVGVisualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
+	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, AllBranches, RefTip, SelectedGitAction, RepoSelection, CommitRow }
 	setup: ->
 		###* @type {string[]} ###
 		default_selected_commits_hashes = []
@@ -232,29 +232,6 @@ export default
 
 
 
-		vis_min_width = 210
-		vis_max_width_vw = 60
-		vis_width = store.stateful_computed 'vis-width', 130
-		vis_style = computed =>
-			width: vis_width.value + 'px'
-			'max-width': vis_max_width_vw + 'vw'
-			'min-width': vis_min_width + 'px'
-		vis_resize_handle_mousedown = (###* @type MouseEvent ### mousedown_event) =>
-			vis_max_width = window.innerWidth * vis_max_width_vw / 100
-			start_x = mousedown_event.x
-			start_width = vis_width.value
-			on_mousemove = (###* @type MouseEvent ### mousemove_event) =>
-				window.requestAnimationFrame =>
-					vis_width.value = Math.min(vis_max_width, Math.max(vis_min_width,
-						start_width + mousemove_event.x - start_x))
-			document.addEventListener 'mousemove', on_mousemove
-			document.addEventListener 'mouseup', ((mouseup_event) =>
-				mouseup_event.preventDefault() # Not sure why this doesn't work
-				document.removeEventListener 'mousemove', on_mousemove
-			), { capture: true, once: true }
-
-
-
 
 		# To paint a nice gradient between branches at the top and the vis below:
 		connection_fake_commit = computed =>
@@ -362,7 +339,4 @@ export default
 			scroller_on_keydown
 			config_show_quick_branch_tips
 			scroll_item_height
-			vis_width
-			vis_style
-			vis_resize_handle_mousedown
 		}

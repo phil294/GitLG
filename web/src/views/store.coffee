@@ -157,6 +157,7 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 
 export vis_v_width = computed =>
 	Number(config.value['branch-width']) || 10
+export vis_width = stateful_computed 'vis-width', 130
 
 export init = =>
 	refresh_config()
