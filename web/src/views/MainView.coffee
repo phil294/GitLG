@@ -9,6 +9,7 @@ import CommitDetails from './CommitDetails.vue'
 import CommitsDetails from './CommitsDetails.vue'
 import CommitRow from './CommitRow.vue'
 import AllBranches from './AllBranches.vue'
+import History from './History.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
 import RepoSelection from './RepoSelection.vue'
@@ -19,7 +20,7 @@ import RepoSelection from './RepoSelection.vue'
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 
 export default
-	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, AllBranches, RefTip, SelectedGitAction, RepoSelection, CommitRow }
+	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, AllBranches, RefTip, SelectedGitAction, RepoSelection, History, CommitRow }
 	setup: ->
 		###* @type {string[]} ###
 		default_selected_commits_hashes = []
@@ -34,15 +35,15 @@ export default
 		selected_commit = computed =>
 			if selected_commits.value.length == 1
 				selected_commits.value[0]
-		commit_clicked = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
+		commit_clicked = (###* @type Commit ### commit, ###* @type {MouseEvent | undefined} ### event) =>
 			return if not commit.hash
 			selected_index = selected_commits.value.indexOf commit
-			if event.ctrlKey
+			if event?.ctrlKey
 				if selected_index > -1
 					selected_commits.value = selected_commits.value.filter (_, i) => i != selected_index
 				else
 					selected_commits.value = [...selected_commits.value, commit]
-			else if event.shiftKey
+			else if event?.shiftKey
 				total_index = filtered_commits.value.indexOf commit
 				last_total_index = filtered_commits.value.indexOf selected_commits.value[selected_commits.value.length-1]
 				if total_index > last_total_index and total_index - last_total_index < 1000
@@ -53,6 +54,7 @@ export default
 					selected_commits.value = []
 				else
 					selected_commits.value = [commit]
+					store.push_history type: 'commit_hash', value: commit.hash
 
 
 
@@ -102,6 +104,9 @@ export default
 			select_searched_commit_debouncer = window.setTimeout (=>
 				selected_commits.value = [filtered_commits.value[txt_filter_last_i]]
 			), 100
+		watch txt_filter, =>
+			if txt_filter.value
+				store.push_history type: 'txt_filter', value: txt_filter.value
 
 
 
@@ -118,9 +123,16 @@ export default
 				# this line appeared (could be entirely unrelated)
 				first_branch_commit_i--
 			scroll_to_item_centered first_branch_commit_i
+			commit = filtered_commits.value[first_branch_commit_i]
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
-			selected_commits.value = [filtered_commits.value[first_branch_commit_i]]
+			selected_commits.value = [commit]
+			# For now, set history always to commit_hash as this also shows the branches. Might revisit some day TODO
+			# if branch.inferred
+			# 	store.push_history type: 'commit_hash', value: commit.hash
+			# else
+			# 	store.push_history type: 'branch_id', value: branch.id
+			store.push_history type: 'commit_hash', value: commit.hash
 		scroll_to_commit = (###* @type string ### hash) =>
 			commit_i = filtered_commits.value.findIndex (commit) =>
 				commit.hash == hash
@@ -128,6 +140,9 @@ export default
 				return show_error_message "No commit found for hash #{hash}. No idea why :/"
 			scroll_to_item_centered commit_i
 			selected_commits.value = [filtered_commits.value[commit_i]]
+		scroll_to_commit_user = (###* @type string ### hash) =>
+			scroll_to_commit hash
+			store.push_history type: 'commit_hash', value: hash
 		scroll_to_top = =>
 			commits_scroller_ref.value?.scrollToItem 0
 
@@ -314,7 +329,7 @@ export default
 			commits_scroller_updated
 			commits_scroller_ref
 			scroll_to_branch_tip
-			scroll_to_commit
+			scroll_to_commit_user
 			scroll_to_top
 			selected_commit
 			selected_commits

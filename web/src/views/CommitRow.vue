@@ -68,7 +68,6 @@ export default
 .commit
 	user-select none
 	.info
-		border-top 1px solid #2e2e2e
 		> *
 			white-space pre
 			overflow hidden

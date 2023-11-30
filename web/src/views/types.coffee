@@ -70,6 +70,12 @@ import colors from "./colors.coffee"
 # @typedef {ConfigGitAction & {
 #	config_key: string
 # }} GitAction
+#
+# @typedef {{
+#	type: 'txt_filter' | 'branch_id' | 'commit_hash' | 'git'
+#	value: string
+#	datetime: string
+# }} HistoryEntry
 ###
 
 ###*

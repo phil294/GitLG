@@ -31,6 +31,7 @@
 							i.codicon.codicon-refresh
 			#quick-branch-tips
 				all-branches @branch_selected="scroll_to_branch_tip($event)"
+				history @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_user($event.hash)" @apply_txt_filter="$event=>txt_filter=$event"
 				#git-status v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length"
 					| Status: {{ git_status }}
 				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch)" title="Jump to branch tip" v-bind="branch_elem.bind"
@@ -43,7 +44,7 @@
 				commit-row :commit="commit" :class="{selected_commit:selected_commits.includes(commit)}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
 		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
 			template v-if="selected_commit"
-				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
+				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit_user($event)"
 				button#close-selected-commit.center @click="selected_commits=[]" title="Close"
 					i.codicon.codicon-close
 				.resize-hint v-if="selected_commit"
@@ -121,15 +122,22 @@ details.config
 			position absolute
 			&:hover
 				z-index 1
-		> #all-branches
+		> #all-branches, > #history
 			position absolute
-			top 15px
-			right 10px
-			z-index 2
-			max-width clamp(300px, 70vw, 80vw)
 			background #161616dd
 			box-shadow 0 0 5px 2px #161616dd
 			border-radius 5px
+		> #all-branches
+			top 15px
+			right 10px
+			z-index 3
+			max-width clamp(300px, 70vw, 80vw)
+		> #history
+			top 35px
+			right 39px
+			z-index 2
+			&[open]
+				left 39px
 		> #jump-to-top
 			right -2px
 			top 96px
@@ -143,6 +151,8 @@ details.config
 			&.selected_commit
 				box-shadow 0 0 3px 0px gold
 				background #292616
+			:deep(.info)
+				border-top 1px solid #2e2e2e
 
 
 			// TODO: wait for vscode to be process.versions.chrome (dev tools) >= 112, then:

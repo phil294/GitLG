@@ -34,5 +34,6 @@
 		content ''
 		position absolute
 		inset 0
-		box-shadow inset -30px 0 14px -15px #161616
+		// TODO:
+		// box-shadow inset -30px 0 14px -15px #161616
 </style>

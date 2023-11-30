@@ -7,10 +7,10 @@ import GitInputModel from './GitInput.coffee'
 ###*
 # @typedef {import('./types').GitRef} GitRef
 # @typedef {import('./types').Branch} Branch
-# @typedef {import('./types').Vis} Vis
 # @typedef {import('./types').Commit} Commit
 # @typedef {import('./types').ConfigGitAction} ConfigGitAction
 # @typedef {import('./types').GitAction} GitAction
+# @typedef {import('./types').HistoryEntry} HistoryEntry
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
@@ -158,6 +158,32 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 export vis_v_width = computed =>
 	Number(config.value['branch-width']) || 10
 export vis_width = stateful_computed 'vis-width', 130
+
+###* @type {HistoryEntry[]} ###
+default_history = []
+export history = stateful_computed 'repo:action-history', default_history
+export push_history = (###* @type HistoryEntry ### entry) =>
+	entry.datetime = new Date().toISOString()
+	_history = history.value?.slice() || []
+	last_entry = _history.at(-1)
+	switch entry.type
+		when 'git'
+			return if entry.value.startsWith 'log '
+	if last_entry?.type == entry.type
+		switch entry.type
+			when 'txt_filter'
+				return if last_entry?.value == entry.value
+				last_entry?.value = entry.value
+			when 'branch_id', 'commit_hash', 'git'
+				return if last_entry?.value == entry.value
+				_history.push entry
+			else
+				throw "Unexpected history entry type #{entry.type}"
+	else
+		_history.push entry
+	if _history.length > 100
+		_history.shift()
+	history.value = _history
 
 export init = =>
 	refresh_config()

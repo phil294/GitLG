@@ -53,6 +53,12 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		workspace_state_memento = (###* @type string ### key) =>
 			get: => context.workspaceState.get(key)
 			set: (###* @type any ### v) => context.workspaceState.update(key, v)
+		repo_state_memento = (###* @type string ### local_key) =>
+			key = =>
+				repo_name = git.get_repo_names()[state('selected-repo-index').get()]
+				"repo-#{local_key}-#{repo_name}"
+			get: => context.workspaceState.get(key())
+			set: (###* @type any ### v) => context.workspaceState.update(key(), v)
 		###* @type {Record<string, {get:()=>any,set:(value:any)=>any}>} ###
 		kv =
 			'selected-repo-index':
@@ -60,10 +66,14 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				set: (v) =>
 					context.workspaceState.update('selected-repo-index', v)
 					git.set_selected_repo_index(Number(v) or 0)
+					# These will have changed now, so notify clients of updated value
+					for key from ['repo:action-history']
+						state(key).set(state(key).get())
 			'repo-names':
 				get: => git.get_repo_names()
 				set: =>
 			'selected-commits-hashes': workspace_state_memento('selected-commits-hashes')
+			'repo:action-history': repo_state_memento('action-history')
 		default_memento = global_state_memento
 		(###* @type string ### key) =>
 			memento = kv[key] or default_memento(key)
@@ -77,7 +87,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						data: { key, value }
 				undefined
 
-	git.set_selected_repo_index(context.workspaceState.get('selected-repo-index') or 0)
+	git.set_selected_repo_index(state('selected-repo-index').get() or 0)
 
 	populate_webview = =>
 		return if not webview_container
