@@ -9,7 +9,7 @@
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				details.config.flex-1
-					summary Configure...
+					summary.align-center Configure...
 					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 				repo-selection
 				aside.center.gap-20
