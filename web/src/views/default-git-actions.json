@@ -2,7 +2,7 @@
 	"actions.global": [
 		{
 			"title": "",
-			"icon": "chevron-up",
+			"icon": "archive",
 			"description": "git stash --include-untracked (Stash the changes in a dirty working directory away)",
 			"info": "Saves your local modifications to a new stash entry and rolls them back to HEAD (in the working tree and in the index).\n\nUse git stash when you want to record the current state of the working directory and the index, but want to go back to a clean working directory. The command saves your local modifications away and reverts the working directory to match the HEAD commit.\n\nThe modifications stashed away by this command can be listed with `git stash list`, inspected with `git stash show`, and restored (potentially on top of a different commit) with `git stash apply`. A stash is by default listed as 'WIP on branchname ...', but you can give a more descriptive message on the command line when you create one.\n\nThe latest stash you created is stored in refs/stash; older stashes are found in the reflog of this reference and can be named using the usual reflog syntax (e.g. stash@{0} is the most recently created stash, stash@{1} is the one before it, stash@{2.hours.ago} is also possible). Stashes may also be referenced by specifying just the stash index (e.g. the integer n is equivalent to stash@{n}).\n\nTo read the full documentation on this command, run `git help stash` in a terminal.",
 			"args": "stash",
@@ -18,7 +18,7 @@
 		{
 			"title": "",
 			"info": "Remove the last stashed state from the stash list and apply it on top of the current working tree state, i.e., do the inverse operation of git stash [push]. \n\nApplying the state can fail with conflicts; in this case, it is not removed from the stash list. You need to resolve the conflicts by hand and call git stash drop manually afterwards.\n\nTo read the full documentation on this command, run `git help stash` in a terminal.",
-			"icon": "chevron-down",
+			"icon": "export",
 			"description": "git stash pop",
 			"args": "stash pop",
 			"immediate": true
