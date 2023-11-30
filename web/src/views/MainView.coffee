@@ -135,10 +135,10 @@ export default
 			# git internals, but they are completely useless to the user.
 			# Could not find any easy way to skip those other than de-grepping them, TODO:.
 			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-			args: "log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
+			args: "log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --extended-regexp --grep=\"^untracked files on \" --grep=\"^index on \""
 			options: [
 				{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' }
-				{ value: '--grep="^Merge branch \'" --grep="^Merge remote tracking branch \'" --grep="^Merge pull request"', default_active: false, info: 'Hide merge commits' }
+				{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' }
 				{ value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' }
 				{ value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' }
 				{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' }
