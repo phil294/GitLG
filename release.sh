@@ -84,6 +84,7 @@ mv "$vsix_file" vsix-out/"$vsix_file"
 vsix_file=vsix-out/"$vsix_file"
 
 xdg-open "$vsix_file"
+ls -hltr vsix-out
 ls -hltr
 echo 'check vsix package before publish'
 pause
