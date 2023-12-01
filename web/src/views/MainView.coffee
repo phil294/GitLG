@@ -157,7 +157,7 @@ export default
 			# git internals, but they are completely useless to the user.
 			# Could not find any easy way to skip those other than de-grepping them, TODO:.
 			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-			args: "log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --extended-regexp --grep=\"^untracked files on \" --grep=\"^index on \""
+			args: "log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep=\"^untracked files on \" --grep=\"^index on \""
 			options: [
 				{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' }
 				{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' }
