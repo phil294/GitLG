@@ -24,12 +24,12 @@ export default
 	setup: ->
 		###* @type {string[]} ###
 		default_selected_commits_hashes = []
-		selected_commits_hashes = store.stateful_computed 'selected-commits-hashes', default_selected_commits_hashes
+		selected_commits_hashes = store.stateful_computed 'repo:selected-commits-hashes', default_selected_commits_hashes
 		selected_commits = computed
 			get: =>
-				selected_commits_hashes.value
-					.map (hash) => filtered_commits.value.find (commit) => commit.hash == hash
-					.filter is_truthy
+				(selected_commits_hashes.value
+					?.map (hash) => filtered_commits.value.find (commit) => commit.hash == hash
+					.filter is_truthy) or []
 			set: (commits) =>
 				selected_commits_hashes.value = commits.map (commit) => commit.hash
 		selected_commit = computed =>

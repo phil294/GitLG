@@ -67,12 +67,12 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 					context.workspaceState.update('selected-repo-index', v)
 					git.set_selected_repo_index(Number(v) or 0)
 					# These will have changed now, so notify clients of updated value
-					for key from ['repo:action-history']
+					for key from ['repo:action-history', 'repo:selected-commits-hashes']
 						state(key).set(state(key).get())
 			'repo-names':
 				get: => git.get_repo_names()
 				set: =>
-			'selected-commits-hashes': workspace_state_memento('selected-commits-hashes')
+			'repo:selected-commits-hashes': repo_state_memento('selected-commits-hashes')
 			'repo:action-history': repo_state_memento('action-history')
 		default_memento = global_state_memento
 		(###* @type string ### key) =>
@@ -286,7 +286,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		state('selected-repo-index').set(current_line_repo_index)
 		focus_commit_hash = (await git.run "rev-parse --short #{current_line_long_hash}").trim() # todo error here goes unnoticed
 		current_line_long_hash = ''
-		state('selected-commits-hashes').set([focus_commit_hash])
+		state('repo:selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)
 
 	# public api of this extension:
