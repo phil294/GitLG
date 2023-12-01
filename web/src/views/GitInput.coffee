@@ -117,8 +117,8 @@ export default defineComponent
 		error = ref ''
 		execute = =>
 			error.value = ''
-			if params.some (p) => p.includes("'")
-				throw "Params cannot contain single quotes."
+			if params.some (p) => p.includes('"') or p.includes('\\')
+				throw "Params cannot contain quotes or backslashes."
 			cmd = command.value
 			i = 0
 			while (pos = cmd.indexOf('$'+ ++i)) > -1
