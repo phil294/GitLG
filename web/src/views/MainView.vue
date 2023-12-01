@@ -171,6 +171,8 @@ details.config
 	position relative
 	#selected-commit, #selected-commits
 		overflow auto
+		z-index 1
+		background #161616
 	#close-selected-commit, #close-selected-commits
 		position absolute
 		top 10px
