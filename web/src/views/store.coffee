@@ -68,7 +68,7 @@ export default_origin = ref ''
 
 export git_run_log = (###* @type string ### log_args) =>
 	sep = '^%^%^%^%^'
-	log_args = log_args.replace(" --pretty={EXT_FORMAT}", " --pretty=format:\"#{sep}%h#{sep}%aN#{sep}%aE#{sep}%at#{sep}%D#{sep}%s\"")
+	log_args = log_args.replace(" --pretty={EXT_FORMAT}", " --pretty=format:\"#{sep}%h#{sep}%aN#{sep}%aE#{sep}%ad#{sep}%D#{sep}%s\"")
 	stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
 	log_args = log_args.replace("{STASH_REFS}", stash_refs.replaceAll('\n', ' '))
 	# errors will be handled by GitInput

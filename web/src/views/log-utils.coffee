@@ -92,7 +92,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 		# but can be anything due to different user input.
 		# The vis part could be colored by supplying option `--color=always` in MainView.vue, but
 		# this is not helpful as these colors are non-consistent and not bound to any branches
-		[ vis_str = '', hash = '', author_name = '', author_email = '', timestamp = '', refs_csv = '', subject = '' ] = row.split separator
+		[ vis_str = '', hash = '', author_name = '', author_email = '', iso_datetime = '', refs_csv = '', subject = '' ] = row.split separator
 		# Much, much slower than everything else so better not log
 		# if vis_str.at(-1) != ' '
 		# 	console.warn "unknown git graph syntax returned at row " + row_no
@@ -129,10 +129,8 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 		vis_chars = vis_str.trimEnd().split('')
 		if vis_chars.some (v) => not graph_chars.includes(v)
 			throw new Error "unknown visuals syntax at row " + row_no
-		datetime =
-			if timestamp
-				new Date(Number(timestamp) * 1000).toISOString().slice(0,19).replace("T"," ")
-			else undefined
+		# format %ad with --date=iso-local returns something like 2021-03-02 15:59:43 +0100
+		datetime = iso_datetime?.slice(0, 19)
 		###* We only keep track of the chars used by git output to be able to reconstruct
 		# branch lines accordingly, as git has no internal concept of this.
 		# This is achieved by comparing the vis chars to its neighbors (`last_vis`).
