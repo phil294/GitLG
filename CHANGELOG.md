@@ -4,6 +4,22 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.13 2023-12-01
+
+- [`f8184f1 ff`](https://github.com/phil294/git-log--graph/commit/f8184f1) Change visualization logic: More smooth and curvy, and connection lines can now span multiple rows of git's original output. There are no more "empty" rows. The "curviness" is somewhat configurable with config `curve-radius`.
+- [`71e03df`](https://github.com/phil294/git-log--graph/commit/71e03df) Add new expandable, interactive "History" area at the top left: Remembers your searches, commit clicks and run actions per repository.
+- [`6c9b0af`](https://github.com/phil294/git-log--graph/commit/6c9b0af) Add new setting `show-inferred-quick-branch-tips`, default off. Shows branch tips of unavailable (deleted) branches in the dotted branch connection area above if they could be reconstructed based on their merge commit subject message.
+- [`7593cbe`](https://github.com/phil294/git-log--graph/commit/7593cbe) Fix Windows compatibility (?) (#63)
+- [`fc1937a`](https://github.com/phil294/git-log--graph/commit/fc1937a) Make branch area resizable by drag/drop on the ● symbols. No longer adjust to the amount of branches present ([`8cc62bb`](https://github.com/phil294/git-log--graph/commit/8cc62bb)) (#22).
+- [`cc1238d`](https://github.com/phil294/git-log--graph/commit/cc1238d) Support git mailmap (#58)
+- [`d2fa4b1`](https://github.com/phil294/git-log--graph/commit/d2fa4b1) Display dates in local timezone. Can be customized by changing `--date=iso-local` to `--date=iso` in the main view log command config. It may be necessary to reset&save said log cmd field now or else the dates will look not as pretty (#54)
+- [`030de22`](https://github.com/phil294/git-log--graph/commit/030de22) Make row height configurable
+- [`dbac930`](https://github.com/phil294/git-log--graph/commit/dbac930) Fix hiding gitlab-style merge commits when "hide merge commits" setting is active
+- [`b70cab3`](https://github.com/phil294/git-log--graph/commit/b70cab3) Improve default icon for git stash and pop
+- [`a144d11`](https://github.com/phil294/git-log--graph/commit/a144d11) Ignore `[color] diff = always` if set in user config. If this affected you (the extension just hadn't worked at all), you might have to click "Reset" and "Save" in the main view's configure box (`log` command). (#61)
+- [`58c709d`](https://github.com/phil294/git-log--graph/commit/58c709d) Change "All Branches" button styling
+- [`22021ba`](https://github.com/phil294/git-log--graph/commit/22021ba) Remember last selected commit when switching between repos of the same workspace
+
 ### v0.1.12 2023-07-31
 
 - [`94e4805`](https://github.com/phil294/git-log--graph/commit/94e4805) Fix repeated invocations of auto-execute actions: they weren't auto-executing properly from the second time on
