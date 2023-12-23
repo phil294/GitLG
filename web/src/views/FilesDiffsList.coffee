@@ -5,14 +5,14 @@ import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from './file-extension-icon-path-mapping.json'
 
 ###* @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef ###
-``###*
+###*
 # @typedef {{
 #	path: string
 #	insertions: number
 #	deletions: number
 # }} FileDiff
 ###
-``###*
+###*
 # @typedef {{
 #	children: Record<string, TreeNode>
 #	files: FileDiff[]
@@ -28,7 +28,7 @@ import file_extension_icon_path_mapping from './file-extension-icon-path-mapping
 # in this case by just copying the path from the last <script/> tag:
 base_url = (document.body.lastElementChild?.attributes.getNamedItem('src')?.value.match(/^(.+)\/js\/.+/)?[1] or '') + '/'
 
-``###* @type {WritableComputedRef<'list'|'tree'>} ###
+###* @type {WritableComputedRef<'list'|'tree'>} ###
 render_style = stateful_computed 'files-diffs-list-render-style', 'list'
 
 [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate()
@@ -99,7 +99,7 @@ export default defineComponent
 			files.value if render_style?.value == 'list'
 		files_tree = computed =>
 			return if render_style?.value != 'tree'
-			``###* @type TreeNode ###
+			###* @type TreeNode ###
 			out =
 				children: {}
 				files: []

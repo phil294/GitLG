@@ -7,28 +7,29 @@ import GitInput from './GitInput.vue'
 import GitActionButton from './GitActionButton.vue'
 import CommitDetails from './CommitDetails.vue'
 import CommitsDetails from './CommitsDetails.vue'
-import SVGVisualization from './SVGVisualization.vue'
-import ASCIIVisualization from './ASCIIVisualization.vue'
+import CommitRow from './CommitRow.vue'
 import AllBranches from './AllBranches.vue'
+import History from './History.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
 import RepoSelection from './RepoSelection.vue'
-``###*
+###*
 # @typedef {import('./types').Commit} Commit
+# @typedef {import('./types').Branch} Branch
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 
 export default
-	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, SVGVisualization, ASCIIVisualization, AllBranches, RefTip, SelectedGitAction, RepoSelection }
+	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, AllBranches, RefTip, SelectedGitAction, RepoSelection, History, CommitRow }
 	setup: ->
-		``###* @type {string[]} ###
+		###* @type {string[]} ###
 		default_selected_commits_hashes = []
-		selected_commits_hashes = store.stateful_computed 'selected-commits-hashes', default_selected_commits_hashes
+		selected_commits_hashes = store.stateful_computed 'repo:selected-commits-hashes', default_selected_commits_hashes
 		selected_commits = computed
 			get: =>
-				selected_commits_hashes.value
-					.map (hash) => filtered_commits.value.find (commit) => commit.full_hash == hash
-					.filter is_truthy
+				(selected_commits_hashes.value
+					?.map (hash) => filtered_commits.value.find (commit) => commit.full_hash == hash
+					.filter is_truthy) or []
 			set: (commits) =>
 				selected_commits_hashes.value = commits.map (commit) => commit.full_hash
 		selected_commit = computed =>
@@ -53,18 +54,18 @@ export default
 				# console.log('store.commits', store.commits.value)
 				sticky_selected_commits.value = []
 		)
-		commit_clicked = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
+		commit_clicked = (###* @type Commit ### commit, ###* @type {MouseEvent | undefined} ### event) =>
 			selected_commits_from_sticky.value = []
 			return if not commit.full_hash
 			selected_index = selected_commits.value.indexOf commit
-			if event.ctrlKey
+			if event?.ctrlKey
 				if selected_index > -1
 					selected_commits.value = selected_commits.value.filter (_, i) => i != selected_index
 				else
 					selected_commits.value = [...selected_commits.value, commit]
-			else if event.shiftKey
+			else if event?.shiftKey
 				total_index = filtered_commits.value.indexOf commit
-				last_total_index = filtered_commits.value.indexOf selected_commits.value.at(-1)
+				last_total_index = filtered_commits.value.indexOf selected_commits.value[selected_commits.value.length-1]
 				if total_index > last_total_index and total_index - last_total_index < 1000
 					selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index+1).filter (commit) =>
 						not selected_commits.value.includes commit)
@@ -73,6 +74,7 @@ export default
 					selected_commits.value = []
 				else
 					selected_commits.value = [commit]
+					store.push_history type: 'commit_hash', value: commit.hash
 
 		commit_sticky_selected = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
 			event.stopPropagation()
@@ -95,7 +97,7 @@ export default
 
 
 		txt_filter = ref ''
-		``###* @type {Ref<'filter' | 'jump' | 'jumphash'>} ###
+		###* @type {Ref<'filter' | 'jump' | 'jumphash'>} ###
 		txt_filter_type = ref 'jumphash'
 		clear_filter = =>
 			txt_filter.value = ''
@@ -103,7 +105,7 @@ export default
 				selected_i = filtered_commits.value.findIndex (c) => c == selected_commit.value
 				await nextTick()
 				scroll_to_item_centered selected_i
-		``###* @type {Ref<HTMLElement | null>} ###
+		###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
 			search_for = txt_filter.value.toLowerCase()
@@ -160,22 +162,38 @@ export default
 			select_searched_commit_debouncer = window.setTimeout (=>
 				selected_commits.value = [filtered_commits.value[txt_filter_last_i]]
 			), 100
+		watch txt_filter, =>
+			if txt_filter.value
+				store.push_history type: 'txt_filter', value: txt_filter.value
 
 
 
-		scroll_to_branch_tip = (###* @type string ### branch_id) =>
+		scroll_to_branch_tip = (###* @type Branch ### branch) =>
 			first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
-				# Only applicable if virtual branches are excluded as these don't have a tip. Otherwise, each vis would need to be traversed
-				commit.refs.some (ref) => ref.id == branch_id
+				if branch.inferred
+					commit.vis_lines.some (vis_line) => vis_line.branch == branch
+				else
+					commit.refs.some (ref) => ref == branch
 			if first_branch_commit_i == -1 && branch_id == 'HEAD'
 				first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
 					commit.refs.some (ref) => ref.id == store.head_branch.value
 			if first_branch_commit_i == -1
-				return show_error_message "No commit found for branch #{branch_id}. Not enough commits loaded?"
+				return show_error_message "No commit found for branch #{branch.id}. Not enough commits loaded?"
+			if branch.inferred
+				# We want to go the the actual merge commit, not the first any-commit where
+				# this line appeared (could be entirely unrelated)
+				first_branch_commit_i--
 			scroll_to_item_centered first_branch_commit_i
+			commit = filtered_commits.value[first_branch_commit_i]
 			# Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 			# a branch name in a commit's ref list.
-			selected_commits.value = [filtered_commits.value[first_branch_commit_i]]
+			selected_commits.value = [commit]
+			# For now, set history always to commit_hash as this also shows the branches. Might revisit some day TODO
+			# if branch.inferred
+			# 	store.push_history type: 'commit_hash', value: commit.hash
+			# else
+			# 	store.push_history type: 'branch_id', value: branch.id
+			store.push_history type: 'commit_hash', value: commit.hash
 		scroll_to_commit = (###* @type string ### hash) =>
 			commit_i = filtered_commits.value.findIndex (commit) =>
 				commit.full_hash == hash
@@ -183,12 +201,15 @@ export default
 				return show_error_message "No commit found for hash #{hash}. No idea why :/"
 			scroll_to_item_centered commit_i
 			selected_commits.value = [filtered_commits.value[commit_i]]
+		scroll_to_commit_user = (###* @type string ### hash) =>
+			scroll_to_commit hash
+			store.push_history type: 'commit_hash', value: hash
 		scroll_to_top = =>
 			commits_scroller_ref.value?.scrollToItem 0
 
 
 
-		``###* @type {Ref<GitInputModel | null>} ###
+		###* @type {Ref<GitInputModel | null>} ###
 		git_input_ref = ref null
 		store.main_view_git_input_ref.value = git_input_ref
 		all_branches_ref = ref null
@@ -199,10 +220,10 @@ export default
 			# git internals, but they are completely useless to the user.
 			# Could not find any easy way to skip those other than de-grepping them, TODO:.
 			# Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-			args: "log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \""
+			args: "log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep=\"^untracked files on \" --grep=\"^index on \""
 			options: [
 				{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' }
-				{ value: '--grep="^Merge branch \'" --grep="^Merge remote tracking branch \'" --grep="^Merge pull request"', default_active: false, info: 'Hide merge commits' }
+				{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' }
 				{ value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' }
 				{ value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' }
 				{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' }
@@ -235,31 +256,34 @@ export default
 
 
 
-		``###* @type {Ref<any | null>} ###
+		###* @type {Ref<any | null>} ###
 		commits_scroller_ref = ref null
-		``###* @type {Ref<Commit[]>} ###
+		###* @type {Ref<Commit[]>} ###
 		visible_commits = ref []
 		scroll_item_offset = 0
 		commits_scroller_updated = (###* @type number ### start_index, ###* @type number ### end_index) =>
 			scroll_item_offset = start_index
-			commits_start_index = if scroll_item_offset < 3 then 0 else scroll_item_offset + 2
+			commits_start_index = if scroll_item_offset < 3 then 0 else scroll_item_offset
 			visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index)
 		scroller_on_wheel = (###* @type WheelEvent ### event) =>
 			return if store.config.value['disable-scroll-snapping']
 			event.preventDefault()
-			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20) + 2
+			commits_scroller_ref.value?.scrollToItem scroll_item_offset + Math.round(event.deltaY / 20)
 		scroller_on_keydown = (###* @type KeyboardEvent ### event) =>
 			return if store.config.value['disable-scroll-snapping']
 			if event.key == 'ArrowDown'
 				event.preventDefault()
-				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 3
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 2
 			else if event.key == 'ArrowUp'
 				event.preventDefault()
-				commits_scroller_ref.value?.scrollToItem scroll_item_offset + 1
+				commits_scroller_ref.value?.scrollToItem scroll_item_offset - 2
 		scroll_to_item_centered = (###* @type number ### index) =>
-			commits_scroller_ref.value?.scrollToItem index - Math.floor(visible_commits.value.length / 2) + 2
+			commits_scroller_ref.value?.scrollToItem index - Math.floor(visible_commits.value.length / 2)
 		temporary_view_commit_only = () =>
 			store.temporary_view_commit_only(selected_commit.value)
+		scroll_item_height = computed =>
+			store.config.value['row-height']
+
 
 
 
@@ -271,19 +295,19 @@ export default
 		visible_branches = computed =>
 			[...new Set(visible_commits.value
 				.flatMap (commit) =>
-					commit.vis.map (v) => v.branch)]
+					(commit.vis_lines || []).map (v) => v.branch)]
 			.filter(is_truthy)
-			.filter (branch) => not branch.virtual
 		visible_branch_tips = computed =>
 			[...new Set(visible_commits.value
 				.flatMap (commit) =>
 					commit.refs)]
 			.filter (ref) =>
 				# @ts-ignore
-				ref.type == 'branch' and not ref.virtual
+				ref.type == 'branch' and not ref.inferred
 		invisible_branch_tips_of_visible_branches = computed =>
-			# alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.virtual and not visible_branch_tips.value.includes(ref)) or []
+			# alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
 			visible_branches.value.filter (branch) =>
+				(! branch.inferred || store.config.value['show-inferred-quick-branch-tips']) &&
 				not visible_branch_tips.value.includes branch
 
 
@@ -293,46 +317,31 @@ export default
 		connection_fake_commit = computed =>
 			commit = visible_commits.value[0]
 			return null if not commit
-			{
-				...commit
-				scroll_height: 110
-				refs: []
-				vis: commit.vis.map (v) => {
-					...v
-					char:
-						if v.branch and invisible_branch_tips_of_visible_branches.value.includes(v.branch)
-							switch v.char
-								when '*', '|', '⎽*', '⎽|', '*⎽', '|⎽' then '|'
-								when '⎺*', '⎺|', '\\', '.', '-'       then '⎽|'
-								when '*⎺', '|⎺', '/'                  then '|⎽'
-								when '⎺\\', '⎺\\⎽'                    then '⎽⎽|'
-								when '/⎺'                             then '|⎽⎽'
-								else ' '
-						else ' '
+			refs: []
+			vis_lines: commit.vis_lines
+				.filter (line) =>
+					line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch)
+				.map (line) => {
+					...line
+					xn: line.x0
+					x0: line.x0 + ((line.xcs || 0) - line.x0) * (-1)
+					xcs: line.x0 + ((line.xcs || 0) - line.x0) * (-1)
+					xce: line.x0 + ((line.xcs || 0) - line.x0) * (-3)
 				}
-			}
+		# To show branch tips on top of connection_fake_commit lines
 		invisible_branch_tips_of_visible_branches_elems = computed =>
 			row = -1
-			(connection_fake_commit.value?.vis
-				.map (v, i) =>
-					return null if not v.branch or v.char == ' '
+			([...(connection_fake_commit.value?.vis_lines || [])].reverse()
+				.map (line) =>
+					return null if not line.branch
 					row++
 					row = 0 if row > 5
-					branch: v.branch
+					branch: line.branch
 					bind:
 						style:
-							left: 0 + store.vis_v_width.value * i + 'px'
+							left: 0 + store.vis_v_width.value * line.x0 + 'px'
 							top: 0 + row * 19 + 'px'
 				.filter(is_truthy)) or []
-
-
-
-		visualization_component = computed =>
-			if store.config.value['branch-visualization'] == 'svg'
-				SVGVisualization
-			else
-				ASCIIVisualization
-
 
 
 
@@ -378,17 +387,15 @@ export default
 			initialized
 			filtered_commits
 			branches: store.branches
-			vis_max_amount: store.vis_max_amount
 			head_branch: store.head_branch
 			git_input_ref
 			all_branches_ref
 			run_log
 			log_action
 			commits_scroller_updated
-			visible_branches
 			commits_scroller_ref
 			scroll_to_branch_tip
-			scroll_to_commit
+			scroll_to_commit_user
 			scroll_to_top
 			selected_commit
 			selected_commits
@@ -421,5 +428,5 @@ export default
 			scroller_on_wheel
 			scroller_on_keydown
 			config_show_quick_branch_tips
-			visualization_component
+			scroll_item_height
 		}

@@ -23,6 +23,14 @@
 			color white
 	&.branch
 		cursor move
+		&.inferred
+			background #00000091
+			opacity 0.7
+			font-weight normal
+			&:hover
+				opacity unset
+				font-weight bold
+				background black
 		&.dragenter
 			background white !important
 			color red !important

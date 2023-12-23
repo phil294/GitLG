@@ -5,13 +5,13 @@ import { parse } from "./log-utils.coffee"
 import { git, exchange_message, add_push_listener } from "../bridge.coffee"
 import { parse_config_actions } from "./GitInput.coffee"
 import GitInputModel from './GitInput.coffee'
-``###*
+###*
 # @typedef {import('./types').GitRef} GitRef
 # @typedef {import('./types').Branch} Branch
-# @typedef {import('./types').Vis} Vis
 # @typedef {import('./types').Commit} Commit
 # @typedef {import('./types').ConfigGitAction} ConfigGitAction
 # @typedef {import('./types').GitAction} GitAction
+# @typedef {import('./types').HistoryEntry} HistoryEntry
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
@@ -22,18 +22,18 @@ import GitInputModel from './GitInput.coffee'
 # It encompasses state, actions and getters (computed values).
 #########################
 
-``###* @type {Record<string, WritableComputedRef<any>>} ###
+###* @type {Record<string, WritableComputedRef<any>>} ###
 _stateful_computeds = {}
 add_push_listener 'state-update', ({ data: { key, value } }) =>
 	if _stateful_computeds[key]
 		_stateful_computeds[key].value = value
-``###* @template T
+###* @template T
 # This utility returns a `WritableComputed` that will persist its state or react to changes on the
 # backend somehow. The caller doesn't know where it's stored though, this is up to extension.coffee
 # to decide based on the *key*.
 ###
 export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### default_value, ###* @type {()=>any} ### on_load) =>
-	``###* @type {WritableComputedRef<T>|undefined} ###
+	###* @type {WritableComputedRef<T>|undefined} ###
 	ret = _stateful_computeds[key]
 	if ret
 		do on_load
@@ -55,42 +55,40 @@ export stateful_computed = (###* @type {string} ### key, ###* @type {T} ### defa
 		on_load?()
 	ret
 
-``###* @type {Ref<Commit[]|null>} ###
+###* @type {Ref<Commit[]|null>} ###
 export commits = ref null
 
-``###* @type {Ref<Branch[]>} ###
+###* @type {Ref<Branch[]>} ###
 export branches = ref []
 # this is either a branch id(name) or HEAD in which case it will simply not be shown
 # which is also not necessary because HEAD is then also visible as a branch tip.
 export head_branch = ref ''
-export vis_max_amount = ref 0
 export git_status = ref ''
 ###* @type {Ref<string|null>} ###
 export default_origin = ref ''
 
 export git_run_log = (###* @type string ### log_args) =>
 	sep = '^%^%^%^%^'
-	log_args = log_args.replace(" --pretty={EXT_FORMAT}", " --pretty=format:\"#{sep}%H#{sep}%h#{sep}%an#{sep}%ae#{sep}%at#{sep}%D#{sep}%s\"")
+	log_args = log_args.replace(" --pretty={EXT_FORMAT}", " --pretty=format:\"#{sep}%H#{sep}%h#{sep}%aN#{sep}%aE#{sep}%ad#{sep}%D#{sep}%s\"")
 	stash_refs = try await git 'reflog show --format="%H" stash' catch then ""
 	log_args = log_args.replace("{STASH_REFS}", stash_refs.replaceAll('\n', ' '))
 	# errors will be handled by GitInput
 	[ log_data, branch_data, stash_data, status_data, head_data ] = await Promise.all [
 		git log_args
 		git "branch --list --all --format=\"%(upstream:remotename)#{sep}%(refname)\""
-		try await git "stash list --format=\"%H %gd\""
+		(try await git "stash list --format=\"%H %gd\"") || ''
 		git 'status'
 		git 'rev-parse --abbrev-ref HEAD'
 	]
 	return if not log_data?
-	parsed = parse log_data, branch_data, stash_data, sep
+	parsed = parse log_data, branch_data, stash_data, sep, config.value['curve-radius']
 	commits.value = parsed.commits
 	branches.value = parsed.branches
-	vis_max_amount.value = parsed.vis_max_amount
 	head_branch.value = head_data
 	git_status.value = status_data
 	likely_default_branch = (branches.value.find (b) => b.name=='master'||b.name=='main') || branches.value[0]
 	default_origin.value = likely_default_branch?.remote_name or likely_default_branch?.tracking_remote_name or null
-``###* @type {Ref<Ref<GitInputModel|null>|null>} ###
+###* @type {Ref<Ref<GitInputModel|null>|null>} ###
 export main_view_git_input_ref = ref null
 export main_view_all_branches_ref = ref null
 export refresh_main_view = =>
@@ -125,7 +123,7 @@ export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 				stat.deletions = Number(words[0])
 		commits[commits.findIndex((cp)=>cp.full_hash==full_hash)].stats = stat
 
-``###* @type {Ref<GitAction|null>} ###
+###* @type {Ref<GitAction|null>} ###
 export selected_git_action = ref null
 
 watch(
@@ -149,12 +147,12 @@ watch(
 	}
 )
 
-``###* @type {Ref<any>} ###
+###* @type {Ref<any>} ###
 export config = ref {}
 export refresh_config = =>
 	config.value = await exchange_message 'get-config'
 
-``###* @type {Ref<ConfigGitAction[]>} ###
+###* @type {Ref<ConfigGitAction[]>} ###
 export global_actions = computed =>
 	default_git_actions['actions.global'].concat(config.value.actions?.global or [])
 export commit_actions = (###* @type string ### hash) => computed =>
@@ -189,11 +187,34 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 	combine_branches_from_branch_name.value = from_branch_name
 
 export vis_v_width = computed =>
-	if not config.value['branch-width'] or not Number(config.value['branch-width'])
-		# Linear drop from 10 to 2
-		Math.max(1, Math.min(10, Math.round(vis_max_amount.value * (-1) * 8 / 50 + 18)))
+	Number(config.value['branch-width']) || 10
+export vis_width = stateful_computed 'vis-width', 130
+
+###* @type {HistoryEntry[]} ###
+default_history = []
+export history = stateful_computed 'repo:action-history', default_history
+export push_history = (###* @type HistoryEntry ### entry) =>
+	entry.datetime = new Date().toISOString()
+	_history = history.value?.slice() || []
+	last_entry = _history.at(-1)
+	switch entry.type
+		when 'git'
+			return if entry.value.startsWith 'log '
+	if last_entry?.type == entry.type
+		switch entry.type
+			when 'txt_filter'
+				return if last_entry?.value == entry.value
+				last_entry?.value = entry.value
+			when 'branch_id', 'commit_hash', 'git'
+				return if last_entry?.value == entry.value
+				_history.push entry
+			else
+				throw "Unexpected history entry type #{entry.type}"
 	else
-		Number(config.value['branch-width'])
+		_history.push entry
+	if _history.length > 100
+		_history.shift()
+	history.value = _history
 
 export init = =>
 	refresh_config()

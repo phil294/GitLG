@@ -26,7 +26,7 @@ This allows you to set params and modify the command before executing, both via 
 
 All Git actions (blue buttons) work like that. Even the main `git log` action itself is a modifiable field: By default it holds
 
-    log --graph --oneline --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --invert-grep --grep=\"^untracked files on \" --grep=\"^index on \"" --author-date-order
+    log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep=\"^untracked files on \" --grep=\"^index on \"" --author-date-order
 
 You shouldn't edit the `--pretty` argument of course, but if you for example want to view the log of a subfolder or for a specific file, all you need to do is add ` -- subfolder` to the end of the command. If you want to get rid of the entire branch visualization, remove the `--graph` part.
 
@@ -47,6 +47,7 @@ Notable features:
  - By default, 15,000 commits are loaded and displayed at once (see log cmd) and rendered efficiently inside a virtual scroller. Because of this, you can quickly scroll over thousands of commits without slowing down or performance issues.
  - Show stashes
  - Green/red insertions/deletion stats
+ - History of your last clicks, searches and actions
  - `git help ...` texts collapsed baked into the default actions
  - Select multiple commits with Ctrl or Shift to compare or apply bulk actions (cherry-pick, revert)
  - Custom CSS
@@ -82,7 +83,7 @@ The only required parameters per action are `title` and `args`.
         "description": "git switch - Switch branches", // An extended title that will be shown as tooltip on button mouse hover and as a subtitle in the action popup. For the defaults, this is the first NAME line of `git help [the-command]`.
         // More detailed help to understand what this command is about: Will help more inexperienced users. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the DESCRIPTION section of `git help [the-command]`:
         "info": "Switch to a specified branch. The working tree and the index are updated to match the branch. All new commits will be added to the tip of this branch.\n\nOptionally a new branch could be created with either -c, -C, automatically from a remote branch of bla bla etc",
-        "args": "switch '$1'", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`.
+        "args": "switch \"$1\"", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`.
         "params": [ "{LOCAL_BRANCH_NAME}" ], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: {BRANCH_NAME}, {LOCAL_BRANCH_NAME}, {REMOTE_NAME}, {COMMIT_HASH}, {COMMIT_HASHES}, {STASH_NAME}, {TAG_NAME}, {SOURCE_BRANCH_NAME} and {TARGET_BRANCH_NAME} (where it makes sense).
         // `options` are just an easy and quick way to toggle common trailing options. You can also specify them manually in `args` of course, given that `args` is also editable yet again at runtime.
         "options": [
@@ -130,6 +131,11 @@ Please consider opening an issue or PR if you think a certain action or option w
         "type": "boolean",
         "default": false
     },
+    "git-log--graph.show-inferred-quick-branch-tips": {
+        "description": "(Depends on 'hide-quick-branch-tips' to be false) If active, the area at the top with the dotted branch lines will also include inferred branch lines, meaning branches that have been deleted or are unavailable but whose name could be reconstructed based on merge commit message.",
+        "type": "boolean",
+        "default": false
+    },
     "git-log--graph.disable-scroll-snapping": {
         "description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
         "type": "boolean",
@@ -152,18 +158,16 @@ Please consider opening an issue or PR if you think a certain action or option w
         "description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
         "type": "string"
     },
-    "git-log--graph.branch-visualization": {
-        "description": "How the branch lines displayed. SVG is recommended.",
-        "type": "string",
-        "default": "svg",
-        "enum": [
-            "svg",
-            "ascii"
-        ]
-    },
     "git-log--graph.verbose-logging": {
         "type": "boolean",
         "default": false
+    },
+    "git-log--graph.curve-radius": {
+        "description": "How curvy the branch visualization should look. Set to 0 to disable curviness. Otherwise, it's recommended to set between 0.3 and 0.6 or things look weird.",
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "default": 0.4
     },
     "git-log--graph.custom-css": {
 		"description": "An abitrary string of CSS that will be injected into the main web view. Example: * { text-transform: uppercase; }",

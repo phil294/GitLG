@@ -60,9 +60,9 @@ code {
 }
 
 details
-	cursor pointer
 	overflow auto
 	> summary
+		cursor pointer
 		// alternatively, list-style-type '⌄' and '›'
 		// but the below mirrors vscode style
 		list-style-type none

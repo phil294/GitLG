@@ -7,14 +7,14 @@ relative_time = new RelativeTime
 
 { get_git } = require './git'
 
-``###* @typedef {{ type: 'response' | 'request' | 'push', command?: string, data?: any, error?: any, id: number | string }} BridgeMessage ###
+###* @typedef {{ type: 'response' | 'request' | 'push', command?: string, data?: any, error?: any, id: number | string }} BridgeMessage ###
 
 EXT_NAME = 'git log --graph'
 EXT_ID = 'git-log--graph'
 START_CMD = 'git-log--graph.start'
 BLAME_CMD = 'git-log--graph.blame-line'
 
-``###* @type {vscode.WebviewPanel | vscode.WebviewView | null} ###
+###* @type {vscode.WebviewPanel | vscode.WebviewView | null} ###
 webview_container = null
 
 # todo proper log with timestamps like e.g. git or extension host
@@ -53,17 +53,27 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		workspace_state_memento = (###* @type string ### key) =>
 			get: => context.workspaceState.get(key)
 			set: (###* @type any ### v) => context.workspaceState.update(key, v)
-		``###* @type {Record<string, {get:()=>any,set:(value:any)=>any}>} ###
+		repo_state_memento = (###* @type string ### local_key) =>
+			key = =>
+				repo_name = git.get_repo_names()[state('selected-repo-index').get()]
+				"repo-#{local_key}-#{repo_name}"
+			get: => context.workspaceState.get(key())
+			set: (###* @type any ### v) => context.workspaceState.update(key(), v)
+		###* @type {Record<string, {get:()=>any,set:(value:any)=>any}>} ###
 		kv =
 			'selected-repo-index':
 				get: => context.workspaceState.get('selected-repo-index')
 				set: (v) =>
 					context.workspaceState.update('selected-repo-index', v)
 					git.set_selected_repo_index(Number(v) or 0)
+					# These will have changed now, so notify clients of updated value
+					for key from ['repo:action-history', 'repo:selected-commits-hashes']
+						state(key).set(state(key).get())
 			'repo-names':
 				get: => git.get_repo_names()
 				set: =>
-			'selected-commits-hashes': workspace_state_memento('selected-commits-hashes')
+			'repo:selected-commits-hashes': repo_state_memento('selected-commits-hashes')
+			'repo:action-history': repo_state_memento('action-history')
 		default_memento = global_state_memento
 		(###* @type string ### key) =>
 			memento = kv[key] or default_memento(key)
@@ -77,7 +87,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						data: { key, value }
 				undefined
 
-	git.set_selected_repo_index(context.workspaceState.get('selected-repo-index') or 0)
+	git.set_selected_repo_index(state('selected-repo-index').get() or 0)
 
 	populate_webview = =>
 		return if not webview_container
@@ -88,7 +98,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			log.appendLine "receive from webview: "+JSON.stringify(message) if vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging')
 			d = message.data
 			h = (###* @type {() => any} ### func) =>
-				``###* @type BridgeMessage ###
+				###* @type BridgeMessage ###
 				resp =
 					type: 'response'
 					id: message.id
@@ -126,7 +136,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 							uri = vscode.Uri.file path.join workspace, d.filename
 							vscode.commands.executeCommand 'vscode.open', uri
 
-		``###* @type {NodeJS.Timeout|null} ###
+		###* @type {NodeJS.Timeout|null} ###
 		config_change_debouncer = null
 		vscode.workspace.onDidChangeConfiguration (event) =>
 			if event.affectsConfiguration EXT_ID
@@ -248,7 +258,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	current_line = -1
 	current_line_repo_index = -1
 	current_line_long_hash = ''
-	``###* @type {NodeJS.Timeout|null} ###
+	###* @type {NodeJS.Timeout|null} ###
 	line_change_debouncer = null
 	hide_blame = =>
 		clearTimeout line_change_debouncer if line_change_debouncer
@@ -280,7 +290,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 
 		state('selected-repo-index').set(current_line_repo_index)
 		# focus_commit_hash = (await git.run "rev-parse --short #{current_line_long_hash}").trim() # todo error here goes unnoticed
-		state('selected-commits-hashes').set([current_line_long_hash])
+		state('repo:selected-commits-hashes').set([current_line_long_hash])
 		current_line_long_hash = ''
 		vscode.commands.executeCommand(START_CMD)
 

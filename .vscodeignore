@@ -13,3 +13,4 @@ yarn.lock
 CONTRIBUTING.md
 vsix-out
 **/*.d.ts
+app

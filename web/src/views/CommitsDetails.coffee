@@ -3,7 +3,7 @@ import { git, exchange_message } from '../bridge.coffee'
 import { commits_actions } from './store.coffee'
 import GitActionButton from './GitActionButton.vue'
 import FilesDiffsList from './FilesDiffsList.vue'
-``###*
+###*
 # @typedef {import('./types').Commit} Commit
 ###
 ###* @template T @typedef {import('vue').Ref<T>} Ref ###
@@ -18,7 +18,7 @@ export default defineComponent
 			type: Object
 			required: true
 	setup: (props) ->
-		``###* @type {Ref<{path:string,insertions:number,deletions:number}[]>} ###
+		###* @type {Ref<{path:string,insertions:number,deletions:number}[]>} ###
 		comparison_files = ref []
 		merge_bases = ref []
 		watchEffect =>

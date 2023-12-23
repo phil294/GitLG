@@ -1,8 +1,8 @@
 import { git } from '../bridge.coffee'
-import { stateful_computed } from './store.coffee'
+import { stateful_computed, push_history } from './store.coffee'
 import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMounted } from 'vue'
 
-``###*
+###*
 # @typedef {import('./types').GitOption} GitOption
 # @typedef {import('./types').ConfigGitAction} ConfigGitAction
 # @typedef {import('./types').GitAction} GitAction
@@ -11,7 +11,7 @@ import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMoun
 ###* @template T @typedef {import('vue').ComputedRef<T>} ComputedRef ###
 ###* @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef ###
 
-``###*
+###*
 # @param actions {ConfigGitAction[]}
 # @param replacements {[string,string][]}
 # @return {GitAction[]}
@@ -66,42 +66,46 @@ export default defineComponent
 		constructed_command = computed =>
 			to_cli options
 		command = ref ''
-		config_key = "git input config " + props.git_action.config_key
-		``###* @type {{ options: GitOption[], command: string } | null} ###
+		if props.git_action.config_key
+			config_key = "git input config " + props.git_action.config_key
+		###* @type {{ options: GitOption[], command: string } | null} ###
 		default_config = { options: [], command: '' }
-		``###* @type {WritableComputedRef<typeof default_config>} ###
+		###* @type {WritableComputedRef<typeof default_config>} ###
 		config = null
 		config_load_promise = new Promise (loaded) =>
-			config = stateful_computed(config_key, default_config, loaded)
+			if config_key
+				config = stateful_computed(config_key, default_config, loaded)
+			else
+				loaded(null)
 		is_saved = computed =>
-			!! config.value?.command
+			!! config?.value?.command
 		has_unsaved_changes = computed =>
-			config.value?.command != command.value
+			config?.value?.command != command.value
 		watchEffect =>
 			if is_saved.value
 				for option from options
-					saved = config.value.options.find (o) =>
+					saved = config?.value.options.find (o) =>
 						o.value == option.value
 					if saved
 						option.active = saved.active
 				# because modifying `options` this will have changed `command`
 				# via watchEffect, we need to wait before overwriting it
 				await nextTick()
-				command.value = config.value.command
+				command.value = config?.value.command
 		save = =>
 			new_saved =
 				options: options
 				command: command.value
-			config.value = JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
+			config?.value = JSON.parse(### because proxy fails postMessage ### JSON.stringify(new_saved))
 		reset_command = =>
 			command.value = constructed_command.value
 		watchEffect reset_command
 		text_changed = computed =>
 			command.value != constructed_command.value
 
-		``###* @type {Ref<HTMLInputElement[]>} ###
+		###* @type {Ref<HTMLInputElement[]>} ###
 		params_input_refs = ref []
-		``###* @type {Ref<HTMLInputElement|null>} ###
+		###* @type {Ref<HTMLInputElement|null>} ###
 		command_input_ref = ref null
 		onMounted =>
 			if params_input_refs.value.length
@@ -113,8 +117,8 @@ export default defineComponent
 		error = ref ''
 		execute = =>
 			error.value = ''
-			if params.some (p) => p.includes("'")
-				throw "Params cannot contain single quotes."
+			if params.some (p) => p.includes('"') or p.includes('\\')
+				throw "Params cannot contain quotes or backslashes."
 			cmd = command.value
 			i = 0
 			while (pos = cmd.indexOf('$'+ ++i)) > -1
@@ -139,6 +143,7 @@ export default defineComponent
 				return
 			finally
 				emit 'executed'
+				push_history type: 'git', value: cmd
 			if not props.hide_result
 				data.value = result
 			emit 'success', result

@@ -50,6 +50,10 @@
 
 	files-diffs-list :files="changed_files" @show_diff="show_diff" @view_rev="view_rev"
 
+	br
+	details
+		summary.align-center Compare...
+		| In order to compare this commit with another one, do <kbd>Ctrl</kbd>+Click on any other commit in the main view
 </template>
 
 <script lang="coffee" src="./CommitDetails.coffee"></script>

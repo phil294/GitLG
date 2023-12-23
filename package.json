@@ -1,7 +1,7 @@
 {
 	"name": "git-log--graph",
 	"description": "git log --graph, an interactive Git Graph frontend",
-	"version": "0.1.12+shunf4-mod-2",
+	"version": "0.1.100013+shunf4-mod-1",
 	"icon": "img/logo.png",
 	"publisher": "phil294",
 	"private": false,
@@ -84,6 +84,11 @@
 					"type": "boolean",
 					"default": false
 				},
+				"git-log--graph.show-inferred-quick-branch-tips": {
+					"description": "(Depends on 'hide-quick-branch-tips' to be false) If active, the area at the top with the dotted branch lines will also include inferred branch lines, meaning branches that have been deleted or are unavailable but whose name could be reconstructed based on merge commit message.",
+					"type": "boolean",
+					"default": false
+				},
 				"git-log--graph.disable-scroll-snapping": {
 					"description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
 					"type": "boolean",
@@ -110,14 +115,18 @@
 					"type": "boolean",
 					"default": false
 				},
-				"git-log--graph.branch-visualization": {
-					"description": "How the branch lines displayed. SVG is recommended.",
-					"type": "string",
-					"default": "svg",
-					"enum": [
-						"svg",
-						"ascii"
-					]
+				"git-log--graph.curve-radius": {
+					"description": "How curvy the branch visualization should look. Set to 0 to disable curviness. Otherwise, it's recommended to be between 0.3 and 0.6 or things look weird.",
+					"type": "number",
+					"minimum": 0,
+					"maximum": 1,
+					"default": 0.4
+				},
+				"git-log--graph.row-height": {
+					"description": "The height in pixels of the rows in the scrollable main view.",
+					"type": "number",
+					"minimum": 1,
+					"default": 20
 				},
 				"git-log--graph.custom-css": {
 					"description": "An abitrary string of CSS that will be injected into the main web view",

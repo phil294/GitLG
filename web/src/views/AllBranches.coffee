@@ -6,7 +6,7 @@ export default
 	emit: ['branch_selected']
 	components: { RefTip }
 	setup: (props, { emit }) ->
-		show_all_branches = ref false
+		details_ref = ref null
 		txt_filter = ref ''
 		filtered_branches = computed =>
 			if not txt_filter.value
@@ -15,14 +15,14 @@ export default
 				branches.value.filter (branch) =>
 					branch.id.toLowerCase().includes(txt_filter.value.toLowerCase())
 		on_mouse_up = (###* @type MouseEvent ### event) =>
-			await nextTick()
 			if not (event.target instanceof Element) or
-					event.target.getAttribute('id') != 'show-all-branches' and
+					event.target.parentElement?.getAttribute('id') != 'show-all-branches' and
 					not event.target.classList.contains('ref-tip') and
 					not event.target.classList.contains('filter') and
 					not event.target.querySelector('.ref-tip') and
 					not event.target.parentElement?.classList.contains('context-menu-wrapper')
-				show_all_branches.value = false
+				# @ts-ignore TODO: .
+				details_ref.value?.removeAttribute 'open'
 		onMounted =>
 			document.addEventListener 'mouseup', on_mouse_up
 		onUnmounted =>
@@ -30,8 +30,8 @@ export default
 		go_to_head = () =>
 			emit 'branch_selected', 'HEAD'
 		{
-			show_all_branches
 			filtered_branches
 			txt_filter
 			go_to_head
+			details_ref
 		}

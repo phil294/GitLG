@@ -1,6 +1,6 @@
 import colors from "./colors.coffee"
 
-``###*
+###*
 # @typedef {{
 #	name: string
 #	id: string
@@ -11,17 +11,30 @@ import colors from "./colors.coffee"
 #	type: "branch"
 #	remote_name?: string
 #	tracking_remote_name?: string
-#	virtual?: boolean
+#	inferred?: boolean
 # }} Branch
 #
 # @typedef {{
-#	char: string
-#	branch: Branch | null
-# }[]} Vis
+#	branch?: Branch | undefined
+#	x0: number
+#	y0?: number
+#	xn: number
+#	yn?: number
+#	xcs?: number
+#	ycs?: number
+#	xce?: number
+#	yce?: number
+# }} VisLine
+# Vis chars are transformed by us into vis lines (as in: a svg line) that have an
+# `x0` and an `x1` "coordinate" (from / to). These coordinates will have to be mapped
+# to the actual svg grid as there is no spacing here yet.
+# Every commit will have at least one vis line.
+# For what `x0`, `ycs` and so on stand for, please refer to the documentation at
+# https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#cubic_b%C3%A9zier_curve
 #
 # @typedef {{
 #	i: number
-#	vis: Vis
+#	vis_lines: VisLine[]
 #	branch?: Branch
 #	hash: string
 #	author_name: string
@@ -35,7 +48,6 @@ import colors from "./colors.coffee"
 #		insertions?: number
 #		deletions?: number
 #	}
-#	scroll_height: number
 # }} Commit
 #
 # @typedef {{
@@ -58,12 +70,22 @@ import colors from "./colors.coffee"
 # @typedef {ConfigGitAction & {
 #	config_key: string
 # }} GitAction
+#
+# @typedef {{
+#	type: 'txt_filter' | 'branch_id' | 'commit_hash' | 'git'
+#	value: string
+#	datetime: string
+# }} HistoryEntry
 ###
 
-``###*
+###*
 # To use in place of `.filter(Boolean)` for type safety with strict null checks.
 # @template T
 # @param value {T | undefined | null | false}
 # @return {value is T}
 ###
 export is_truthy = (value) => !!value
+
+###* @return {ref is Branch} ###
+export is_branch = (###* @type {GitRef} ### ref) =>
+	ref.type == "branch"

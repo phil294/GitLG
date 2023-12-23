@@ -9,7 +9,7 @@
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
 				details.config.flex-1
-					summary Configure...
+					summary.align-center Configure...
 					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 				repo-selection
 				aside.center.gap-20
@@ -40,45 +40,20 @@
 							i.codicon.codicon-refresh
 			#quick-branch-tips
 				all-branches @branch_selected="scroll_to_branch_tip($event)" ref="all_branches_ref"
+				history @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_user($event.hash)" @apply_txt_filter="$event=>txt_filter=$event"
 				#git-status v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length"
 					| Status: {{ git_status }}
-				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch.id)" title="Jump to branch tip" v-bind="branch_elem.bind"
+				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch)" title="Jump to branch tip" v-bind="branch_elem.bind"
 					ref-tip :git_ref="branch_elem.branch"
 				button#jump-to-top @click="scroll_to_top()" title="Scroll to top"
 					i.codicon.codicon-arrow-circle-up
 			#branches-connection v-if="config_show_quick_branch_tips"
-				component.vis :is="visualization_component" v-if="connection_fake_commit" :commit="connection_fake_commit" :vis_max_amount="vis_max_amount"
-			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" size-field="scroll_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
-				.row.commit :class="{selected_commit:selected_commits.includes(commit),empty:!commit.full_hash,merge:commit.merge}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.full_hash"
-					component.vis :is="visualization_component" :commit="commit" :vis_max_amount="vis_max_amount"
-					.info.flex-1.row.gap-20 v-if="commit.full_hash"
-						.subject-wrapper.flex-1.row.align-center
-							div.vis.vis-v :style="commit.branch? {color:commit.branch.color} : undefined"
-								| ●
-							.subject  {{ commit.subject }}
-						.author.flex-noshrink :title="commit.author_name+' <'+commit.author_email+'>'"
-							| {{ commit.author_name }}
-						.stats.flex-noshrink.row.align-center.justify-flex-end.gap-5
-							.changes v-if="commit.stats" title="Changed lines in amount of files"
-								span: strong {{ commit.stats.insertions + commit.stats.deletions }}
-								span.grey  in
-								span.grey {{ commit.stats.files_changed }}
-							progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
-						.datetime.flex-noshrink {{ commit.datetime }}
-						button @click="commit_sticky_selected(commit,$event)" style="width: 20px"
-							div v-if="selected_commits_from_sticky_map[commit.full_hash]"
-								| ◍
-							div v-if="!sticky_selected_commits_map[commit.full_hash]"
-								| ◯
-							div v-if="sticky_selected_commits_map[commit.full_hash] && !sticky_selected_commits_reverted"
-								| ①
-							div v-if="sticky_selected_commits_map[commit.full_hash] && sticky_selected_commits_reverted"
-								| ②
-						button
-							.hash.flex-noshrink {{ commit.hash }}
+				commit-row.vis :height="110" v-if="connection_fake_commit" :commit="connection_fake_commit"
+			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" :item-size="scroll_item_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
+				commit-row :commit="commit" :class="{selected_commit:selected_commits.includes(commit)}" @click="commit_clicked(commit,$event)" @commit_sticky_selected="commit_sticky_selected(commit,$event)" :selected_commits_from_sticky_map="selected_commits_from_sticky_map" :sticky_selected_commits_map="sticky_selected_commits_map" :sticky_selected_commits_reverted="sticky_selected_commits_reverted" role="button" :data-commit-hash="commit.full_hash"
 		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
 			template v-if="selected_commit"
-				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit($event)"
+				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit_user($event)"
 				button#close-selected-commit.center @click="selected_commits=[]" title="Close"
 					i.codicon.codicon-close
 				.resize-hint v-if="selected_commit"
@@ -141,7 +116,7 @@ details.config
 		padding-left var(--container-padding)
 	#branches-connection
 		height 110px
-		:deep(>.vis>svg>line.vis-v)
+		:deep(>.commit>.vis>svg>path.vis-line)
 			stroke-dasharray 4
 	#git-status
 		color #555
@@ -156,15 +131,22 @@ details.config
 			position absolute
 			&:hover
 				z-index 1
-		> #all-branches
+		> #all-branches, > #history
 			position absolute
-			top 15px
-			right 10px
-			z-index 2
-			max-width clamp(300px, 70vw, 80vw)
 			background #161616dd
 			box-shadow 0 0 5px 2px #161616dd
 			border-radius 5px
+		> #all-branches
+			top 15px
+			right 10px
+			z-index 3
+			max-width clamp(300px, 70vw, 80vw)
+		> #history
+			top 35px
+			right 39px
+			z-index 2
+			&[open]
+				left 39px
 		> #jump-to-top
 			right -2px
 			top 96px
@@ -174,61 +156,32 @@ details.config
 			// Need tabindex so that pgUp/Down works consistently (idk why, probably vvs bug), but focus outline adds no value here
 			outline none
 		.commit
-			--h 20px // must be synced with JS
-			&.empty
-				--h 6px // same
-			height var(--h)
-			line-height var(--h)
 			cursor pointer
-			user-select none
 			&.selected_commit
 				box-shadow 0 0 3px 0px gold
 				background #292616
+			:deep(.info)
+				border-top 1px solid #2e2e2e
 
 
 			// TODO: wait for vscode to be process.versions.chrome (dev tools) >= 112, then:
 			// .vis:has(+.info:hover)
 			// 	overflow hidden
 			// Workaround until then (also see.vue-recycle-scroller__item-view.hover > .commit:
-			.info:hover
+			:deep(.info:hover)
 				z-index 1
 				background #161616
-			&.selected_commit .info:hover
+			:deep(&.selected_commit .info:hover)
 				background #292616
 
-
-			.info
-				border-top 1px solid #2e2e2e
-				> *
-					white-space pre
-					overflow hidden
-					text-overflow ellipsis
-				.datetime, .hash
-					font-family monospace
-				> .subject-wrapper
-					min-width 150px
-					display inline-flex
-					> *
-						text-overflow ellipsis
-					> .subject
-						overflow hidden
-						flex 1 1 30%
-				> .datetime, > .author
-					color grey
-				> .datetime
-					font-size 12px
-				> .author
-					max-width 150px
-				.stats
-					width 91px
-			&.merge .subject
-				color grey
 
 #right
 	min-width 400px
 	position relative
 	#selected-commit, #selected-commits
 		overflow auto
+		z-index 1
+		background #161616
 	#close-selected-commit, #close-selected-commits
 		position absolute
 		top 10px
@@ -241,7 +194,7 @@ details.config
 </style>
 
 <style lang="stylus">
-.vue-recycle-scroller__item-view.hover > .commit:not(.empty)
+.vue-recycle-scroller__item-view.hover > .commit
 	background #323232
 
 	// TODO: see above

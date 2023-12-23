@@ -84,6 +84,7 @@ mv "$vsix_file" vsix-out/"$vsix_file"
 vsix_file=vsix-out/"$vsix_file"
 
 xdg-open "$vsix_file"
+ls -hltr vsix-out
 ls -hltr
 echo 'check vsix package before publish'
 pause
@@ -99,7 +100,7 @@ pause
 
 git push --tags origin master
 
-if [[ -z $version || -z $changes ]]; then
+if [[ -z $version || -z $changes || -z $vsix_file ]]; then
     echo version/changes empty
     exit 1
 fi

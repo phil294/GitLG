@@ -30,7 +30,7 @@
 			"description": "git merge - Join both development histories together",
 			"info": "Incorporates changes from the named commits of the target branch (since the time their histories diverged from the current branch) into the current branch. This command is used by git pull to incorporate changes from another repository and can be used by hand to merge changes from one branch into another.\n\nThe syntax `git merge --abort` can only be run after the merge has resulted in conflicts. `git merge --abort` will abort the merge process and try to reconstruct the pre-merge state. However, if there were uncommitted changes when the merge started (and especially if those changes were further modified after the merge was started), `git merge --abort` will in some cases be unable to reconstruct the original (pre-merge) changes. Therefore:\n\nWarning: Running git merge with non-trivial uncommitted changes is discouraged: while possible, it may leave you in a state that is hard to back out of in the case of a conflict.\n\nThe syntax `git merge --continue` can only be run after the merge has resulted in conflicts.\n\nTo read the full documentation on this command, run `git help merge` in a terminal.",
 			"icon": "git-merge",
-			"args": "checkout '$2' && git merge '$1'",
+			"args": "checkout \"$2\" && git merge \"$1\"",
 			"params": [
 				"{SOURCE_BRANCH_NAME}",
 				"{TARGET_BRANCH_NAME}"
@@ -58,7 +58,7 @@
 			"description": "git rebase - Reapply commits on top of another base tip",
 			"info": "Will perform an automatic git switch <source branch> before doing anything else.\n\nIt is possible that a merge failure will prevent this process from being completely automatic. You will have to resolve any such merge failure and run `git rebase --continue`. Another option is to bypass the commit that caused the merge failure with `git rebase --skip`. To check out the original <branch> and remove the `.git/rebase-apply` working files, use the command `git rebase --abort` instead.\n\nIn case of conflict, git rebase will stop at the first problematic commit and leave conflict markers in the tree. You can use git diff to locate the markers (`<<<<<<`) and make edits to resolve the conflict. For each file you edit, you need to tell Git that the conflict has been resolved, typically this would be done with `git add <filename>`\n\nAfter resolving the conflict manually and updating the index with the desired resolution, you can continue the rebasing process with `git rebase --continue`. Alternatively, you can undo the git rebase with `git rebase --abort`.\n\nTo read the full documentation on this command, run `git help rebase` in a terminal.",
 			"icon": "references",
-			"args": "checkout '$2' && git rebase '$1'",
+			"args": "checkout \"$2\" && git rebase \"$1\"",
 			"params": [
 				"{SOURCE_BRANCH_NAME}",
 				"{TARGET_BRANCH_NAME}"
@@ -68,7 +68,7 @@
 			"title": "Reset {SOURCE_BRANCH_NAME} to {TARGET_BRANCH_NAME}...",
 			"info": "Copies entries from <target branch> to <source branch>. By default (behavior of `--mixed`), resets the index but not the working tree (i.e., the changed files are preserved but not marked for commit) and reports what has not been updated. If -N is specified, removed paths are marked as intent-to-add (see git-add(1)).\n\nTo read the full documentation on this command, run `git help reset` in a terminal.",
 			"icon": "reply",
-			"args": "checkout '$1' && git reset '$2'",
+			"args": "checkout \"$1\" && git reset \"$2\"",
 			"params": [
 				"{SOURCE_BRANCH_NAME}",
 				"{TARGET_BRANCH_NAME}"
@@ -94,7 +94,7 @@
 			"info": "Updates files in the working tree to match the version in the index or the specified tree.\n\nPrepare to work on top of <commit>, by detaching HEAD at it (see 'DETACHED HEAD' section), and updating the index and the files in the working tree. Local modifications to the files in the working tree are kept, so that the resulting working tree will be the state recorded in the commit plus the local modifications.\n\nTo read the full documentation on this command, run `git help checkout` in a terminal.",
 			"icon": "git-commit",
 			"immediate": true,
-			"args": "checkout '$1'",
+			"args": "checkout \"$1\"",
 			"params": [
 				"{COMMIT_HASH}"
 			]
@@ -104,7 +104,7 @@
 			"description": "git branch - Create branches",
 			"info": "Creates a new branch head named <branchname> which points to <start-point>.\n\nNote that this will create the new branch, but it will not switch the working tree to it; use `git switch <newbranch>` to switch to the new branch.\n\nTo read the full documentation on this command, run `git help branch` in a terminal.",
 			"icon": "add",
-			"args": "branch '$1' '$2'",
+			"args": "branch \"$1\" \"$2\"",
 			"params": [
 				"new_branch_name",
 				"{COMMIT_HASH}"
@@ -115,7 +115,7 @@
 			"description": "git tag - Create a tag object signed with GPG",
 			"info": "Add a tag reference in refs/tags/.\n\nUnless -f is given, the named tag must not yet exist.\n\nIf one of -a, -s, or -u <key-id> is passed, the command creates a tag object, and requires a tag message. Unless -m <msg> or -F <file> is given, an editor is started for the user to type in the tag message.\n\nIf -m <msg> or -F <file> is given and -a, -s, and -u <key-id> are absent, -a is implied.\n\nOtherwise, a tag reference that points directly at the given object (i.e., a lightweight tag) is created.\n\nA GnuPG signed tag object will be created when -s or -u <key-id> is used. When -u <key-id> is not used, the committer identity for the current user is used to find the GnuPG key for signing. The configuration variable gpg.program is used to specify custom GnuPG binary.\n\nTag objects (created with -a, -s, or -u) are called 'annotated' tags; they contain a creation date, the tagger name and e-mail, a tagging message, and an optional GnuPG signature. Whereas a 'lightweight' tag is simply a name for an object (usually a commit object).\n\nAnnotated tags are meant for release while lightweight tags are meant for private or temporary object labels. For this reason, some git commands for naming objects (like `git describe`) will ignore lightweight tags by default.\n\nTo read the full documentation on this command, run `git help tag` in a terminal.",
 			"icon": "tag",
-			"args": "tag '$1' '$2' --message '$3'",
+			"args": "tag \"$1\" \"$2\" --message \"$3\"",
 			"params": [
 				"new_tag_name",
 				"{COMMIT_HASH}",
@@ -134,7 +134,7 @@
 			"description": "git cherry-pick - Apply the changes introduced by some existing commits",
 			"info": "Given one or more existing commits, apply the change each one introduces, recording a new commit for each. This requires your working tree to be clean (no modifications from the HEAD commit).\n\nWhen it is not obvious how to apply a change, the following happens:\n\n1. The current branch and HEAD pointer stay at the last commit successfully made.\n2. The CHERRY_PICK_HEAD ref is set to point at the commit that introduced the change that is difficult to apply.\n3. Paths in which the change applied cleanly are updated both in the index file and in your working tree.\n4. For conflicting paths, the index file records up to three versions, as described in the 'TRUE MERGE' section of git-merge(1). The working tree files will include a description of the conflict bracketed by the usual conflict markers `<<<<<<<` and `>>>>>>>`.\n5. No other modifications are made.\nSee git-merge(1) for some hints on resolving such conflicts.\n\nTo read the full documentation on this command, run `git help cherry-pick` in a terminal.",
 			"icon": "record",
-			"args": "cherry-pick '$1'",
+			"args": "cherry-pick \"$1\"",
 			"params": [
 				"{COMMIT_HASH}"
 			],
@@ -151,7 +151,7 @@
 			"description": "git revert - Revert some existing commits",
 			"info": "Given one or more existing commits, revert the changes that the related patches introduce, and record some new commits that record them. This requires your working tree to be clean (no modifications from the HEAD commit).\n\nNote: git revert is used to record some new commits to reverse the effect of some earlier commits (often only a faulty one). If you want to throw away all uncommitted changes in your working directory, you should see git-reset(1), particularly the --hard option. If you want to extract specific files as they were in another commit, you should see git-restore(1), specifically the --source option. Take care with these alternatives as both will discard uncommitted changes in your working directory.\n\nSee 'Reset, restore and revert' in git(1) for the differences between the three commands.\n\nTo read the full documentation on this command, run `git help revert` in a terminal.",
 			"icon": "discard",
-			"args": "revert '$1'",
+			"args": "revert \"$1\"",
 			"params": [
 				"{COMMIT_HASH}"
 			],
@@ -166,7 +166,7 @@
 		{
 			"title": "Rebase",
 			"icon": "references",
-			"args": "rebase '$1'",
+			"args": "rebase \"$1\"",
 			"params": [
 				"{COMMIT_HASH}"
 			]
@@ -176,7 +176,7 @@
 			"description": "git reset - Reset current HEAD to the specified state",
 			"info": "Copies entries from <commit> to the index. Sets the current branch head (HEAD) to <commit>, optionally modifying index and working tree to match. Resets the current branch head to <commit> and possibly updates the index (resetting it to the tree of <commit>) and the working tree depending on <mode>. Before the operation, ORIG_HEAD is set to the tip of the current branch. If <mode> is omitted, defaults to --mixed which means: Resets the index but not the working tree (i.e., the changed files are preserved but not marked for commit) and reports what has not been updated. If -N is specified, removed paths are marked as intent-to-add (see git-add(1))\n\nTo read the full documentation on this command, run `git help reset` in a terminal.",
 			"icon": "reply",
-			"args": "reset '$1'",
+			"args": "reset \"$1\"",
 			"params": [
 				"{COMMIT_HASH}"
 			],
@@ -198,7 +198,7 @@
 			"description": "git merge - Join two or more development histories together",
 			"info": "Incorporates changes from the named commits (since the time their histories diverged from the current branch) into the current branch. This command is used by git pull to incorporate changes from another repository and can be used by hand to merge changes from one branch into another.\n\nThe syntax `git merge --abort` can only be run after the merge has resulted in conflicts. `git merge --abort` will abort the merge process and try to reconstruct the pre-merge state. However, if there were uncommitted changes when the merge started (and especially if those changes were further modified after the merge was started), `git merge --abort` will in some cases be unable to reconstruct the original (pre-merge) changes. Therefore:\n\nWarning: Running git merge with non-trivial uncommitted changes is discouraged: while possible, it may leave you in a state that is hard to back out of in the case of a conflict.\n\nThe syntax `git merge --continue` can only be run after the merge has resulted in conflicts.\n\nTo read the full documentation on this command, run `git help merge` in a terminal.",
 			"icon": "git-merge",
-			"args": "merge '$1'",
+			"args": "merge \"$1\"",
 			"params": [
 				"{COMMIT_HASH}"
 			],
@@ -284,7 +284,7 @@
 			"info": "Apply the stash on top of the current working tree state, i.e., do the inverse operation of git stash push. The working directory must match the index. Does *not* remove the state from the stash list like pop.\n\nApplying the state can fail with conflicts; in this case, you need to resolve the conflicts by hand.\n\nUnlike pop, <stash> may be any commit that looks like a commit created by stash push or stash create.\n\nTo read the full documentation on this command, run `git help stash` in a terminal.",
 			"icon": "arrow-right",
 			"immediate": true,
-			"args": "stash apply '$1'",
+			"args": "stash apply \"$1\"",
 			"params": [
 				"{STASH_NAME}"
 			]
@@ -295,7 +295,7 @@
 			"info": "Remove a single stashed state from the stash list and apply it on top of the current working tree state, i.e., do the inverse operation of git stash push. The working directory must match the index.\n\nApplying the state can fail with conflicts; in this case, it is not removed from the stash list. You need to resolve the conflicts by hand and call `git stash drop` manually afterwards.\n\nTo read the full documentation on this command, run `git help stash` in a terminal.",
 			"icon": "export",
 			"immediate": true,
-			"args": "stash pop '$1'",
+			"args": "stash pop \"$1\"",
 			"params": [
 				"{STASH_NAME}"
 			]
@@ -305,7 +305,7 @@
 			"description": "git stash drop",
 			"info": "Remove a single stash entry from the list of stash entries.\n\nTo read the full documentation on this command, run `git help stash` in a terminal.",
 			"icon": "trash",
-			"args": "stash drop '$1'",
+			"args": "stash drop \"$1\"",
 			"params": [
 				"{STASH_NAME}"
 			]
@@ -315,7 +315,7 @@
 			"description": "git stash branch",
 			"info": "Creates and checks out a new branch named <branchname> starting from the commit at which the <stash> was originally created, applies the changes recorded in <stash> to the new working tree and index. If that succeeds, and <stash> is a reference of the form stash@{<revision>}, it then drops the <stash>.\n\nThis is useful if the branch on which you ran `git stash [push]` has changed enough that git stash apply fails due to conflicts. Since the stash entry is applied on top of the commit that was HEAD at the time git stash was run, it restores the originally stashed state with no conflicts.\n\nTo read the full documentation on this command, run `git help stash` in a terminal.",
 			"icon": "add",
-			"args": "stash branch '$1' '$2'",
+			"args": "stash branch \"$1\" \"$2\"",
 			"params": [
 				"new_branch_name",
 				"{STASH_NAME}"
@@ -327,7 +327,7 @@
 			"title": "Delete",
 			"description": "git tag - delete a tag object",
 			"icon": "trash",
-			"args": "tag -d '$1'",
+			"args": "tag -d \"$1\"",
 			"params": [
 				"{TAG_NAME}"
 			]
@@ -340,7 +340,7 @@
 			"info": "Updates files in the working tree to match the version in the index or the specified tree. If no pathspec was given, git checkout will also update HEAD to set the specified branch as the current branch.\n\nTo prepare for working on <branch>, switch to it by updating the index and the files in the working tree, and by pointing HEAD at the branch. Local modifications to the files in the working tree are kept, so that they can be committed to the <branch>.\n\nIf <branch> is not found but there does exist a tracking branch in exactly one remote (call it <remote>) with a matching name and --no-guess is not specified, treat as equivalent to `git checkout -b <branch> --track <remote>/<branch>`.\n\nYou could omit <branch>, in which case the command degenerates to 'check out the current branch', which is a glorified no-op with rather expensive side-effects to show only the tracking information, if exists, for the current branch.\n\nTo read the full documentation on this command, run `git help checkout` in a terminal.",
 			"icon": "git-commit",
 			"immediate": true,
-			"args": "checkout '$1'",
+			"args": "checkout \"$1\"",
 			"params": [
 				"{LOCAL_BRANCH_NAME}"
 			]
@@ -350,7 +350,7 @@
 			"description": "git merge - Join both development histories together",
 			"info": "Incorporates changes from the named commits of the target branch (since the time their histories diverged from the current branch) into the current branch. This command is used by git pull to incorporate changes from another repository and can be used by hand to merge changes from one branch into another.\n\nThe syntax `git merge --abort` can only be run after the merge has resulted in conflicts. `git merge --abort` will abort the merge process and try to reconstruct the pre-merge state. However, if there were uncommitted changes when the merge started (and especially if those changes were further modified after the merge was started), `git merge --abort` will in some cases be unable to reconstruct the original (pre-merge) changes. Therefore:\n\nWarning: Running git merge with non-trivial uncommitted changes is discouraged: while possible, it may leave you in a state that is hard to back out of in the case of a conflict.\n\nThe syntax `git merge --continue` can only be run after the merge has resulted in conflicts.\n\nTo read the full documentation on this command, run `git help merge` in a terminal.",
 			"icon": "git-merge",
-			"args": "merge '$1'",
+			"args": "merge \"$1\"",
 			"params": [
 				"{BRANCH_NAME}"
 			],
@@ -377,7 +377,7 @@
 			"description": "git pull - Fetch from and integrate with another repository or a local branch",
 			"info": "Incorporates changes from a remote repository into the current branch. If the current branch is behind the remote, then by default it will fast-forward the current branch to match the remote. If the current branch and the remote have diverged, the user needs to specify how to reconcile the divergent branches with --rebase or --no-rebase (or the corresponding configuration option in pull.rebase).\n\nMore precisely, git pull runs git fetch with the given parameters and then depending on configuration options or command line flags, will call either `git rebase` or `git merge` to reconcile diverging branches.\n\n<repository> should be the name of a remote repository as passed to git-fetch(1). <refspec> can name an arbitrary remote ref (for example, the name of a tag) or even a collection of refs with corresponding remote-tracking branches (e.g., refs/heads/*:refs/remotes/origin/*), but usually it is the name of a branch in the remote repository.\n\nDefault values for <repository> and <branch> are read from the 'remote' and 'merge' configuration for the current branch as set by git-branch(1) --track.\n\nSee git-merge(1) for details, including how conflicts are presented and handled.\n\nIn Git 1.7.0 or later, to cancel a conflicting merge, use git reset --merge. Warning: In older versions of Git, running git pull with uncommitted changes is discouraged: while possible, it leaves you in a state that may be hard to back out of in the case of a conflict.\n\nIf any of the remote changes overlap with local uncommitted changes, the merge will be automatically canceled and the work tree untouched. It is generally best to get any local changes in working order before pulling or stash them away with git-stash(1).\n\nTo read the full documentation on this command, run `git help pull` in a terminal.",
 			"icon": "fold-down",
-			"args": "pull '$1' '$2'",
+			"args": "pull \"$1\" \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
 				"{LOCAL_BRANCH_NAME}"
@@ -405,7 +405,7 @@
 			"description": "git push - Update remote refs along with associated objects",
 			"info": "Updates remote refs using local refs, while sending objects necessary to complete the given refs.\n\nYou can make interesting things happen to a repository every time you push into it, by setting up hooks there. See documentation for git-receive-pack(1).\n\nWhen the command line does not specify where to push with the <repository> argument, branch.*.remote configuration for the current branch is consulted to determine where to push. If the configuration is missing, it defaults to origin.\n\nWhen the command line does not specify what to push with <refspec>... arguments or --all, --mirror, --tags options, the command finds the default <refspec> by consulting remote.*.push configuration, and if it is not found, honors push.default configuration to decide what to push (See git-config(1) for the meaning of push.default).\n\nWhen neither the command-line nor the configuration specify what to push, the default behavior is used, which corresponds to the simple value for push.default: the current branch is pushed to the corresponding upstream branch, but as a safety measure, the push is aborted if the upstream branch does not have the same name as the local one.\n\nTo read the full documentation on this command, run `git help push` in a terminal.",
 			"icon": "fold-up",
-			"args": "push '$1' '$2'",
+			"args": "push \"$1\" \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
 				"{LOCAL_BRANCH_NAME}"
@@ -430,7 +430,7 @@
 			"description": "git banch - Rename branch",
 			"info": "Move/rename a branch, together with its config and reflog. <oldbranch> will be renamed to <newbranch>. If <oldbranch> had a corresponding reflog, it is renamed to match <newbranch>, and a reflog entry is created to remember the branch renaming. If <newbranch> exists, -M must be used to force the rename to happen.\n\nFor the full documentation, run `git help branch` in a terminal.",
 			"icon": "edit",
-			"args": "branch -m '$1' '$2'",
+			"args": "branch -m \"$1\" \"$2\"",
 			"params": [
 				"{BRANCH_NAME}",
 				"new_branch_name"
@@ -451,7 +451,7 @@
 			"description": "git rebase - Reapply commits on top of another base tip",
 			"info": "Will perform an automatic git switch <source branch> before doing anything else.\n\nIt is possible that a merge failure will prevent this process from being completely automatic. You will have to resolve any such merge failure and run `git rebase --continue`. Another option is to bypass the commit that caused the merge failure with `git rebase --skip`. To check out the original <branch> and remove the `.git/rebase-apply` working files, use the command `git rebase --abort` instead.\n\nIn case of conflict, git rebase will stop at the first problematic commit and leave conflict markers in the tree. You can use git diff to locate the markers (`<<<<<<`) and make edits to resolve the conflict. For each file you edit, you need to tell Git that the conflict has been resolved, typically this would be done with `git add <filename>`\n\nAfter resolving the conflict manually and updating the index with the desired resolution, you can continue the rebasing process with `git rebase --continue`. Alternatively, you can undo the git rebase with `git rebase --abort`.\n\nTo read the full documentation on this command, run `git help rebase` in a terminal.",
 			"icon": "references",
-			"args": "rebase '$1'",
+			"args": "rebase \"$1\"",
 			"params": [
 				"{BRANCH_NAME}"
 			]
@@ -461,7 +461,7 @@
 			"description": "git branch - Delete branch",
 			"info": "<branchname> will be deleted. You may specify more than one branch for deletion. If the branch currently has a reflog then the reflog will also be deleted. The branch must be fully merged in its upstream branch, or in HEAD if no upstream was set with --track or --set-upstream-to.",
 			"icon": "trash",
-			"args": "branch --delete '$1'",
+			"args": "branch --delete \"$1\"",
 			"params": [
 				"{BRANCH_NAME}"
 			],
@@ -477,7 +477,7 @@
 			"title": "Delete (Remote)",
 			"description": "Delete a remote branch",
 			"icon": "trash",
-			"args": "push '$1' --delete '$2'",
+			"args": "push \"$1\" --delete \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
 				"{LOCAL_BRANCH_NAME}"

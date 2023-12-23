@@ -1,8 +1,9 @@
+import { is_branch } from './types'
 import { defineComponent, computed } from 'vue'
 import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action } from './store.coffee'
-``###* @typedef {import('./types').GitRef} GitRef ###
-``###* @typedef {import('./types').Commit} Commit ###
-``###* @typedef {import('./types').GitAction} GitAction ###
+###* @typedef {import('./types').GitRef} GitRef ###
+###* @typedef {import('./types').Commit} Commit ###
+###* @typedef {import('./types').GitAction} GitAction ###
 
 export default defineComponent
 	props:
@@ -14,8 +15,11 @@ export default defineComponent
 			###* @type {() => Commit} ###
 			type: Object
 	setup: (props) ->
-		is_branch = computed =>
-			props.git_ref.type == 'branch'
+		branch = computed =>
+			if is_branch props.git_ref
+				props.git_ref
+			else
+				null
 		to_context_menu_entries = (###* @type GitAction[] ### actions) =>
 			actions.map (action) =>
 				label: action.title
@@ -32,18 +36,19 @@ export default defineComponent
 						"2px solid #{props.git_ref.color}"
 					else undefined
 			class:
-				'head': is_head
-				'branch': is_branch.value
+				head: is_head
+				branch: !! branch.value
+				inferred: !! branch.value?.inferred
 		drag: computed =>
-			if is_branch.value then props.git_ref.id
+			if branch.value then props.git_ref.id
 		drop: (###* @type {import('../directives/drop').DropCallbackPayload} ### event) =>
-			return if not is_branch.value
+			return if not branch.value
 			source_branch_name = event.data
 			return if typeof source_branch_name != 'string'
 			combine_branches(source_branch_name, props.git_ref.id)
 		context_menu_provider: computed => =>
-			if is_branch.value
-				to_context_menu_entries(branch_actions(props.git_ref).value)
+			if branch.value
+				to_context_menu_entries(branch_actions(branch.value).value)
 			else if props.git_ref.type == 'stash' and props.commit
 				to_context_menu_entries(stash_actions(props.git_ref.name).value)
 			else if props.git_ref.type == 'tag'

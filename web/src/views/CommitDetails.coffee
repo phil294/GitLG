@@ -4,7 +4,7 @@ import { commit_actions, stash_actions, branch_actions, tag_actions, config } fr
 import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
 import FilesDiffsList from './FilesDiffsList.vue'
-``###*
+###*
 # @typedef {import('./types').Commit} Commit
 # @typedef {import('./types').Branch} Branch
 ###
@@ -27,17 +27,17 @@ export default defineComponent
 		tags = computed =>
 			props.commit.refs.filter (ref) =>
 				ref.type == "tag"
-		``###* @type {Ref<string[]>} ###
+		###* @type {Ref<string[]>} ###
 		tag_details = ref []
 
 		stash = computed =>
 			props.commit.refs.find (ref) =>
 				ref.type == "stash"
 
-		``###* @type {Ref<import('./FilesDiffsList.coffee').FileDiff[]>} ###
+		###* @type {Ref<import('./FilesDiffsList.coffee').FileDiff[]>} ###
 		changed_files = ref []
 		body = ref ''
-		``###* @type {Ref<string[]>} ###
+		###* @type {Ref<string[]>} ###
 		parent_hashes = ref []
 		contained_in_branches = ref []
 		watchEffect =>

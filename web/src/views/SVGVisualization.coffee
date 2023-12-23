@@ -1,7 +1,7 @@
 import { computed, defineComponent } from 'vue'
-import { vis_max_amount, head_branch, vis_v_width } from './store.coffee'
+import { head_branch, vis_v_width } from './store.coffee'
 import RefTip from './RefTip.vue'
-``###* @typedef {import('./log-utils').Commit} Commit ###
+###* @typedef {import('./log-utils').Commit} Commit ###
 
 export default defineComponent
 	props:
@@ -9,118 +9,44 @@ export default defineComponent
 			required: true
 			###* @type {() => Commit} ###
 			type: Object
+		height:
+			required: true
+			type: Number
+		style:
+			type: Object
 	components: { RefTip }
 	setup: (props) ->
 		padding_left = 5
-		padding_right = 20
-		vis_width = computed =>
-			vis_max_amount.value * vis_v_width.value + padding_right
-		v_height = computed =>
-			props.commit.scroll_height
-		vis_style = computed =>
-			'min-width': "max(min(50vw, #{vis_width}px),210px)"
-			'max-width': '60vw'
 		lines = computed =>
-			props.commit.vis
-				.map (v, i) =>
-					return null if v.char == ' '
-					coords = switch v.char
-						when '*', '|'
-							x1: padding_left + vis_v_width.value * (i + 0.5)
-							x2: padding_left + vis_v_width.value * (i + 0.5)
-							y1: 0
-							y2: v_height.value
-						when '⎺*', '⎺|'
-							x1: padding_left + vis_v_width.value * i
-							x2: padding_left + vis_v_width.value * (i + 0.5)
-							y1: 0
-							y2: v_height.value
-						when '*⎺', '|⎺'
-							x1: padding_left + vis_v_width.value * (i + 1)
-							x2: padding_left + vis_v_width.value * (i + 0.5)
-							y1: 0
-							y2: v_height.value
-						when '⎽*', '⎽|'
-							x1: padding_left + vis_v_width.value * (i + 0.5)
-							x2: padding_left + vis_v_width.value * i
-							y1: 0
-							y2: v_height.value
-						when '⎽⎽|'
-							x1: padding_left + vis_v_width.value * (i - 0.5)
-							x2: padding_left + vis_v_width.value * (i + 0.5)
-							y1: v_height.value
-							y2: 0
-						when '*⎽', '|⎽'
-							x1: padding_left + vis_v_width.value * (i + 0.5)
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: 0
-							y2: v_height.value
-						when '|⎽⎽'
-							x1: padding_left + vis_v_width.value * (i + 0.5)
-							x2: padding_left + vis_v_width.value * (i + 1.5)
-							y1: 0
-							y2: v_height.value
-						when '_'
-							x1: padding_left + vis_v_width.value * i
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: v_height.value
-							y2: v_height.value
-						when '\\'
-							x1: padding_left + vis_v_width.value * i
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: 0
-							y2: v_height.value
-						when '⎺\\'
-							x1: padding_left + vis_v_width.value * (i - 0.5)
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: 0
-							y2: v_height.value
-						when '⎺\\⎽'
-							x1: padding_left + vis_v_width.value * (i - 0.5)
-							x2: padding_left + vis_v_width.value * (i + 1.5)
-							y1: 0
-							y2: v_height.value
-						when '/'
-							x1: padding_left + vis_v_width.value * (i + 1)
-							x2: padding_left + vis_v_width.value * i
-							y1: 0
-							y2: v_height.value
-						when '/⎺'
-							x1: padding_left + vis_v_width.value * (i + 1.5)
-							x2: padding_left + vis_v_width.value * i
-							y1: 0
-							y2: v_height.value
-						when '.', '-'
-							x1: padding_left + vis_v_width.value * i
-							x2: padding_left + vis_v_width.value * (i + 1)
-							y1: 0
-							y2: 0
-						else
-							throw new Error 'unexpected vis char '+v.char
-					{
-						style:
-							stroke: v.branch?.color
-						class:
-							is_head: v.branch?.id == head_branch.value
-						...coords
-					}
-				.filter Boolean
-		vis_circle_index = computed =>
-			props.commit.vis.findIndex (v) =>
-				['*', '⎺*', '*⎺'].includes v.char
-		circle = computed =>
-			if vis_circle_index.value > -1
-				v = props.commit.vis[vis_circle_index.value]
+			props.commit.vis_lines.map (vis_line) =>
+				d: "M#{padding_left + vis_line.x0 * vis_v_width.value},#{(vis_line.y0 || 0) * props.height} C#{padding_left + (vis_line.xcs || 0) * vis_v_width.value},#{(vis_line.ycs || 0) * props.height} #{padding_left + (vis_line.xce || 0) * vis_v_width.value},#{(vis_line.yce || 0) * props.height} #{padding_left + vis_line.xn * vis_v_width.value},#{(vis_line.yn || 0) * props.height}"
+				vis_line: vis_line
 				style:
-					stroke: v.branch?.color
+					stroke: vis_line.branch?.color
 				class:
-					is_head: v.branch?.id == head_branch.value
-				cx: padding_left + vis_v_width.value * (vis_circle_index.value + 0.5)
-				cy: v_height.value * 0.5
-				r: 4
+					is_head: vis_line.branch?.id == head_branch.value
+				# https://stackoverflow.com/q/44040163
+				# TODO: Didn't find a working solution yet to fix the gaps between the svg elements.
+				'vector-effect': 'non-scaling-stroke'
+		branch_line = computed =>
+			return null if ! props.commit.branch
+			lines.value.find (line) =>
+				line.vis_line.branch == props.commit.branch
+		circle = computed =>
+			return null if ! branch_line.value || ! props.commit.branch
+			style:
+				stroke: props.commit.branch.color
+			class:
+				is_head: props.commit.branch.id == head_branch.value
+			cx:
+				# I guess this could also be calculated more elegantly, but this kind of
+				# approximation seems to be good enough for all cases
+				padding_left + (branch_line.value.vis_line.x0 + branch_line.value.vis_line.xn + (branch_line.value.vis_line.xcs || 0) + (branch_line.value.vis_line.xce || 0)) / 4 * vis_v_width.value
+			cy: props.height * 0.5
+			r: 4
 		refs_elems = computed =>
 			refs: props.commit.refs
 			style:
-				left: padding_left + vis_v_width.value * (vis_circle_index.value + 1) - 2 + 'px'
+				left: (circle.value?.cx || padding_left) + vis_v_width.value - 2 + 'px'
 
-		{ vis_style, lines, vis_width, circle, refs_elems, v_height }
+		{ lines, circle, refs_elems }
