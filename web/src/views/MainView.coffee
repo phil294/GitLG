@@ -74,7 +74,7 @@ export default
 					selected_commits.value = []
 				else
 					selected_commits.value = [commit]
-					store.push_history type: 'commit_hash', value: commit.hash
+					store.push_history type: 'commit_hash', value: commit.full_hash
 
 		commit_sticky_selected = (###* @type Commit ### commit, ###* @type MouseEvent ### event) =>
 			event.stopPropagation()
@@ -190,10 +190,10 @@ export default
 			selected_commits.value = [commit]
 			# For now, set history always to commit_hash as this also shows the branches. Might revisit some day TODO
 			# if branch.inferred
-			# 	store.push_history type: 'commit_hash', value: commit.hash
+			# 	store.push_history type: 'commit_hash', value: commit.full_hash
 			# else
 			# 	store.push_history type: 'branch_id', value: branch.id
-			store.push_history type: 'commit_hash', value: commit.hash
+			store.push_history type: 'commit_hash', value: commit.full_hash
 		scroll_to_commit = (###* @type string ### hash) =>
 			commit_i = filtered_commits.value.findIndex (commit) =>
 				commit.full_hash == hash
@@ -201,9 +201,9 @@ export default
 				return show_error_message "No commit found for hash #{hash}. No idea why :/"
 			scroll_to_item_centered commit_i
 			selected_commits.value = [filtered_commits.value[commit_i]]
-		scroll_to_commit_user = (###* @type string ### hash) =>
-			scroll_to_commit hash
-			store.push_history type: 'commit_hash', value: hash
+		scroll_to_commit_user = (###* @type string ### full_hash) =>
+			scroll_to_commit full_hash
+			store.push_history type: 'commit_hash', value: full_hash
 		scroll_to_top = =>
 			commits_scroller_ref.value?.scrollToItem 0
 

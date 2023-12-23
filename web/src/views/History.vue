@@ -46,7 +46,7 @@ export default
 					switch entry.type
 						when 'commit_hash'
 							commits.value?.find (commit) =>
-								commit.hash == entry.value
+								commit.full_hash == entry.value
 						when 'git'
 							title: 'git ' + entry.value
 							args: entry.value
