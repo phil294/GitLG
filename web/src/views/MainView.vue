@@ -50,7 +50,7 @@
 			#branches-connection v-if="config_show_quick_branch_tips"
 				commit-row.vis :height="110" v-if="connection_fake_commit" :commit="connection_fake_commit"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" :item-size="scroll_item_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
-				commit-row :commit="commit" :class="{selected_commit:selected_commits.includes(commit)}" @click="commit_clicked(commit,$event)" @commit_sticky_selected="commit_sticky_selected(commit,$event)" :selected_commits_from_sticky_map="selected_commits_from_sticky_map" :sticky_selected_commits_map="sticky_selected_commits_map" :sticky_selected_commits_reverted="sticky_selected_commits_reverted" role="button" :data-commit-hash="commit.full_hash"
+				commit-row :commit="commit" :class="{selected_commit:selected_commits.includes(commit)}" @click="commit_clicked(commit,$event)" @commit_sticky_selected="event => commit_sticky_selected(commit, event)" :should_show_sticky_select="true" :selected_commits_from_sticky_map="selected_commits_from_sticky_map" :sticky_selected_commits_map="sticky_selected_commits_map" :sticky_selected_commits_reverted="sticky_selected_commits_reverted" role="button" :data-commit-hash="commit.full_hash"
 		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
 			template v-if="selected_commit"
 				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit_user($event)"

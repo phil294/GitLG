@@ -66,7 +66,8 @@ export default defineComponent
 
 		show_diff = (###* @type string ### filepath1, ###* @type string ### filepath2) =>
 			exchange_message 'open-diff',
-				hashes: [props.commit.full_hash+'~1', props.commit.full_hash]
+				hashes: [props.commit.hash+'~1', props.commit.hash]
+				full_hashes: [props.commit.full_hash+'~1', props.commit.full_hash]
 				filepath1: filepath1
 				filepath2: filepath2
 		view_rev = (###* @type string ### filepath) =>

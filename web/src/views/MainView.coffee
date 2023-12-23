@@ -174,7 +174,7 @@ export default
 					commit.vis_lines.some (vis_line) => vis_line.branch == branch
 				else
 					commit.refs.some (ref) => ref == branch
-			if first_branch_commit_i == -1 && branch_id == 'HEAD'
+			if first_branch_commit_i == -1 && branch.id == 'HEAD'
 				first_branch_commit_i = filtered_commits.value.findIndex (commit) =>
 					commit.refs.some (ref) => ref.id == store.head_branch.value
 			if first_branch_commit_i == -1

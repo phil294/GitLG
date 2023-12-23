@@ -125,8 +125,8 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 						when 'set-state' then h =>
 							state(d.key).set(d.value, broadcast: false)
 						when 'open-diff' then h =>
-							uri_1 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[0]}:#{d.filepath1}"
-							uri_2 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hashes[1]}:#{d.filepath2}"
+							uri_1 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.full_hashes[0]}:#{d.filepath1}"
+							uri_2 = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.full_hashes[1]}:#{d.filepath2}"
 							vscode.commands.executeCommand 'vscode.diff', uri_1, uri_2, "#{d.filepath1} #{d.hashes[0]} vs. " + (if (d.filepath1 == d.filepath2) then  "" else d.filepath2) + " #{d.hashes[1]}"
 						when 'view-rev' then h =>
 							uri = vscode.Uri.parse "#{EXT_ID}-git-show:#{d.hash}:#{d.filename}"
