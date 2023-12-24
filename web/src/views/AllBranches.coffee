@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
-import { branches } from './store.coffee'
+import { branches, head_branch } from './store.coffee'
 import RefTip from './RefTip.vue'
 
 export default
@@ -28,7 +28,8 @@ export default
 		onUnmounted =>
 			document.removeEventListener 'mouseup', on_mouse_up
 		go_to_head = () =>
-			emit 'branch_selected', 'HEAD'
+			emit 'branch_selected', branches.value.find (b) =>
+				b.id == head_branch.value
 		{
 			filtered_branches
 			txt_filter

@@ -59,7 +59,7 @@
 				.resize-hint v-if="selected_commit"
 					| ← resize
 			template v-else-if="selected_commits.length"
-				commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits" @hash_clicked="scroll_to_commit($event)"
+				commits-details#selected-commits.flex-1.fill-w.padding :commits="selected_commits" @hash_clicked="scroll_to_commit_user($event)"
 				button#close-selected-commits.center @click="selected_commits=[]" title="Close"
 					i.codicon.codicon-close
 				.resize-hint v-if="selected_commit"
@@ -176,7 +176,7 @@ details.config
 
 
 #right
-	min-width 400px
+	min-width 300px
 	position relative
 	#selected-commit, #selected-commits
 		overflow auto
@@ -186,6 +186,7 @@ details.config
 		position absolute
 		top 10px
 		right 10px
+		z-index 999
 	.resize-hint
 		color #555555
 		font-size small

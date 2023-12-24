@@ -11,7 +11,7 @@
 		h3 Comparison of two commits
 		h3 Merge bases
 		ul
-			li v-for="merge_base of merge_bases"
+			li v-for="merge_base of merge_bases" style="word-break: break-all;"
 				button style="margin-right: 3px;" @click="$emit('hash_clicked',merge_base)" title="Jump to commit"
 					i.codicon.codicon-link
 				| {{ merge_base }}

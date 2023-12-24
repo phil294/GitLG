@@ -6,7 +6,7 @@
 
 	h3 Parent commits
 	ul
-		li v-for="parent_hash of parent_hashes"
+		li v-for="parent_hash of parent_hashes" style="word-break: break-all;"
 			button style="margin-right: 3px;" @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
 				i.codicon.codicon-link
 			| {{ parent_hash }}
@@ -38,7 +38,7 @@
 						git-action-button v-for="action of tag_actions(tag.name)" :git_action="action"
 
 		.commit
-			h3
+			h3 style="word-break: break-all;"
 				| This commit
 				br
 				button style="margin-right: 3px;" @click="$emit('hash_clicked',commit.full_hash)" title="Jump to commit"

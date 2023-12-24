@@ -18,7 +18,7 @@
 		.file-actions.row.align-center
 			button.row.view-rev @click.stop="mark_file_viewed(file), $emit('view_rev',file.path2)" title="View File at this Revision"
 				i.codicon.codicon-git-commit
-			button.row.open-file @click.stop="mark_file_viewed(file), open_file(file, file.path2)" title="Open file"
+			button.row.open-file @click.stop="mark_file_viewed(file), open_file(file.path2)" title="Open file"
 				i.codicon.codicon-go-to-file
 
 	ul.list v-if="files_list"
