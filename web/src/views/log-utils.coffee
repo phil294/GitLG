@@ -160,6 +160,10 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					if branch_tip
 						v_branch = branch_tip
 						if v_nw?.char == '\\'
+							if ! v_nw?.vis_line?.yn?
+								v_nw?.vis_line?.yn = 0.5
+							if ! v_nw?.vis_line?.yce?
+								v_nw?.vis_line?.yce = 0.5 - (curve_radius / 4)
 							# This is branch tip but in previous above lines, this branch
 							# may already have been on display for merging without its actual name known (inferred substitute).
 							# Fix these lines (min 1) now
@@ -175,8 +179,16 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_n?.branch
 					else if v_nw?.char == '\\'
 						v_branch = v_nw?.branch
+						if ! v_nw?.vis_line?.yn?
+							v_nw?.vis_line?.yn = 0.5
+						if ! v_nw?.vis_line?.yce?
+							v_nw?.vis_line?.yce = 0.5 - (curve_radius / 4)
 					else if v_ne?.char == '/'
 						v_branch = v_ne?.branch
+						if ! v_ne?.vis_line?.yn?
+							v_ne?.vis_line?.yn = 0.5
+						if ! v_ne?.vis_line?.yce?
+							v_ne?.vis_line?.yce = 0.5 - (curve_radius / 4)
 					else
 						# Stashes
 						v_branch = new_branch "inferred~#{branches.length-1}"
@@ -228,7 +240,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						if subject_merge_match = last_commit?.subject.match /^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/
 							branch_id = (subject_merge_match[1] || subject_merge_match[2]) + '~' + (branches.length - 1)
 							split = branch_id.split '/'
-							if split.length
+							if split.length >= 2
 								v_branch = new_branch split.at(-1)||'', split.slice(0, split.length - 1).join('/')
 							else
 								v_branch = new_branch branch_id
@@ -254,6 +266,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			vis[i] = {
 				char
 				branch: v_branch
+				vis_line
 			}
 			if v_branch
 				vis_line.x0 += i
