@@ -24,12 +24,15 @@
 		opacity 85%
 		z-index 1
 	svg
+		overflow visible
 		> path
 			fill none
 		> path.vis-line.is_head
 			filter drop-shadow(3px 0px 1px rgba(255,255,255,0.3)) drop-shadow(-3px 0px 1px rgba(255,255,255,0.3))
 		> circle.vis-line.is_head
 			fill white
+		> circle.vis-line
+			opacity 50%
 	&:after
 		content ''
 		position absolute
