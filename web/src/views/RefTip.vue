@@ -7,6 +7,7 @@
 
 <style lang="stylus" scoped>
 .ref-tip
+	opacity 40%
 	background black
 	font-weight bold
 	font-style italic

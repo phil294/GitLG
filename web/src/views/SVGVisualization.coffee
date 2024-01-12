@@ -22,7 +22,7 @@ export default defineComponent
 				d: "M#{padding_left + vis_line.x0 * vis_v_width.value},#{(vis_line.y0 || 0) * props.height} C#{padding_left + (vis_line.xcs || 0) * vis_v_width.value},#{(vis_line.ycs || 0) * props.height} #{padding_left + (vis_line.xce || 0) * vis_v_width.value},#{(vis_line.yce || 0) * props.height} #{padding_left + vis_line.xn * vis_v_width.value},#{(vis_line.yn || 0) * props.height}"
 				vis_line: vis_line
 				style:
-					stroke: vis_line.branch?.color || 'white'
+					stroke: vis_line.branch?.color
 				class:
 					is_head: vis_line.branch?.id == head_branch.value
 				# https://stackoverflow.com/q/44040163

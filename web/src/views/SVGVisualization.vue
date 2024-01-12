@@ -32,7 +32,7 @@
 		> circle.vis-line.is_head
 			fill white
 		> circle.vis-line
-			opacity 50%
+			opacity 70%
 	&:after
 		content ''
 		position absolute

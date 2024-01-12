@@ -171,7 +171,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 							# may already have been on display for merging without its actual name known (inferred substitute).
 							# Fix these lines (min 1) now
 							wrong_branch = v_nw?.branch
-							if wrong_branch
+							if wrong_branch && !densened_vis_line_by_branch_id[wrong_branch.id]
 								k = commits.length - 1
 								while (wrong_branch_matches = commits[k]?.vis_lines.filter (v) => v.branch == wrong_branch)?.length
 									for wrong_branch_match from wrong_branch_matches or []
@@ -214,7 +214,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_ne?.branch
 					else
 						throw new Error 'no neighbor found for | at row ' + row_no
-					vis_line = { x0: 0.5, xn: 0.5, yn: 0.5 }
+					vis_line = { x0: 0.5, xn: 0.5, yn: 1 }
 				when '_'
 					v_branch = v_ee?.branch
 					vis_line = { x0: 1, xn: 0 }
@@ -236,7 +236,9 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 				when '\\'
 					v_nw_is_merge_commit = false
 					if v_e?.char == '|'
-						v_branch = v_e?.branch
+						v_branch = new_branch "~#{branches.length-1}"
+						if v_e?.branch?.color
+							v_branch.color = v_e?.branch?.color
 					else if v_w_char == '|'
 						# right before (chronologically) a merge commit (which would be at v_nw).
 						v_nw_is_merge_commit = true
@@ -267,7 +269,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = last_vis[i-3].branch
 					else
 						throw new Error 'no neighbor found for \\ at row ' + row_no
-					vis_line = { x0: -0.5, xn: 1 }
+					vis_line = { x0: -0.5, xn: 1.5 }
 					if v_nw_is_merge_commit
 						vis_line.y0 = -0.5
 						vis_line.ycs = -0.5
@@ -278,7 +280,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 			vis[i] = {
 				char
 				branch: v_branch
-				vis_line: {...vis_line}
+				vis_line
 			}
 			if v_branch
 				vis_line.x0 += i
@@ -302,7 +304,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 				if ! vis_line.y0?
 					vis_line.y0 = 0
 				if ! vis_line.yn?
-					vis_line.yn = 1
+					vis_line.yn = 0.5
 				if ! vis_line.xce?
 					# We don't know yet if this line is the last one of rows for this branch
 					# or if more will be to come. The latter case is handled later, so for the former
@@ -312,7 +314,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					# upwards splitting effect
 					vis_line.xce = vis_line.xn
 				if ! vis_line.yce?
-					vis_line.yce = 1 - (curve_radius / 2) # Must not be too strong
+					vis_line.yce = 0.5 - (curve_radius / 2) # Must not be too strong
 				# Make connection to previous row's branch line curvy?
 				if last_vis_line = last_densened_vis_line_by_branch_id?[branch_id]
 					# So far, a line is simply defined as the connection between x0 and xn with
@@ -330,7 +332,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					last_vis_line.xce = last_xce
 					last_vis_line.yce = 1 - curve_radius
 					last_vis_line.yn = 1
-					# vis_line.x0 = middle_x
+					vis_line.x0 = middle_x
 					vis_line.xcs = xcs
 					vis_line.ycs = curve_radius
 				else
