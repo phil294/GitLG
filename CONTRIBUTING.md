@@ -4,6 +4,8 @@ This extension is written in modern [CoffeeScript](https://coffeescript.org). Yo
 
 All code should be type-safe by the use of JSDoc in block comments (`###* @type {...} ###` etc.).
 
+Migrating to [Civet](https://civet.dev/) is a mid-term goal. Or perhaps we should just switch to normal JS?
+
 There is both a bootstrapping backend `extension.coffee` and a [webview](https://code.visualstudio.com/api/extension-guides/webview) which communicates with the backend via `bridge.coffee`. Git commands are implemented as a `git` child process in the backend. This way, web components are fully privileged via import, e.g.
 ```coffee
 import { git } from 'bridge.coffee'
