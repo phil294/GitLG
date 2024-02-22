@@ -29,7 +29,7 @@
 							i.codicon.codicon-refresh
 			#quick-branch-tips
 				all-branches @branch_selected="scroll_to_branch_tip($event)"
-				history @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_user($event.hash)" @apply_txt_filter="$event=>txt_filter=$event"
+				history @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_hash_user($event.hash)" @apply_txt_filter="$event=>txt_filter=$event"
 				#git-status v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length"
 					| Status: {{ git_status }}
 				button v-if="config_show_quick_branch_tips" v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" @click="scroll_to_branch_tip(branch_elem.branch)" title="Jump to branch tip" v-bind="branch_elem.bind"
@@ -42,7 +42,7 @@
 				commit-row :commit="commit" :class="{selected_commit:selected_commits.includes(commit)}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
 		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
 			template v-if="selected_commit"
-				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit_user($event)"
+				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit_hash_user($event)"
 				button#close-selected-commit.center @click="selected_commits=[]" title="Close"
 					i.codicon.codicon-close
 				.resize-hint v-if="selected_commit"

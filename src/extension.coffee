@@ -308,6 +308,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		current_line_long_hash = ''
 		state('repo:selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)
+		push_message_id 'scroll-to-selected-commit'
 
 	# public api of this extension:
 	{ git, post_message, webview_container, context, state }

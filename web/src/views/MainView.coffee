@@ -1,6 +1,6 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import * as store from './store.coffee'
-import { show_error_message } from '../bridge.coffee'
+import { show_error_message, add_push_listener } from '../bridge.coffee'
 import { is_truthy } from './types'
 import GitInputModel from './GitInput.coffee'
 import GitInput from './GitInput.vue'
@@ -64,9 +64,8 @@ export default
 		clear_filter = =>
 			txt_filter.value = ''
 			if selected_commit.value
-				selected_i = filtered_commits.value.findIndex (c) => c == selected_commit.value
 				await nextTick()
-				scroll_to_item_centered selected_i
+				scroll_to_commit selected_commit.value
 		###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
@@ -133,18 +132,24 @@ export default
 			# else
 			# 	store.push_history type: 'branch_id', value: branch.id
 			store.push_history type: 'commit_hash', value: commit.hash
-		scroll_to_commit = (###* @type string ### hash) =>
+		scroll_to_commit_hash = (###* @type string ### hash) =>
 			commit_i = filtered_commits.value.findIndex (commit) =>
 				commit.hash == hash
 			if commit_i == -1
+				console.log new Error().stack
 				return show_error_message "No commit found for hash #{hash}. No idea why :/"
 			scroll_to_item_centered commit_i
 			selected_commits.value = [filtered_commits.value[commit_i]]
-		scroll_to_commit_user = (###* @type string ### hash) =>
-			scroll_to_commit hash
+		scroll_to_commit_hash_user = (###* @type string ### hash) =>
+			scroll_to_commit_hash hash
 			store.push_history type: 'commit_hash', value: hash
+		scroll_to_commit = (###* @type Commit ### commit) =>
+			commit_i = filtered_commits.value.findIndex (c) => c == commit
+			scroll_to_item_centered commit_i
 		scroll_to_top = =>
 			commits_scroller_ref.value?.scrollToItem 0
+		add_push_listener 'scroll-to-selected-commit', =>
+			scroll_to_commit selected_commit.value
 
 
 
@@ -180,7 +185,7 @@ export default
 			if is_first_log_run
 				first_selected_hash = selected_commits.value[0]?.hash
 				if first_selected_hash
-					scroll_to_commit first_selected_hash
+					scroll_to_commit_hash first_selected_hash
 				is_first_log_run = false
 			else
 				if selected_commit.value
@@ -329,7 +334,7 @@ export default
 			commits_scroller_updated
 			commits_scroller_ref
 			scroll_to_branch_tip
-			scroll_to_commit_user
+			scroll_to_commit_hash_user
 			scroll_to_top
 			selected_commit
 			selected_commits
