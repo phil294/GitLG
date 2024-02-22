@@ -71,7 +71,7 @@ export default
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
 			search_for = txt_filter.value.toLowerCase()
-			for str from [commit.subject, commit.hash, commit.author_name, commit.author_email, commit.branch?.id]
+			for str from [commit.subject, commit.hash_long, commit.author_name, commit.author_email, commit.branch?.id]
 				return true if str?.includes(search_for)
 		initialized = computed =>
 			!! store.commits.value

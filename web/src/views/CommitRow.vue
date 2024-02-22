@@ -16,7 +16,7 @@
 			progress.diff v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" title="Ratio insertions / deletions"
 		.datetime.flex-noshrink.align-center {{ commit.datetime }}
 		button
-			.hash.flex-noshrink {{ commit.hash }}
+			.hash.flex-noshrink :title="commit.hash_long" {{ commit.hash }}
 </template>
 
 <script lang="coffee">

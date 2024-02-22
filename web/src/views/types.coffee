@@ -37,6 +37,7 @@ import colors from "./colors.coffee"
 #	vis_lines: VisLine[]
 #	branch?: Branch
 #	hash: string
+#	hash_long: string
 #	author_name: string
 #	author_email: string
 #	datetime?: string

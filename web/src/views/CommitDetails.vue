@@ -47,6 +47,9 @@
 	details
 		summary.align-center Compare...
 		| In order to compare this commit with another one, do <kbd>Ctrl</kbd>+Click on any other commit in the main view
+
+	h3 Details
+	p Full hash: {{ commit.hash_long }}
 </template>
 
 <script lang="coffee" src="./CommitDetails.coffee"></script>

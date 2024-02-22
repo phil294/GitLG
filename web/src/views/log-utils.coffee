@@ -88,11 +88,11 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	hash = '' # Fixing type error idk
 	for row, row_no in rows
 		# Example row:
-		# | | | * {SEP}fced73ef{SEP}phil294{SEP}e@mail.com{SEP}1557084465{SEP}HEAD -> master, origin/master, tag: xyz{SEP}Subject row
+		# | | | * {SEP}fced73efd3eb8012953ddc0e533c7a4ec64f0b46#{SEP}fced73ef{SEP}phil294{SEP}e@mail.com{SEP}1557084465{SEP}HEAD -> master, origin/master, tag: xyz{SEP}Subject row
 		# but can be anything due to different user input.
 		# The vis part could be colored by supplying option `--color=always` in MainView.vue, but
 		# this is not helpful as these colors are non-consistent and not bound to any branches
-		[ vis_str = '', hash = '', author_name = '', author_email = '', iso_datetime = '', refs_csv = '', subject = '' ] = row.split separator
+		[ vis_str = '', hash_long =  '', hash = '', author_name = '', author_email = '', iso_datetime = '', refs_csv = '', subject = '' ] = row.split separator
 		# Much, much slower than everything else so better not log
 		# if vis_str.at(-1) != ' '
 		# 	console.warn "unknown git graph syntax returned at row " + row_no
@@ -324,7 +324,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					# Leftmost branches should appear later so they are on top of the rest
 					.sort (a, b) => (b.xcs || 0) + (b.xce || 0) - (a.xcs || 0) - (a.xce || 0)
 				branch: commit_branch
-				hash, author_name, author_email, datetime, refs, subject
+				hash_long, hash, author_name, author_email, datetime, refs, subject
 			}
 			last_densened_vis_line_by_branch_id = densened_vis_line_by_branch_id
 			# Get rid of branches that "end" here (those that were born with this very commit)
