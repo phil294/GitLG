@@ -15,8 +15,10 @@
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
 						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)"
-						button#clear-filter v-if="txt_filter" @click="clear_filter()"
-							| ✖
+						button#regex-filter.center v-if="txt_filter" @click="txt_filter_regex=!txt_filter_regex" :class="{active:txt_filter_regex}"
+							i.codicon.codicon-regex title="Use Regular Expression (Alt+R)"
+						button#clear-filter.center v-if="txt_filter" @click="clear_filter()" title="Clear search"
+							i.codicon.codicon-close
 						label#filter-type-filter.row.align-center
 							input type="radio" v-model="txt_filter_type" value="filter"
 							| Filter
@@ -96,11 +98,15 @@ details#log-config
 				input#txt-filter
 					width 425px
 					overflow hidden
-				#clear-filter
+				#regex-filter, #clear-filter
 					position relative
-					right 20px
 					width 0
+				#clear-filter, #regex-filter:not(.active)
 					color grey
+				#regex-filter
+					right 32px
+				#clear-filter
+					right 20px
 			> section#actions
 				overflow hidden
 				flex-shrink 0

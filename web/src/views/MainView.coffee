@@ -61,6 +61,7 @@ export default
 		txt_filter = ref ''
 		###* @type {Ref<'filter' | 'jump'>} ###
 		txt_filter_type = ref 'filter'
+		txt_filter_regex = store.stateful_computed 'filter-options-regex', false
 		clear_filter = =>
 			txt_filter.value = ''
 			if selected_commit.value
@@ -71,7 +72,10 @@ export default
 		txt_filter_filter = (###* @type Commit ### commit) =>
 			search_for = txt_filter.value.toLowerCase()
 			for str from [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r)=>r.id)]
-				return true if str?.includes(search_for)
+				if txt_filter_regex.value
+					return true if try str?.match(search_for)
+				else
+					return true if str?.includes(search_for)
 		initialized = computed =>
 			!! store.commits.value
 		filtered_commits = computed =>
@@ -82,6 +86,8 @@ export default
 		document.addEventListener 'keyup', (e) =>
 			if e.key == 'F3' || e.ctrlKey and e.key == 'f'
 				txt_filter_ref.value?.focus()
+			if txt_filter.value && e.key == 'r' && e.altKey
+				txt_filter_regex.value = ! txt_filter_regex.value
 		select_searched_commit_debouncer = -1
 		txt_filter_enter = (###* @type KeyboardEvent ### event) =>
 			return if txt_filter_type.value == 'filter'
@@ -359,4 +365,5 @@ export default
 			scroller_on_keydown
 			config_show_quick_branch_tips
 			scroll_item_height
+			txt_filter_regex
 		}
