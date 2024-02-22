@@ -182,6 +182,7 @@ details#log-config
 		position absolute
 		top 10px
 		right 10px
+		z-index 1
 	.resize-hint
 		color #555555
 		font-size small
