@@ -81,7 +81,7 @@ export default
 			(store.commits.value or []).filter txt_filter_filter
 		txt_filter_last_i = -1
 		document.addEventListener 'keyup', (e) =>
-			if e.ctrlKey and e.key == 'f'
+			if e.key == 'F3' || e.ctrlKey and e.key == 'f'
 				txt_filter_ref.value?.focus()
 		select_searched_commit_debouncer = -1
 		txt_filter_enter = (###* @type KeyboardEvent ### event) =>

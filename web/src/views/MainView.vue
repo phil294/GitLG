@@ -8,21 +8,19 @@
 			p.no-commits-found v-else-if="!filtered_commits.length"
 				| No commits found
 			nav.row.align-center.justify-space-between.gap-10
-				details.config.flex-1
+				details#log-config.flex-1
 					summary.align-center Configure...
 					git-input :git_action="log_action" hide_result="" :action="run_log" ref="git_input_ref"
 				repo-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
-						#search-instructions v-if="txt_filter_type==='jump'"
-							| Jump between matches with ENTER / SHIFT+ENTER
-						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)"
+						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)"
 						button#clear-filter v-if="txt_filter" @click="clear_filter()"
 							| ✖
 						label#filter-type-filter.row.align-center
 							input type="radio" v-model="txt_filter_type" value="filter"
 							| Filter
-						label#filter-type-jump.row.align-center
+						label#filter-type-jump.row.align-center title="Jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3"
 							input type="radio" v-model="txt_filter_type" value="jump"
 							| Jump
 					section#actions.center.gap-5 aria-roledescription="Global actions"
@@ -66,8 +64,10 @@
 <script lang="coffee" src="./MainView.coffee"></script>
 
 <style lang="stylus" scoped>
-details.config
+details#log-config
 	color grey
+	overflow hidden
+	min-width 65px
 	&[open]
 		color unset
 		padding 10px
@@ -87,11 +87,15 @@ details.config
 		border-bottom 1px solid #424242
 		#repo-selection
 			overflow hidden
+			min-width 50x
+			flex-shrink 1
 		> aside
+			flex-shrink 3
 			> section#search
 				overflow hidden
 				input#txt-filter
 					width 425px
+					overflow hidden
 				#clear-filter
 					position relative
 					right 20px
@@ -99,6 +103,7 @@ details.config
 					color grey
 			> section#actions
 				overflow hidden
+				flex-shrink 0
 				:deep(button.btn)
 					font-size 21px
 					padding 0 2px
