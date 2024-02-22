@@ -60,7 +60,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			get: => context.workspaceState.get(key())
 			set: (###* @type any ### v) => context.workspaceState.update(key(), v)
 		###* @type {Record<string, {get:()=>any,set:(value:any)=>any}>} ###
-		kv =
+		special_states = # "Normal" states instead are just default_memento
 			'selected-repo-index':
 				get: => context.workspaceState.get('selected-repo-index')
 				set: (v) =>
@@ -76,7 +76,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			'repo:action-history': repo_state_memento('action-history')
 		default_memento = global_state_memento
 		(###* @type string ### key) =>
-			memento = kv[key] or default_memento(key)
+			memento = special_states[key] or default_memento(key)
 			get: memento.get
 			set: (###* @type any ### value, ###* @type {{broadcast?:boolean}} ### options = {}) =>
 				memento.set(value)
@@ -217,6 +217,26 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 			log.appendLine "show view"
 			# @ts-ignore
 			webview_container?.show()
+
+	# Close the editor(tab)
+	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.close', =>
+		if vscode.workspace.getConfiguration(EXT_ID).get('position') != "editor"
+			return vscode.window.showInformationMessage "This command is can only be used if git-log--graph isn't configured as a main editor (tab)."
+		if ! webview_container
+			return vscode.window.showInformationMessage "git-log--graph editor tab is not running."
+		log.appendLine "close command"
+		# @ts-ignore
+		webview_container.dispose()
+
+	# Toggle the editor(tab)
+	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.toggle', =>
+		if vscode.workspace.getConfiguration(EXT_ID).get('position') != "editor"
+			return vscode.window.showInformationMessage "This command is can only be used if git-log--graph isn't configured as a main editor (tab)."
+		log.appendLine "toggle command"
+		if webview_container
+			# @ts-ignore
+			return webview_container.dispose()
+		vscode.commands.executeCommand(START_CMD)
 
 	# First editor panel creation + show, but automatically after restart / resume previous session.
 	# It would be possible to restore some web view state here too

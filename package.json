@@ -33,6 +33,18 @@
 				"icon": "$(git-branch)"
 			},
 			{
+				"command": "git-log--graph.close",
+				"title": "Close graph tab",
+				"category": "git log --graph",
+				"icon": "$(git-branch)"
+			},
+			{
+				"command": "git-log--graph.toggle",
+				"title": "Toggle graph tab",
+				"category": "git log --graph",
+				"icon": "$(git-branch)"
+			},
+			{
 				"command": "git-log--graph.blame-line",
 				"title": "Blame: Focus last commit at cursor position in graph view",
 				"category": "git log --graph",
