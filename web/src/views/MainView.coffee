@@ -71,7 +71,7 @@ export default
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
 			search_for = txt_filter.value.toLowerCase()
-			for str from [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r)=>r.id)]
+			for str from [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r)=>r.id)].map((s)=>s.toLowerCase())
 				if txt_filter_regex.value
 					return true if try str?.match(search_for)
 				else
