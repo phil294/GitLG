@@ -1,5 +1,6 @@
 import { show_error_message, show_information_message } from './bridge.coffee'
 import { createApp } from 'vue'
+import './globals'
 import App from './App.vue'
 import PromiseForm from './components/PromiseForm.vue'
 import Popup from './components/Popup.vue'
