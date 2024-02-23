@@ -21,7 +21,7 @@ export default defineComponent
 		comparison_files = ref []
 		watchEffect =>
 			return if props.commits.length != 2
-			get_files_command = "diff --numstat --format=\"\" #{props.commits[0].hash} #{props.commits[1].hash}"
+			get_files_command = "-c core.quotepath=false diff --numstat --format=\"\" #{props.commits[0].hash} #{props.commits[1].hash}"
 			comparison_files.value = (try await git get_files_command)
 				# TODO externalize? subcomponent?
 				?.split('\n').map((l) =>
