@@ -47,7 +47,7 @@ export default defineComponent
 				else
 					"-c core.quotepath=false diff --numstat --format=\"\" #{props.commit.hash} #{props.commit.hash}~1"
 			changed_files.value = (try await git get_files_command)
-				?.split('\n').map((l) =>
+				?.split('\n').filter(Boolean).map((l) =>
 					split = l.split('\t')
 					path: split[2]
 					insertions: Number split[1]
