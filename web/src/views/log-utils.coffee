@@ -128,7 +128,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 		###* @type {typeof graph_chars} ###
 		vis_chars = vis_str.trimEnd().split('')
 		if vis_chars.some (v) => not graph_chars.includes(v)
-			throw new Error "unknown visuals syntax at row " + row_no
+			throw new Error "Could not parse output of GIT LOG (line:#{row_no}). Did you change the command by hand? Please in the main view at the top left, click \"Configure\", then at the top right click \"Reset\", then \"Save\" and try again. If this didn't help, it might be a bug! Please open up a GitHub issue."
 		# format %ad with --date=iso-local returns something like 2021-03-02 15:59:43 +0100
 		datetime = iso_datetime?.slice(0, 19)
 		###* We only keep track of the chars used by git output to be able to reconstruct
