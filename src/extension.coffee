@@ -285,7 +285,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	vscode.workspace.onDidCloseTextDocument hide_blame
 	vscode.window.onDidChangeActiveTextEditor hide_blame
 	vscode.window.onDidChangeTextEditorSelection ({ textEditor: text_editor }) =>
-		uri = text_editor.document.uri
+		doc = text_editor.document
+		uri = doc.uri
+		return if uri.scheme != 'file' || doc.languageId == 'log' || doc.languageId == 'Log' || uri.path.includes('extension-output') || uri.path.includes(EXT_ID) # vscode/issues/206118
 		return if text_editor.selection.active.line == current_line
 		current_line = text_editor.selection.active.line
 		clearTimeout line_change_debouncer if line_change_debouncer
