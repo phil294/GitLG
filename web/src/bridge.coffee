@@ -31,7 +31,8 @@ export exchange_message = (###* @type string ### command, ###* @type any ### dat
 		response_handlers[id] = (data) =>
 			ok data
 	console.info "exchange_message", command, data # , resp
-	if resp.error then throw resp.error
+	if resp.error
+		throw new Error(JSON.stringify({ error_response: resp.error, request }))
 	resp.data
 
 ###* @return {Promise<string>} ###

@@ -86,7 +86,9 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 				if not repo and repo_index > 0
 					repo_index = 0
 					repo = api.repositories[repo_index]
-					throw 'No repository found' if not repo
+					throw "No repository found for repo_index #{repo_index}" if not repo
+				if ! repo
+					throw "No repository selected"
 				cwd = repo.rootUri.fsPath
 			{ stdout, stderr: _ } = await exec 'git ' + args,
 				cwd: cwd

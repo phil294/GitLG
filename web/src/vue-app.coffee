@@ -13,7 +13,8 @@ import '@vscode/codicons/dist/codicon.css'
 
 console_error = console.error
 handle_error = (###* @type {any} ### e) =>
-    console_error e
+    console_error e, new Error().stack
+    console.trace()
     debugger
     show_error_message "git log --graph extension encountered an unexpected error. Sorry! Error summary: " + (e.message or e.msg or e.data or e.body or e.stack or try JSON.stringify(e) or e.toString?()) + ". For details, see VSCode developer console. Please consider reporting this error."
 window.onerror = handle_error
