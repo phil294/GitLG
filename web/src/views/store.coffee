@@ -76,7 +76,7 @@ export git_run_log = (###* @type string ### log_args) =>
 		git log_args
 		git "branch --list --all --format=\"%(upstream:remotename)#{sep}%(refname)\""
 		(try await git "stash list --format=\"%h %gd\"") || ''
-		git 'status'
+		git '-c core.quotepath=false status'
 		git 'rev-parse --abbrev-ref HEAD'
 	]
 	return if not log_data?
