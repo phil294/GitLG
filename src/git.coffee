@@ -90,13 +90,18 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 				if ! repo
 					throw "No repository selected"
 				cwd = repo.rootUri.fsPath
-			{ stdout, stderr: _ } = await exec 'git ' + args,
-				cwd: cwd
-				# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
-				# is 538 MB or 7.4 MB for the first 15k commits
-				maxBuffer: 1024 * 1024 * 35
-			last_git_execution = Date.now()
-			stdout
+			try
+				{ stdout, stderr: _ } = await exec 'git ' + args,
+					cwd: cwd
+					# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
+					# is 538 MB or 7.4 MB for the first 15k commits
+					maxBuffer: 1024 * 1024 * 35
+				last_git_execution = Date.now()
+				stdout
+			catch e
+				# stderr contains the full message, message itself is too short otherwise
+				e.message = e.stderr || e.stdout
+				throw e
 		set_selected_repo_index: (###* @type number ### index) =>
 			log.appendLine "set selected repo index "+index
 			selected_repo_index = index

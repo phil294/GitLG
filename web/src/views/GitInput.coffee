@@ -126,18 +126,18 @@ export default defineComponent
 			try
 				result = await (props.action || git) cmd
 			catch e
-				if not e.killed and e.code == 1 and e.stdout.includes("CONFLICT")
-					error.value = "Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n\n" + e.stdout + "\n\n" + e.stderr
-				else if e.stdout
-					error.value = (JSON.stringify e, null, 4).replaceAll('\\n', '\n')
-				else if e.stderr
-					error.value = e.stderr.replaceAll('\\n', '\n')
+				e = e.message_error_response || e.message || e
+				if e.includes("CONFLICT")
+					error.value = "Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n" + e
 				else
-					error.value = e
-				if props.action
-					throw e
-				else
-					console.warn e
+					if text_changed.value
+						error.value = "git command failed. Try clicking RESET and try again!\n\nError message:\n#{e}"
+					else
+						error.value = e
+					if props.action
+						throw new Error(e)
+					else
+						console.warn e
 				if props.git_action.ignore_errors
 					emit 'success'
 				return

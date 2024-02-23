@@ -105,7 +105,9 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				try
 					resp.data = await func()
 				catch e
-					resp.error = "Internal extension backend error: #{if typeof e == 'string' then e else e.message}"
+					console.warn e
+					# We can't really just be passing e along here because it might be serialized as empty {}
+					resp.error = e.message || e
 				post_message resp
 			switch message.type
 				when 'request'

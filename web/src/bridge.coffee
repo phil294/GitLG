@@ -32,7 +32,13 @@ export exchange_message = (###* @type string ### command, ###* @type any ### dat
 			ok data
 	console.info "exchange_message", command, data # , resp
 	if resp.error
-		throw new Error(JSON.stringify({ error_response: resp.error, request }))
+		error = new Error(JSON.stringify({ error_response: resp.error, request }))
+		# @ts-ignore because we need the above info (esp. request) available in the error msg
+		# so it's shown in error popups etc., but the actual response message should also
+		# be retrievable easily from the caller with a try-catch without the need for
+		# extra json.parse, so adding this as an extra property seems like the best solution.
+		error.message_error_response = resp.error
+		throw error
 	resp.data
 
 ###* @return {Promise<string>} ###

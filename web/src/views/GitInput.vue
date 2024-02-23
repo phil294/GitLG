@@ -26,7 +26,6 @@
 				i.codicon.codicon-check
 				| Execute
 	.error-response.padding-l v-if="error"
-		| Command failed:
 		| {{ error }}
 	.success-response.padding-l v-if="data"
 		| Successful result:<br>
