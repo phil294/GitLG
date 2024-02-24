@@ -1,6 +1,6 @@
 import { computed, defineComponent } from 'vue'
 import { exchange_message } from '../bridge.coffee'
-import { stateful_computed } from './store.coffee'
+import { stateful_computed, refresh_main_view } from './store.coffee'
 import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from './file-extension-icon-path-mapping.json'
 
@@ -98,9 +98,14 @@ export default defineComponent
 			exchange_message 'open-file',
 				filename: filepath
 
+		show_file = (###* @type string ### filepath) =>
+			refresh_main_view before_execute: (cmd) =>
+				"#{cmd} -- \"#{filepath}\""
+
 		{
 			files_list
 			files_tree
 			render_style
 			open_file
+			show_file
 		}
