@@ -52,6 +52,8 @@ Notable features:
  - Select multiple commits with Ctrl or Shift to compare or apply bulk actions (cherry-pick, revert)
  - Custom CSS
  - Blame: Shows last commit for current line in status bar to focus and open in main view
+ - File history
+ - Branch history
 
 ## Configuration
 
