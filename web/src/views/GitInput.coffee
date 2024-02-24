@@ -115,7 +115,8 @@ export default defineComponent
 
 		data = ref ''
 		error = ref ''
-		execute = =>
+		###* @param args {{before_execute?: ((cmd: string) => string) | undefined}} ###
+		execute = ({ before_execute } = {}) =>
 			error.value = ''
 			if params.some (p) => p.includes('"') or p.includes('\\')
 				throw "Params cannot contain quotes or backslashes."
@@ -123,6 +124,8 @@ export default defineComponent
 			i = 0
 			while (pos = cmd.indexOf('$'+ ++i)) > -1
 				cmd = cmd.slice(0, pos) + params[i-1] + cmd.slice(pos + 2)
+			if before_execute
+				cmd = before_execute(cmd)
 			try
 				result = await (props.action || git) cmd
 			catch e

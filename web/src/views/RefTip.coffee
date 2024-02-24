@@ -1,6 +1,6 @@
 import { is_branch } from './types'
 import { defineComponent, computed } from 'vue'
-import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action } from './store.coffee'
+import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from './store.coffee'
 ###* @typedef {import('./types').GitRef} GitRef ###
 ###* @typedef {import('./types').Commit} Commit ###
 ###* @typedef {import('./types').GitAction} GitAction ###
@@ -49,6 +49,11 @@ export default defineComponent
 		context_menu_provider: computed => =>
 			if branch.value
 				to_context_menu_entries(branch_actions(branch.value).value)
+					.concat
+						label: 'Show'
+						icon: 'eye'
+						action: =>
+							show_branch(branch.value or throw '?')
 			else if props.git_ref.type == 'stash' and props.commit
 				to_context_menu_entries(stash_actions(props.git_ref.name).value)
 			else if props.git_ref.type == 'tag'

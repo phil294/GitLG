@@ -89,9 +89,10 @@ export git_run_log = (###* @type string ### log_args) =>
 	default_origin.value = likely_default_branch?.remote_name or likely_default_branch?.tracking_remote_name or null
 ###* @type {Ref<Ref<GitInputModel|null>|null>} ###
 export main_view_git_input_ref = ref null
-export refresh_main_view = =>
+###* @param args {{before_execute?: ((cmd: string) => string) | undefined}} ###
+export refresh_main_view = ({ before_execute } = {}) =>
 	console.warn('refreshing main view')
-	main_view_git_input_ref.value?.value?.execute()
+	main_view_git_input_ref.value?.value?.execute({ before_execute })
 
 export update_commit_stats = (###* @type {Commit[]} ### commits) =>
 	data = await git "show --format=\"%h\" --shortstat " + commits.map((c)=>c.hash).join(' ')
@@ -154,6 +155,10 @@ export combine_branches = (###* @type string ### from_branch_name, ###* @type st
 	return if from_branch_name == to_branch_name
 	combine_branches_to_branch_name.value = to_branch_name
 	combine_branches_from_branch_name.value = from_branch_name
+
+export show_branch = (###* @type Branch ### branch_tip) =>
+	refresh_main_view before_execute: (cmd) =>
+		"#{cmd} #{branch_tip.id}".replaceAll(" --all ", " ").replaceAll(" {STASH_REFS} ", " ")
 
 export vis_v_width = computed =>
 	Number(config.value['branch-width']) || 10

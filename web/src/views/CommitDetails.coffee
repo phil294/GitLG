@@ -1,6 +1,7 @@
+import { is_branch } from './types'
 import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.coffee'
-import { commit_actions, stash_actions, branch_actions, tag_actions, config } from './store.coffee'
+import { commit_actions, stash_actions, branch_actions, tag_actions, config, show_branch } from './store.coffee'
 import GitActionButton from './GitActionButton.vue'
 import RefTip from './RefTip.vue'
 import FilesDiffsList from './FilesDiffsList.vue'
@@ -21,8 +22,7 @@ export default defineComponent
 			required: true
 	setup: (props) ->
 		branch_tips = computed =>
-			props.commit.refs.filter (ref) =>
-				ref.type == "branch"
+			props.commit.refs.filter is_branch
 
 		tags = computed =>
 			props.commit.refs.filter (ref) =>
@@ -95,6 +95,7 @@ export default defineComponent
 			branch_actions: _branch_actions
 			tag_actions: _tag_actions
 			stash_actions: _stash_actions
+			show_branch
 			config_show_buttons
 			parent_hashes
 		}
