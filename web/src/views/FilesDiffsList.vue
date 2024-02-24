@@ -1,7 +1,7 @@
 <template lang="slm">
 / TODO rename to filesdiffs, incl class
 .files-diffs-list
-	h3 Changes
+	h3 Changes ({{ files.length }})
 
 	aside.actions
 		button v-if="render_style==='tree'" @click="render_style='list'" title="View as list"
