@@ -4,6 +4,30 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.14 2024-02-24
+
+- [`c4f8cba`](https://github.com/phil294/git-log--graph/commit/c4f8cba) Add new "Show file history" button to files in commit details: This is a convenience function for adding ` -- "the-file.name"` to the main log and clicking "execute". It doesn't stay permanently like that, just once, and after any other git action or clicking refresh, the full view is available again. It's not possible to do this via mouse click for *any* file, just those that are listed in a commit. For more exotic use cases, keep using the main log git input.
+- [`46f1292`](https://github.com/phil294/git-log--graph/commit/46f1292) Add new branch action button (dropdown / action button): "SHOW" (makes the main view only show commits that are relevant to the branch). This is a convenience function for adding ` branch-name` to the main log. See "show file history"
+- [`757f139`](https://github.com/phil294/git-log--graph/commit/757f139) Deterministic branch colors: so now no matter what you do, the color is fixed based on the name of the branch, not (seemingly) random anymore. Note: Certain branches like master or development continue to have a fixed one.
+- [`834c87b`](https://github.com/phil294/git-log--graph/commit/834c87b) Show amount of changes after "Changes" in files diff view
+- [`3cd04b2`](https://github.com/phil294/git-log--graph/commit/3cd04b2) Fix opening the right repository in SCM menu (#42)
+- [`ee4c920`](https://github.com/phil294/git-log--graph/commit/ee4c920) Add "close" command and "toggle" command (#49)
+- [`019b5ea`](https://github.com/phil294/git-log--graph/commit/019b5ea) Show long/full hash in commit details and hash hover, and allow filtering/searching by it (#68)
+- [`8f2c4ea`](https://github.com/phil294/git-log--graph/commit/8f2c4ea) Blame action: Fix jumping to commit directly when main view is already open (#67)
+- [`09978f5`](https://github.com/phil294/git-log--graph/commit/09978f5) Allow searching for tags and stashes: You search for exactly what you also see in the interface, so for example to see all tags, you can search for `tag:` (#69)
+- [`5d38851`](https://github.com/phil294/git-log--graph/commit/5d38851) Add support for RegEx search: remembers state, and can be toggled via mouse or <kbd>Alt</kbd>+<kbd>R</kbd>. It would be nice to have the search widget look and behave exactly like VSCode's internal one, including reusing the overwritten keybindings, but too much effort for now
+- [`0537999`](https://github.com/phil294/git-log--graph/commit/0537999) Allow for more flexible min/max width graph view resizing (#22)
+- [`5c0484b`](https://github.com/phil294/git-log--graph/commit/5c0484b) Enable search with F3 and fix search layout overflow (#50)
+- [`0ba9d21`](https://github.com/phil294/git-log--graph/commit/0ba9d21) Make side bar X close button visible again
+- [`cf56983`](https://github.com/phil294/git-log--graph/commit/cf56983) Fix display of special characters / Chinese chars in file name listing in commit details view (#74)
+- [`0fa76d9`](https://github.com/phil294/git-log--graph/commit/0fa76d9) Fix display of empty commits (#73)
+- [`9b5115d`](https://github.com/phil294/git-log--graph/commit/9b5115d) Fix case sensitivity in search (#72)
+- [`99bea47`](https://github.com/phil294/git-log--graph/commit/99bea47) Fix file name display in git status section (#74)
+- [`d50729e`](https://github.com/phil294/git-log--graph/commit/d50729e) Prevent infinite output channel output and errors in dev tools when you click into the extension output pane
+- [`a9e9abd`](https://github.com/phil294/git-log--graph/commit/a9e9abd) [`546d8d6`](https://github.com/phil294/git-log--graph/commit/546d8d6) Improve error message handling and mostly actually show them in the first place, fix showing the messages in all expected ways (#66)
+- [`54c374e`](https://github.com/phil294/git-log--graph/commit/54c374e) Improve error message and add fix instructions for when you have edited your main log args and it fails (or an update broke it unexpectedly) (#66)
+- [`010e48d`](https://github.com/phil294/git-log--graph/commit/010e48d) Improve available list of colors a bit. Still not particularly great though...
+
 ### v0.1.13 2023-12-01
 
 - [`f8184f1 ff`](https://github.com/phil294/git-log--graph/commit/f8184f1) Change visualization logic: More smooth and curvy, and connection lines can now span multiple rows of git's original output. There are no more "empty" rows. The "curviness" is somewhat configurable with config `curve-radius`.
