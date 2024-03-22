@@ -34,6 +34,28 @@ body {
 		background-color: var(--vscode-editor-background);
 		filter: invert(1) hue-rotate(180deg);
 	}
+
+	::-webkit-scrollbar-button {
+		width: 0px;
+		height: 0px;
+	}
+
+	::-webkit-scrollbar-thumb {
+		background-color: #444;
+	}
+
+	::-webkit-scrollbar-thumb:hover {
+		background-color: #777;
+	}
+
+	::-webkit-scrollbar-thumb:active {
+		background-color: #777;
+	}
+
+	::-webkit-scrollbar {
+		width: 10px;
+		height: 10px;
+	}
 }
 
 ol, ul, *[role=list] {
@@ -91,6 +113,15 @@ input:not([type='checkbox']):not([type='radio']), textarea {
 	color: var(--vscode-input-foreground);
 	outline-color: var(--vscode-input-border);
 	background-color: var(--vscode-input-background);
+	filter: invert(1) hue-rotate(180deg);
+}
+
+input[type='checkbox'] {
+	filter: invert(1) hue-rotate(180deg);
+}
+
+.btn {
+	filter: invert(1) hue-rotate(180deg);
 }
 
 input::placeholder,
@@ -230,6 +261,7 @@ input:not([type='checkbox']):not([type='radio']).filter
 	padding 0 0 0 5px
 	background black
 	color #d5983d
+	filter none;
 
 ul.context-menu-wrapper
 	position absolute

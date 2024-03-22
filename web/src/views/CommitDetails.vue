@@ -4,18 +4,7 @@
 
 	p.body {{ body }}
 
-	h3 Parent commits
-	ul
-		li v-for="parent_hash of parent_hashes" style="word-break: break-all;"
-			button style="margin-right: 3px;" @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
-				i.codicon.codicon-link
-			| {{ parent_hash }}
-
-	h3 Contained in branches
-	div.contained-in-branch v-for="branch of contained_in_branches"
-		| {{ branch }}
-
-	h3 Commit related to Refs
+	h3 Refs related to the commit
 	template v-if="config_show_buttons"
 		.stash v-if="stash"
 			h3 Stash:
@@ -48,12 +37,24 @@
 			.row.gap-5.wrap
 				git-action-button v-for="action of commit_actions" :git_action="action"
 
+	h3 Parent commits
+	ul
+		li v-for="parent_hash of parent_hashes" style="word-break: break-all;"
+			button style="margin-right: 3px;" @click="$emit('hash_clicked',parent_hash)" title="Jump to commit"
+				i.codicon.codicon-link
+			| {{ parent_hash }}
+
 	files-diffs-list :files="changed_files" @show_diff="show_diff" @view_rev="view_rev"
 
 	br
 	details
 		summary.align-center Compare...
 		| In order to compare this commit with another one, do <kbd>Ctrl</kbd>+Click on any other commit in the main view
+
+	h3 Contained in branches
+	div.contained-in-branch v-for="branch of contained_in_branches"
+		| {{ branch }}
+
 </template>
 
 <script lang="coffee" src="./CommitDetails.coffee"></script>

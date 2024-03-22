@@ -64,11 +64,13 @@
 		> .count
 			width 2rem
 	.filename
-		white-space pre
-		overflow hidden
-		text-overflow ellipsis
+		white-space pre-wrap
+		// overflow hidden
+		// text-overflow ellipsis
 		color #E5B567
-		flex-shrink 0
+		// flex-shrink 0
+		word-break break-all
+		flex 3
 	ul.list > li
 		padding-left 10px
 		position relative
@@ -78,6 +80,7 @@
 			white-space pre
 			overflow hidden
 			text-overflow ellipsis
+			flex 2
 	.tree-node
 		position relative
 	aside.actions

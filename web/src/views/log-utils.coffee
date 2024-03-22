@@ -237,6 +237,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 					v_nw_is_merge_commit = false
 					if v_e?.char == '|'
 						v_branch = new_branch "~#{branches.length-1}"
+						v_branch.inferred = true
 						if v_e?.branch?.color
 							v_branch.color = v_e?.branch?.color
 					else if v_w_char == '|'
