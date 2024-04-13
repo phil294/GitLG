@@ -28,7 +28,7 @@ body {
 	font-size: var(--vscode-font-size);
 	font-weight: var(--vscode-font-weight);
 	font-family: var(--vscode-font-family);
-	background-color: #161616;
+	background-color: var(--vscode-editor-background);
 
 	&.vscode-light, &.vscode-high-contrast-light {
 		background-color: var(--vscode-editor-background);
@@ -190,6 +190,7 @@ button
 	color var(--vscode-button-foreground)
 	background var(--vscode-button-background)
 	border 1px solid var(--vscode-button-background)
+	border-radius: 3px
 	// box-shadow 1px 1px 2px 1px #bbb
 	&:enabled
 		&:hover
@@ -226,25 +227,36 @@ details > summary
 	white-space nowrap
 
 input:not([type='checkbox']):not([type='radio']).filter
-	font-family monospace
-	padding 0 0 0 5px
+	font-size var(--vscode-font-size)
+	font-weight var(--vscode-font-weight)
+	font-family var(--vscode-font-family)
+	padding 3px 0 5px 5px
 	background black
-	color #d5983d
+	border-radius 5px
+	border 1px solid var(--vscode-input-border)
 
 ul.context-menu-wrapper
 	position absolute
-	background #111111dd
+	z-index 10
 	min-width 150px
 	cursor pointer
-	box-shadow 0 2px 3px 2px #111111dd
+	//background #333
+	//box-shadow 0 2px 3px 2px #111111dd
 	user-select none
-	z-index 10
+	border-radius: 3px
+	overflow hidden
+	background-color: var(--vscode-menu-background);
+	box-shadow: 0 1px 4px 1px var(--vscode-widget-shadow);
+	color: var(--vscode-menu-foreground);
 	> li
 		padding 4px 8px
-		&:not(:last-child)
-			border-bottom 1px solid #424242
+		margin 4px
+		border-radius 4px
+		//&:not(:last-child)
+		//	border-bottom 1px solid #424242
 		&:hover
-			background black
+			background-color: var(--vscode-menu-selectionBackground, var(--vscode-menu-background))
+			color: var(--vscode-menu-selectionForeground, var(--vscode-menu-foreground))
 </style>
 
 <style lang="stylus" scoped>

@@ -7,17 +7,17 @@
 
 <style lang="stylus" scoped>
 .ref-tip
-	background black
-	font-weight bold
-	font-style italic
-	display inline-block
-	padding 1px 3px
-	border 1px solid #505050
-	border-radius 7px
-	white-space pre
-	margin 0 1px
+	background: #373737;
+	font-weight: normal;
+	display: inline-block;
+	padding: 0px 4px 1px;
+	border: 1px solid #424141;
+	border-radius: 4px;
+	white-space: pre;
+	margin-right: 3px;
+	font-size: 11px;
 	&.head
-		box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
+		//box-shadow 0px 0px 6px 4px #ffffff30, 0px 0px 4px 0px #ffffff30 inset
 		&:after
 			content ' (HEAD)'
 			color white

@@ -33,7 +33,7 @@ export default defineComponent
 				color: props.git_ref.color
 				border:
 					if is_head
-						"2px solid #{props.git_ref.color}"
+						"1px solid #{props.git_ref.color}"
 					else undefined
 			class:
 				head: is_head

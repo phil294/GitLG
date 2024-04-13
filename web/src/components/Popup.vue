@@ -43,9 +43,9 @@ export default
 	right 0
 	z-index 9999
 	box-sizing border-box
-	background rgba(0,0,0,0.9)
 .modal-background
 	position absolute
+	background rgba(0,0,0,0.6)
 .modal-main
 	max-height 98vh
 	max-width 98vw
@@ -53,8 +53,15 @@ export default
 	position relative
 	box-sizing border-box
 	overflow auto
-	resize both
-	background #80808020
+	//resize both
+	//background #333
+	//background var(--vscode-editorPane-background)
+	//background var(--vscode-dropdown-background)
+	background var(--vscode-editorWidget-background)
+	border 1px solid var(--vscode-editorWidget-border)
+	//--vscode-dropdown-listBackground
+	border-radius 5px
+	box-shadow: 0 0 5px solid #000
 .titlebar, .close
 	line-height 2em
 	margin-top 1vmax
