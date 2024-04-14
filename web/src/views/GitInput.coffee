@@ -131,7 +131,7 @@ export default defineComponent
 				result = await (props.action || git) cmd
 			catch e
 				e = e.message_error_response || e.message || e
-				if e.includes("CONFLICT")
+				if e.includes?("CONFLICT")
 					error.value = "Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n" + e
 				else
 					if text_changed.value
