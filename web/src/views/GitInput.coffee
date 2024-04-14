@@ -120,7 +120,7 @@ export default defineComponent
 			error.value = ''
 			_params = params.map (p) => p.replaceAll("\\n", "\n")
 			if _params.some (p) => p.match(/"|(\\([^n]|$))/)
-				throw "Params cannot contain quotes or backslashes."
+				return error.value = "Params cannot contain quotes or backslashes."
 			cmd = command.value
 			for i in [1.._params.length]
 				while (pos = cmd.indexOf('$'+ i)) > -1
