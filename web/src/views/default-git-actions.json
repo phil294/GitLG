@@ -252,6 +252,15 @@
 			"params": [
 				"Subject...\\n\\nBody...", "{COMMIT_HASH}"
 			]
+		}, {
+			"title": "Delete",
+			"description": "Rewriting history for the current branch",
+			"info": "Only works when your work tree is clean (no changed files). Only works when the selected commit is part of the current branch. Note: Deleting commit rewrites history and should be avoided if it was already pushed.",
+			"icon": "trash",
+			"args": "diff-index --quiet HEAD && git merge-base --is-ancestor \"$1\" HEAD && git rebase --rebase-merges --onto \"$1^\" \"$1\"",
+			"params": [
+				"{COMMIT_HASH}"
+			]
 		}
 	],
 	"actions.commits": [
