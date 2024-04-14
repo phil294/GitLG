@@ -118,12 +118,13 @@ export default defineComponent
 		###* @param args {{before_execute?: ((cmd: string) => string) | undefined}} ###
 		execute = ({ before_execute } = {}) =>
 			error.value = ''
-			if params.some (p) => p.includes('"') or p.includes('\\')
+			_params = params.map (p) => p.replaceAll("\\n", "\n")
+			if _params.some (p) => p.match(/"|(\\([^n]|$))/)
 				throw "Params cannot contain quotes or backslashes."
 			cmd = command.value
-			for i in [1..params.length]
+			for i in [1.._params.length]
 				while (pos = cmd.indexOf('$'+ i)) > -1
-					cmd = cmd.slice(0, pos) + params[i-1] + cmd.slice(pos + 2)
+					cmd = cmd.slice(0, pos) + _params[i-1] + cmd.slice(pos + 2)
 			if before_execute
 				cmd = before_execute(cmd)
 			try
