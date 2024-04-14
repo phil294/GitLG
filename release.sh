@@ -15,6 +15,8 @@ if ! [ -z "$(git status --porcelain)" ]; then
     exit 1
 fi
 
+git push --tags origin master --dry-run
+
 if grep -R -n --exclude='*.js' -E '\s$' src web/src; then
     echo 'trailing whitespace found'
     exit 1
@@ -82,6 +84,7 @@ yarn vsce package --yarn
 vsix_file=$(ls -tr git-log--graph-*.vsix* |tail -1)
 mv "$vsix_file" vsix-out/"$vsix_file"
 vsix_file=vsix-out/"$vsix_file"
+echo $vsix_file
 
 xdg-open "$vsix_file"
 ls -hltr vsix-out
