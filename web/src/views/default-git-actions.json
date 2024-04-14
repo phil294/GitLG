@@ -242,6 +242,16 @@
 					"info": "Produce the working tree and index state as if a real merge happened (except for the merge information), but do not actually make a commit, move the HEAD, or record $GIT_DIR/MERGE_HEAD (to cause the next git commit command to create a merge commit). This allows you to create a single commit on top of the current branch whose effect is the same as merging another branch (or more in case of an octopus).\n\nWith --no-squash perform the merge and commit the result. This option can be used to override --squash.\n\nWith --squash, --commit is not allowed, and will fail."
 				}
 			]
+		},
+		{
+			"title": "Edit message",
+			"description": "Rewriting history for the current branch",
+			"info": "Only works when your work tree is clean (no changed files). Only works when the selected commit is part of the current branch. Note: Editing a commit's message rewrites history and should be avoided if it was already pushed.",
+			"icon": "edit",
+			"args": "diff-index --quiet HEAD && git merge-base --is-ancestor \"$2\" HEAD && git commit --allow-empty --only -m \"amend! $2\n\n$1\" && git -c sequence.editor=: rebase -i --autosquash \"$2^\"",
+			"params": [
+				"Subject...\\n\\nBody...", "{COMMIT_HASH}"
+			]
 		}
 	],
 	"actions.commits": [
