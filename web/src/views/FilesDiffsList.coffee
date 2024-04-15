@@ -100,7 +100,7 @@ export default defineComponent
 
 		show_file = (###* @type string ### filepath) =>
 			refresh_main_view before_execute: (cmd) =>
-				"#{cmd} -- \"#{filepath}\""
+				"#{cmd} --follow -- \"#{filepath}\""
 
 		{
 			files_list

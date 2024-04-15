@@ -87,6 +87,8 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 	graph_chars = ['*', '\\', '/', ' ', '_', '|', ###rare:###'-', '.']
 	hash = '' # Fixing type error idk
 	for row, row_no in rows
+		if row == '... '
+			continue # with `--follow -- pathname`, this can happen even though we're specifying a strict --format.
 		# Example row:
 		# | | | * {SEP}fced73efd3eb8012953ddc0e533c7a4ec64f0b46#{SEP}fced73ef{SEP}phil294{SEP}e@mail.com{SEP}1557084465{SEP}HEAD -> master, origin/master, tag: xyz{SEP}Subject row
 		# but can be anything due to different user input.
