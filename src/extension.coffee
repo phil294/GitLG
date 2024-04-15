@@ -314,6 +314,10 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		vscode.commands.executeCommand(START_CMD)
 		push_message_id 'scroll-to-selected-commit'
 
+	context.subscriptions.push vscode.commands.registerCommand 'git-log--graph.refresh', =>
+		log.appendLine "refresh command"
+		push_message_id 'refresh-main-view'
+
 	# public api of this extension:
 	{ git, post_message, webview_container, context, state }
 
