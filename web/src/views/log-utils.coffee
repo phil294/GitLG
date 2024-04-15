@@ -193,8 +193,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_nw?.branch
 					else if v_ne?.char == '/'
 						v_branch = v_ne?.branch
-					else
-						throw new Error 'no neighbor found for | at row ' + row_no
 					vis_line = { x0: 0.5, xn: 0.5, yn: 0.5 }
 				when '_'
 					v_branch = v_ee?.branch
@@ -211,8 +209,6 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = v_ne?.branch
 					else if v_n?.char == '\\' or v_n?.char == '|'
 						v_branch = v_n?.branch
-					else
-						throw new Error 'no neighbor found for / at row ' + row_no
 					vis_line = { x0: 1, xn: -0.5, xce: 0.5 }
 				when '\\'
 					if v_e?.char == '|'
@@ -244,16 +240,17 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 						v_branch = w_char_match.branch
 					else if v_nw?.char == '.' and last_vis[i-2].char == '-'
 						v_branch = last_vis[i-3].branch
-					else
-						throw new Error 'no neighbor found for \\ at row ' + row_no
 					vis_line = { x0: -0.5, xn: 1 }
 				when ' ', '.', '-'
 					v_branch = null
-			if v_branch == undefined
-				throw new Error "could not identify branch in row #{row_no} at char #{i}"
+			# An extended testing period has not revealed any reported problems with the above parsing code
+			# so we can consider it reasonably stable and expect no errors. This means the parser can be made
+			# more fault-tolerant now to allow for more exotic custom log args and also ` -- filename` show syntax which omits many critical connection lines.
+			# if v_branch == undefined
+			# 	throw new Error "could not identify branch in row #{row_no} at char #{i}"
 			vis[i] = {
 				char
-				branch: v_branch
+				branch: v_branch || null
 			}
 			if v_branch
 				vis_line.x0 += i
@@ -344,7 +341,7 @@ parse = (log_data, branch_data, stash_data, separator, curve_radius) =>
 
 	branches = branches
 		.filter (branch) =>
-			# these exist in vis (with colors), but don't mention them in the listing
+			# these now reside linked inside vis objects (with colors), but don't mention them in the listing
 			not branch.inferred
 		.sort git_ref_sort
 		.slice(0, 10000)
