@@ -81,6 +81,7 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 		run: (###* @type string ### args, ###* @type {number|undefined} ### repo_index) =>
 			repo_index ?= selected_repo_index
 			cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
+			cmd = vscode.workspace.getConfiguration(EXT_ID).get('git-path') || 'git'
 			if not cwd
 				repo = api.repositories[repo_index]
 				if not repo and repo_index > 0
@@ -91,7 +92,7 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 					throw "No repository selected"
 				cwd = repo.rootUri.fsPath
 			try
-				{ stdout, stderr: _ } = await exec 'git ' + args,
+				{ stdout, stderr: _ } = await exec cmd + ' ' + args,
 					cwd: cwd
 					# 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
 					# is 538 MB or 7.4 MB for the first 15k commits

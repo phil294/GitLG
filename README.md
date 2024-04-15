@@ -174,8 +174,13 @@ Please consider opening an issue or PR if you think a certain action or option w
     "git-log--graph.custom-css": {
 		"description": "An abitrary string of CSS that will be injected into the main web view. Example: * { text-transform: uppercase; }",
 		"type": "string",
-		"default": "",
+		"default": ""
 	},
+    "git-log--graph.git-path": {
+        "description": "Absolute path to the git executable. If not set, it is expected to be on your $PATH.",
+        "type": "string",
+        "default": ""
+    },
 }
 ```
 
