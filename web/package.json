@@ -8,7 +8,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "@vscode/codicons": "^0.0.33",
+    "@vscode/codicons": "git+https://github.com/microsoft/vscode-codicons.git#5ef47b0ed641e22e4761d53a8ced39bd448b7b4e",
     "@vueuse/core": "^10.1.2",
     "vue": "^3.2.13",
     "vue-virtual-scroller": "^2.0.0-alpha.1"

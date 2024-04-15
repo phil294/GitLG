@@ -23,6 +23,7 @@ All the interesting stuff happens inside `web/src/views`:
 
 - First, once run `yarn install` both in the main and in the `web` subfolder (or `npm i`).
 - Then run `yarn coffee -c src/*.coffee` once. You'll have to repeat this every time you change anything inside `/src` (*not* `/web/src`).
+- Temporary fix for codicons (will be removed again in a few months): `cd web/node_modules/@vscode/codicons && npm i && npm run clean && npm run fonts`
 - Inside the web folder, run `yarn serve`. This runs the web app part at `http://localhost:8080` which we will access from the extension.
 - Launch the script `Run Extension`.
 

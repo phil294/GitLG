@@ -1535,10 +1535,9 @@
   dependencies:
     "@types/node" "*"
 
-"@vscode/codicons@^0.0.33":
-  version "0.0.33"
-  resolved "https://registry.yarnpkg.com/@vscode/codicons/-/codicons-0.0.33.tgz#a56243ab5492801fff04e53c0aab0d18a6521751"
-  integrity sha512-VdgpnD75swH9hpXjd34VBgQ2w2quK63WljodlUcOoJDPKiV+rPjHrcUc2sjLCNKxhl6oKqmsZgwOWcDAY2GKKQ==
+"@vscode/codicons@git+https://github.com/microsoft/vscode-codicons.git#5ef47b0ed641e22e4761d53a8ced39bd448b7b4e":
+  version "0.0.35"
+  resolved "git+https://github.com/microsoft/vscode-codicons.git#5ef47b0ed641e22e4761d53a8ced39bd448b7b4e"
 
 "@vue/cli-overlay@^5.0.8":
   version "5.0.8"
