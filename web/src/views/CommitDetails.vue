@@ -55,7 +55,7 @@
 
 			h3 Details
 			p Full hash: {{ commit.hash_long }}
-		.right.flex-1
+		.right :class="details_panel_position === 'bottom' ? 'flex-1' : ''"
 			files-diffs-list v-if="details_panel_position === 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev"
 </template>
 
