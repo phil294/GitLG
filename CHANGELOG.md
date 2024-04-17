@@ -4,6 +4,28 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.15 2024-04-17
+
+- [`f9eaec1`](https://github.com/phil294/git-log--graph/commit/f9eaec1) Update logo. Thanks @dimateos! (#860
+- [`3b58274`](https://github.com/phil294/git-log--graph/commit/3b58274) Add new default commit action: Edit message. Works also for older commits. Only works when your work tree is clean (no changed files). Only works when the selected commit is part of the current branch. Note: Deleting commit rewrites history and should be avoided if it was already pushed. (#87)
+- [`6a800e4`](https://github.com/phil294/git-log--graph/commit/6a800e4) Add new default commit action: Delete commit. Same as above!
+- [`eb724c8`](https://github.com/phil294/git-log--graph/commit/eb724c8) Add new *refresh* command so that refreshing by shortcut is possible (#89)
+- [`865c413`](https://github.com/phil294/git-log--graph/commit/865c413) Change git push / pull icons: Finally, they look like they should. This is the third change within a year or so, but Microsoft has now released official icons for it.
+- [`871c3e3`](https://github.com/phil294/git-log--graph/commit/871c3e3) Change git stash icons: Same thing
+- [`f0c71bc`](https://github.com/phil294/git-log--graph/commit/f0c71bc) Add new setting `"git-log--graph.details-panel-position"`: Decide where the commit details should appear when you click a row in the main view (#86)
+- [`23c3ca1`](https://github.com/phil294/git-log--graph/commit/23c3ca1) Add new tag action: Push
+- [`7c52ad1`](https://github.com/phil294/git-log--graph/commit/7c52ad1) Add new tag action: Delete (Remote) (#88)
+- [`4eb4612`](https://github.com/phil294/git-log--graph/commit/4eb4612) Add new dynamic param value `{DEFAULT_REMOTE_NAME}` for optional usage in any command args
+- [`96d3208`](https://github.com/phil294/git-log--graph/commit/96d3208) Make git path configurable (#90)
+- [`2facbb3`](https://github.com/phil294/git-log--graph/commit/2facbb3) Allow referencing params (`$1` etc.) multiple times in args
+- [`0f50ba1`](https://github.com/phil294/git-log--graph/commit/0f50ba1) Allow specifying line breaks in params via `\n`. Probably only useful for the new editing commit messages feature
+- [`d5a2d67`](https://github.com/phil294/git-log--graph/commit/d5a2d67) Allow multi-select of commits in Mac using Cmd instead of Ctrl (#79)
+- [`a5e0cc0`](https://github.com/phil294/git-log--graph/commit/a5e0cc0) Fix displaying of error "Params cannot contain quotes or backslashes". Didn't show before, just threw unexpectedly
+- [`c316f7e`](https://github.com/phil294/git-log--graph/commit/c316f7e) Fix error when any git command fails with an empty message
+- [`8f7c816`](https://github.com/phil294/git-log--graph/commit/8f7c816) Make parser more fault-tolerant. This can help with exotic custom log args
+- [`1b74535`](https://github.com/phil294/git-log--graph/commit/1b74535) Add `--follow` to file history so to also see renamed files
+- [`fa400e3`](https://github.com/phil294/git-log--graph/commit/fa400e3) Update codicon dependency to allow for newer icons in actions
+
 ### v0.1.14 2024-02-24
 
 - [`c4f8cba`](https://github.com/phil294/git-log--graph/commit/c4f8cba) Add new "Show file history" button to files in commit details: This is a convenience function for adding ` -- "the-file.name"` to the main log and clicking "execute". It doesn't stay permanently like that, just once, and after any other git action or clicking refresh, the full view is available again. It's not possible to do this via mouse click for *any* file, just those that are listed in a commit. For more exotic use cases, keep using the main log git input.
