@@ -41,7 +41,7 @@ export default
 		commit_clicked = (###* @type Commit ### commit, ###* @type {MouseEvent | undefined} ### event) =>
 			return if not commit.hash
 			selected_index = selected_commits.value.indexOf commit
-			if event?.ctrlKey
+			if event?.ctrlKey || event?.metaKey
 				if selected_index > -1
 					selected_commits.value = selected_commits.value.filter (_, i) => i != selected_index
 				else
