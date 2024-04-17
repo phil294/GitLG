@@ -353,6 +353,16 @@
 			"params": [
 				"{TAG_NAME}"
 			]
+		},
+		{
+			"title": "Delete (Remote)",
+			"description": "Delete a remote tag",
+			"icon": "trash",
+			"args": "push \"$1\" --delete \"$2\"",
+			"params": [
+				"{DEFAULT_REMOTE_NAME}",
+				"{TAG_NAME}"
+			]
 		}
 	],
 	"actions.branch": [
