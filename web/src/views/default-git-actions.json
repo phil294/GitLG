@@ -25,7 +25,7 @@
 		},
 		{
 			"title": "",
-			"icon": "cloud-download",
+			"icon": "repo-fetch",
 			"description": "git fetch --all (Download objects and refs from all other repositories",
 			"info": "Fetch branches and/or tags (collectively, 'refs') from one or more other repositories, along with the objects necessary to complete their histories. Remote-tracking branches are updated (see the description of <refspec> below for ways to control this behavior).\n\nBy default, any tag that points into the histories being fetched is also fetched; the effect is to fetch tags that point at branches that you are interested in. This default behavior can be changed by using the --tags or --no-tags options or by configuring remote.<name>.tagOpt. By using a refspec that fetches tags explicitly, you can fetch tags that do not point into branches you are interested in as well.\n\n`git fetch` can fetch from either a single named repository or URL, or from several repositories at once if <group> is given and there is a remotes.<group> entry in the configuration file. (See git-config(1)).\n\nWhen no remote is specified, by default the origin remote will be used, unless there’s an upstream branch configured for the current branch.\n\nThe names of refs that are fetched, together with the object names they point at, are written to .git/FETCH_HEAD. This information may be used by scripts or other git commands, such as git-pull(1).\n\nTo read the full documentation on this command, run `git help fetch` in a terminal.",
 			"args": "fetch",
@@ -398,7 +398,7 @@
 			"title": "Pull",
 			"description": "git pull - Fetch from and integrate with another repository or a local branch",
 			"info": "Incorporates changes from a remote repository into the current branch. If the current branch is behind the remote, then by default it will fast-forward the current branch to match the remote. If the current branch and the remote have diverged, the user needs to specify how to reconcile the divergent branches with --rebase or --no-rebase (or the corresponding configuration option in pull.rebase).\n\nMore precisely, git pull runs git fetch with the given parameters and then depending on configuration options or command line flags, will call either `git rebase` or `git merge` to reconcile diverging branches.\n\n<repository> should be the name of a remote repository as passed to git-fetch(1). <refspec> can name an arbitrary remote ref (for example, the name of a tag) or even a collection of refs with corresponding remote-tracking branches (e.g., refs/heads/*:refs/remotes/origin/*), but usually it is the name of a branch in the remote repository.\n\nDefault values for <repository> and <branch> are read from the 'remote' and 'merge' configuration for the current branch as set by git-branch(1) --track.\n\nSee git-merge(1) for details, including how conflicts are presented and handled.\n\nIn Git 1.7.0 or later, to cancel a conflicting merge, use git reset --merge. Warning: In older versions of Git, running git pull with uncommitted changes is discouraged: while possible, it leaves you in a state that may be hard to back out of in the case of a conflict.\n\nIf any of the remote changes overlap with local uncommitted changes, the merge will be automatically canceled and the work tree untouched. It is generally best to get any local changes in working order before pulling or stash them away with git-stash(1).\n\nTo read the full documentation on this command, run `git help pull` in a terminal.",
-			"icon": "fold-down",
+			"icon": "repo-pull",
 			"args": "pull \"$1\" \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
@@ -426,7 +426,7 @@
 			"title": "Push",
 			"description": "git push - Update remote refs along with associated objects",
 			"info": "Updates remote refs using local refs, while sending objects necessary to complete the given refs.\n\nYou can make interesting things happen to a repository every time you push into it, by setting up hooks there. See documentation for git-receive-pack(1).\n\nWhen the command line does not specify where to push with the <repository> argument, branch.*.remote configuration for the current branch is consulted to determine where to push. If the configuration is missing, it defaults to origin.\n\nWhen the command line does not specify what to push with <refspec>... arguments or --all, --mirror, --tags options, the command finds the default <refspec> by consulting remote.*.push configuration, and if it is not found, honors push.default configuration to decide what to push (See git-config(1) for the meaning of push.default).\n\nWhen neither the command-line nor the configuration specify what to push, the default behavior is used, which corresponds to the simple value for push.default: the current branch is pushed to the corresponding upstream branch, but as a safety measure, the push is aborted if the upstream branch does not have the same name as the local one.\n\nTo read the full documentation on this command, run `git help push` in a terminal.",
-			"icon": "fold-up",
+			"icon": "repo-push",
 			"args": "push \"$1\" \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
