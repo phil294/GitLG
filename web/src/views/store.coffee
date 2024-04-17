@@ -127,27 +127,37 @@ export global_actions = computed =>
 	default_git_actions['actions.global'].concat(config.value.actions?.global or [])
 export commit_actions = (###* @type string ### hash) => computed =>
 	config_commit_actions = default_git_actions['actions.commit'].concat(config.value.actions?.commit or [])
-	parse_config_actions(config_commit_actions, [['{COMMIT_HASH}', hash]])
+	parse_config_actions(config_commit_actions, [
+		['{COMMIT_HASH}', hash]
+		['{DEFAULT_REMOTE_NAME}', default_origin.value or 'MISSING_REMOTE_NAME']])
 export commits_actions = (###* @type string[] ### hashes) => computed =>
 	config_commits_actions = default_git_actions['actions.commits'].concat(config.value.actions?.commits or [])
-	parse_config_actions(config_commits_actions, [['{COMMIT_HASHES}', hashes.join(' ')]])
+	parse_config_actions(config_commits_actions, [
+		['{COMMIT_HASHES}', hashes.join(' ')]
+		['{DEFAULT_REMOTE_NAME}', default_origin.value or 'MISSING_REMOTE_NAME']])
 export branch_actions = (###* @type Branch ### branch) => computed =>
 	config_branch_actions = default_git_actions['actions.branch'].concat(config.value.actions?.branch or [])
 	parse_config_actions(config_branch_actions, [
 		['{BRANCH_NAME}', branch.id]
 		['{LOCAL_BRANCH_NAME}', branch.name]
-		['{REMOTE_NAME}', branch.remote_name or branch.tracking_remote_name or default_origin.value or 'MISSING_REMOTE_NAME']])
+		['{REMOTE_NAME}', branch.remote_name or branch.tracking_remote_name or default_origin.value or 'MISSING_REMOTE_NAME']
+		['{DEFAULT_REMOTE_NAME}', default_origin.value or 'MISSING_REMOTE_NAME']])
 export tag_actions = (###* @type string ### tag_name) => computed =>
 	config_tag_actions = default_git_actions['actions.tag'].concat(config.value.actions?.tag or [])
-	parse_config_actions(config_tag_actions, [['{TAG_NAME}', tag_name]])
+	parse_config_actions(config_tag_actions, [
+		['{TAG_NAME}', tag_name]
+		['{DEFAULT_REMOTE_NAME}', default_origin.value or 'MISSING_REMOTE_NAME']])
 export stash_actions = (###* @type string ### stash_name) => computed =>
 	config_stash_actions = default_git_actions['actions.stash'].concat(config.value.actions?.stash or [])
-	parse_config_actions(config_stash_actions, [['{STASH_NAME}', stash_name]])
+	parse_config_actions(config_stash_actions, [
+		['{STASH_NAME}', stash_name]
+		['{DEFAULT_REMOTE_NAME}', default_origin.value or 'MISSING_REMOTE_NAME']])
 export combine_branches_actions = computed =>
 	config_combine_branches_actions = default_git_actions['actions.branch-drop'].concat(config.value.actions?['branch-drop'] or [])
 	parse_config_actions(config_combine_branches_actions, [
 		['{SOURCE_BRANCH_NAME}', combine_branches_from_branch_name.value]
-		['{TARGET_BRANCH_NAME}', combine_branches_to_branch_name.value]])
+		['{TARGET_BRANCH_NAME}', combine_branches_to_branch_name.value]
+		['{DEFAULT_REMOTE_NAME}', default_origin.value or 'MISSING_REMOTE_NAME']])
 
 export combine_branches_to_branch_name = ref ''
 export combine_branches_from_branch_name = ref ''
