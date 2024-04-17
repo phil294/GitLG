@@ -5,6 +5,8 @@
 		.subject-wrapper.flex-1.row.align-center
 			.vis-ascii-circle.vis-resize-handle :style="commit.branch? {color:commit.branch.color} : undefined" @mousedown="vis_resize_handle_mousedown"
 				| ●&nbsp;
+			.refs.row.align-center style="refs_elems.style"
+				ref-tip v-for="ref of commit.refs" :git_ref="ref" :commit="commit" :key="ref.id"
 			.subject  {{ commit.subject }}
 		.author.flex-noshrink.align-center :title="commit.author_name+' <'+commit.author_email+'>'"
 			| {{ commit.author_name }}
@@ -27,7 +29,7 @@ import SVGVisualization from './SVGVisualization.vue'
 ###* @typedef {import('./log-utils').Commit} Commit ###
 
 export default
-	components: { SVGVisualization }
+	components: { SVGVisualization, RefTip }
 	props:
 		commit:
 			required: true
@@ -67,6 +69,7 @@ export default
 <style lang="stylus" scoped>
 .commit
 	user-select none
+	color: var(--vscode-foreground)
 	.info
 		> *
 			white-space pre

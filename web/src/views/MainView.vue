@@ -14,7 +14,7 @@
 				repo-selection
 				aside.center.gap-20
 					section#search.center.gap-5.justify-flex-end aria-roledescription="Search"
-						input.filter#txt-filter v-model="txt_filter" placeholder="🔍 search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)"
+						input.filter#txt-filter v-model="txt_filter" placeholder="🔎︎ search subject, hash, author" ref="txt_filter_ref" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)"
 						button#regex-filter.center v-if="txt_filter" @click="txt_filter_regex=!txt_filter_regex" :class="{active:txt_filter_regex}"
 							i.codicon.codicon-regex title="Use Regular Expression (Alt+R)"
 						button#clear-filter.center v-if="txt_filter" @click="clear_filter()" title="Clear search"
@@ -90,8 +90,14 @@ details#log-config
 		border-bottom 1px solid #424242
 		#repo-selection
 			overflow hidden
-			min-width 50x
+			min-width 50px
 			flex-shrink 1
+			> select
+				color #ccc
+				padding: 2px 1px
+				border-radius 6px
+				background-color var(--vscode-commandCenter-background)
+				border 1px solid var(--vscode-commandCenter-border)
 		> aside
 			flex-shrink 3
 			> section#search
@@ -99,6 +105,10 @@ details#log-config
 				input#txt-filter
 					width 425px
 					overflow hidden
+					background-color: var(--vscode-commandCenter-background);
+					border: 1px solid var(--vscode-commandCenter-border);
+					border-radius: 6px;
+					padding: 4px 6px;
 				#regex-filter, #clear-filter
 					position relative
 					width 0
@@ -137,7 +147,6 @@ details#log-config
 		> #all-branches, > #history
 			position absolute
 			background #161616dd
-			box-shadow 0 0 5px 2px #161616dd
 			border-radius 5px
 		> #all-branches
 			top 15px
@@ -161,8 +170,7 @@ details#log-config
 		.commit
 			cursor pointer
 			&.selected_commit
-				box-shadow 0 0 3px 0px gold
-				background #292616
+				background #42403d
 			:deep(.info)
 				border-top 1px solid #2e2e2e
 
@@ -185,7 +193,7 @@ details#log-config
 	#selected-commit, #selected-commits
 		overflow auto
 		z-index 1
-		background #161616
+		background var(--vscode-editor-background)
 	#close-selected-commit, #close-selected-commits
 		position absolute
 		top 10px
