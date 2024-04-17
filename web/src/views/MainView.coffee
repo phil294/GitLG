@@ -22,6 +22,9 @@ import RepoSelection from './RepoSelection.vue'
 export default
 	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, AllBranches, RefTip, SelectedGitAction, RepoSelection, History, CommitRow }
 	setup: ->
+		details_panel_position = computed =>
+			store.config.value['details-panel-position']
+
 		###* @type {string[]} ###
 		default_selected_commits_hashes = []
 		selected_commits_hashes = store.stateful_computed 'repo:selected-commits-hashes', default_selected_commits_hashes
@@ -331,6 +334,7 @@ export default
 
 		{
 			initialized
+			details_panel_position
 			filtered_commits
 			branches: store.branches
 			head_branch: store.head_branch

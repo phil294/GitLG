@@ -21,6 +21,9 @@ export default defineComponent
 			type: Object
 			required: true
 	setup: (props) ->
+		details_panel_position = computed =>
+			config.value['details-panel-position']
+
 		branch_tips = computed =>
 			props.commit.refs.filter is_branch
 
@@ -98,4 +101,5 @@ export default defineComponent
 			show_branch
 			config_show_buttons
 			parent_hashes
+			details_panel_position
 		}

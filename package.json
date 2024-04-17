@@ -97,6 +97,15 @@
 						"As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
 					]
 				},
+				"git-log--graph.details-panel-position": {
+					"description": "Decide where the commit details should appear when you click a row in the main view.",
+					"type": "string",
+					"default": "right",
+					"enum": [
+						"right",
+						"bottom"
+					]
+				},
 				"git-log--graph.hide-quick-branch-tips": {
 					"description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
 					"type": "boolean",

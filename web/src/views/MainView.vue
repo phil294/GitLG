@@ -1,7 +1,7 @@
 <template lang="slm">
 #main-view.fill.col
-	.row.flex-1
-		#left.col
+	.flex-1 :class="details_panel_position === 'bottom' ? 'col' : 'row'"
+		#main-panel.col
 			/ todo use suspend
 			p.loading v-if="!initialized"
 				| Loading...
@@ -42,7 +42,7 @@
 				commit-row.vis :height="110" v-if="connection_fake_commit" :commit="connection_fake_commit"
 			recycle-scroller#log.scroller.fill-w.flex-1 role="list" :items="filtered_commits" v-slot="{ item: commit }" key-field="i" :item-size="scroll_item_height" :buffer="0" :emit-update="true" @update="commits_scroller_updated" ref="commits_scroller_ref" tabindex="-1" v-context-menu="commit_context_menu_provider" @wheel="scroller_on_wheel" @keydown="scroller_on_keydown"
 				commit-row :commit="commit" :class="{selected_commit:selected_commits.includes(commit)}" @click="commit_clicked(commit,$event)" role="button" :data-commit-hash="commit.hash"
-		#right.col.flex-1 v-if="selected_commit || selected_commits.length"
+		#details-panel.col.flex-1 v-if="selected_commit || selected_commits.length"
 			template v-if="selected_commit"
 				commit-details#selected-commit.flex-1.fill-w.padding :commit="selected_commit" @hash_clicked="scroll_to_commit_hash_user($event)"
 				button#close-selected-commit.center @click="selected_commits=[]" title="Close"
@@ -74,11 +74,12 @@ details#log-config
 		color unset
 		padding 10px
 		flex 100% 1 0
-#left
+#main-panel
 	flex-shrink 1
 	width 100%
 	min-width 30%
-	resize horizontal
+	min-height 30%
+	resize both
 	overflow auto
 	position relative
 	> nav
@@ -177,8 +178,9 @@ details#log-config
 				background #292616
 
 
-#right
+#details-panel
 	min-width 400px
+	min-height @css{min(300px, 40vh)}
 	position relative
 	#selected-commit, #selected-commits
 		overflow auto
