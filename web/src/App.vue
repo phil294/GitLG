@@ -35,6 +35,8 @@ body {
 		filter: invert(1) hue-rotate(180deg);
 	}
 
+	scrollbar-color: auto;
+
 	::-webkit-scrollbar-button {
 		width: 0px;
 		height: 0px;
@@ -175,6 +177,10 @@ body, html
 	height 100%
 .fill
 	@extend .fill-w, .fill-h
+.gap-0
+	gap 0px
+.gap-2
+	gap 2px
 .gap-3
 	gap 3px
 .gap-5

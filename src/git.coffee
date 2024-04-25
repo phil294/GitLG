@@ -1,7 +1,11 @@
 vscode = require 'vscode'
 util = require('util')
 { basename, relative, isAbsolute } = require('path')
-{ realpath } = require('fs').promises
+# { realpath } = require('fs').promises
+# https://github.com/nodejs/node/issues/37737
+# a workaround for fs-promises using native realpath impl, not working for the non-typical and possibly non-supported case where a Windows literal unmounted path (e.g. \\?\Volume{xxx}\a\b\c ) is subst'ed to a drive letter, and we do the realpath to the path in that drive letter. ENOENT will be raised.
+# legacy fs.realpath won't raise ENOENT, and returns the subst'ed path. Though it may not meet the expectation of "realpath".
+realpath = util.promisify(require('fs').realpath)
 exec = util.promisify(require('child_process').exec)
 
 ###*
@@ -99,6 +103,9 @@ module.exports.get_git = (EXT_ID, log, { on_repo_external_state_change, on_repo_
 			log.appendLine "set selected repo index "+index
 			selected_repo_index = index
 		get_selected_repo_index: => selected_repo_index
+		get_rel_path: (###* @type vscode.Uri ### uri, ###* @type {number} ### repo_index) =>
+			uri_path = await realpath(uri.fsPath)
+			relative await realpath(api.repositories[repo_index].rootUri.fsPath), uri_path
 		get_repo_index_for_uri: (###* @type vscode.Uri ### uri) =>
 			uri_path = await realpath(uri.fsPath)
 			((await Promise.all(api.repositories.map (repo, index) =>
