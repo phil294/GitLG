@@ -26,7 +26,7 @@
 	ul.list v-if="files_list"
 		li.list-row.flex-1.row.align-center.gap-2 v-for="file of files_list" @click="mark_file_viewed(file), $emit('show_diff', file.path1, file.path2)" role="button"
 			.flex-1.fill-h.row.align-center.gap-2.icon-and-filename
-				/ img :src="file.icon_path" aria-hidden="true"
+				img.file-icon :src="file.icon_path" aria-hidden="true"
 				div :class="{ 'walkthrough-not-viewed': !walkthrough_file_view_map[file.path2], filename: true  }" :title="file.file_desc"
 					div {{ file.filename1 }}
 					div v-if="file.path1 !== file.path2"
@@ -43,8 +43,8 @@
 				template-tree-node-reuse v-for="child of node.children" :node="child"
 				template v-for="file of node.files"
 					button.fill-w.row.align-center.gap-2 @click="mark_file_viewed(file), $emit('show_diff', file.path1, file.path2)"
-						div.icon-and-filename
-							/ img :src="file.icon_path" aria-hidden="true"
+						div.icon-and-filename.row
+							img.file-icon :src="file.icon_path" aria-hidden="true"
 							div :class="{ 'walkthrough-not-viewed': !walkthrough_file_view_map[file.path2], filename: true, 'flex-1': true }" :title="file.file_desc"
 								div {{ file.filename1 }}
 								div v-if="file.path1 !== file.path2"
@@ -93,6 +93,9 @@
 		max-width 59%
 		padding-top 1px
 		padding-bottom 1px
+	.tree-node .icon-and-filename .filename
+		display inline-block
+		vertical-align middle
 	.filename
 		white-space pre-wrap
 		// overflow hidden
@@ -100,6 +103,8 @@
 		color #E5B567
 		// flex-shrink 0
 		word-break break-all
+	ul.list
+		margin-left -0.3vmax
 	ul.list > li
 		padding-left 4px
 		justify-content space-between
@@ -151,4 +156,8 @@
 	.tree-node > .body
 		padding-left 20px
 		overflow hidden
+	.list-row .file-icon
+		margin-left -5px
+	.file-icon
+		vertical-align middle
 </style>
