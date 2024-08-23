@@ -76,7 +76,7 @@ export default
 			search_for = txt_filter.value.toLowerCase()
 			for str from [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r)=>r.id)].map((s)=>s.toLowerCase())
 				if txt_filter_regex.value
-					return true if try str?.match(search_for)
+					return true if str?.match.maybe(search_for)
 				else
 					return true if str?.includes(search_for)
 		initialized = computed =>

@@ -69,13 +69,13 @@ export default_origin = ref ''
 export git_run_log = (###* @type string ### log_args) =>
 	sep = '^%^%^%^%^'
 	log_args = log_args.replace(" --pretty={EXT_FORMAT}", " --pretty=format:\"#{sep}%H#{sep}%h#{sep}%aN#{sep}%aE#{sep}%ad#{sep}%D#{sep}%s\"")
-	stash_refs = try await git 'reflog show --format="%h" stash' catch then ""
+	stash_refs = await git('reflog show --format="%h" stash').catch(=>'')
 	log_args = log_args.replace("{STASH_REFS}", stash_refs.replaceAll('\n', ' '))
 	# errors will be handled by GitInput
 	[ log_data, branch_data, stash_data, status_data, head_data ] = await Promise.all [
 		git log_args
 		git "branch --list --all --format=\"%(upstream:remotename)#{sep}%(refname)\""
-		(try await git "stash list --format=\"%h %gd\"") || ''
+		git("stash list --format=\"%h %gd\"").catch(=>'')
 		git '-c core.quotepath=false status'
 		git 'rev-parse --abbrev-ref HEAD'
 	]

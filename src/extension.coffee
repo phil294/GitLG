@@ -4,6 +4,7 @@ postcss = require 'postcss'
 postcss_sanitize = require 'postcss-sanitize'
 RelativeTime = require '@yaireo/relative-time'
 relative_time = new RelativeTime
+require './globals'
 
 { get_git } = require './git'
 
@@ -165,7 +166,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 				[dev_server_url, ...path_segments].join('/')
 		custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
 		if custom_css
-			custom_css = try (await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined })).css
+			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c)=>c.css).maybe()
 
 		view.html = "
 			<!DOCTYPE html>
@@ -195,7 +196,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 	# Needed for git diff views
 	context.subscriptions.push vscode.workspace.registerTextDocumentContentProvider "#{EXT_ID}-git-show",
 		provideTextDocumentContent: (uri) ->
-			(try await git.run "show \"#{uri.path}\"") or ''
+			git.run("show \"#{uri.path}\"").maybe()
 
 	# General start, will choose from creating/show editor panel or showing side nav view depending on config
 	context.subscriptions.push vscode.commands.registerCommand START_CMD, (args) =>
@@ -296,7 +297,7 @@ module.exports.activate = (###* @type vscode.ExtensionContext ### context) =>
 		line_change_debouncer = setTimeout (=>
 			current_line_repo_index = await git.get_repo_index_for_uri uri
 			return hide_blame() if current_line_repo_index < 0
-			blamed = try (await git.run "blame -L#{current_line+1},#{current_line+1} --porcelain -- #{uri.fsPath}", current_line_repo_index).split('\n')
+			blamed = git.run("blame -L#{current_line+1},#{current_line+1} --porcelain -- #{uri.fsPath}", current_line_repo_index).then((b)=>b.split('\n')).maybe()
 			return hide_blame() if not blamed
 			# apparently impossible to get the short form right away in easy machine readable format?
 			current_line_long_hash = blamed[0].slice(0, 40)
