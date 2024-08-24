@@ -1,11 +1,8 @@
 {
     "recommendations": [
         "mhutchie.git-graph",
-        "phil294.coffeesense",
-        "Atishay-Jain.All-Autocomplete",
-        "usernamehw.errorlens",
-        "eamodio.gitlens",
         "wayou.vscode-todo-highlight",
-        "octref.vetur"
+        "octref.vetur",
+        "dbaeumer.vscode-eslint"
     ]
 }

@@ -8,21 +8,13 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
-    "@vscode/codicons": "git+https://github.com/microsoft/vscode-codicons.git#5ef47b0ed641e22e4761d53a8ced39bd448b7b4e",
+    "@vscode/codicons": "^0.0.36",
     "@vueuse/core": "^10.1.2",
     "vue": "^3.2.13",
     "vue-virtual-scroller": "^2.0.0-alpha.1"
   },
   "devDependencies": {
     "@vue/cli": "^5.0.4",
-    "@vue/cli-service": "~5.0.0",
-    "coffee-loader": "^1.0.0",
-    "coffeescript": ">= 2.0.0",
-    "slm": "^2.0.0",
-    "slm-loader": "^1.0.0-beta.2",
-    "stylus": "^0.55.0",
-    "stylus-loader": "^6.1.0",
-    "vue-cli-plugin-coffee": "~1.0.0",
-    "vue-slm-lang-loader": "^1.0.0"
+    "@vue/cli-service": "~5.0.0"
   }
 }

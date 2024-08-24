@@ -8,8 +8,8 @@ const options = {
 		allowedHosts: 'all',
 		headers: {
 			// for codicon font
-			"Access-Control-Allow-Origin": "*"
-		}
+			'Access-Control-Allow-Origin': '*',
+		},
 	},
 	// For dev only, necessary for anything loaded dynamically (HMR websocket)
 	publicPath: 'http://localhost:8080',
@@ -20,11 +20,6 @@ const options = {
 					minimize: false,
 				},
 			},
-			stylus: {
-				stylusOptions: {
-					compress: false,
-				},
-			},
 		},
 	},
 	configureWebpack: {
@@ -33,31 +28,13 @@ const options = {
 		config
 			.entry('app')
 			.clear()
-			.add('./src/vue-app.coffee')
-
-		config.resolve.extensions
-			.add('.coffee')
+			.add('./src/vue-app.js')
 
 		config.devtool(false)
-		config.module
-			.rule('coffee')
-				.use('coffee-loader')
-				.tap(options => ({
-					...options,
-					sourceMap: false
-				}))
 
 		// Make it more readable.
 		// This increases output size by factor 2-3 gzipped and 4-5 unzipped though.
 		config.optimization.minimize(false)
-
-		config.module
-			.rule('slm')
-				.test(/\.slm$/)
-				.oneOf('vue-loader')
-					.resourceQuery(/^\?vue/)
-					.use('slm/loader')
-						.loader('vue-slm-lang-loader')
-	}
+	},
 }
 module.exports = options
