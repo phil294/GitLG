@@ -1,7 +1,6 @@
 .vscode
 node_modules
-**/*.coffee
-coffeesense.config.js
+src
 web
 todo*
 build.sh

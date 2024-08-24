@@ -23,7 +23,7 @@
 	"extensionDependencies": [
 		"vscode.git"
 	],
-	"main": "./src/extension.js",
+	"main": "./main.js",
 	"contributes": {
 		"commands": [
 			{

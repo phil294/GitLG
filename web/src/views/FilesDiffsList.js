@@ -24,7 +24,7 @@ import file_extension_icon_path_mapping from './file-extension-icon-path-mapping
 // base_url = process.env.BASE_URL
 // In vue.config.js, it's set to `localhost:8080`, but that is for development only,
 // and on production, the path is not deterministic. Is there a better solution?
-// So we determine manually whatever `view.asWebviewUri` in `extension.coffee` has yielded this time,
+// So we determine manually whatever `view.asWebviewUri` in `extension.js` has yielded this time,
 // in this case by just copying the path from the last <script/> tag:
 let base_url = (document.body.lastElementChild?.attributes.getNamedItem('src')?.value.match(/^(.+)\/js\/.+/)?.[1] || '') + '/'
 
@@ -59,7 +59,8 @@ export default defineComponent({
 					dir: path_arr.slice(0, -1).join('/'),
 					dir_arr: path_arr.slice(0, -1),
 					icon_path: base_url + 'file-icons/' + icon,
-				}}))
+				}
+			}))
 		let files_list = computed(() => {
 			if (render_style?.value === 'list')
 				return files.value
@@ -121,7 +122,7 @@ export default defineComponent({
 			files_tree,
 			render_style,
 			open_file,
-			show_file
+			show_file,
 		}
 	},
 })

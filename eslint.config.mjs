@@ -17,7 +17,7 @@ export default [
 	...compat.extends('standard'),
 	...pluginVue.configs['flat/recommended'],
 	{
-		files: ['**/*.js', '**/*.coffee', '**/*.vue', '**/*.mjs'],
+		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
 		rules: {
 			'prefer-const': 'off',
 			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly
@@ -59,6 +59,7 @@ export default [
 			'vue/multiline-html-element-content-newline': ['error', {
 				ignoreWhenEmpty: false,
 			}],
+			'no-extend-native': 'off',
 		},
 	},
 ]

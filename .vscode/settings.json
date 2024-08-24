@@ -13,7 +13,6 @@
         "**/*.html",
         "**/*.css",
         "**/*.sh",
-        "**/*.coffee"
     ],
     "todohighlight.exclude": [
         "**/node_modules/**",

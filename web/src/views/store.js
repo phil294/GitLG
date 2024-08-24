@@ -29,7 +29,7 @@ add_push_listener('state-update', ({ data: { key, value } }) => {
 })
 /** @template T
  * This utility returns a `WritableComputed` that will persist its state or react to changes on the
- * backend somehow. The caller doesn't know where it's stored though, this is up to extension.coffee
+ * backend somehow. The caller doesn't know where it's stored though, this is up to extension.js
  * to decide based on the *key*.
  */
 export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load) => {
@@ -49,7 +49,7 @@ export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ defa
 			internal.value = value
 		},
 	})
-	_stateful_computeds[key] = ret
+	_stateful_computeds[key] = ret;
 	(async () => {
 		let stored = await exchange_message('get-state', key)
 		if (stored != null) {
@@ -84,7 +84,7 @@ export let git_run_log = async (/** @type string */ log_args) => {
 		git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`),
 		git('stash list --format="%h %gd"').catch(() => ''),
 		git('-c core.quotepath=false status'),
-		git('rev-parse --abbrev-ref HEAD')
+		git('rev-parse --abbrev-ref HEAD'),
 	])
 	if (log_data == null)
 		return

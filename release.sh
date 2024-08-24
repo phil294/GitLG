@@ -6,6 +6,10 @@ pause() {
     read -r -n 1 -s -p 'Press any key to continue. . .'
     echo
 }
+on_close() {
+    echo "module.exports = require('./src/extension')" > main.js # revert
+}
+trap on_close EXIT
 
 echo update readme
 pause
@@ -23,7 +27,7 @@ if grep -R -n --exclude='*.js' -E '\s$' src web/src; then
 fi
 
 
-# # Cannot upgrade deps currently, TODO: https://github.com/vuejs/vue-loader/issues/2044
+todo
 # yarn upgrade
 # pushd web
 # yarn
@@ -38,16 +42,12 @@ fi
 # pause
 
 yarn
-yarn coffee -c src/*.coffee
 pushd web
 yarn build
 popd
 rm web-dist/index.html
 
-yarn esbuild src/extension.js --bundle --platform=node --outfile=src/extension.js --allow-overwrite --external:vscode
-mv src/extension.js .
-rm src/*.js
-mv extension.js src
+yarn esbuild src/extension.js --bundle --platform=node --outfile=main.js --external:vscode
 
 echo built. manual tests:
 pause

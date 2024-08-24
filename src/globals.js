@@ -2,7 +2,7 @@ String.prototype.hashCode = function() {
 	let hash = 0
 	if (this.length === 0)
 		return hash
-	for (let i in this) {
+	for (let i = 0; i < this.length; i++) {
 		let chr = this.charCodeAt(i)
 		hash = (hash << 5) - hash + chr
 		hash |= 0
@@ -10,8 +10,7 @@ String.prototype.hashCode = function() {
 	return hash
 }
 
-/** Call *this* with *args* and silently return `undefined` on error. */
-Function.prototype.maybe = function(args) {
+Function.prototype.maybe = function(/** @type {Array<any>} */ args = []) {
 	try {
 		return this(...args)
 	} catch (error) {
@@ -19,7 +18,6 @@ Function.prototype.maybe = function(args) {
 	}
 }
 
-/** Catch and ignore. Like `.catch(() => undefined)`. */
 Promise.prototype.maybe = function() {
 	return this.catch(() => {})
 }

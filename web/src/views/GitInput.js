@@ -42,7 +42,7 @@ export default defineComponent({
 		},
 		action: {
 			// somehow impossible to get both validation and type support with coffee JSDoc
-			// (no casting possible), no matter how. Runtime validation is more important
+			// (no casting possible), no matter how. Runtime validation is more important < TODO
 			type: Function,
 		},
 		hide_result: { type: Boolean, default: false },
