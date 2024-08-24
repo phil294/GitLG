@@ -37,7 +37,7 @@ function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back
 
 		function on_mousemove(/** @type MouseEvent | TouchEvent */ mouse_event) {
 			event.preventDefault()
-			return window.requestAnimationFrame(() => {
+			window.requestAnimationFrame(() => {
 				offset_x = (mouse_event.pageX || mouse_event.changedTouches?.[0].pageX || 0) - mouse_start_x
 				offset_y = (mouse_event.pageY || mouse_event.changedTouches?.[0].pageY || 0) - mouse_start_y
 				move_target.style.left = el_start_left + offset_x + 'px'
@@ -54,7 +54,7 @@ function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back
 			document.removeEventListener('touchmove', on_mousemove)
 			document.removeEventListener('mouseup', on_mouseup)
 			document.removeEventListener('touchend', on_mouseup)
-			return window.requestAnimationFrame(() => {
+			window.requestAnimationFrame(() => {
 				if (snap_back) {
 					move_target.style.height = ''
 					move_target.style.width = ''
@@ -62,7 +62,7 @@ function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back
 					move_target.style.left = ''
 				}
 				if (onmoveend)
-					return onmoveend({ offset: { x: offset_x, y: offset_y } })
+					onmoveend({ offset: { x: offset_x, y: offset_y } })
 			})
 		}
 
@@ -74,8 +74,6 @@ function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back
 
 	target.onmousedown = start_move
 	target.ontouchstart = start_move
-
-	return undefined
 }
 
 export default apply

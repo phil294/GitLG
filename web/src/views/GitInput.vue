@@ -10,26 +10,32 @@
 					<details>
 						<summary class="center">
 							Edited. Be careful!
-						</summary>Editing this field can be dangerous, as it is executed without escaping. If you do not know what you are doing, please click Reset.
+						</summary>
+						Editing this field can be dangerous, as it is executed without escaping. If you do not know what you are doing, please click Reset.
 					</details>
 				</div>
 				<button v-if="text_changed" class="reset btn btn-2 gap-3" type="button" @click="reset_command()">
-					<i class="codicon codicon-discard" />Reset
+					<i class="codicon codicon-discard" />
+					Reset
 				</button>
 				<div v-if="is_saved && ! has_unsaved_changes" class="saved">
 					Saved
 				</div>
 				<button v-if="has_unsaved_changes" class="save btn btn-2 gap-3" type="button" @click="save()">
-					<i class="codicon codicon-save" />Save
+					<i class="codicon codicon-save" />
+					Save
 				</button>
 			</div>
 			<div v-for="(param, i) in params" class="param">
-				<label class="row align-center gap-5">Param ${{ i+1 }}<input ref="params_input_refs" v-model="params[i]" class="flex-1" onfocus="select()">
+				<label class="row align-center gap-5">
+					Param ${{ i+1 }}
+					<input ref="params_input_refs" v-model="params[i]" class="flex-1" onfocus="select()">
 				</label>
 			</div>
 			<div class="execute">
 				<button class="btn gap-3">
-					<i class="codicon codicon-check" />Execute
+					<i class="codicon codicon-check" />
+					Execute
 				</button>
 			</div>
 		</promise-form>
@@ -46,11 +52,14 @@
 			<ul>
 				<li v-for="option of options" :class="{changed: option.active !== option.default_active}" class="option row gap-10">
 					<label class="row align-center flex-1">
-						<input v-model="option.active" :disabled="text_changed" type="checkbox">{{ option.value }}</label>
+						<input v-model="option.active" :disabled="text_changed" type="checkbox">
+						{{ option.value }}
+					</label>
 					<details v-if="option.info" class="flex-1">
 						<summary>
 							{{ option.info }}
-						</summary>{{ option.info }}
+						</summary>
+						{{ option.info }}
 					</details>
 				</li>
 			</ul>

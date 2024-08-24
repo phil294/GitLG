@@ -1,4 +1,5 @@
 <template>
+	<!-- TODO rename to filesdiffs, incl class -->
 	<div class="files-diffs-list">
 		<h3>
 			Changes ({{ files.length }})

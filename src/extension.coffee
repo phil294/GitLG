@@ -54,9 +54,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	})
 
 	// something to be synchronized with the web view - initialization, storage,
-
 	// update and retrieval is supported in both directions
-
 	let state = (() => {
 		function global_state_memento(/** @type string */ key) {
 			return {
@@ -86,12 +84,11 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			'selected-repo-index': {
 				get: () => context.workspaceState.get('selected-repo-index'),
 				set(v) {
-					let key, ref
 					context.workspaceState.update('selected-repo-index', v)
 					git.set_selected_repo_index(Number(v) || 0)
 					// These will have changed now, so notify clients of updated value
 
-					for (key of ['repo:action-history', 'repo:selected-commits-hashes'])
+					for (let key of ['repo:action-history', 'repo:selected-commits-hashes'])
 						state(key).set(state(key).get())
 				},
 			},
@@ -116,7 +113,6 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 							id: 'state-update',
 							data: { key, value },
 						})
-					return undefined
 				},
 			}
 		}
@@ -136,7 +132,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 				log.appendLine('receive from webview: ' + JSON.stringify(message))
 			let d = message.data
 			async function h(/** @type {() => any} */ func) {
-			/** @type BridgeMessage */
+				/** @type BridgeMessage */
 				let resp = {
 					type: 'response',
 					id: message.id,
@@ -147,7 +143,6 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 					let e = error
 					console.warn(e)
 					// We can't really just be passing e along here because it might be serialized as empty {}
-
 					resp.error = e.message || e
 				}
 				return post_message(resp)
@@ -165,7 +160,8 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 					vscode.workspace.getConfiguration(EXT_ID))
 				case 'get-state': return h(() =>
 					state(d).get())
-				case 'set-state': return h(() => state(d.key).set(d.value, { broadcast: false }))
+				case 'set-state': return h(() =>
+					state(d.key).set(d.value, { broadcast: false }))
 				case 'open-diff': return h(() => {
 					let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[0]}:${d.filename}`)
 					let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${d.filename}`)
@@ -197,16 +193,17 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 		let is_production = context.extensionMode === vscode.ExtensionMode.Production || process.env.GIT_LOG__GRAPH_MODE === 'production'
 		let dev_server_url = 'http://localhost:8080'
 
-		let csp = "default-src 'none'; " + `style-src ${
-
-			view.cspSource} 'unsafe-inline' ` + (is_production ? '' : dev_server_url) + '; ' + `script-src ${
-			view.cspSource} 'unsafe-inline' ` + (is_production
-			? ''
-			: `${
-				dev_server_url} 'unsafe-eval'`) + '; ' + `font-src ${
-
-			view.cspSource} ` + (is_production ? '' : dev_server_url) + '; ' + 'connect-src ' + (is_production ? '' : '*') + '; ' + `img-src ${
-			view.cspSource} ` + (is_production ? '' : dev_server_url) + '; '
+		let csp = "default-src 'none'; " +
+			`style-src ${view.cspSource} 'unsafe-inline' ` +
+				(is_production ? '' : dev_server_url) + '; ' +
+			`script-src ${view.cspSource} 'unsafe-inline' ` +
+				(is_production ? '' : `${dev_server_url} 'unsafe-eval'`) + '; ' +
+			`font-src ${view.cspSource} ` +
+				(is_production ? '' : dev_server_url) + '; ' +
+			'connect-src ' +
+				(is_production ? '' : '*') + '; ' +
+			`img-src ${view.cspSource} ` +
+				(is_production ? '' : dev_server_url) + '; '
 		function get_web_uri(/** @type {string[]} */...path_segments) {
 			if (is_production)
 				return view.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'web-dist', ...path_segments))
@@ -219,33 +216,31 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c) => c.css).maybe()
 
 		view.html = `
- <!DOCTYPE html>
- <html lang='en'>
- <head>
- <meta charset='UTF-8'>
- <meta http-equiv='Content-Security-Policy' content=\"${csp}\">
- <meta name='viewport' content='width=device-width, initial-scale=1.0'>
- <link href='${get_web_uri('css', 'app.css')}' rel='stylesheet'>
- <style>
- @font-face {
- font-family: 'codicon';
- src: url('${get_web_uri('fonts', 'codicon.ttf')}') format('truetype');
- }
- </style>
- <title>${EXT_NAME}</title>
- </head>
- <body>
- <div id='app'></div>
- <script src='${get_web_uri('js', 'chunk-vendors.js')}'></script>
- <script src='${get_web_uri('js', 'app.js')}'></script>
- <style>${custom_css}</style>
- </body>
- </html>`
-		return undefined
+			<!DOCTYPE html>
+			<html lang='en'>
+			<head>
+				<meta charset='UTF-8'>
+				<meta http-equiv='Content-Security-Policy' content="${csp}">
+				<meta name='viewport' content='width=device-width, initial-scale=1.0'>
+				<link href='${get_web_uri('css', 'app.css')}' rel='stylesheet'>
+				<style>
+					@font-face {
+						font-family: 'codicon';
+						src: url('${get_web_uri('fonts', 'codicon.ttf')}') format('truetype');
+					}
+				</style>
+				<title>${EXT_NAME}</title>
+			</head>
+			<body>
+			<div id='app'></div>
+			<script src='${get_web_uri('js', 'chunk-vendors.js')}'></script>
+			<script src='${get_web_uri('js', 'app.js')}'></script>
+			<style>${custom_css}</style>
+			</body>
+			</html>`
 	}
 
 	// Needed for git diff views
-
 	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(`${EXT_ID}-git-show`, {
 		provideTextDocumentContent(uri) {
 			return git.run(`show "${uri.path}"`).maybe()
@@ -253,7 +248,6 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	}))
 
 	// General start, will choose from creating/show editor panel or showing side nav view depending on config
-
 	context.subscriptions.push(vscode.commands.registerCommand(START_CMD, async (args) => {
 		log.appendLine('start command')
 		if (args?.rootUri) // invoked via menu scm/title
@@ -262,12 +256,9 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor') {
 			if (webview_container)
 			// Repeated editor panel show
-
 			// @ts-ignore
-
 				return webview_container.reveal()
 			// First editor panel creation + show
-
 			log.appendLine('create new webview panel')
 			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn || 1, { retainContextWhenHidden: true })
 			webview_container.iconPath = vscode.Uri.joinPath(context.extensionUri, 'img', 'logo.png')
@@ -276,31 +267,26 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			return populate_webview()
 		} else {
 			// Repeated side nav view show
-
 			log.appendLine('show view')
 			// @ts-ignore
-
 			return webview_container?.show()
 		}
 	}))
 
 	// Close the editor(tab)
-
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.close', () => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
-			return vscode.window.showInformationMessage("This command is can only be used if git-log--graph isn't configured as a main editor (tab)."); if (! webview_container)
+			return vscode.window.showInformationMessage("This command can only be used if git-log--graph isn't configured as a main editor (tab)."); if (! webview_container)
 			return vscode.window.showInformationMessage('git-log--graph editor tab is not running.')
 		log.appendLine('close command')
 		// @ts-ignore
-
 		return webview_container.dispose()
 	}))
 
 	// Toggle the editor(tab)
-
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.toggle', () => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
-			return vscode.window.showInformationMessage("This command is can only be used if git-log--graph isn't configured as a main editor (tab).")
+			return vscode.window.showInformationMessage("This command can only be used if git-log--graph isn't configured as a main editor (tab).")
 		log.appendLine('toggle command')
 		if (webview_container)
 		// @ts-ignore
@@ -310,9 +296,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	}))
 
 	// First editor panel creation + show, but automatically after restart / resume previous session.
-
 	// It would be possible to restore some web view state here too
-
 	vscode.window.registerWebviewPanelSerializer(EXT_ID, {
 		deserializeWebviewPanel(deserialized_panel) {
 			log.appendLine('deserialize web panel (rebuild editor tab from last session)')
@@ -325,14 +309,11 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	})
 
 	// Side nav view setup
-
 	context.subscriptions.push(vscode.window.registerWebviewViewProvider(EXT_ID, {
 		// Side nav view creation
-
 		resolveWebviewView(view) {
 			if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor')
 				return
-
 			log.appendLine('provide view')
 			webview_container = view
 			return populate_webview()
@@ -371,10 +352,8 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 		let uri = doc.uri
 		if (uri.scheme !== 'file' || doc.languageId === 'log' || doc.languageId === 'Log' || uri.path.includes('extension-output') || uri.path.includes(EXT_ID)) // vscode/issues/206118
 			return
-
 		if (text_editor.selection.active.line === current_line)
 			return
-
 		current_line = text_editor.selection.active.line
 		if (line_change_debouncer)
 			clearTimeout(line_change_debouncer)
@@ -386,7 +365,6 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			if (! blamed)
 				return hide_blame()
 			// apparently impossible to get the short form right away in easy machine readable format?
-
 			current_line_long_hash = blamed[0].slice(0, 40)
 			let author = blamed[1].slice(7)
 			let time = relative_time.from(blamed[3].slice(12) * 1000)
@@ -397,10 +375,8 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 		log.appendLine('blame cmd')
 		if (! current_line_long_hash)
 			return
-
 		state('selected-repo-index').set(current_line_repo_index)
 		let focus_commit_hash = ((await git.run(`rev-parse --short ${current_line_long_hash}`))).trim() // todo error here goes unnoticed
-
 		current_line_long_hash = ''
 		state('repo:selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)
@@ -413,7 +389,6 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	}))
 
 	// public api of this extension:
-
 	return { git, post_message, webview_container, context, state }
 }
 

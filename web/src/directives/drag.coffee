@@ -16,7 +16,7 @@ let directive = {
 				e.dataTransfer.dropEffect = 'move'
 			}
 		})
-		return updated(el, binding)
+		updated(el, binding)
 	},
 	updated,
 }

@@ -12,7 +12,7 @@ import Vue from 'vue'
 let context_menu_data_by_el = new Map()
 
 function remove_all_context_menus() {
-	return context_menu_data_by_el.forEach((menu) =>
+	context_menu_data_by_el.forEach((menu) =>
 		menu.destroy())
 }
 document.addEventListener('contextmenu', remove_all_context_menus, false)
@@ -22,20 +22,18 @@ document.addEventListener('keyup', remove_all_context_menus, false)
 function set_context_menu(/** @type HTMLElement */ el, /** @type {(ev: MouseEvent)=>ContextMenuEntry[]} */ entries_provider) {
 	let existing_context_menu_data = context_menu_data_by_el.get(el)
 	if (existing_context_menu_data) {
-		existing_context_menu_data.entries_provider = entries_provider; return
+		existing_context_menu_data.entries_provider = entries_provider
+		return
 	}
 
 	/** @type {HTMLElement | null} */
-
 	let wrapper_el = null
 
 	// The element(s) created by this is quite similar to the template of <git-action-button>
-
 	function build_context_menu(/** @type MouseEvent */ event) {
 		let entries = entries_provider(event)
 		if (! entries || wrapper_el)
 			return
-
 		wrapper_el = document.createElement('ul')
 		wrapper_el.setAttribute('aria-label', 'Context menu')
 		wrapper_el.classList.add('context-menu-wrapper')
@@ -52,13 +50,13 @@ function set_context_menu(/** @type HTMLElement */ el, /** @type {(ev: MouseEven
 			label_el.textContent = entry.label
 			entry_el.appendChild(icon_el)
 			entry_el.appendChild(label_el)
-			entry_el.onmouseup = function(e) {
+			entry_el.onmouseup = (e) => {
 				if (e.button === 0)
-					return entry.action()
+					entry.action()
 			}
-			return wrapper_el?.appendChild(entry_el)
+			wrapper_el?.appendChild(entry_el)
 		})
-		return document.body.appendChild(wrapper_el)
+		document.body.appendChild(wrapper_el)
 	}
 
 	/** @type ContextMenuData */
@@ -67,46 +65,43 @@ function set_context_menu(/** @type HTMLElement */ el, /** @type {(ev: MouseEven
 			e.preventDefault()
 			e.stopPropagation()
 			remove_all_context_menus()
-			return build_context_menu(e)
+			retu build_context_menu(e)
 		},
 		destroy() {
 			if (! wrapper_el)
 				return
-
 			document.body.removeChild(wrapper_el)
 			wrapper_el = null
 		},
 		entries_provider,
 	}
 	el.addEventListener('contextmenu', context_menu_data.oncontextmenu, false)
-	return context_menu_data_by_el.set(el, context_menu_data)
+	context_menu_data_by_el.set(el, context_menu_data)
 }
 
 function disable_context_menu(/** @type {HTMLElement} */ el) {
 	let context_menu_data = context_menu_data_by_el.get(el)
 	if (! context_menu_data)
 		return
-
 	el.removeEventListener('contextmenu', context_menu_data.oncontextmenu)
-	return context_menu_data_by_el.delete(el)
+	context_menu_data_by_el.delete(el)
 }
 
 /** @type {Vue.Directive} */
 let directive = {
 	mounted(el, { value }) {
 		if (value)
-			return set_context_menu(el, value)
+			set_context_menu(el, value)
 	},
 	updated(el, { value }) {
 		value = value || null
 		if (! value)
-			return disable_context_menu(el)
+			disable_context_menu(el)
 		else
-
-			return set_context_menu(el, value)
+			set_context_menu(el, value)
 	},
 	unmounted(el) {
-		return disable_context_menu(el)
+		disable_context_menu(el)
 	},
 }
 

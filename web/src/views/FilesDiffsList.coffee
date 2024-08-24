@@ -46,58 +46,46 @@ export default defineComponent({
 	},
 	emits: ['show_diff', 'view_rev'],
 	setup(props) {
-		let files = computed(() => props.files.map((file) => {
-			// Even on Windows, the delimiter of git paths output is forward slash
-
-			let path_arr = file.path.split('/')
-			// Icons have to be hardcoded because actual theme integration is more or less impossible:
-
-			// https://github.com/microsoft/vscode/issues/183893
-
-			let icon = file_extension_icon_path_mapping[file.path.split('.').at(-1)] || 'default_file.svg'
-			return {
-
-				...file,
-				filename: path_arr.at(-1) || '?',
-				dir: path_arr.slice(0, -1).join('/'),
-				dir_arr: path_arr.slice(0, -1),
-				icon_path: base_url + 'file-icons/' + icon,
-			}
-		}))
-
+		let files = computed(() =>
+			props.files.map((file) => {
+				// Even on Windows, the delimiter of git paths output is forward slash
+				let path_arr = file.path.split('/')
+				// Icons have to be hardcoded because actual theme integration is more or less impossible:
+				// https://github.com/microsoft/vscode/issues/183893
+				let icon = file_extension_icon_path_mapping[file.path.split('.').at(-1)] || 'default_file.svg'
+				return {
+					...file,
+					filename: path_arr.at(-1) || '?',
+					dir: path_arr.slice(0, -1).join('/'),
+					dir_arr: path_arr.slice(0, -1),
+					icon_path: base_url + 'file-icons/' + icon,
+				}}))
 		let files_list = computed(() => {
 			if (render_style?.value === 'list')
 				return files.value
 		})
 		let files_tree = computed(() => {
-			let base, dir_seg, file, ref, ref1
 			if (render_style?.value !== 'tree')
 				return
-
 			/** @type TreeNode */
 			let out = {
 				children: {},
 				files: [],
 				path: 'Changes',
 			}
-			for (file of files.value) {
+			for (let file of files.value) {
 				let curr = out
-				for (dir_seg of file.dir_arr)
-					curr = (base = curr.children)[dir_seg] != null
-						? base[dir_seg]
-						: base[dir_seg] = {
-							children: {},
-							files: [],
-							path: dir_seg,
-						}
+				for (let dir_seg of file.dir_arr)
+					curr = curr.children[dir_seg] ||= {
+						children: {},
+						files: [],
+						path: dir_seg,
+					}
 				curr.files.push(file)
 			}
 			// Now all available dir segments have their own entry in the tree, but they
-
 			// should be joined together as much as possible (i.e. when there are no files):
-
 			function unify(/** @type TreeNode */ curr) {
-				let ref2, ref3, x, y
 				let modified_children = true
 				while (modified_children) {
 					modified_children = false
@@ -110,11 +98,8 @@ export default defineComponent({
 							delete curr.children[child_i]
 							modified_children = true
 						} else
-
 							unify(child)
 				}
-
-				return undefined
 			}
 			unify(out)
 			return out
@@ -131,6 +116,12 @@ export default defineComponent({
 			})
 		}
 
-		return { files_list, files_tree, render_style, open_file, show_file }
+		return {
+			files_list,
+			files_tree,
+			render_style,
+			open_file,
+			show_file
+		}
 	},
 })

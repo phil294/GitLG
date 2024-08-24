@@ -43,16 +43,12 @@ export default defineComponent({
 		/** @type {Ref<string[]>} */
 		let parent_hashes = ref([])
 		watchEffect(async () => {
-			let ref1, tag
-
 			// so we can see untracked as well
-
 			let get_files_command = stash.value
 				? `-c core.quotepath=false stash show --include-untracked --numstat --format="" ${
 
 					props.commit.hash}`
 				: `-c core.quotepath=false diff --numstat --format="" ${props.commit.hash} ${props.commit.hash}~1`
-
 			changed_files.value = ((await git(get_files_command).maybe()))?.split('\n').filter(Boolean).map((l) => {
 				let split = l.split('\t')
 				return {
@@ -65,7 +61,7 @@ export default defineComponent({
 			body.value = await git(`show -s --format="%b" ${props.commit.hash}`)
 
 			tag_details.value = []
-			for (tag of tags.value) {
+			for (let tag of tags.value) {
 				let details = await git('show --format="" --quiet refs/tags/' + tag.name)
 				tag_details.value.push(details)
 			}
@@ -97,7 +93,6 @@ export default defineComponent({
 		let config_show_buttons = computed(() =>
 			! config.value['hide-sidebar-buttons'])
 		return {
-
 			branch_tips,
 			tags,
 			tag_details,

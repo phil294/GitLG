@@ -17,7 +17,7 @@ function handle_error(/** @type {any} */ e) {
 	console_error(e, new Error().stack)
 	console.trace()
 	debugger
-	return show_error_message('git log --graph extension encountered an unexpected error. Sorry! Error summary: ' + (e.message || e.msg || e.data || e.body || e.stack || JSON.stringify.maybe(e) || e.toString?.()) + '. For details, see VSCode developer console. Please consider reporting this error.')
+	show_error_message('git log --graph extension encountered an unexpected error. Sorry! Error summary: ' + (e.message || e.msg || e.data || e.body || e.stack || JSON.stringify.maybe(e) || e.toString?.()) + '. For details, see VSCode developer console. Please consider reporting this error.')
 }
 window.onerror = handle_error
 console.error = handle_error

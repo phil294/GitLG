@@ -22,7 +22,6 @@ export default defineComponent({
 			if (is_branch(props.git_ref))
 				return props.git_ref
 			else
-
 				return null
 		})
 		function to_context_menu_entries(/** @type GitAction[] */ actions) {
@@ -35,16 +34,13 @@ export default defineComponent({
 			}))
 		}
 		return {
-
 			bind: computed(() => {
 				let is_head = props.git_ref.id === head_branch.value
 				return {
 					style: {
 						color: props.git_ref.color,
-
 						border: is_head
-							? `2px solid ${
-								props.git_ref.color}`
+							? `2px solid ${props.git_ref.color}`
 							: undefined,
 					},
 					class: {
@@ -61,22 +57,20 @@ export default defineComponent({
 			drop(/** @type {import('../directives/drop').DropCallbackPayload} */ event) {
 				if (! branch.value)
 					return
-
 				let source_branch_name = event.data
 				if (typeof source_branch_name !== 'string')
 					return
-
 				return combine_branches(source_branch_name, props.git_ref.id)
 			},
 			context_menu_provider: computed(() => () => {
 				if (branch.value)
-
-					return to_context_menu_entries(branch_actions(branch.value).value).concat({
-						label: 'Show',
-						icon: 'eye',
-						action() {
-							return show_branch(branch.value || (function() { throw '?' })())
-						},
+					return to_context_menu_entries(branch_actions(branch.value).value)
+						.concat({
+							label: 'Show',
+							icon: 'eye',
+							action() {
+								show_branch(branch.value)
+							},
 					})
 				else if (props.git_ref.type === 'stash' && props.commit)
 					return to_context_menu_entries(stash_actions(props.git_ref.name).value)

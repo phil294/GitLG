@@ -13,14 +13,14 @@ import History from './History.vue'
 import SelectedGitAction from './SelectedGitAction.vue'
 import RefTip from './RefTip.vue'
 import RepoSelection from './RepoSelection.vue'
+
+/**
+* @typedef {import('./types').Commit} Commit
+* @typedef {import('./types').Branch} Branch
+*/
+/** @template T @typedef {import('vue').Ref<T>} Ref */
+
 export default {
-
-	/**
-   * @typedef {import('./types').Commit} Commit
-   * @typedef {import('./types').Branch} Branch
-   */
-	/** @template T @typedef {import('vue').Ref<T>} Ref */
-
 	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, AllBranches, RefTip, SelectedGitAction, RepoSelection, History, CommitRow },
 	setup() {
 		let details_panel_position = computed(() =>
@@ -31,7 +31,9 @@ export default {
 		let selected_commits_hashes = store.stateful_computed('repo:selected-commits-hashes', default_selected_commits_hashes)
 		let selected_commits = computed({
 			get() {
-				return selected_commits_hashes.value?.map((hash) => filtered_commits.value.find((commit) => commit.hash === hash)).filter(is_truthy) || []
+				return selected_commits_hashes.value
+					?.map((hash) => filtered_commits.value.find((commit) => commit.hash === hash))
+					.filter(is_truthy) || []
 			},
 			set(commits) {
 				selected_commits_hashes.value = commits.map((commit) => commit.hash)
@@ -44,13 +46,11 @@ export default {
 		function commit_clicked(/** @type Commit */ commit, /** @type {MouseEvent | undefined} */ event) {
 			if (! commit.hash)
 				return
-
 			let selected_index = selected_commits.value.indexOf(commit)
 			if (event?.ctrlKey || event?.metaKey)
 				if (selected_index > -1)
 					selected_commits.value = selected_commits.value.filter((_, i) => i !== selected_index)
 				else
-
 					selected_commits.value = [...selected_commits.value, commit]
 			else if (event?.shiftKey) {
 				let total_index = filtered_commits.value.indexOf(commit)
@@ -59,12 +59,11 @@ export default {
 					selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index + 1).filter((commit) =>
 						! selected_commits.value.includes(commit)))
 			} else
-
 				if (selected_index > -1)
 					selected_commits.value = []
 				else {
 					selected_commits.value = [commit]
-					return store.push_history({ type: 'commit_hash', value: commit.hash })
+					store.push_history({ type: 'commit_hash', value: commit.hash })
 				}
 		}
 
@@ -76,15 +75,14 @@ export default {
 			txt_filter.value = ''
 			if (selected_commit.value) {
 				await nextTick()
-				return scroll_to_commit(selected_commit.value)
+				scroll_to_commit(selected_commit.value)
 			}
 		}
 		/** @type {Ref<HTMLElement | null>} */
 		let txt_filter_ref = ref(null)
 		function txt_filter_filter(/** @type Commit */ commit) {
-			let ref1, str
 			let search_for = txt_filter.value.toLowerCase()
-			for (str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)].map((s) => s.toLowerCase()))
+			for (let str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)].map((s) => s.toLowerCase()))
 				if (txt_filter_regex.value) {
 					if (str?.match.maybe(search_for))
 						return true
@@ -92,8 +90,8 @@ export default {
 
 					return true
 		}
-
-		let initialized = computed(() => !! store.commits.value)
+		let initialized = computed(() =>
+			!! store.commits.value)
 		let filtered_commits = computed(() => {
 			if (! txt_filter.value || txt_filter_type.value === 'jump')
 				return store.commits.value || []
@@ -110,20 +108,17 @@ export default {
 		function txt_filter_enter(/** @type KeyboardEvent */ event) {
 			if (txt_filter_type.value === 'filter')
 				return
-
 			if (event.shiftKey) {
 				let next = [...filtered_commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_filter)
 				if (next > -1) {
 					let next_match_index = txt_filter_last_i - 1 - next
 				} else
-
 					next_match_index = filtered_commits.value.length - 1
 			} else {
 				next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_filter)
 				if (next > -1)
 					next_match_index = txt_filter_last_i + 1 + next
 				else
-
 					next_match_index = 0
 			}
 			scroll_to_item_centered(next_match_index)
@@ -135,7 +130,7 @@ export default {
 		}
 		watch(txt_filter, () => {
 			if (txt_filter.value)
-				return store.push_history({ type: 'txt_filter', value: txt_filter.value })
+				store.push_history({ type: 'txt_filter', value: txt_filter.value })
 		})
 
 		function scroll_to_branch_tip(/** @type Branch */ branch) {
@@ -150,28 +145,19 @@ export default {
 				return show_error_message(`No commit found for branch ${branch.id}. Not enough commits loaded?`)
 			if (branch.inferred)
 			// We want to go the the actual merge commit, not the first any-commit where
-
 			// this line appeared (could be entirely unrelated)
-
 				first_branch_commit_i--
 			scroll_to_item_centered(first_branch_commit_i)
 			let commit = filtered_commits.value[first_branch_commit_i]
 			// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
-
 			// a branch name in a commit's ref list.
-
 			selected_commits.value = [commit]
 			// For now, set history always to commit_hash as this also shows the branches. Might revisit some day TODO
-
 			// if branch.inferred
-
 			// 	store.push_history type: 'commit_hash', value: commit.hash
-
 			// else
-
 			// 	store.push_history type: 'branch_id', value: branch.id
-
-			return store.push_history({ type: 'commit_hash', value: commit.hash })
+			store.push_history({ type: 'commit_hash', value: commit.hash })
 		}
 		function scroll_to_commit_hash(/** @type string */ hash) {
 			let commit_i = filtered_commits.value.findIndex((commit) =>
@@ -185,14 +171,14 @@ export default {
 		}
 		function scroll_to_commit_hash_user(/** @type string */ hash) {
 			scroll_to_commit_hash(hash)
-			return store.push_history({ type: 'commit_hash', value: hash })
+			store.push_history({ type: 'commit_hash', value: hash })
 		}
 		function scroll_to_commit(/** @type Commit */ commit) {
 			let commit_i = filtered_commits.value.findIndex((c) => c === commit)
-			return scroll_to_item_centered(commit_i)
+			scroll_to_item_centered(commit_i)
 		}
 		function scroll_to_top() {
-			return commits_scroller_ref.value?.scrollToItem(0)
+			commits_scroller_ref.value?.scrollToItem(0)
 		}
 		add_push_listener('scroll-to-selected-commit', () =>
 			scroll_to_commit(selected_commit.value))
@@ -202,25 +188,27 @@ export default {
 		store.main_view_git_input_ref.value = git_input_ref
 		let log_action = {
 			// rearding the -greps: Under normal circumstances, when showing stashes in
-
 			// git log, each of the stashes 2 or 3 parents are being shown. That because of
-
 			// git internals, but they are completely useless to the user.
-
 			// Could not find any easy way to skip those other than de-grepping them, TODO:.
-
 			// Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-
 			args: 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "',
-			options: [{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' }, { value: '--grep="^Merge (remote[ -]tracking )?.(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' }, { value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' }, { value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' }, { value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' }, { value: '--reflog', default_active: false, info: 'Pretend as if all objects mentioned by reflogs are listed on the command line as <commit>. / Reference logs, or "reflogs", record when the tips of branches and other references were updated in the local repository. Reflogs are useful in various Git commands, to specify the old value of a reference. For example, HEAD@{2} means "where HEAD used to be two moves ago", master@{one.week.ago} means "where master used to point to one week ago in this local repository", and so on. See gitrevisions(7) for more details.' }, { value: '--simplify-by-decoration', default_active: false, info: 'Allows you to view only the big picture of the topology of the history, by omitting commits that are not referenced by some branch or tag. Can be useful for very large repositories.' }],
+			options: [
+				{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' },
+				{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' },
+				{ value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' },
+				{ value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' },
+				{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' },
+				{ value: '--reflog', default_active: false, info: 'Pretend as if all objects mentioned by reflogs are listed on the command line as <commit>. / Reference logs, or "reflogs", record when the tips of branches and other references were updated in the local repository. Reflogs are useful in various Git commands, to specify the old value of a reference. For example, HEAD@{2} means "where HEAD used to be two moves ago", master@{one.week.ago} means "where master used to point to one week ago in this local repository", and so on. See gitrevisions(7) for more details.' },
+				{ value: '--simplify-by-decoration', default_active: false, info: 'Allows you to view only the big picture of the topology of the history, by omitting commits that are not referenced by some branch or tag. Can be useful for very large repositories.' }],
 
 			config_key: 'main-log',
 			immediate: true,
 		}
 		let is_first_log_run = true
 		/* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
-    This function exists so we can modify the args before sending to git, otherwise
-    GitInput would have done the git call  */
+    	This function exists so we can modify the args before sending to git, otherwise
+    	GitInput would have done the git call  */
 		async function run_log(/** @type string */ log_args) {
 			await store.git_run_log(log_args)
 			await new Promise((ok) => setTimeout(ok, 0))
@@ -236,7 +224,7 @@ export default {
 					if (new_commit)
 						selected_commits.value = [new_commit]
 				}
-				return commits_scroller_ref.value?.scrollToItem(scroll_item_offset)
+				commits_scroller_ref.value?.scrollToItem(scroll_item_offset)
 			}
 		}
 
@@ -253,24 +241,22 @@ export default {
 		function scroller_on_wheel(/** @type WheelEvent */ event) {
 			if (store.config.value['disable-scroll-snapping'])
 				return
-
 			event.preventDefault()
-			return commits_scroller_ref.value?.scrollToItem(scroll_item_offset + Math.round(event.deltaY / 20))
+			commits_scroller_ref.value?.scrollToItem(scroll_item_offset + Math.round(event.deltaY / 20))
 		}
 		function scroller_on_keydown(/** @type KeyboardEvent */ event) {
 			if (store.config.value['disable-scroll-snapping'])
 				return
-
 			if (event.key === 'ArrowDown') {
 				event.preventDefault()
-				return commits_scroller_ref.value?.scrollToItem(scroll_item_offset + 2)
+				commits_scroller_ref.value?.scrollToItem(scroll_item_offset + 2)
 			} else if (event.key === 'ArrowUp') {
 				event.preventDefault()
-				return commits_scroller_ref.value?.scrollToItem(scroll_item_offset - 2)
+				commits_scroller_ref.value?.scrollToItem(scroll_item_offset - 2)
 			}
 		}
 		function scroll_to_item_centered(/** @type number */ index) {
-			return commits_scroller_ref.value?.scrollToItem(index - Math.floor(visible_commits.value.length / 2))
+			commits_scroller_ref.value?.scrollToItem(index - Math.floor(visible_commits.value.length / 2))
 		}
 		let scroll_item_height = computed(() =>
 			store.config.value['row-height'])
@@ -280,35 +266,29 @@ export default {
 				commit.hash && ! commit.stats)
 			if (! visible_cp.length)
 				return
-
-			return await store.update_commit_stats(visible_cp)
+			await store.update_commit_stats(visible_cp)
 		})
 		let visible_branches = computed(() => [
-
 			...new Set(visible_commits.value.flatMap((commit) => (commit.vis_lines || []).map((v) => v.branch))),
 		].filter(is_truthy))
 		let visible_branch_tips = computed(() => [
-
 			...new Set(visible_commits.value.flatMap((commit) =>
 				commit.refs)),
 		].filter((ref) =>
-		// @ts-ignore
-
+			// @ts-ignore
 			ref.type === 'branch' && ! ref.inferred))
 		let invisible_branch_tips_of_visible_branches = computed(() =>
-		// alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
-
+			// alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
 			visible_branches.value.filter((branch) =>
 				(! branch.inferred || store.config.value['show-inferred-quick-branch-tips']) && ! visible_branch_tips.value.includes(branch)))
 
 		// To paint a nice gradient between branches at the top and the vis below:
-
 		let connection_fake_commit = computed(() => {
 			let commit = visible_commits.value[0]
 			if (! commit)
-				return null; return {
+				return null
+			return {
 				refs: [],
-
 				vis_lines: commit.vis_lines.filter((line) => line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch)).map((line) => ({
 					...line,
 					xn: line.x0,
@@ -319,25 +299,25 @@ export default {
 			}
 		})
 		// To show branch tips on top of connection_fake_commit lines
-
 		let invisible_branch_tips_of_visible_branches_elems = computed(() => {
 			let row = -1
-
-			return [...connection_fake_commit.value?.vis_lines || []].reverse().map((line) => {
-				if (! line.branch)
-					return null
-				row++
-				if (row > 5)
-					row = 0; return {
-					branch: line.branch,
-					bind: {
-						style: {
-							left: 0 + store.vis_v_width.value * line.x0 + 'px',
-							top: 0 + row * 19 + 'px',
+			return [...connection_fake_commit.value?.vis_lines || []].reverse()
+				.map((line) => {
+					if (! line.branch)
+						return null
+					row++
+					if (row > 5)
+						row = 0
+					return {
+						branch: line.branch,
+						bind: {
+							style: {
+								left: 0 + store.vis_v_width.value * line.x0 + 'px',
+								top: 0 + row * 19 + 'px',
+							},
 						},
-					},
-				}
-			}).filter(is_truthy) || []
+					}
+				}).filter(is_truthy) || []
 		})
 
 		let global_actions = computed(() =>
@@ -345,32 +325,25 @@ export default {
 
 		onMounted(() => {
 			// didn't work with @keyup.escape.native on the components root element
-
 			// when focus was in a sub component (??) so doing this instaed:
-
 			document.addEventListener('keyup', (e) => {
 				if (e.key === 'Escape')
 					selected_commits.value = []
 			})
-			return commits_scroller_ref.value.$el.focus()
+			commits_scroller_ref.value.$el.focus()
 		})
 
 		// It didn't work with normal context binding to the scroller's commit elements, either a bug
-
 		// of context-menu update or I misunderstood something about vue-virtual-scroller, but this
-
 		// works around it reliably (albeit uglily)
-
 		let commit_context_menu_provider = computed(() => (/** @type MouseEvent */ event) => {
 			let el = event.target
 			if (! (el instanceof HTMLElement) && ! (el instanceof SVGElement))
 				return
-
 			while (el.parentElement && ! el.parentElement.classList.contains('commit'))
 				el = el.parentElement
 			if (! el.parentElement)
 				return
-
 			let hash = el.parentElement.dataset.commitHash
 			if (! hash)
 				throw 'commit context menu element has no hash?'
@@ -385,8 +358,8 @@ export default {
 
 		let config_show_quick_branch_tips = computed(() =>
 			! store.config.value['hide-quick-branch-tips'])
-		return {
 
+		return {
 			initialized,
 			details_panel_position,
 			filtered_commits,

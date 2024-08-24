@@ -6,15 +6,15 @@
 <script>
 import MainView from './views/MainView.vue'
 import * as store from './views/store.js'
-export default {
 
+export default {
 	components: { MainView },
 	setup() {
 		store.init()
-		return undefined
 	},
 }
 </script>
+
 <style>
 :root {
 	--container-padding: 20px;
@@ -285,8 +285,9 @@ ul.context-menu-wrapper > li:not(:last-child) {
 ul.context-menu-wrapper > li:hover {
 	background: #000;
 }
-</style>,
-<style lang="stylus"scoped>,
+</style>
+
+<style lang="stylus">
 #vue-app {
 	height: 100vh;
 	width: 100vw;

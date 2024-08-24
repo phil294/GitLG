@@ -13,13 +13,17 @@ window.addEventListener('message', (msg_event) => {
 	/** @type BridgeMessage */
 	let message = msg_event.data
 	switch (message.type) {
-	case 'response': if (! response_handlers[message.id])
-		throw new Error('unhandled message response id: ' + JSON.stringify(message))
+	case 'response':
+		if (! response_handlers[message.id])
+			throw new Error('unhandled message response id: ' + JSON.stringify(message))
 		response_handlers[message.id](message)
-		return delete response_handlers[message.id]
-	case 'push': if (! push_handlers[message.id])
-		throw new Error('unhandled message push id: ' + JSON.stringify(message))
-		return push_handlers[message.id](message)
+		delete response_handlers[message.id]
+		break
+	case 'push':
+		if (! push_handlers[message.id])
+			throw new Error('unhandled message push id: ' + JSON.stringify(message))
+		push_handlers[message.id](message)
+		break
 	}
 })
 
@@ -30,7 +34,7 @@ export let exchange_message = async (/** @type string */ command, /** @type any 
 	vscode.postMessage(request)
 	/** @type {BridgeMessage} */
 	let resp = await new Promise((ok) => {
-		response_handlers[id] = function(data) {
+		response_handlers[id] = function(data) { // TODO = ok
 			return ok(data)
 		}
 	})
@@ -39,13 +43,9 @@ export let exchange_message = async (/** @type string */ command, /** @type any 
 	if (resp.error) {
 		let error = new Error(JSON.stringify({ error_response: resp.error, request }))
 		// @ts-ignore because we need the above info (esp. request) available in the error msg
-
 		// so it's shown in error popups etc., but the actual response message should also
-
 		// be retrievable easily from the caller with a try-catch without the need for
-
 		// extra json.parse, so adding this as an extra property seems like the best solution.
-
 		error.message_error_response = resp.error
 		throw error
 	}
@@ -53,8 +53,8 @@ export let exchange_message = async (/** @type string */ command, /** @type any 
 }
 
 /** @return {Promise<string>} */
-export let git = async (/** @type string */ args) =>
-	((await exchange_message('git', args))).trim()
+export let git = (/** @type string */ args) =>
+	exchange_message('git', args).then(s => s.trim())
 export let show_information_message = (/** @type string */ msg) =>
 	exchange_message('show-information-message', msg)
 export let show_error_message = (/** @type string */ msg) =>

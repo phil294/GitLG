@@ -3,6 +3,7 @@ import default_git_actions from './default-git-actions.json'
 import { parse } from './log-utils.js'
 import { git, exchange_message, add_push_listener } from '../bridge.js'
 import GitInputModel, { parse_config_actions } from './GitInput.js'
+
 /**
  * @typedef {import('./types').GitRef} GitRef
  * @typedef {import('./types').Branch} Branch
@@ -39,7 +40,6 @@ export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ defa
 		return ret
 	}
 	// shallow because type error https://github.com/vuejs/composition-api/issues/483
-
 	let internal = shallowRef(default_value)
 	ret = computed({
 		get: () => internal.value,
@@ -49,14 +49,14 @@ export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ defa
 			internal.value = value
 		},
 	})
-	_stateful_computeds[key] = ret; (async () => {
+	_stateful_computeds[key] = ret
+	(async () => {
 		let stored = await exchange_message('get-state', key)
 		if (stored != null) {
 			internal.value = stored // to skip the unnecessary roundtrip to backend
-
 			ret.value = stored
 		}
-		return on_load?.()
+		on_load?.()
 	})()
 	return ret
 }
@@ -79,17 +79,15 @@ export let git_run_log = async (/** @type string */ log_args) => {
 	let stash_refs = await git('reflog show --format="%h" stash').catch(() => '')
 	log_args = log_args.replace('{STASH_REFS}', stash_refs.replaceAll('\n', ' '))
 	// errors will be handled by GitInput
-
 	let [log_data, branch_data, stash_data, status_data, head_data] = await Promise.all([
 		git(log_args),
 		git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`),
 		git('stash list --format="%h %gd"').catch(() => ''),
 		git('-c core.quotepath=false status'),
-		git('rev-parse --abbrev-ref HEAD')])
-
+		git('rev-parse --abbrev-ref HEAD')
+	])
 	if (log_data == null)
 		return
-
 	let parsed = parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
 	commits.value = parsed.commits
 	branches.value = parsed.branches
@@ -107,21 +105,18 @@ export let refresh_main_view = ({ before_execute } = {}) => {
 }
 
 export let update_commit_stats = async (/** @type {Commit[]} */ commits) => {
-	let line, ref1, ref2, stmt
 	let data = await git('show --format="%h" --shortstat ' + commits.map((c) => c.hash).join(' '))
 	if (! data)
 		return
-
 	let hash = ''
-	for (line of data.split('\n').filter(Boolean)) {
+	for (let line of data.split('\n').filter(Boolean)) {
 		if (! line.startsWith(' ')) {
 			hash = line
 			continue
 		}
 		let stat = { files_changed: 0, insertions: 0, deletions: 0 }
 		//  3 files changed, 87 insertions(+), 70 deletions(-)
-
-		for (stmt of line.trim().split(', ')) {
+		for (let stmt of line.trim().split(', ')) {
 			let words = stmt.split(' ')
 			if (words[1].startsWith('file'))
 				stat.files_changed = Number(words[0])
@@ -190,15 +185,15 @@ export let combine_branches_from_branch_name = ref('')
 export let combine_branches = (/** @type string */ from_branch_name, /** @type string */ to_branch_name) => {
 	if (from_branch_name === to_branch_name)
 		return
-
 	combine_branches_to_branch_name.value = to_branch_name
 	combine_branches_from_branch_name.value = from_branch_name
 }
 
-export let show_branch = (/** @type Branch */ branch_tip) => refresh_main_view({
-	before_execute: (cmd) =>
-		`${cmd} ${branch_tip.id}`.replaceAll(' --all ', ' ').replaceAll(' {STASH_REFS} ', ' '),
-})
+export let show_branch = (/** @type Branch */ branch_tip) =>
+	refresh_main_view({
+		before_execute: (cmd) =>
+			`${cmd} ${branch_tip.id}`.replaceAll(' --all ', ' ').replaceAll(' {STASH_REFS} ', ' '),
+	})
 
 export let vis_v_width = computed(() =>
 	Number(config.value['branch-width']) || 10)
@@ -221,19 +216,18 @@ export let push_history = (/** @type HistoryEntry */ entry) => {
 		case 'txt_filter':
 			if (last_entry?.value === entry.value)
 				return
-
 			if (last_entry)
-				last_entry.value = entry.value; break
+				last_entry.value = entry.value
+			break
 		case 'branch_id': case 'commit_hash': case 'git':
 			if (last_entry?.value === entry.value)
 				return
-
-			_history.push(entry); break; default:
-
+			_history.push(entry)
+			break
+		default:
 			throw `Unexpected history entry type ${entry.type}`
 		}
 	else
-
 		_history.push(entry)
 	if (_history.length > 100)
 		_history.shift()
@@ -245,10 +239,11 @@ export let init = () => {
 
 	add_push_listener('config-change', async () => {
 		await refresh_config()
-		return refresh_main_view()
+		refresh_main_view()
 	})
 
+	// todo rm =>s v
 	add_push_listener('repo-external-state-change', () => refresh_main_view())
 
-	return add_push_listener('refresh-main-view', () => refresh_main_view())
+	add_push_listener('refresh-main-view', () => refresh_main_view())
 }

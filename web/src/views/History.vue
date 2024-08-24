@@ -7,7 +7,8 @@
 			<div v-if="history_mapped.length">
 				<div class="flex justify-flex-end">
 					<button id="clear-history" class="btn" @click="clear_history">
-						<i class="codicon codicon-trash" /> Clear repository history
+						<i class="codicon codicon-trash" />
+						Clear repository history
 					</button>
 				</div>
 				<ol class="entries">
@@ -19,7 +20,8 @@
 							</div>
 							<git-action-button v-else-if="entry.type == 'git'" :git_action="entry.ref" />
 							<button v-else-if="entry.type == 'txt_filter'" class="btn" @click="$emit('apply_txt_filter', entry.value)">
-								<i class="codicon codicon-search" /> Search: <code>{{ entry.value }}</code>
+								<i class="codicon codicon-search" />
+								 Search: <code>{{ entry.value }}</code>
 							</button>
 							<div v-else="">
 								Unknown history entry: {{ entry.value }}
@@ -44,25 +46,26 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { history, commits } from './store.js'
 import CommitRow from './CommitRow.vue'
 import GitActionButton from './GitActionButton.vue'
+
 export default {
 	components: { CommitRow, GitActionButton },
-
 	emits: ['commit_clicked', 'apply_txt_filter'],
 	setup() {
-		let history_mapped = computed(() => (history.value || []).slice().reverse().map((entry) => ({
-			type: entry.type,
-			value: entry.value,
-			datetime: entry.datetime,
-			ref: (function() {            
-            switch (entry.type) {              
-              case 'commit_hash':                
-                return commits.value?.find((commit) =>
-commit.hash === entry.value);              
-              case 'git':                return {                  
-                  title: 'git ' + entry.value,                  
-                  args: entry.value,                  
-                  description: 'History entry',                  
-                  icon: 'history'                };            }          }.call(this)) 
+		let history_mapped = computed(() =>
+			(history.value || []).slice().reverse().map((entry) => ({
+				type: entry.type,
+				value: entry.value,
+				datetime: entry.datetime,
+				ref: (function() {
+				switch (entry.type) {
+				case 'commit_hash':
+					return commits.value?.find((commit) =>
+	commit.hash === entry.value);
+				case 'git':                return {
+					title: 'git ' + entry.value,
+					args: entry.value,
+					description: 'History entry',
+					icon: 'history'                };            }          }.call(this))
 		})))
 		function clear_history() {
 			history.value = []
@@ -77,16 +80,21 @@ commit.hash === entry.value);
 			while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)
 				target = target.parentElement
 			if (target instanceof Element && target.getAttribute('id') !== 'history')
-			// @ts-ignore TODO: .
+				// @ts-ignore TODO: .
 
-				return details_ref.value?.removeAttribute('open')
+				details_ref.value?.removeAttribute('open')
 		}
 		onMounted(() =>
 			document.addEventListener('mouseup', on_mouse_up))
 		onUnmounted(() =>
 			document.removeEventListener('mouseup', on_mouse_up))
 
-		return { details_ref, history_mapped, clear_history, remove_history_entry }
+		return {
+			details_ref,
+			history_mapped,
+			clear_history,
+			remove_history_entry
+		}
 	},
 }
 </script>

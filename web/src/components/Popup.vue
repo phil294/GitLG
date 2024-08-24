@@ -31,14 +31,13 @@ export default {
 		let main_ref = ref(null)
 		onMounted(() => {
 			move_target.value = main_ref.value
-			return main_ref.value.focus()
+			main_ref.value.focus()
 		})
 		return {
-
 			move_target,
 			main_ref,
 			close() {
-				return emit('close')
+				emit('close')
 			},
 		}
 	},

@@ -39,10 +39,10 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { branches, history, commits, config, vis_width } from './store.js'
 import RefTip from './RefTip.vue'
 import SVGVisualization from './SVGVisualization.vue'
+
+/** @typedef {import('./log-utils').Commit} Commit */
+
 export default {
-
-	/** @typedef {import('./log-utils').Commit} Commit */
-
 	components: { SVGVisualization },
 	props: {
 		commit: {
@@ -65,21 +65,24 @@ export default {
 			let start_x = mousedown_event.x
 			let start_width = vis_width.value
 			function on_mousemove(/** @type MouseEvent */ mousemove_event) {
-				return window.requestAnimationFrame(() => {
+				window.requestAnimationFrame(() => {
 					vis_width.value = Math.min(vis_max_width, Math.max(vis_min_width, start_width + mousemove_event.x - start_x))
 				})
 			}
 			document.addEventListener('mousemove', on_mousemove)
-			return document.addEventListener('mouseup', (mouseup_event) => {
+			document.addEventListener('mouseup', (mouseup_event) => {
 				mouseup_event.preventDefault() // Not sure why this doesn't work
-
-				return document.removeEventListener('mousemove', on_mousemove)
+				document.removeEventListener('mousemove', on_mousemove)
 			}, { capture: true, once: true })
 		}
 		let height = computed(() =>
 			props.height || config.value['row-height'])
 
-		return { vis_style, vis_resize_handle_mousedown, height }
+		return {
+			vis_style,
+			vis_resize_handle_mousedown,
+			height
+		}
 	},
 }
 </script>

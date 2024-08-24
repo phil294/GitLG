@@ -58,7 +58,8 @@
 				</h3>
 				<ul>
 					<li v-for="parent_hash of parent_hashes">
-						{{ parent_hash }}<button title="Jump to commit" @click="$emit('hash_clicked',parent_hash)">
+						{{ parent_hash }}
+						<button title="Jump to commit" @click="$emit('hash_clicked',parent_hash)">
 							<i class="codicon codicon-link" />
 						</button>
 					</li>

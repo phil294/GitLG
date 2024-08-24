@@ -24,11 +24,8 @@ export default defineComponent({
 		watchEffect(async () => {
 			if (props.commits.length !== 2)
 				return
-
 			let get_files_command = `-c core.quotepath=false diff --numstat --format="" ${props.commits[0].hash} ${props.commits[1].hash}`
-
 			// TODO externalize? subcomponent?
-
 			comparison_files.value = ((await git(get_files_command).maybe()))?.split('\n').map((l) => {
 				let split = l.split('\t')
 				return {
@@ -40,21 +37,20 @@ export default defineComponent({
 		})
 
 		function show_compare_diff(/** @type string */ filepath) {
-			return exchange_message('open-diff', {
+			exchange_message('open-diff', {
 				hashes: [props.commits[0].hash, props.commits[1].hash],
 				filename: filepath,
 			})
 		}
 		function view_rev(/** @type string */ filepath) {
-			return exchange_message('view-rev', {
+			exchange_message('view-rev', {
 				hash: props.commits[1].hash,
 				filename: filepath,
 			})
 		}
-
 		let _commits_actions = computed(() => commits_actions(props.commits.map((c) => c.hash)).value)
-		return {
 
+		return {
 			comparison_files,
 			show_compare_diff,
 			view_rev,

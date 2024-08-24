@@ -26,9 +26,13 @@
 								<i class="codicon codicon-close" />
 							</button>
 							<label id="filter-type-filter" class="row align-center">
-								<input v-model="txt_filter_type" type="radio" value="filter">Filter</label>
+								<input v-model="txt_filter_type" type="radio" value="filter">
+								Filter
+							</label>
 							<label id="filter-type-jump" class="row align-center" title="Jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3">
-								<input v-model="txt_filter_type" type="radio" value="jump">Jump</label>
+								<input v-model="txt_filter_type" type="radio" value="jump">
+								Jump
+							</label>
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action of global_actions" :git_action="action" class="global-action" />
@@ -252,13 +256,17 @@ details#log-config[open] {
 	font-size: small;
 	padding-left: 10px;
 }
-</style>,
-<style lang="stylus">,
+</style>
+
+<style>
 .vue-recycle-scroller__item-view.hover > .commit {
 	background: #323232;
 }
-</style> .info:hover,
-<style lang="stylus"> .info:hover,
+</style>
+
+<style>
+.info:hover,
+.info:hover,
 .vue-recycle-scroller__item-view.hover > .commit .info:hover {
 	background: #323232 !important;
 }

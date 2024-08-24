@@ -11,7 +11,7 @@ let exec = util.promisify(require('child_process').exec)
  */
 module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, on_repo_names_change }) {
 	/** @type {import('./vscode.git').API} */
-	let api = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1) || (function() { throw 'VSCode official Git Extension not found, did you disable it?' })()
+	let api = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1) || (() => { throw 'VSCode official Git Extension not found, did you disable it?' })()
 	let last_git_execution = 0
 
 	/** @type {Record<string,string>} */
@@ -20,65 +20,39 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 		log.appendLine('start observing repo ' + repo.rootUri.fsPath)
 		return repo.state.onDidChange(() => {
 			// There's no event info available so we need to compare. (https://github.com/microsoft/vscode/issues/142313#issuecomment-1056939973)
-
 			// Work tree changes is required for detecting stashes.
-
 			// Detecting branch additions is currently *not possible*.
-
 			let state_cache = [repo.state.mergeChanges.map((c) => c.uri.fsPath).join(','), repo.state.HEAD?.commit, repo.state.workingTreeChanges.map((c) => c.uri.fsPath).join(','), repo.state.indexChanges.map((c) => c.uri.fsPath).join(',')].join(';')
 			let is_initial_change = ! repo_state_cache[repo.rootUri.fsPath]
 			if (repo_state_cache[repo.rootUri.fsPath] === state_cache)
 				return
-
 			repo_state_cache[repo.rootUri.fsPath] = state_cache
 			if (is_initial_change)
 				return
-
 			// Changes done via interface already do a refresh afterwards, so prevent a second one.
-
 			// Another solution does not really seem feasible, as it's hard to tell when a change
-
 			// was made by the user. Some commands never do (log, branch --list, ...), others only
-
 			// sometimes, depending on work tree and command success. So it would be necessary to
-
 			// have a separate change detection logic based on .git/HEAD and .git/index because
-
 			// this one right here is too delayed. vscode.git keeps its own state and refreshes quite
-
 			// slowly but we need immediate refreshes in the interface while *not* doing duplicate
-
 			// refreshes for the same action. It seems the sanest solution is just a dumb timer.
-
 			// The delay margin should be as big as possible in case the repo is *very* big and
-
 			// a false positive resulting from a a too small margin can lead to *seconds* of
-
 			// unnecessary reloading, and it should be as small as possible to prevent actual external
-
 			// changes from being detected which could happen if the user e.g. checks out a branch in
-
 			// the extension's interface and then quickly commits something from VSCode's SCM view
-
 			// before the margin elapsed.
-
 			// Note that `last_git_execution` would usually refer to a `git log` action because any
-
 			// git action in the web view results in a refresh / log being sent afterwards.
-
 			let margin = 1500
 			if (Date.now() - last_git_execution < margin)
 				return
-
 			// We have to observe all repos even if they aren't the selected one because
-
 			// there is no apparent way to unsubscribe from repo state changes. So filter:
-
 			if (api.repositories.findIndex((r) => r.rootUri.path === repo.rootUri.path) !== selected_repo_index)
 				return
-
 			log.appendLine('repo watcher: external index/head change') // from external, e.g. cli or committed via vscode ui
-
 			return on_repo_external_state_change()
 		})
 	}
@@ -89,14 +63,12 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 	let repos_changed_debouncer = null
 	function repos_changed() {
 		// onDidOpenRepository fires multiple times. At first, there isn't even a repos change..
-
 		if (api.repositories.length === repos_cache.length)
 			return
 		if (repos_changed_debouncer)
 			clearTimeout(repos_changed_debouncer)
 		repos_changed_debouncer = setTimeout(() => {
 			log.appendLine('workspace: repo(s) added/removed')
-
 			api.repositories.filter((repo) => ! repos_cache.includes(repo)).forEach((repo) =>
 				start_observing_repo(repo))
 			repos_cache = api.repositories.slice()
@@ -110,7 +82,6 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 
 	let selected_repo_index = 0
 	return {
-
 		get_repo_names() {
 			return api.repositories.map((f) => basename(f.rootUri.path))
 		},
@@ -133,9 +104,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 				let { stdout, stderr: _ } = await exec(cmd + ' ' + args, {
 					cwd,
 					// 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
-
 					// is 538 MB or 7.4 MB for the first 15k commits
-
 					maxBuffer: 1024 * 1024 * 35,
 				})
 				last_git_execution = Date.now()
@@ -143,7 +112,6 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 			} catch (error) {
 				let e = error
 				// stderr contains the full message, message itself is too short otherwise
-
 				e.message = e.stderr || e.stdout
 				throw e
 			}
@@ -160,11 +128,9 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 				return { repo_path, index }
 			})))).filter(({ repo_path }) => {
 				// if repo includes uri: stackoverflow.com/q/37521893
-
 				let rel = relative(repo_path, uri_path)
 				return rel != null && ! rel.startsWith('..') && ! isAbsolute(rel)
 				// There can be multiple matches with git submodules, in which case the longest
-
 				// path will be the right one
 			}).sort((a, b) =>
 				b.repo_path.length - a.repo_path.length)[0]?.index ?? -1

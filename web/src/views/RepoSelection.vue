@@ -8,6 +8,3 @@
 	</div>
 </template>
 <script src="./RepoSelection"></script>
-<style>
-
-</style>

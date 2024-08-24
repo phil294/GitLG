@@ -22,7 +22,6 @@ export let parse_config_actions = (actions, replacements = []) => {
 		let replacement
 		for (replacement of replacements)
 			txt = txt.replaceAll(replacement[0], replacement[1])
-
 		return txt
 	}
 	return actions.map((action) => ({
@@ -43,20 +42,18 @@ export default defineComponent({
 		},
 		action: {
 			// somehow impossible to get both validation and type support with coffee JSDoc
-
 			// (no casting possible), no matter how. Runtime validation is more important
-
 			type: Function,
 		},
 		hide_result: { type: Boolean, default: false },
 	},
 	emits: ['executed', 'success'],
 	/**
-   * To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
-   * both editable, the former modifying the latter but being locked when the latter is changed by hand.
-   * `config` stores a snapshot of both.
-   * `params` is never saved and user-edited only.
-   */
+     * To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
+     * both editable, the former modifying the latter but being locked when the latter is changed by hand.
+     * `config` stores a snapshot of both.
+     * `params` is never saved and user-edited only.
+     */
 	setup(props, { emit }) {
 		let ref_form
 		/** @type {GitOption[]} */
@@ -64,15 +61,11 @@ export default defineComponent({
 			...option,
 			active: option.default_active,
 		})))
-
 		let params = reactive([...props.git_action.params || []])
 		function to_cli(/** @type {GitOption[]} */ options = []) {
-			return (props.git_action.args + ' ' + options.map(({ value, active }) => {
-				if (active)
-					return value
-				else
-					return ''
-			}).join(' ')).trim()
+			return (props.git_action.args + ' ' + options.map(({ value, active }) =>
+				active ? value : ''
+			).join(' ')).trim()
 		}
 		let constructed_command = computed(() =>
 			to_cli(options))
@@ -88,8 +81,7 @@ export default defineComponent({
 			if (config_key)
 				config = stateful_computed(config_key, default_config, loaded)
 			else
-
-				return loaded(null)
+				loaded(null)
 		})
 		let is_saved = computed(() => !! config?.value?.command)
 		let has_unsaved_changes = computed(() =>
@@ -104,9 +96,7 @@ export default defineComponent({
 						option.active = saved.active
 				}
 				// because modifying `options` this will have changed `command`
-
 				// via watchEffect, we need to wait before overwriting it
-
 				await nextTick()
 				command.value = config?.value.command
 			}
@@ -132,31 +122,29 @@ export default defineComponent({
 		let command_input_ref = ref(null)
 		onMounted(() => {
 			if (params_input_refs.value.length)
-				return params_input_refs.value[0].focus()
+				params_input_refs.value[0].focus()
 			else
-
-				return command_input_ref.value?.focus()
+				command_input_ref.value?.focus()
 		})
 
 		let data = ref('')
 		let error = ref('')
 		/** @param args {{before_execute?: ((cmd: string) => string) | undefined}} */
 		async function execute({ before_execute } = {}) {
-			let i, pos, ref1, ref2
 			error.value = ''
 			let _params = params.map((p) => p.replaceAll('\\n', '\n'))
 			if (_params.some((p) => p.match(/"|(\\([^n]|$))/)))
 				error.value = 'Params cannot contain quotes or backslashes.'
 			let cmd = command.value
-			for (i of (function() {        let results = [];        for (var j = 1, ref1 = _params.length; 1 <= ref1 ? j <= ref1 : j >= ref1; 1 <= ref1 ? j++ : j--){ results.push(j); }        return results;      }.apply(this)))
+			for (let i = 1; i <= _params.length; i++) {
 				while ((pos = cmd.indexOf('$' + i)) > -1)
 					cmd = cmd.slice(0, pos) + _params[i - 1] + cmd.slice(pos + 2)
-
 			if (before_execute)
-				cmd = before_execute(cmd); try {
-				let result = await (props.action || git)(cmd)
-			} catch (error1) {
-				let e = error1
+				cmd = before_execute(cmd)
+			let result
+			try {
+				result = await (props.action || git)(cmd)
+			} catch (e) {
 				e = e.message_error_response || e.message || e
 				if (e.includes?.('CONFLICT'))
 					error.value = 'Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n' + e
@@ -164,40 +152,51 @@ export default defineComponent({
 					if (text_changed.value)
 						error.value = `git command failed. Try clicking RESET and try again!\n\nError message:\n${e}`
 					else
-
 						error.value = e
 					if (props.action)
 						throw new Error(e)
 					else
-
 						console.warn(e)
 				}
 				if (props.git_action.ignore_errors)
-					emit('success'); return
+					emit('success')
+				return
 			} finally {
 				emit('executed')
 				push_history({ type: 'git', value: cmd })
 			}
 			if (! props.hide_result)
 				data.value = result
-			return emit('success', result)
+			emit('success', result)
 		}
 
 		// typing doesn't work https://github.com/vuejs/composition-api/issues/402
-
 		/* @type {Ref<InstanceType<import('../components/PromiseForm.vue')>|null>} */
 		// so we need the ts-ignore below. TODO
-
 		ref_form = ref(null)
 		onMounted(async () => {
 			await config_load_promise
 			await nextTick()
 			if (props.git_action.immediate)
-			// @ts-ignore
-
-				return await ref_form.value?.request_submit()
+				// @ts-ignore
+				await ref_form.value?.request_submit()
 		})
 
-		return { command, options, params, reset_command, text_changed, execute, error, data, is_saved, has_unsaved_changes, save, params_input_refs, command_input_ref, ref_form }
+		return {
+			command,
+			options,
+			params,
+			reset_command,
+			text_changed,
+			execute,
+			error,
+			data,
+			is_saved,
+			has_unsaved_changes,
+			save,
+			params_input_refs,
+			command_input_ref,
+			ref_form
+		}
 	},
 })

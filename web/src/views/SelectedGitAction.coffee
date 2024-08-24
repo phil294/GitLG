@@ -12,6 +12,11 @@ export default defineComponent({
 				selected_git_action.value = null
 		}
 
-		return { keep_open, success, refresh_main_view, selected_git_action }
+		return {
+			keep_open,
+			success,
+			refresh_main_view,
+			selected_git_action
+		}
 	},
 })
