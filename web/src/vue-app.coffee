@@ -1,4 +1,4 @@
-import { show_error_message, show_information_message } from './bridge.coffee'
+import { show_error_message, show_information_message } from './bridge.js'
 import { createApp } from 'vue'
 import '../../src/globals'
 import App from './App.vue'
@@ -12,30 +12,31 @@ import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import '@vscode/codicons/dist/codicon.css'
 
-console_error = console.error
-handle_error = (###* @type {any} ### e) =>
-    console_error e, new Error().stack
-    console.trace()
-    debugger
-    show_error_message "git log --graph extension encountered an unexpected error. Sorry! Error summary: " + (e.message or e.msg or e.data or e.body or e.stack or JSON.stringify.maybe(e) or e.toString?()) + ". For details, see VSCode developer console. Please consider reporting this error."
+let console_error = console.error
+function handle_error(/** @type {any} */ e) {
+	console_error(e, new Error().stack)
+	console.trace()
+	debugger
+	return show_error_message('git log --graph extension encountered an unexpected error. Sorry! Error summary: ' + (e.message || e.msg || e.data || e.body || e.stack || JSON.stringify.maybe(e) || e.toString?.()) + '. For details, see VSCode developer console. Please consider reporting this error.')
+}
 window.onerror = handle_error
 console.error = handle_error
-window.addEventListener 'unhandledrejection', (e) =>
-    handle_error e.reason
+window.addEventListener('unhandledrejection', (e) =>
+	handle_error(e.reason))
 
 window.alert = show_information_message
 
-app = createApp(App)
+let app = createApp(App)
 
 app.config.errorHandler = handle_error
 app.config.warnHandler = handle_error
 
-app.component 'promise-form', PromiseForm
-app.component 'popup', Popup
-app.component 'recycle-scroller', RecycleScroller
-app.directive 'moveable', moveable
-app.directive 'drag', drag
-app.directive 'drop', drop
-app.directive 'context-menu', context_menu
+app.component('PromiseForm', PromiseForm)
+app.component('Popup', Popup)
+app.component('RecycleScroller', RecycleScroller)
+app.directive('moveable', moveable)
+app.directive('drag', drag)
+app.directive('drop', drop)
+app.directive('context-menu', context_menu)
 
 app.mount('#app')

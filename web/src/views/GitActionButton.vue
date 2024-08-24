@@ -1,12 +1,14 @@
-<template lang="slm">
-button.git-action-button.btn.gap-5 @click="selected_git_action=git_action" :title="git_action.description"
-	.icon.center v-if="git_action.icon"
-		i.codicon :class="'codicon-'+git_action.icon"
-	.title v-if="git_action.title"
-		| {{ git_action.title }}
+<template>
+	<button :title="git_action.description" class="git-action-button btn gap-5" @click="selected_git_action=git_action">
+		<div v-if="git_action.icon" class="icon center">
+			<i :class="'codicon-'+git_action.icon" class="codicon" />
+		</div>
+		<div v-if="git_action.title" class="title">
+			{{ git_action.title }}
+		</div>
+	</button>
 </template>
+<script src="./GitActionButton"></script>
+<style>
 
-<script lang="coffee" src="./GitActionButton.coffee"></script>
-
-<style lang="stylus">
 </style>

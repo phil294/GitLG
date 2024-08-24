@@ -1,97 +1,114 @@
-<template lang="slm">
-details#history.center ref="details_ref"
-	summary
-		| History...
-	div.dv
-		div v-if="history_mapped.length"
-			.flex.justify-flex-end
-				button.btn#clear-history @click="clear_history"
-					i.codicon.codicon-trash
-					|  Clear repository history
-			ol.entries
-				li.flex v-for="(entry, entry_i) of history_mapped"
-					.entry.flex-1 :title="entry.datetime"
-						commit-row v-if="entry.type == 'commit_hash' && entry.ref" :commit="entry.ref" role="button" @click="$emit('commit_clicked', entry.ref)"
-						div v-else-if="entry.type == 'commit_hash'"
-							| Commit '{{ entry.value }}' not found!
-						git-action-button v-else-if="entry.type == 'git'" :git_action="entry.ref"
-						button.btn v-else-if="entry.type == 'txt_filter'" @click="$emit('apply_txt_filter', entry.value)"
-							i.codicon.codicon-search
-							|  Search: <code>{{ entry.value }}</code>
-						div v-else=""
-							| Unknown history entry: {{ entry.value }}
-					.delete
-						button.btn @click="remove_history_entry(entry_i)" title="Remove this item from the repository history"
-							i.codicon.codicon-trash
-		p v-else=""
-			| Repository history empty!
+<template>
+	<details id="history" ref="details_ref" class="center">
+		<summary>
+			History...
+		</summary>
+		<div class="dv">
+			<div v-if="history_mapped.length">
+				<div class="flex justify-flex-end">
+					<button id="clear-history" class="btn" @click="clear_history">
+						<i class="codicon codicon-trash" /> Clear repository history
+					</button>
+				</div>
+				<ol class="entries">
+					<li v-for="(entry, entry_i) of history_mapped" class="flex">
+						<div :title="entry.datetime" class="entry flex-1">
+							<commit-row v-if="entry.type == 'commit_hash' && entry.ref" :commit="entry.ref" role="button" @click="$emit('commit_clicked', entry.ref)" />
+							<div v-else-if="entry.type == 'commit_hash'">
+								Commit '{{ entry.value }}' not found!
+							</div>
+							<git-action-button v-else-if="entry.type == 'git'" :git_action="entry.ref" />
+							<button v-else-if="entry.type == 'txt_filter'" class="btn" @click="$emit('apply_txt_filter', entry.value)">
+								<i class="codicon codicon-search" /> Search: <code>{{ entry.value }}</code>
+							</button>
+							<div v-else="">
+								Unknown history entry: {{ entry.value }}
+							</div>
+						</div>
+						<div class="delete">
+							<button class="btn" title="Remove this item from the repository history" @click="remove_history_entry(entry_i)">
+								<i class="codicon codicon-trash" />
+							</button>
+						</div>
+					</li>
+				</ol>
+			</div>
+			<p v-else="">
+				Repository history empty!
+			</p>
+		</div>
+	</details>
 </template>
-
-<script lang="coffee">
+<script>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { history, commits } from './store.coffee'
+import { history, commits } from './store.js'
 import CommitRow from './CommitRow.vue'
 import GitActionButton from './GitActionButton.vue'
+export default {
+	components: { CommitRow, GitActionButton },
 
-export default
-	emits: ['commit_clicked', 'apply_txt_filter']
-	components: { CommitRow, GitActionButton }
-	setup: ->
-		history_mapped = computed =>
-			(history.value || []).slice().reverse().map (entry) =>
-				type: entry.type
-				value: entry.value
-				datetime: entry.datetime
-				ref:
-					switch entry.type
-						when 'commit_hash'
-							commits.value?.find (commit) =>
-								commit.hash == entry.value
-						when 'git'
-							title: 'git ' + entry.value
-							args: entry.value
-							description: 'History entry'
-							icon: 'history'
-		clear_history = =>
+	emits: ['commit_clicked', 'apply_txt_filter'],
+	setup() {
+		let history_mapped = computed(() => (history.value || []).slice().reverse().map((entry) => ({
+			type: entry.type,
+			value: entry.value,
+			datetime: entry.datetime,
+			ref: (function() {            
+            switch (entry.type) {              
+              case 'commit_hash':                
+                return commits.value?.find((commit) =>
+commit.hash === entry.value);              
+              case 'git':                return {                  
+                  title: 'git ' + entry.value,                  
+                  args: entry.value,                  
+                  description: 'History entry',                  
+                  icon: 'history'                };            }          }.call(this)) 
+		})))
+		function clear_history() {
 			history.value = []
-		remove_history_entry = (###* @type number ### entry_i) =>
+		}
+		function remove_history_entry(/** @type number */ entry_i) {
 			history.value.splice(history.value.length - entry_i - 1, 1)
 			history.value = history.value.slice()
-		details_ref = ref null
-		on_mouse_up = (###* @type MouseEvent ### event) =>
-			target = event.target
-			while target instanceof Element and target.getAttribute('id') != 'history' and target.parentElement
-				target = target.parentElement
-			if target instanceof Element and target.getAttribute('id') != 'history'
-				# @ts-ignore TODO: .
-				details_ref.value?.removeAttribute 'open'
-		onMounted =>
-			document.addEventListener 'mouseup', on_mouse_up
-		onUnmounted =>
-			document.removeEventListener 'mouseup', on_mouse_up
-		{
-			details_ref
-			history_mapped
-			clear_history
-			remove_history_entry
 		}
-</script>
+		let details_ref = ref(null)
+		function on_mouse_up(/** @type MouseEvent */ event) {
+			let target = event.target
+			while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)
+				target = target.parentElement
+			if (target instanceof Element && target.getAttribute('id') !== 'history')
+			// @ts-ignore TODO: .
 
-<style lang="stylus" scoped>
-details#history
-	> summary
-		display flex
-		align-items center
-		justify-content end
-	.dv
-		padding 20px
-		background black
-		li
-			overflow hidden
-			padding 5px 0
-			border-bottom 1px solid grey
-			.entry
-				overflow hidden
-			.delete
-				margin-left 5px
+				return details_ref.value?.removeAttribute('open')
+		}
+		onMounted(() =>
+			document.addEventListener('mouseup', on_mouse_up))
+		onUnmounted(() =>
+			document.removeEventListener('mouseup', on_mouse_up))
+
+		return { details_ref, history_mapped, clear_history, remove_history_entry }
+	},
+}
+</script>
+<style scoped>
+details#history > summary {
+	display: flex;
+	align-items: center;
+	justify-content: end;
+}
+details#history .dv {
+	padding: 20px;
+	background: #000;
+}
+details#history .dv li {
+	overflow: hidden;
+	padding: 5px 0;
+	border-bottom: 1px solid #808080;
+}
+details#history .dv li .entry {
+	overflow: hidden;
+}
+details#history .dv li .delete {
+	margin-left: 5px;
+}
 </style>
