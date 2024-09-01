@@ -35,9 +35,8 @@
 	</div>
 </template>
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { branches, history, commits, config, vis_width } from './store.js'
-import RefTip from './RefTip.vue'
+import { computed } from 'vue'
+import { config, vis_width } from './store.js'
 import SVGVisualization from './SVGVisualization.vue'
 
 /** @typedef {import('./log-utils').Commit} Commit */
@@ -60,11 +59,11 @@ export default {
 			'max-width': vis_max_width_vw + 'vw',
 			'min-width': vis_min_width + 'px',
 		}))
-		function vis_resize_handle_mousedown(/** @type MouseEvent */ mousedown_event) {
+		function vis_resize_handle_mousedown(/** @type {MouseEvent} */ mousedown_event) {
 			let vis_max_width = window.innerWidth * vis_max_width_vw / 100
 			let start_x = mousedown_event.x
 			let start_width = vis_width.value
-			function on_mousemove(/** @type MouseEvent */ mousemove_event) {
+			function on_mousemove(/** @type {MouseEvent} */ mousemove_event) {
 				window.requestAnimationFrame(() => {
 					vis_width.value = Math.min(vis_max_width, Math.max(vis_min_width, start_width + mousemove_event.x - start_x))
 				})

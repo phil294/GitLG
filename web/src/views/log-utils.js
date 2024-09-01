@@ -41,8 +41,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 
 	/** @type {Branch[]} */
 	let branches = []
-	function new_branch(/** @type string */ branch_name, /** @type string= */ remote_name, /** @type string= */ tracking_remote_name) {
-		/** @type Branch */
+	function new_branch(/** @type {string} */ branch_name, /** @type string= */ remote_name, /** @type string= */ tracking_remote_name) {
+		/** @type {Branch} */
 		let branch = {
 			name: branch_name,
 			color: undefined,
@@ -73,7 +73,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	/** @type {Commit[]} */
 	let commits = []
 
-	/** @type Vis */
+	/** @type {Vis} */
 	let last_vis = []
 
 	/**
@@ -165,7 +165,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			/** Parsing from top to bottom (reverse chronologically). The flow is
              * generally rtl horizontally. So for example, the "/" char would direct the
              * branch line from top right to bottom left and thus yield a {x0:1,xn:0} vis line.
-             * @type VisLine  */
+             * @type {VisLine}  */
 			let vis_line = {}
 			switch (char) {
 			case '*':

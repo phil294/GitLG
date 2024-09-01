@@ -8,6 +8,8 @@ let exec = util.promisify(require('child_process').exec)
  * @param EXT_ID {string}
  * @param log {vscode.OutputChannel}
  * @param args {{on_repo_external_state_change:()=>any, on_repo_names_change:()=>any}}
+ * @param args.on_repo_external_state_change
+ * @param args.on_repo_names_change
  */
 module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, on_repo_names_change }) {
 	/** @type {import('./vscode.git').API} */
@@ -85,7 +87,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 		get_repo_names() {
 			return api.repositories.map((f) => basename(f.rootUri.path))
 		},
-		async run(/** @type string */ args, /** @type {number|undefined} */ repo_index) {
+		async run(/** @type {string} */ args, /** @type {number|undefined} */ repo_index) {
 			if (repo_index == null)
 				repo_index = selected_repo_index
 			let cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
@@ -116,7 +118,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 				throw e
 			}
 		},
-		set_selected_repo_index(/** @type number */ index) {
+		set_selected_repo_index(/** @type {number} */ index) {
 			log.appendLine('set selected repo index ' + index)
 			selected_repo_index = index
 		},

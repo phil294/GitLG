@@ -34,14 +34,13 @@ export default {
 	},
 	emits: ['submit', 'success'],
 	data: () => ({
-		loading: false
+		loading: false,
 	}),
 	methods: {
 		request_submit() {
 			this.$refs.form_ref.requestSubmit()
 		},
 		async submit(event) {
-			let form_key, ref
 			if (! event)
 				throw new Error('Cannot call `submit` on PromiseForm directly. Use `request_submit` instead.')
 			this.loading = true
@@ -53,14 +52,13 @@ export default {
 			// There can be multiple values for the same form data key, e.g.
 			// <input type=file multiple>
 			let array_values = {}
-			for (form_key of [...form_data.keys()]) {
+			for (let form_key of [...form_data.keys()]) {
 				let form_values = form_data.getAll(form_key)
 				values[form_key] = form_values[0]
 				array_values[form_key] = form_values
 			}
 			try {
 				await Promise.all([
-
 					this.action({
 						...values,
 						form_data,
@@ -69,7 +67,7 @@ export default {
 						event,
 					}),
 					// force delay when the network response is quick, because overly fast button responses are confusing
-					new Promise((ok) => setTimeout(ok, 150))
+					new Promise((ok) => setTimeout(ok, 150)),
 				])
 				this.$emit('success')
 			} finally {

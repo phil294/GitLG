@@ -1,4 +1,4 @@
-import { ref, computed, defineComponent, watchEffect } from 'vue'
+import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { commits_actions } from './store.js'
 import GitActionButton from './GitActionButton.vue'
@@ -36,13 +36,13 @@ export default defineComponent({
 			}) || []
 		})
 
-		function show_compare_diff(/** @type string */ filepath) {
+		function show_compare_diff(/** @type {string} */ filepath) {
 			exchange_message('open-diff', {
 				hashes: [props.commits[0].hash, props.commits[1].hash],
 				filename: filepath,
 			})
 		}
-		function view_rev(/** @type string */ filepath) {
+		function view_rev(/** @type {string} */ filepath) {
 			exchange_message('view-rev', {
 				hash: props.commits[1].hash,
 				filename: filepath,

@@ -28,7 +28,7 @@ function set_drop(/** @type {HTMLElement} */ el, /** @type {(payload: DropCallba
 	el.classList.add('drop-target')
 	let counter = 0
 
-	/** @type DragData */
+	/** @type {DragData} */
 	let drag_data = {
 		ondragover(e) {
 			e.preventDefault() // allow drop
@@ -63,7 +63,7 @@ function set_drop(/** @type {HTMLElement} */ el, /** @type {(payload: DropCallba
 			// @ts-ignore
 			e._vue_drag_processed = true
 
-			/** @type DropCallbackPayload */
+			/** @type {DropCallbackPayload} */
 			let cb_payload = { event: e }
 			if (e.dataTransfer && e.dataTransfer.files.length)
 				cb_payload.files = e.dataTransfer.files

@@ -64,7 +64,7 @@ export default defineComponent({
 		let params = reactive([...props.git_action.params || []])
 		function to_cli(/** @type {GitOption[]} */ options = []) {
 			return (props.git_action.args + ' ' + options.map(({ value, active }) =>
-				active ? value : ''
+				active ? value : '',
 			).join(' ')).trim()
 		}
 		let constructed_command = computed(() =>
@@ -136,7 +136,7 @@ export default defineComponent({
 			if (_params.some((p) => p.match(/"|(\\([^n]|$))/)))
 				error.value = 'Params cannot contain quotes or backslashes.'
 			let cmd = command.value
-			for (let i = 1; i <= _params.length; i++) {
+			for (let i = 1; i <= _params.length; i++)
 				while ((pos = cmd.indexOf('$' + i)) > -1)
 					cmd = cmd.slice(0, pos) + _params[i - 1] + cmd.slice(pos + 2)
 			if (before_execute)
@@ -196,7 +196,7 @@ export default defineComponent({
 			save,
 			params_input_refs,
 			command_input_ref,
-			ref_form
+			ref_form,
 		}
 	},
 })

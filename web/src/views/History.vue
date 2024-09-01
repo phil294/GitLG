@@ -70,12 +70,12 @@ export default {
 		function clear_history() {
 			history.value = []
 		}
-		function remove_history_entry(/** @type number */ entry_i) {
+		function remove_history_entry(/** @type {number} */ entry_i) {
 			history.value.splice(history.value.length - entry_i - 1, 1)
 			history.value = history.value.slice()
 		}
 		let details_ref = ref(null)
-		function on_mouse_up(/** @type MouseEvent */ event) {
+		function on_mouse_up(/** @type {MouseEvent} */ event) {
 			let target = event.target
 			while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)
 				target = target.parentElement

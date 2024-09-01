@@ -287,7 +287,7 @@ ul.context-menu-wrapper > li:hover {
 }
 </style>
 
-<style lang="stylus">
+<style scoped>
 #vue-app {
 	height: 100vh;
 	width: 100vw;

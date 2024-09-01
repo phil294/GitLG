@@ -35,7 +35,7 @@ function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back
 		if (onmovestart)
 			onmovestart()
 
-		function on_mousemove(/** @type MouseEvent | TouchEvent */ mouse_event) {
+		function on_mousemove(/** @type {MouseEvent} | TouchEvent */ mouse_event) {
 			event.preventDefault()
 			window.requestAnimationFrame(() => {
 				offset_x = (mouse_event.pageX || mouse_event.changedTouches?.[0].pageX || 0) - mouse_start_x
@@ -48,7 +48,7 @@ function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back
 		document.addEventListener('mousemove', on_mousemove)
 		document.addEventListener('touchmove', on_mousemove)
 
-		function on_mouseup(/** @type MouseEvent | TouchEvent */ event) {
+		function on_mouseup(/** @type {MouseEvent} | TouchEvent */ event) {
 			event.preventDefault()
 			document.removeEventListener('mousemove', on_mousemove)
 			document.removeEventListener('touchmove', on_mousemove)

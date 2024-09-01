@@ -27,12 +27,13 @@ add_push_listener('state-update', ({ data: { key, value } }) => {
 	if (_stateful_computeds[key])
 		_stateful_computeds[key].value = value
 })
-/** @template T
+/**
+ * @template T
  * This utility returns a `WritableComputed` that will persist its state or react to changes on the
  * backend somehow. The caller doesn't know where it's stored though, this is up to extension.js
  * to decide based on the *key*.
  */
-export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load) => {
+export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load = () => {}) => {
 	/** @type {WritableComputedRef<T>|undefined} */
 	let ret = _stateful_computeds[key]
 	if (ret) {
@@ -73,7 +74,7 @@ export let git_status = ref('')
 /** @type {Ref<string|null>} */
 export let default_origin = ref('')
 
-export let git_run_log = async (/** @type string */ log_args) => {
+export let git_run_log = async (/** @type {string} */ log_args) => {
 	let sep = '^%^%^%^%^'
 	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s"`)
 	let stash_refs = await git('reflog show --format="%h" stash').catch(() => '')
@@ -98,7 +99,10 @@ export let git_run_log = async (/** @type string */ log_args) => {
 }
 /** @type {Ref<Ref<GitInputModel|null>|null>} */
 export let main_view_git_input_ref = ref(null)
-/** @param args {{before_execute?: ((cmd: string) => string) | undefined}} */
+/**
+ * @param args {{before_execute?: ((cmd: string) => string) | undefined}}
+ * @param args.before_execute
+ */
 export let refresh_main_view = ({ before_execute } = {}) => {
 	console.warn('refreshing main view')
 	return main_view_git_input_ref.value?.value?.execute({ before_execute })
@@ -140,7 +144,7 @@ export let refresh_config = async () =>
 /** @type {Ref<ConfigGitAction[]>} */
 export let global_actions = computed(() =>
 	default_git_actions['actions.global'].concat(config.value.actions?.global || []))
-export let commit_actions = (/** @type string */ hash) => computed(() => {
+export let commit_actions = (/** @type {string} */ hash) => computed(() => {
 	let config_commit_actions = default_git_actions['actions.commit'].concat(config.value.actions?.commit || [])
 	return parse_config_actions(config_commit_actions, [
 		['{COMMIT_HASH}', hash],
@@ -152,7 +156,7 @@ export let commits_actions = (/** @type string[] */ hashes) => computed(() => {
 		['{COMMIT_HASHES}', hashes.join(' ')],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
-export let branch_actions = (/** @type Branch */ branch) => computed(() => {
+export let branch_actions = (/** @type {Branch} */ branch) => computed(() => {
 	let config_branch_actions = default_git_actions['actions.branch'].concat(config.value.actions?.branch || [])
 	return parse_config_actions(config_branch_actions, [
 		['{BRANCH_NAME}', branch.id],
@@ -160,13 +164,13 @@ export let branch_actions = (/** @type Branch */ branch) => computed(() => {
 		['{REMOTE_NAME}', branch.remote_name || branch.tracking_remote_name || default_origin.value || 'MISSING_REMOTE_NAME'],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
-export let tag_actions = (/** @type string */ tag_name) => computed(() => {
+export let tag_actions = (/** @type {string} */ tag_name) => computed(() => {
 	let config_tag_actions = default_git_actions['actions.tag'].concat(config.value.actions?.tag || [])
 	return parse_config_actions(config_tag_actions, [
 		['{TAG_NAME}', tag_name],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
-export let stash_actions = (/** @type string */ stash_name) => computed(() => {
+export let stash_actions = (/** @type {string} */ stash_name) => computed(() => {
 	let config_stash_actions = default_git_actions['actions.stash'].concat(config.value.actions?.stash || [])
 	return parse_config_actions(config_stash_actions, [
 		['{STASH_NAME}', stash_name],
@@ -182,14 +186,14 @@ export let combine_branches_actions = computed(() => {
 
 export let combine_branches_to_branch_name = ref('')
 export let combine_branches_from_branch_name = ref('')
-export let combine_branches = (/** @type string */ from_branch_name, /** @type string */ to_branch_name) => {
+export let combine_branches = (/** @type {string} */ from_branch_name, /** @type {string} */ to_branch_name) => {
 	if (from_branch_name === to_branch_name)
 		return
 	combine_branches_to_branch_name.value = to_branch_name
 	combine_branches_from_branch_name.value = from_branch_name
 }
 
-export let show_branch = (/** @type Branch */ branch_tip) =>
+export let show_branch = (/** @type {Branch} */ branch_tip) =>
 	refresh_main_view({
 		before_execute: (cmd) =>
 			`${cmd} ${branch_tip.id}`.replaceAll(' --all ', ' ').replaceAll(' {STASH_REFS} ', ' '),
@@ -202,7 +206,7 @@ export let vis_width = stateful_computed('vis-width', 130)
 /** @type {HistoryEntry[]} */
 let default_history = []
 export let history = stateful_computed('repo:action-history', default_history)
-export let push_history = (/** @type HistoryEntry */ entry) => {
+export let push_history = (/** @type {HistoryEntry} */ entry) => {
 	entry.datetime = new Date().toISOString()
 	let _history = history.value?.slice() || []
 	let last_entry = _history.at(-1)

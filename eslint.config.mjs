@@ -5,6 +5,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { FlatCompat } from '@eslint/eslintrc'
 import pluginJs from '@eslint/js'
+import jsdoc from 'eslint-plugin-jsdoc'
 
 // mimic CommonJS variables -- not needed if using CommonJS
 const __filename = fileURLToPath(import.meta.url)
@@ -16,8 +17,10 @@ export default [
 	{ languageOptions: { globals: { ...globals.browser, ...globals.node } } },
 	...compat.extends('standard'),
 	...pluginVue.configs['flat/recommended'],
+	jsdoc.configs['flat/recommended-typescript-flavor-error'],
 	{
 		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
+		plugins: { jsdoc },
 		rules: {
 			'prefer-const': 'off',
 			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly
@@ -60,6 +63,11 @@ export default [
 				ignoreWhenEmpty: false,
 			}],
 			'no-extend-native': 'off',
+			'promise/param-names': 'off',
+			'jsdoc/require-jsdoc': 'off',
+			'jsdoc/no-undefined-types': 'error',
+			'jsdoc/require-returns': 'off',
+			'jsdoc/require-param': 'off',
 		},
 	},
 ]

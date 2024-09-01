@@ -10,7 +10,7 @@ let id = 0
 let push_handlers = {}
 
 window.addEventListener('message', (msg_event) => {
-	/** @type BridgeMessage */
+	/** @type {BridgeMessage} */
 	let message = msg_event.data
 	switch (message.type) {
 	case 'response':
@@ -27,9 +27,9 @@ window.addEventListener('message', (msg_event) => {
 	}
 })
 
-export let exchange_message = async (/** @type string */ command, /** @type any */ data) => {
+export let exchange_message = async (/** @type {string} */ command, /** @type {any} */ data) => {
 	id++
-	/** @type BridgeMessage */
+	/** @type {BridgeMessage} */
 	let request = { command, data, id, type: 'request' }
 	vscode.postMessage(request)
 	/** @type {BridgeMessage} */
@@ -52,13 +52,16 @@ export let exchange_message = async (/** @type string */ command, /** @type any 
 	return resp.data
 }
 
-/** @return {Promise<string>} */
-export let git = (/** @type string */ args) =>
+/**
+ * @param args
+ * @returns {Promise<string>}
+ */
+export let git = (/** @type {string} */ args) =>
 	exchange_message('git', args).then(s => s.trim())
-export let show_information_message = (/** @type string */ msg) =>
+export let show_information_message = (/** @type {string} */ msg) =>
 	exchange_message('show-information-message', msg)
-export let show_error_message = (/** @type string */ msg) =>
+export let show_error_message = (/** @type {string} */ msg) =>
 	exchange_message('show-error-message', msg)
 
-export let add_push_listener = (/** @type string */ id, /** @type {(r: BridgeMessage) => void} */ handler) =>
+export let add_push_listener = (/** @type {string} */ id, /** @type {(r: BridgeMessage) => void} */ handler) =>
 	push_handlers[id] = handler

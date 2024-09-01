@@ -21,7 +21,7 @@ let webview_container = null
 // todo proper log with timestamps like e.g. git or extension host
 let log = vscode.window.createOutputChannel(EXT_NAME)
 module.exports.log = log
-function log_error(/** @type string */ e) {
+function log_error(/** @type {string} */ e) {
 	vscode.window.showErrorMessage('git-log--graph: ' + e)
 	return log.appendLine(`ERROR: ${e}`)
 }
@@ -32,7 +32,7 @@ function log_error(/** @type string */ e) {
 module.exports.activate = function(/** @type vscode.ExtensionContext */ context) {
 	log.appendLine('extension activate')
 
-	function post_message(/** @type BridgeMessage */ msg) {
+	function post_message(/** @type {BridgeMessage} */ msg) {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging'))
 			log.appendLine('send to webview: ' + JSON.stringify(msg))
 		return webview_container?.webview.postMessage(msg)
@@ -56,26 +56,26 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	// something to be synchronized with the web view - initialization, storage,
 	// update and retrieval is supported in both directions
 	let state = (() => {
-		function global_state_memento(/** @type string */ key) {
+		function global_state_memento(/** @type {string} */ key) {
 			return {
 				get: () => context.globalState.get(key),
-				set: (/** @type any */ v) => context.globalState.update(key, v),
+				set: (/** @type {any} */ v) => context.globalState.update(key, v),
 			}
 		}
-		function workspace_state_memento(/** @type string */ key) {
+		function workspace_state_memento(/** @type {string} */ key) {
 			return {
 				get: () => context.workspaceState.get(key),
-				set: (/** @type any */ v) => context.workspaceState.update(key, v),
+				set: (/** @type {any} */ v) => context.workspaceState.update(key, v),
 			}
 		}
-		function repo_state_memento(/** @type string */ local_key) {
+		function repo_state_memento(/** @type {string} */ local_key) {
 			function key() {
 				let repo_name = git.get_repo_names()[state('selected-repo-index').get()]
 				return `repo-${local_key}-${repo_name}`
 			}
 			return {
 				get: () => context.workspaceState.get(key()),
-				set: (/** @type any */ v) => context.workspaceState.update(key(), v),
+				set: (/** @type {any} */ v) => context.workspaceState.update(key(), v),
 			}
 		}
 		/** @type {Record<string, {get:()=>any,set:(value:any)=>any}>} */
@@ -101,11 +101,11 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			'repo:action-history': repo_state_memento('action-history'),
 		}
 		let default_memento = global_state_memento
-		return (/** @type string */ key) => {
+		return (/** @type {string} */ key) => {
 			let memento = special_states[key] || default_memento(key)
 			return {
 				get: memento.get,
-				set(/** @type any */ value, /** @type {{broadcast?:boolean}} */ options = {}) {
+				set(/** @type {any} */ value, /** @type {{broadcast?:boolean}} */ options = {}) {
 					memento.set(value)
 					if (options.broadcast !== false)
 						post_message({
@@ -127,12 +127,12 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 		let view = webview_container.webview
 		view.options = { enableScripts: true, localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'web-dist')] }
 
-		view.onDidReceiveMessage((/** @type BridgeMessage */ message) => {
+		view.onDidReceiveMessage((/** @type {BridgeMessage} */ message) => {
 			if (vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging'))
 				log.appendLine('receive from webview: ' + JSON.stringify(message))
 			let d = message.data
 			async function h(/** @type {() => any} */ func) {
-				/** @type BridgeMessage */
+				/** @type {BridgeMessage} */
 				let resp = {
 					type: 'response',
 					id: message.id,

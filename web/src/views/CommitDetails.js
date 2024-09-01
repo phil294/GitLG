@@ -69,13 +69,13 @@ export default defineComponent({
 			parent_hashes.value = ((await git(`log --pretty=%p -n 1 ${props.commit.hash}`))).split(' ')
 		})
 
-		function show_diff(/** @type string */ filepath) {
+		function show_diff(/** @type {string} */ filepath) {
 			return exchange_message('open-diff', {
 				hashes: [props.commit.hash + '~1', props.commit.hash],
 				filename: filepath,
 			})
 		}
-		function view_rev(/** @type string */ filepath) {
+		function view_rev(/** @type {string} */ filepath) {
 			return exchange_message('view-rev', {
 				hash: props.commit.hash,
 				filename: filepath,
@@ -85,9 +85,9 @@ export default defineComponent({
 			commit_actions(props.commit.hash).value)
 		let _stash_actions = computed(() =>
 			stash_actions(stash.value?.name || '').value)
-		let _branch_actions = computed(() => (/** @type Branch */ branch) =>
+		let _branch_actions = computed(() => (/** @type {Branch} */ branch) =>
 			branch_actions(branch).value)
-		let _tag_actions = computed(() => (/** @type string */ tag_name) =>
+		let _tag_actions = computed(() => (/** @type {string} */ tag_name) =>
 			tag_actions(tag_name).value)
 
 		let config_show_buttons = computed(() =>

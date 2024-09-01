@@ -1,7 +1,8 @@
 import Vue from 'vue'
 
 /** @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry */
-/** @typedef {{
+/**
+@typedef {{
 	oncontextmenu: (this: HTMLElement, ev: MouseEvent) => any
 	destroy: () => any
 	entries_provider: (ev: MouseEvent) => ContextMenuEntry[]
@@ -19,7 +20,7 @@ document.addEventListener('contextmenu', remove_all_context_menus, false)
 document.addEventListener('click', remove_all_context_menus, false)
 document.addEventListener('keyup', remove_all_context_menus, false)
 
-function set_context_menu(/** @type HTMLElement */ el, /** @type {(ev: MouseEvent)=>ContextMenuEntry[]} */ entries_provider) {
+function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEvent)=>ContextMenuEntry[]} */ entries_provider) {
 	let existing_context_menu_data = context_menu_data_by_el.get(el)
 	if (existing_context_menu_data) {
 		existing_context_menu_data.entries_provider = entries_provider
@@ -30,7 +31,7 @@ function set_context_menu(/** @type HTMLElement */ el, /** @type {(ev: MouseEven
 	let wrapper_el = null
 
 	// The element(s) created by this is quite similar to the template of <git-action-button>
-	function build_context_menu(/** @type MouseEvent */ event) {
+	function build_context_menu(/** @type {MouseEvent} */ event) {
 		let entries = entries_provider(event)
 		if (! entries || wrapper_el)
 			return
@@ -59,13 +60,13 @@ function set_context_menu(/** @type HTMLElement */ el, /** @type {(ev: MouseEven
 		document.body.appendChild(wrapper_el)
 	}
 
-	/** @type ContextMenuData */
+	/** @type {ContextMenuData} */
 	let context_menu_data = {
 		oncontextmenu(e) {
 			e.preventDefault()
 			e.stopPropagation()
 			remove_all_context_menus()
-			retu build_context_menu(e)
+			build_context_menu(e)
 		},
 		destroy() {
 			if (! wrapper_el)

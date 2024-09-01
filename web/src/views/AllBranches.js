@@ -15,7 +15,7 @@ export default {
 				return branches.value.filter((branch) =>
 					branch.id.toLowerCase().includes(txt_filter.value.toLowerCase()))
 		})
-		function on_mouse_up(/** @type MouseEvent */ event) {
+		function on_mouse_up(/** @type {MouseEvent} */ event) {
 			if (! (event.target instanceof Element) || event.target.parentElement?.getAttribute('id') !== 'show-all-branches' && ! event.target.classList.contains('ref-tip') && ! event.target.classList.contains('filter') && ! event.target.querySelector('.ref-tip') && ! event.target.parentElement?.classList.contains('context-menu-wrapper'))
 				// @ts-ignore TODO: .
 				details_ref.value?.removeAttribute('open')
@@ -27,7 +27,7 @@ export default {
 		return {
 			filtered_branches,
 			txt_filter,
-			details_ref
+			details_ref,
 		}
 	},
 }

@@ -68,7 +68,7 @@ export default defineComponent({
 		let files_tree = computed(() => {
 			if (render_style?.value !== 'tree')
 				return
-			/** @type TreeNode */
+			/** @type {TreeNode} */
 			let out = {
 				children: {},
 				files: [],
@@ -86,7 +86,7 @@ export default defineComponent({
 			}
 			// Now all available dir segments have their own entry in the tree, but they
 			// should be joined together as much as possible (i.e. when there are no files):
-			function unify(/** @type TreeNode */ curr) {
+			function unify(/** @type {TreeNode} */ curr) {
 				let modified_children = true
 				while (modified_children) {
 					modified_children = false
@@ -106,11 +106,11 @@ export default defineComponent({
 			return out
 		})
 
-		function open_file(/** @type string */ filepath) {
+		function open_file(/** @type {string} */ filepath) {
 			return exchange_message('open-file', { filename: filepath })
 		}
 
-		function show_file(/** @type string */ filepath) {
+		function show_file(/** @type {string} */ filepath) {
 			return refresh_main_view({
 				before_execute: (cmd) =>
 					`${cmd} --follow -- "${filepath}"`,

@@ -15,9 +15,9 @@ import RefTip from './RefTip.vue'
 import RepoSelection from './RepoSelection.vue'
 
 /**
-* @typedef {import('./types').Commit} Commit
-* @typedef {import('./types').Branch} Branch
-*/
+ * @typedef {import('./types').Commit} Commit
+ * @typedef {import('./types').Branch} Branch
+ */
 /** @template T @typedef {import('vue').Ref<T>} Ref */
 
 export default {
@@ -43,7 +43,7 @@ export default {
 			if (selected_commits.value.length === 1)
 				return selected_commits.value[0]
 		})
-		function commit_clicked(/** @type Commit */ commit, /** @type {MouseEvent | undefined} */ event) {
+		function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 			if (! commit.hash)
 				return
 			let selected_index = selected_commits.value.indexOf(commit)
@@ -80,7 +80,7 @@ export default {
 		}
 		/** @type {Ref<HTMLElement | null>} */
 		let txt_filter_ref = ref(null)
-		function txt_filter_filter(/** @type Commit */ commit) {
+		function txt_filter_filter(/** @type {Commit} */ commit) {
 			let search_for = txt_filter.value.toLowerCase()
 			for (let str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)].map((s) => s.toLowerCase()))
 				if (txt_filter_regex.value) {
@@ -105,7 +105,7 @@ export default {
 				txt_filter_regex.value = ! txt_filter_regex.value
 		})
 		let select_searched_commit_debouncer = -1
-		function txt_filter_enter(/** @type KeyboardEvent */ event) {
+		function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 			if (txt_filter_type.value === 'filter')
 				return
 			if (event.shiftKey) {
@@ -133,7 +133,7 @@ export default {
 				store.push_history({ type: 'txt_filter', value: txt_filter.value })
 		})
 
-		function scroll_to_branch_tip(/** @type Branch */ branch) {
+		function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 			let first_branch_commit_i = filtered_commits.value.findIndex((commit) => {
 				if (branch.inferred)
 					return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
@@ -159,7 +159,7 @@ export default {
 			// 	store.push_history type: 'branch_id', value: branch.id
 			store.push_history({ type: 'commit_hash', value: commit.hash })
 		}
-		function scroll_to_commit_hash(/** @type string */ hash) {
+		function scroll_to_commit_hash(/** @type {string} */ hash) {
 			let commit_i = filtered_commits.value.findIndex((commit) =>
 				commit.hash === hash)
 			if (commit_i === -1) {
@@ -169,11 +169,11 @@ export default {
 			scroll_to_item_centered(commit_i)
 			selected_commits.value = [filtered_commits.value[commit_i]]
 		}
-		function scroll_to_commit_hash_user(/** @type string */ hash) {
+		function scroll_to_commit_hash_user(/** @type {string} */ hash) {
 			scroll_to_commit_hash(hash)
 			store.push_history({ type: 'commit_hash', value: hash })
 		}
-		function scroll_to_commit(/** @type Commit */ commit) {
+		function scroll_to_commit(/** @type {Commit} */ commit) {
 			let commit_i = filtered_commits.value.findIndex((c) => c === commit)
 			scroll_to_item_centered(commit_i)
 		}
@@ -209,7 +209,7 @@ export default {
 		/* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
     	This function exists so we can modify the args before sending to git, otherwise
     	GitInput would have done the git call  */
-		async function run_log(/** @type string */ log_args) {
+		async function run_log(/** @type {string} */ log_args) {
 			await store.git_run_log(log_args)
 			await new Promise((ok) => setTimeout(ok, 0))
 			if (is_first_log_run) {
@@ -233,18 +233,18 @@ export default {
 		/** @type {Ref<Commit[]>} */
 		let visible_commits = ref([])
 		let scroll_item_offset = 0
-		function commits_scroller_updated(/** @type number */ start_index, /** @type number */ end_index) {
+		function commits_scroller_updated(/** @type {number} */ start_index, /** @type {number} */ end_index) {
 			scroll_item_offset = start_index
 			let commits_start_index = scroll_item_offset < 3 ? 0 : scroll_item_offset
 			visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index)
 		}
-		function scroller_on_wheel(/** @type WheelEvent */ event) {
+		function scroller_on_wheel(/** @type {WheelEvent} */ event) {
 			if (store.config.value['disable-scroll-snapping'])
 				return
 			event.preventDefault()
 			commits_scroller_ref.value?.scrollToItem(scroll_item_offset + Math.round(event.deltaY / 20))
 		}
-		function scroller_on_keydown(/** @type KeyboardEvent */ event) {
+		function scroller_on_keydown(/** @type {KeyboardEvent} */ event) {
 			if (store.config.value['disable-scroll-snapping'])
 				return
 			if (event.key === 'ArrowDown') {
@@ -255,7 +255,7 @@ export default {
 				commits_scroller_ref.value?.scrollToItem(scroll_item_offset - 2)
 			}
 		}
-		function scroll_to_item_centered(/** @type number */ index) {
+		function scroll_to_item_centered(/** @type {number} */ index) {
 			commits_scroller_ref.value?.scrollToItem(index - Math.floor(visible_commits.value.length / 2))
 		}
 		let scroll_item_height = computed(() =>
@@ -336,7 +336,7 @@ export default {
 		// It didn't work with normal context binding to the scroller's commit elements, either a bug
 		// of context-menu update or I misunderstood something about vue-virtual-scroller, but this
 		// works around it reliably (albeit uglily)
-		let commit_context_menu_provider = computed(() => (/** @type MouseEvent */ event) => {
+		let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ event) => {
 			let el = event.target
 			if (! (el instanceof HTMLElement) && ! (el instanceof SVGElement))
 				return
