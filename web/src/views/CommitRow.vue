@@ -37,12 +37,8 @@
 <script>
 import { computed } from 'vue'
 import { config, vis_width } from './store.js'
-import SVGVisualization from './SVGVisualization.vue'
-
-/** @typedef {import('./log-utils').Commit} Commit */
 
 export default {
-	components: { SVGVisualization },
 	props: {
 		commit: {
 			required: true,
@@ -80,7 +76,7 @@ export default {
 		return {
 			vis_style,
 			vis_resize_handle_mousedown,
-			height
+			height,
 		}
 	},
 }

@@ -21,7 +21,7 @@
 							<git-action-button v-else-if="entry.type == 'git'" :git_action="entry.ref" />
 							<button v-else-if="entry.type == 'txt_filter'" class="btn" @click="$emit('apply_txt_filter', entry.value)">
 								<i class="codicon codicon-search" />
-								 Search: <code>{{ entry.value }}</code>
+								Search: <code>{{ entry.value }}</code>
 							</button>
 							<div v-else="">
 								Unknown history entry: {{ entry.value }}
@@ -44,11 +44,8 @@
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { history, commits } from './store.js'
-import CommitRow from './CommitRow.vue'
-import GitActionButton from './GitActionButton.vue'
 
 export default {
-	components: { CommitRow, GitActionButton },
 	emits: ['commit_clicked', 'apply_txt_filter'],
 	setup() {
 		let history_mapped = computed(() =>
@@ -66,7 +63,7 @@ export default {
 					args: entry.value,
 					description: 'History entry',
 					icon: 'history'                };            }          }.call(this))
-		})))
+			})))
 		function clear_history() {
 			history.value = []
 		}
@@ -80,7 +77,7 @@ export default {
 			while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)
 				target = target.parentElement
 			if (target instanceof Element && target.getAttribute('id') !== 'history')
-				// @ts-ignore TODO: .
+			// @ts-ignore TODO: .
 
 				details_ref.value?.removeAttribute('open')
 		}
@@ -93,7 +90,7 @@ export default {
 			details_ref,
 			history_mapped,
 			clear_history,
-			remove_history_entry
+			remove_history_entry,
 		}
 	},
 }

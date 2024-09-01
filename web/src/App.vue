@@ -4,11 +4,9 @@
 	</div>
 </template>
 <script>
-import MainView from './views/MainView.vue'
 import * as store from './views/store.js'
 
 export default {
-	components: { MainView },
 	setup() {
 		store.init()
 	},

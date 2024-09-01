@@ -21,3 +21,15 @@ Function.prototype.maybe = function(/** @type {Array<any>} */ args = []) {
 Promise.prototype.maybe = function() {
 	return this.catch(() => {})
 }
+
+/**
+ * To use in place of `.filter(Boolean)` for type safety with strict null checks.
+ * @template T
+ * @param value {T | undefined | null | false}
+ * @returns {value is T}
+ */
+globalThis.is_truthy = (value) => !! value
+
+/** @returns {ref is Branch} */
+globalThis.is_branch = (/** @type {GitRef} */ ref) =>
+	ref.type === 'branch'

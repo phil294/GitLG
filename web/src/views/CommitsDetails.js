@@ -1,16 +1,8 @@
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { commits_actions } from './store.js'
-import GitActionButton from './GitActionButton.vue'
-import FilesDiffsList from './FilesDiffsList.vue'
-/**
- * @typedef {import('./types').Commit} Commit
- */
-/** @template T @typedef {import('vue').Ref<T>} Ref */
-/** @template T @typedef {import('vue').ComputedRef<T>} ComputedRef */
 
 export default defineComponent({
-	components: { GitActionButton, FilesDiffsList },
 	props: {
 		commits: {
 			/** @type {() => Commit[]} */

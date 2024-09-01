@@ -1,12 +1,4 @@
 import colors from './colors.js'
-import { is_truthy, is_branch } from './types'
-
-/**
- * @typedef {import('./types').GitRef} GitRef
- * @typedef {import('./types').Branch} Branch
- * @typedef {import('./types').VisLine} VisLine
- * @typedef {import('./types').Commit} Commit
- */
 
 /**
  * @typedef {{

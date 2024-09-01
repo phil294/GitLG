@@ -4,18 +4,6 @@ import { parse } from './log-utils.js'
 import { git, exchange_message, add_push_listener } from '../bridge.js'
 import GitInputModel, { parse_config_actions } from './GitInput.js'
 
-/**
- * @typedef {import('./types').GitRef} GitRef
- * @typedef {import('./types').Branch} Branch
- * @typedef {import('./types').Commit} Commit
- * @typedef {import('./types').ConfigGitAction} ConfigGitAction
- * @typedef {import('./types').GitAction} GitAction
- * @typedef {import('./types').HistoryEntry} HistoryEntry
- */
-/** @template T @typedef {import('vue').Ref<T>} Ref */
-/** @template T @typedef {import('vue').ComputedRef<T>} ComputedRef */
-/** @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef */
-
 // ########################
 // This file should be used for state that is of importance for more than just one component.
 // It encompasses state, actions and getters (computed values).

@@ -3,18 +3,9 @@ import { stateful_computed, push_history } from './store.js'
 import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMounted } from 'vue'
 
 /**
- * @typedef {import('./types').GitOption} GitOption
- * @typedef {import('./types').ConfigGitAction} ConfigGitAction
- * @typedef {import('./types').GitAction} GitAction
- */
-/** @template T @typedef {import('vue').Ref<T>} Ref */
-/** @template T @typedef {import('vue').ComputedRef<T>} ComputedRef */
-/** @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef */
-
-/**
  * @param actions {ConfigGitAction[]}
  * @param replacements {[string,string][]}
- * @return {GitAction[]}
+ * @returns {GitAction[]}
  */
 export let parse_config_actions = (actions, replacements = []) => {
 	let namespace = replacements.map(([k]) => k).join('-') || 'global'
@@ -49,11 +40,11 @@ export default defineComponent({
 	},
 	emits: ['executed', 'success'],
 	/**
-     * To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
-     * both editable, the former modifying the latter but being locked when the latter is changed by hand.
-     * `config` stores a snapshot of both.
-     * `params` is never saved and user-edited only.
-     */
+	 * To summarize all logic below: There are `options` (checkboxes) and `command` (txt input),
+	 * both editable, the former modifying the latter but being locked when the latter is changed by hand.
+	 * `config` stores a snapshot of both.
+	 * `params` is never saved and user-edited only.
+	 */
 	setup(props, { emit }) {
 		let ref_form
 		/** @type {GitOption[]} */

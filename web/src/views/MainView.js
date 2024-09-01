@@ -1,27 +1,9 @@
 import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import * as store from './store.js'
 import { show_error_message, add_push_listener } from '../bridge.js'
-import { is_truthy } from './types'
 import GitInputModel from './GitInput.js'
-import GitInput from './GitInput.vue'
-import GitActionButton from './GitActionButton.vue'
-import CommitDetails from './CommitDetails.vue'
-import CommitsDetails from './CommitsDetails.vue'
-import CommitRow from './CommitRow.vue'
-import AllBranches from './AllBranches.vue'
-import History from './History.vue'
-import SelectedGitAction from './SelectedGitAction.vue'
-import RefTip from './RefTip.vue'
-import RepoSelection from './RepoSelection.vue'
-
-/**
- * @typedef {import('./types').Commit} Commit
- * @typedef {import('./types').Branch} Branch
- */
-/** @template T @typedef {import('vue').Ref<T>} Ref */
 
 export default {
-	components: { CommitDetails, CommitsDetails, GitInput, GitActionButton, AllBranches, RefTip, SelectedGitAction, RepoSelection, History, CommitRow },
 	setup() {
 		let details_panel_position = computed(() =>
 			store.config.value['details-panel-position'])

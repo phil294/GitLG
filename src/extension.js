@@ -8,8 +8,6 @@ require('./globals')
 
 let { get_git } = require('./git')
 
-/** @typedef {{ type: 'response' | 'request' | 'push', command?: string, data?: any, error?: any, id: number | string }} BridgeMessage */
-
 let EXT_NAME = 'git log --graph'
 let EXT_ID = 'git-log--graph'
 let START_CMD = 'git-log--graph.start'

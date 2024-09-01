@@ -1,5 +1,3 @@
-import Vue from 'vue'
-
 /** @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry */
 /**
 @typedef {{

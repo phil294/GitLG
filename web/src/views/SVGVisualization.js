@@ -1,10 +1,7 @@
 import { computed, defineComponent } from 'vue'
 import { head_branch, vis_v_width } from './store.js'
-import RefTip from './RefTip.vue'
-/** @typedef {import('./log-utils').Commit} Commit */
 
 export default defineComponent({
-	components: { RefTip },
 	props: {
 		commit: {
 			required: true,
@@ -22,10 +19,10 @@ export default defineComponent({
 				d: `M${padding_left + vis_line.x0 * vis_v_width.value},${(vis_line.y0 || 0) * props.height} C${padding_left + (vis_line.xcs || 0) * vis_v_width.value},${(vis_line.ycs || 0) * props.height} ${padding_left + (vis_line.xce || 0) * vis_v_width.value},${(vis_line.yce || 0) * props.height} ${padding_left + vis_line.xn * vis_v_width.value},${(vis_line.yn || 0) * props.height}`,
 				vis_line,
 				style: {
-					stroke: vis_line.branch?.color
+					stroke: vis_line.branch?.color,
 				},
 				class: {
-					is_head: vis_line.branch?.id === head_branch.value
+					is_head: vis_line.branch?.id === head_branch.value,
 				},
 				// https://stackoverflow.com/q/44040163
 				// TODO: Didn't find a working solution yet to fix the gaps between the svg elements.
@@ -42,10 +39,10 @@ export default defineComponent({
 				return null
 			return {
 				style: {
-					stroke: props.commit.branch.color
+					stroke: props.commit.branch.color,
 				},
 				class: {
-					is_head: props.commit.branch.id === head_branch.value
+					is_head: props.commit.branch.id === head_branch.value,
 				},
 				cx:
 					// I guess this could also be calculated more elegantly, but this kind of
@@ -58,7 +55,7 @@ export default defineComponent({
 		refs_elems = computed(() => ({
 			refs: props.commit.refs,
 			style: {
-				left: (circle.value?.cx || padding_left) + vis_v_width.value - 2 + 'px'
+				left: (circle.value?.cx || padding_left) + vis_v_width.value - 2 + 'px',
 			},
 		}))
 

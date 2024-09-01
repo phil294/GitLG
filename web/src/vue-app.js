@@ -2,8 +2,6 @@ import { show_error_message, show_information_message } from './bridge.js'
 import { createApp } from 'vue'
 import '../../src/globals'
 import App from './App.vue'
-import PromiseForm from './components/PromiseForm.vue'
-import Popup from './components/Popup.vue'
 import moveable from './directives/moveable'
 import drag from './directives/drag'
 import drop from './directives/drop'
@@ -31,9 +29,14 @@ let app = createApp(App)
 app.config.errorHandler = handle_error
 app.config.warnHandler = handle_error
 
-app.component('PromiseForm', PromiseForm)
-app.component('Popup', Popup)
+// TODO
+let sfcs = require.context('./', true, /\.vue$/i)
+sfcs.keys().forEach(key => {
+	app.component(sfcs(key).default.name ?? key.split('/').pop().split('.')[0], sfcs(key).default)
+})
 app.component('RecycleScroller', RecycleScroller)
+
+// TODO
 app.directive('moveable', moveable)
 app.directive('drag', drag)
 app.directive('drop', drop)

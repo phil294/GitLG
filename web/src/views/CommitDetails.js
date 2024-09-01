@@ -1,19 +1,8 @@
-import { is_branch } from './types'
 import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { commit_actions, stash_actions, branch_actions, tag_actions, config, show_branch } from './store.js'
-import GitActionButton from './GitActionButton.vue'
-import RefTip from './RefTip.vue'
-import FilesDiffsList from './FilesDiffsList.vue'
-/**
- * @typedef {import('./types').Commit} Commit
- * @typedef {import('./types').Branch} Branch
- */
-/** @template T @typedef {import('vue').Ref<T>} Ref */
-/** @template T @typedef {import('vue').ComputedRef<T>} ComputedRef */
 
 export default defineComponent({
-	components: { GitActionButton, RefTip, FilesDiffsList },
 	props: {
 		commit: {
 			/** @type {() => Commit} */

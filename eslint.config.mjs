@@ -65,9 +65,11 @@ export default [
 			'no-extend-native': 'off',
 			'promise/param-names': 'off',
 			'jsdoc/require-jsdoc': 'off',
-			'jsdoc/no-undefined-types': 'error',
 			'jsdoc/require-returns': 'off',
 			'jsdoc/require-param': 'off',
+			'jsdoc/no-undefined-types': 'off', // can't detect global types, and type errors are reported by strict jsconfig anyway
+			'jsdoc/require-returns-description': 'off',
+			'jsdoc/require-param-type': 'off',
 		},
 	},
 ]

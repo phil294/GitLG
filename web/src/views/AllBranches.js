@@ -1,10 +1,8 @@
 import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { branches } from './store.js'
-import RefTip from './RefTip.vue'
 
 export default {
 	emit: ['branch_selected'],
-	components: { RefTip },
 	setup() {
 		let details_ref = ref(null)
 		let txt_filter = ref('')

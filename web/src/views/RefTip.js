@@ -1,9 +1,6 @@
 import { is_branch } from './types'
 import { defineComponent, computed } from 'vue'
 import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from './store.js'
-/** @typedef {import('./types').GitRef} GitRef */
-/** @typedef {import('./types').Commit} Commit */
-/** @typedef {import('./types').GitAction} GitAction */
 
 export default defineComponent({
 	props: {
@@ -71,7 +68,7 @@ export default defineComponent({
 							action() {
 								show_branch(branch.value)
 							},
-					})
+						})
 				else if (props.git_ref.type === 'stash' && props.commit)
 					return to_context_menu_entries(stash_actions(props.git_ref.name).value)
 				else if (props.git_ref.type === 'tag')
