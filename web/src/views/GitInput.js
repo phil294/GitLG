@@ -135,19 +135,19 @@ export default defineComponent({
 			let result
 			try {
 				result = await (props.action || git)(cmd)
-			} catch (e) {
-				e = e.message_error_response || e.message || e
-				if (e.includes?.('CONFLICT'))
-					error.value = 'Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n' + e
+			} catch (action_error) {
+				let action_error_msg = action_error.message_error_response || action_error.message || action_error
+				if (action_error_msg.includes?.('CONFLICT'))
+					error.value = 'Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n' + action_error_msg
 				else {
 					if (text_changed.value)
-						error.value = `git command failed. Try clicking RESET and try again!\n\nError message:\n${e}`
+						error.value = `git command failed. Try clicking RESET and try again!\n\nError message:\n${action_error_msg}`
 					else
-						error.value = e
+						error.value = action_error_msg
 					if (props.action)
-						throw new Error(e)
+						throw action_error
 					else
-						console.warn(e)
+						console.warn(action_error)
 				}
 				if (props.git_action.ignore_errors)
 					emit('success')
