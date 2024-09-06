@@ -1,6 +1,7 @@
 import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { commits_actions } from './store.js'
+import { git_numstat_summary_to_changes_array } from './CommitDetails.js'
 
 export default defineComponent({
 	props: {
@@ -16,16 +17,8 @@ export default defineComponent({
 		watchEffect(async () => {
 			if (props.commits.length !== 2)
 				return
-			let get_files_command = `-c core.quotepath=false diff --numstat --format="" ${props.commits[0].hash} ${props.commits[1].hash}`
-			// TODO externalize? subcomponent?
-			comparison_files.value = ((await git(get_files_command).maybe()))?.split('\n').map((l) => {
-				let split = l.split('\t')
-				return {
-					path: split[2],
-					insertions: Number(split[1]),
-					deletions: Number(split[0]),
-				}
-			}) || []
+			let get_files_command = `-c core.quotepath=false diff --numstat --summary --format="" ${props.commits[0].hash} ${props.commits[1].hash}`
+			comparison_files.value = git_numstat_summary_to_changes_array(await git(get_files_command))
 		})
 
 		function show_compare_diff(/** @type {string} */ filepath) {

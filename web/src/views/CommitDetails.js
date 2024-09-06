@@ -2,6 +2,27 @@ import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { commit_actions, stash_actions, branch_actions, tag_actions, config, show_branch } from './store.js'
 
+export const git_numstat_summary_to_changes_array = (out) =>
+	Object.values(out.split('\n').filter(Boolean)
+		.reduce((all, line) => {
+			if (line.startsWith(' ')) {
+				let split = line.split(' ')
+				let path = split.slice(4).join(' ')
+				if (split[1] === 'delete')
+					all[path].is_deletion = true
+				else if (split[1] === 'create')
+					all[path].is_creation = true
+			} else {
+				let split = line.split('\t')
+				all[split[2]] = {
+					path: split[2],
+					insertions: Number(split[0]),
+					deletions: Number(split[1]),
+				}
+			}
+			return all
+		}, {}))
+
 export default defineComponent({
 	props: {
 		commit: {
@@ -34,18 +55,9 @@ export default defineComponent({
 		watchEffect(async () => {
 			// so we can see untracked as well
 			let get_files_command = stash.value
-				? `-c core.quotepath=false stash show --include-untracked --numstat --format="" ${
-
-					props.commit.hash}`
-				: `-c core.quotepath=false diff --numstat --format="" ${props.commit.hash} ${props.commit.hash}~1`
-			changed_files.value = ((await git(get_files_command).maybe()))?.split('\n').filter(Boolean).map((l) => {
-				let split = l.split('\t')
-				return {
-					path: split[2],
-					insertions: Number(split[1]),
-					deletions: Number(split[0]),
-				}
-			}) || []
+				? `-c core.quotepath=false stash show --include-untracked --numstat --summary --format="" ${props.commit.hash}`
+				: `-c core.quotepath=false diff --numstat --summary --format="" ${props.commit.hash}~1 ${props.commit.hash}`
+			changed_files.value = git_numstat_summary_to_changes_array(await git(get_files_command))
 
 			body.value = await git(`show -s --format="%b" ${props.commit.hash}`)
 

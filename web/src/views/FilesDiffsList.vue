@@ -14,6 +14,12 @@
 		</aside>
 		<template-file-change-define v-slot="{ file }">
 			<button :title="file.insertions+' insertions, '+file.deletions+' deletions'" class="change center gap-10">
+				<div v-if="file.is_creation" class="align-center grey" title="This file was added">
+					<i class="codicon codicon-add" />
+				</div>
+				<div v-if="file.is_deletion" class="align-center grey" title="This file was deleted">
+					<i class="codicon codicon-trash" />
+				</div>
 				<progress :value="(file.insertions / (file.insertions + file.deletions)) || 0" class="diff" />
 				<div class="count">
 					{{ (file.insertions + file.deletions) || 0 }}
