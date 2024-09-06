@@ -135,13 +135,13 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 					type: 'response',
 					id: message.id,
 				}
+				let caller_stack = new Error().stack
 				try {
 					resp.data = await func()
 				} catch (error) {
-					let e = error
-					console.warn(e)
+					console.warn(error, caller_stack)
 					// We can't really just be passing e along here because it might be serialized as empty {}
-					resp.error = e.message || e
+					resp.error = error.message || error
 				}
 				return post_message(resp)
 			}
