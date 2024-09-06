@@ -112,10 +112,10 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 				last_git_execution = Date.now()
 				return stdout
 			} catch (error) {
-				let e = error
 				// stderr contains the full message, message itself is too short otherwise
-				e.message = e.stderr || e.stdout
-				throw e
+				error.message = error.stderr || error.stdout
+				error.message += `\n\nRepo index: ${repo_index}\nargs: ${args}`
+				throw error
 			}
 		},
 		set_selected_repo_index(/** @type {number} */ index) {
