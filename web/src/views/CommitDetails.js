@@ -2,9 +2,9 @@ import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { commit_actions, stash_actions, branch_actions, tag_actions, config, show_branch } from './store.js'
 
-export const git_numstat_summary_to_changes_array = (out) =>
+export const git_numstat_summary_to_changes_array = (/** @type {string} */ out) =>
 	Object.values(out.split('\n').filter(Boolean)
-		.reduce((all, line) => {
+		.reduce((/** @type {Record<string, { path: string, insertions: number, deletions: number, is_deletion?: boolean, is_creation?: boolean }>} */ all, line) => {
 			if (line.startsWith(' ')) {
 				let split = line.split(' ')
 				let path = split.slice(4).join(' ')
@@ -26,7 +26,7 @@ export const git_numstat_summary_to_changes_array = (out) =>
 export default defineComponent({
 	props: {
 		commit: {
-			/** @type {() => Commit} */
+			/** @type {Vue.PropType<Commit>} */
 			type: Object,
 			required: true,
 		},
@@ -39,18 +39,18 @@ export default defineComponent({
 		let branch_tips = computed(() =>
 			props.commit.refs.filter(is_branch))
 
-		let tags = computed(() => props.commit.refs.filter((ref) =>
-			ref.type === 'tag'))
-		/** @type {Ref<string[]>} */
+		let tags = computed(() => props.commit.refs.filter((ref_) =>
+			ref_.type === 'tag'))
+		/** @type {Vue.Ref<string[]>} */
 		let tag_details = ref([])
 
-		let stash = computed(() => props.commit.refs.find((ref) =>
-			ref.type === 'stash'))
+		let stash = computed(() => props.commit.refs.find((ref_) =>
+			ref_.type === 'stash'))
 
-		/** @type {Ref<import('./FilesDiffsList').FileDiff[]>} */
+		/** @type {Vue.Ref<import('./FilesDiffsList').FileDiff[]>} */
 		let changed_files = ref([])
 		let body = ref('')
-		/** @type {Ref<string[]>} */
+		/** @type {Vue.Ref<string[]>} */
 		let parent_hashes = ref([])
 		watchEffect(async () => {
 			// so we can see untracked as well

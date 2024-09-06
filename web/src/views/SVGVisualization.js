@@ -5,14 +5,13 @@ export default defineComponent({
 	props: {
 		commit: {
 			required: true,
-			/** @type {() => Commit} */
+			/** @type {Vue.PropType<Commit>} */
 			type: Object,
 		},
 		height: { required: true, type: Number },
-		style: { type: Object },
+		style: { type: Object, default: () => {} },
 	},
 	setup(props) {
-		let refs_elems
 		let padding_left = 5
 		let lines = computed(() =>
 			props.commit.vis_lines.map((vis_line) => ({
@@ -52,7 +51,7 @@ export default defineComponent({
 				r: 4,
 			}
 		})
-		refs_elems = computed(() => ({
+		let refs_elems = computed(() => ({
 			refs: props.commit.refs,
 			style: {
 				left: (circle.value?.cx || padding_left) + vis_v_width.value - 2 + 'px',

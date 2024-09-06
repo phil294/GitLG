@@ -26,7 +26,7 @@
 					Save
 				</button>
 			</div>
-			<div v-for="(param, i) in params" class="param">
+			<div v-for="(param, i) in params" :key="i" class="param">
 				<label class="row align-center gap-5">
 					Param ${{ i+1 }}
 					<input ref="params_input_refs" v-model="params[i]" class="flex-1" onfocus="select()">
@@ -50,7 +50,7 @@
 				Common options
 			</div>
 			<ul>
-				<li v-for="option of options" :class="{changed: option.active !== option.default_active}" class="option row gap-10">
+				<li v-for="option of options" :key="option.value" :class="{changed: option.active !== option.default_active}" class="option row gap-10">
 					<label class="row align-center flex-1">
 						<input v-model="option.active" :disabled="text_changed" type="checkbox">
 						{{ option.value }}

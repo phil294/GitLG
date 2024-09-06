@@ -1,7 +1,7 @@
 <template>
 	<div class="vis svg">
 		<svg :height="height" :style="style">
-			<path v-for="line of lines" class="vis-line" v-bind="line" />
+			<path v-for="line, i of lines" :key="i" class="vis-line" v-bind="line" />
 			<circle v-if="circle" class="vis-line" v-bind="circle" />
 		</svg>
 		<div :style="refs_elems.style" class="refs row align-center">

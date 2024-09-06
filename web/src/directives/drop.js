@@ -1,18 +1,16 @@
-import Vue from 'vue'
-
 // For testing:
 // https://jsfiddle.net/5Lmpxb1r/
 
 /** @typedef {{ data?: any, files?: FileList, event: DragEvent }} DropCallbackPayload */
 
 /**
-@typedef {{
-	ondragover: (this: HTMLElement, ev: DragEvent) => any
-	ondragenter: (this: HTMLElement, ev: DragEvent) => any
-	ondragleave: (this: HTMLElement, ev: DragEvent) => any
-	ondrop: (this: HTMLElement, ev: DragEvent) => any
-	ondrop_cb: (payload: DropCallbackPayload) => void
-}} DragData
+ * @typedef {{
+ * 	ondragover: (this: HTMLElement, ev: DragEvent) => any
+ * 	ondragenter: (this: HTMLElement, ev: DragEvent) => any
+ * 	ondragleave: (this: HTMLElement, ev: DragEvent) => any
+ * 	ondrop: (this: HTMLElement, ev: DragEvent) => any
+ * 	ondrop_cb: (payload: DropCallbackPayload) => void
+ * }} DragData
  */
 
 /** @type {Map<HTMLElement,DragData>} */
@@ -53,8 +51,8 @@ function set_drop(/** @type {HTMLElement} */ el, /** @type {(payload: DropCallba
 			e.preventDefault() // prevents page redirect
 			counter = 0
 			el.classList.remove('dragenter')
-			// @ts-ignore
 
+			// @ts-ignore
 			if (e._vue_drag_processed)
 				return
 			// Prevent duplicate drop handling with nested children:

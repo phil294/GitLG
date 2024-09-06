@@ -1,4 +1,4 @@
-import { ref, Ref, computed, defineComponent, watchEffect } from 'vue'
+import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { commits_actions } from './store.js'
 import { git_numstat_summary_to_changes_array } from './CommitDetails.js'
@@ -6,13 +6,13 @@ import { git_numstat_summary_to_changes_array } from './CommitDetails.js'
 export default defineComponent({
 	props: {
 		commits: {
-			/** @type {() => Commit[]} */
-			type: Object,
+			/** @type {Vue.PropType<Commit[]>} */
+			type: Array,
 			required: true,
 		},
 	},
 	setup(props) {
-		/** @type {Ref<{path:string,insertions:number,deletions:number}[]>} */
+		/** @type {Vue.Ref<{path:string,insertions:number,deletions:number}[]>} */
 		let comparison_files = ref([])
 		watchEffect(async () => {
 			if (props.commits.length !== 2)

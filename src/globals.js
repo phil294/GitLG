@@ -19,7 +19,7 @@ Function.prototype.maybe = function(/** @type {Array<any>} */ args = []) {
 }
 
 Promise.prototype.maybe = function() {
-	return this.catch(() => {})
+	return this.catch(() => undefined)
 }
 
 /**

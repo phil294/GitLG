@@ -1,8 +1,9 @@
-import Vue from 'vue'
-
-/** @type {Vue.DirectiveHook<HTMLElement>} */
+/** @param el {HTMLElement} @param arg {{value: any}} */
 function updated(el, { value }) {
-	el.setAttribute('draggable', !! value)
+	if (value)
+		el.setAttribute('draggable', 'draggable')
+	else
+		el.removeAttribute('draggable')
 	if (value)
 		el.dataset.drag_value = JSON.stringify(value)
 }
@@ -11,7 +12,7 @@ function updated(el, { value }) {
 let directive = {
 	mounted(el, binding) {
 		el.addEventListener('dragstart', (e) => {
-			if (e.dataTransfer) {
+			if (e.dataTransfer && el.dataset.drag_value) {
 				e.dataTransfer.setData('application/json', el.dataset.drag_value)
 				e.dataTransfer.dropEffect = 'move'
 			}

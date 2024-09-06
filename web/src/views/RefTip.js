@@ -1,17 +1,17 @@
-import { is_branch } from './types'
 import { defineComponent, computed } from 'vue'
 import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from './store.js'
 
 export default defineComponent({
 	props: {
 		git_ref: {
-			required: true,
-			/** @type {() => GitRef} */
+			/** @type {Vue.PropType<GitRef>} */
 			type: Object,
+			required: true,
 		},
 		commit: {
-			/** @type {() => Commit} */
+			/** @type {Vue.PropType<Commit>} */
 			type: Object,
+			default: null,
 		},
 	},
 	setup(props) {
@@ -21,7 +21,7 @@ export default defineComponent({
 			else
 				return null
 		})
-		function to_context_menu_entries(/** @type GitAction[] */ actions) {
+		function to_context_menu_entries(/** @type {GitAction[]} */ actions) {
 			return actions.map((action) => ({
 				label: action.title,
 				icon: action.icon,
@@ -66,7 +66,8 @@ export default defineComponent({
 							label: 'Show',
 							icon: 'eye',
 							action() {
-								show_branch(branch.value)
+								if (branch.value)
+									show_branch(branch.value)
 							},
 						})
 				else if (props.git_ref.type === 'stash' && props.commit)

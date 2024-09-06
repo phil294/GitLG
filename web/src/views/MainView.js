@@ -1,9 +1,10 @@
-import { ref, computed, watch, nextTick, onMounted } from 'vue'
+import { ref, computed, watch, nextTick, onMounted, useTemplateRef, defineComponent } from 'vue'
 import * as store from './store.js'
 import { show_error_message, add_push_listener } from '../bridge.js'
-import GitInputModel from './GitInput.js'
+import History from './History.vue'
 
-export default {
+export default defineComponent({
+	components: { History },
 	setup() {
 		let details_panel_position = computed(() =>
 			store.config.value['details-panel-position'])
@@ -38,8 +39,8 @@ export default {
 				let total_index = filtered_commits.value.indexOf(commit)
 				let last_total_index = filtered_commits.value.indexOf(selected_commits.value[selected_commits.value.length - 1])
 				if (total_index > last_total_index && total_index - last_total_index < 1000)
-					selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index + 1).filter((commit) =>
-						! selected_commits.value.includes(commit)))
+					selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index + 1).filter((c) =>
+						! selected_commits.value.includes(c)))
 			} else
 				if (selected_index > -1)
 					selected_commits.value = []
@@ -50,7 +51,7 @@ export default {
 		}
 
 		let txt_filter = ref('')
-		/** @type {Ref<'filter' | 'jump'>} */
+		/** @type {Vue.Ref<'filter' | 'jump'>} */
 		let txt_filter_type = ref('filter')
 		let txt_filter_regex = store.stateful_computed('filter-options-regex', false)
 		async function clear_filter() {
@@ -60,8 +61,7 @@ export default {
 				scroll_to_commit(selected_commit.value)
 			}
 		}
-		/** @type {Ref<HTMLElement | null>} */
-		let txt_filter_ref = ref(null)
+		let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref')) // eslint-disable-line no-extra-parens
 		function txt_filter_filter(/** @type {Commit} */ commit) {
 			let search_for = txt_filter.value.toLowerCase()
 			for (let str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)].map((s) => s.toLowerCase()))
@@ -90,14 +90,15 @@ export default {
 		function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 			if (txt_filter_type.value === 'filter')
 				return
+			let next_match_index = 0
 			if (event.shiftKey) {
 				let next = [...filtered_commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_filter)
-				if (next > -1) {
-					let next_match_index = txt_filter_last_i - 1 - next
-				} else
+				if (next > -1)
+					next_match_index = txt_filter_last_i - 1 - next
+				else
 					next_match_index = filtered_commits.value.length - 1
 			} else {
-				next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_filter)
+				let next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_filter)
 				if (next > -1)
 					next_match_index = txt_filter_last_i + 1 + next
 				else
@@ -120,14 +121,13 @@ export default {
 				if (branch.inferred)
 					return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
 				else
-
-					return commit.refs.some((ref) => ref === branch)
+					return commit.refs.some((ref_) => ref_ === branch)
 			})
 			if (first_branch_commit_i === -1)
 				return show_error_message(`No commit found for branch ${branch.id}. Not enough commits loaded?`)
 			if (branch.inferred)
-			// We want to go the the actual merge commit, not the first any-commit where
-			// this line appeared (could be entirely unrelated)
+				// We want to go the the actual merge commit, not the first any-commit where
+				// this line appeared (could be entirely unrelated)
 				first_branch_commit_i--
 			scroll_to_item_centered(first_branch_commit_i)
 			let commit = filtered_commits.value[first_branch_commit_i]
@@ -162,11 +162,13 @@ export default {
 		function scroll_to_top() {
 			commits_scroller_ref.value?.scrollToItem(0)
 		}
-		add_push_listener('scroll-to-selected-commit', () =>
-			scroll_to_commit(selected_commit.value))
+		add_push_listener('scroll-to-selected-commit', () => {
+			if (! selected_commit.value)
+				return
+			scroll_to_commit(selected_commit.value)
+		})
 
-		/** @type {Ref<GitInputModel | null>} */
-		let git_input_ref = ref(null)
+		let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line no-extra-parens
 		store.main_view_git_input_ref.value = git_input_ref
 		let log_action = {
 			// rearding the -greps: Under normal circumstances, when showing stashes in
@@ -210,9 +212,8 @@ export default {
 			}
 		}
 
-		/** @type {Ref<any | null>} */
-		let commits_scroller_ref = ref(null)
-		/** @type {Ref<Commit[]>} */
+		let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref')) // eslint-disable-line no-extra-parens
+		/** @type {Vue.Ref<Commit[]>} */
 		let visible_commits = ref([])
 		let scroll_item_offset = 0
 		function commits_scroller_updated(/** @type {number} */ start_index, /** @type {number} */ end_index) {
@@ -256,9 +257,8 @@ export default {
 		let visible_branch_tips = computed(() => [
 			...new Set(visible_commits.value.flatMap((commit) =>
 				commit.refs)),
-		].filter((ref) =>
-			// @ts-ignore
-			ref.type === 'branch' && ! ref.inferred))
+		].filter((ref_) =>
+			is_branch(ref_) && ! ref_.inferred))
 		let invisible_branch_tips_of_visible_branches = computed(() =>
 			// alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
 			visible_branches.value.filter((branch) =>
@@ -271,13 +271,15 @@ export default {
 				return null
 			return {
 				refs: [],
-				vis_lines: commit.vis_lines.filter((line) => line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch)).map((line) => ({
-					...line,
-					xn: line.x0,
-					x0: line.x0 + ((line.xcs || 0) - line.x0) * -1,
-					xcs: line.x0 + ((line.xcs || 0) - line.x0) * -1,
-					xce: line.x0 + ((line.xcs || 0) - line.x0) * -3,
-				})),
+				vis_lines: commit.vis_lines
+					.filter((line) => line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch))
+					.map((line) => ({
+						...line,
+						xn: line.x0,
+						x0: line.x0 + ((line.xcs || 0) - line.x0) * -1,
+						xcs: line.x0 + ((line.xcs || 0) - line.x0) * -1,
+						xce: line.x0 + ((line.xcs || 0) - line.x0) * -3,
+					})),
 			}
 		})
 		// To show branch tips on top of connection_fake_commit lines
@@ -319,9 +321,9 @@ export default {
 		// of context-menu update or I misunderstood something about vue-virtual-scroller, but this
 		// works around it reliably (albeit uglily)
 		let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ event) => {
-			let el = event.target
-			if (! (el instanceof HTMLElement) && ! (el instanceof SVGElement))
+			if (! (event.target instanceof HTMLElement) && ! (event.target instanceof SVGElement))
 				return
+			let el = event.target
 			while (el.parentElement && ! el.parentElement.classList.contains('commit'))
 				el = el.parentElement
 			if (! el.parentElement)
@@ -381,4 +383,4 @@ export default {
 			txt_filter_regex,
 		}
 	},
-}
+})

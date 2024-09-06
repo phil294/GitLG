@@ -1,10 +1,8 @@
-/** @typedef {import('@extension/extension').BridgeMessage} BridgeMessage */
-
 let vscode = acquireVsCodeApi()
 
 /** @type {Record<string, (r: BridgeMessage) => void>} */
 let response_handlers = {}
-let id = 0
+let message_id_counter = 0
 
 /** @type {Record<string, (r: BridgeMessage) => void>} */
 let push_handlers = {}
@@ -28,14 +26,15 @@ window.addEventListener('message', (msg_event) => {
 })
 
 export let exchange_message = async (/** @type {string} */ command, /** @type {any} */ data) => {
-	id++
+	message_id_counter++
 	/** @type {BridgeMessage} */
-	let request = { command, data, id, type: 'request' }
+	let request = { command, data, id: message_id_counter, type: 'request' }
+	// TODO: vscode.get/setState() instead of custom logic for exhacning state
 	vscode.postMessage(request)
 	/** @type {BridgeMessage} */
 	let resp = await new Promise((ok) => {
-		response_handlers[id] = function(data) { // TODO = ok
-			return ok(data)
+		response_handlers[message_id_counter] = function(data_) { // TODO = ok
+			return ok(data_)
 		}
 	})
 	console.info('exchange_message', command, data) // , resp
@@ -52,12 +51,8 @@ export let exchange_message = async (/** @type {string} */ command, /** @type {a
 	return resp.data
 }
 
-/**
- * @param args
- * @returns {Promise<string>}
- */
 export let git = (/** @type {string} */ args) =>
-	exchange_message('git', args).then(s => s.trim())
+	exchange_message('git', args).then((/** @type {string} */ s) => s.trim())
 export let show_information_message = (/** @type {string} */ msg) =>
 	exchange_message('show-information-message', msg)
 export let show_error_message = (/** @type {string} */ msg) =>

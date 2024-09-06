@@ -69,13 +69,13 @@ details > summary::before {
 	padding-right: 6px;
 	vertical-align: middle;
 	display: inline-block;
-	content: 'ab6';
+	content: '\eab6';
 }
 details[open] > summary {
 	height: unset;
 }
 details[open] > summary::before {
-	content: 'ab4';
+	content: '\eab4';
 }
 input:not([type='checkbox']):not([type='radio']),
 textarea {

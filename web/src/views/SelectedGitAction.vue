@@ -1,12 +1,12 @@
 <template>
 	<div class="selected-git-action">
 		<h2>
-			<template v-if="selected_git_action.title">
+			<template v-if="selected_git_action?.title">
 				{{ selected_git_action.title }} -&nbsp;
 			</template>
-			{{ selected_git_action.description }}
+			{{ selected_git_action?.description }}
 		</h2>
-		<details v-if="selected_git_action.info" class="padding">
+		<details v-if="selected_git_action?.info" class="padding">
 			<summary>
 				{{ selected_git_action.info }}
 			</summary>

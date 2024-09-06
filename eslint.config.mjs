@@ -21,6 +21,13 @@ export default [
 	{
 		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
 		plugins: { jsdoc },
+		languageOptions: {
+			globals: {
+				is_truthy: 'readonly',
+				is_branch: 'readonly',
+				acquireVsCodeApi: 'readonly',
+			},
+		},
 		rules: {
 			'prefer-const': 'off',
 			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly
@@ -70,6 +77,14 @@ export default [
 			'jsdoc/no-undefined-types': 'off', // can't detect global types, and type errors are reported by strict jsconfig anyway
 			'jsdoc/require-returns-description': 'off',
 			'jsdoc/require-param-type': 'off',
+			'vue/multi-word-component-names': 'off',
+			'no-shadow': 'error',
+			'vue/return-in-computed-property': 'off',
+			'no-mixed-operators': 'off',
+			'vue/prop-name-casing': ['error', 'snake_case'],
+			'jsdoc/check-param-names': 'off',
+			'jsdoc/require-returns-type': 'off',
+			'no-undef-init': 'off',
 		},
 	},
 ]

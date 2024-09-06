@@ -4,7 +4,6 @@ import { stateful_computed, refresh_main_view } from './store.js'
 import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from './file-extension-icon-path-mapping.json'
 
-/** @template T @typedef {import('vue').WritableComputedRef<T>} WritableComputedRef */
 /**
  * @typedef {{
  *	path: string
@@ -28,7 +27,7 @@ import file_extension_icon_path_mapping from './file-extension-icon-path-mapping
 // in this case by just copying the path from the last <script/> tag:
 let base_url = (document.body.lastElementChild?.attributes.getNamedItem('src')?.value.match(/^(.+)\/js\/.+/)?.[1] || '') + '/'
 
-/** @type {WritableComputedRef<'list'|'tree'>} */
+/** @type {Vue.WritableComputedRef<'list'|'tree'>} */
 let render_style = stateful_computed('files-diffs-list-render-style', 'list')
 
 let [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate()
@@ -39,7 +38,7 @@ export default defineComponent({
 	components: { TemplateFileChangeDefine, TemplateFileChangeReuse, TemplateFileActionsDefine, TemplateFileActionsReuse, TemplateTreeNodeDefine, TemplateTreeNodeReuse },
 	props: {
 		files: {
-			/** @type {() => FileDiff[]} */
+			/** @type {Vue.PropType<FileDiff[]>} */
 			type: Array,
 			required: true,
 		},
@@ -52,7 +51,7 @@ export default defineComponent({
 				let path_arr = file.path.split('/')
 				// Icons have to be hardcoded because actual theme integration is more or less impossible:
 				// https://github.com/microsoft/vscode/issues/183893
-				let icon = file_extension_icon_path_mapping[file.path.split('.').at(-1)] || 'default_file.svg'
+				let icon = file_extension_icon_path_mapping[/** @type {keyof file_extension_icon_path_mapping} */(file.path.split('.').at(-1) || '')] || 'default_file.svg' // eslint-disable-line no-extra-parens
 				return {
 					...file,
 					filename: path_arr.at(-1) || '?',

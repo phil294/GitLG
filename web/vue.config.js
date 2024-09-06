@@ -28,6 +28,7 @@ const options = {
 		config
 			.entry('app')
 			.clear()
+			// TODO: this isn't picked up by vue language tools plugin apparently, or at least the global component definitions aren't understood, so component usages in templates are not typed. revisit after vue/vite update
 			.add('./src/vue-app.js')
 
 		config.devtool(false)

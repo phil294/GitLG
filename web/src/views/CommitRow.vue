@@ -1,6 +1,6 @@
 <template>
 	<div :class="{merge:commit.merge}" class="commit row">
-		<SVGVisualization :commit="commit" :height="height" :style="vis_style" class="vis" />
+		<SVGVisualization :commit="commit" :height="calculated_height" :style="vis_style" class="vis" />
 		<div v-if="commit.hash" class="info flex-1 row gap-20">
 			<div class="subject-wrapper flex-1 row align-center">
 				<div :style="commit.branch? {color:commit.branch.color} : undefined" class="vis-ascii-circle vis-resize-handle" @mousedown="vis_resize_handle_mousedown">
@@ -42,10 +42,10 @@ export default {
 	props: {
 		commit: {
 			required: true,
-			/** @type {() => Commit} */
+			/** @type {Vue.PropType<Commit>} */
 			type: Object,
 		},
-		height: { type: Number },
+		height: { type: Number, default: null },
 	},
 	setup(props) {
 		let vis_min_width = 15
@@ -70,13 +70,13 @@ export default {
 				document.removeEventListener('mousemove', on_mousemove)
 			}, { capture: true, once: true })
 		}
-		let height = computed(() =>
+		let calculated_height = computed(() =>
 			props.height || config.value['row-height'])
 
 		return {
 			vis_style,
 			vis_resize_handle_mousedown,
-			height,
+			calculated_height,
 		}
 	},
 }

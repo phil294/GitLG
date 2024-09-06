@@ -14,15 +14,15 @@
 							Stash:
 						</h3>
 						<div class="row gap-5 wrap">
-							<git-action-button v-for="action of stash_actions" :git_action="action" />
+							<git-action-button v-for="action, i of stash_actions" :key="i" :git_action="action" />
 						</div>
 					</div>
 					<div v-if="branch_tips.length" class="branch-tips">
 						<ul>
-							<li v-for="branch_tip of branch_tips">
+							<li v-for="branch_tip of branch_tips" :key="branch_tip.id">
 								<ref-tip :commit="commit" :git_ref="branch_tip" />
 								<div class="row gap-5 wrap">
-									<git-action-button v-for="action of branch_actions(branch_tip)" :git_action="action" />
+									<git-action-button v-for="action, i of branch_actions(branch_tip)" :key="i" :git_action="action" />
 									<button class="show-branch btn gap-5" title="Show the log for this branch only. Revert with a simple click on the main refresh button." @click="show_branch(branch_tip)">
 										<i class="codicon codicon-eye" />Show
 									</button>
@@ -31,12 +31,12 @@
 						</ul>
 					</div>
 					<div v-if="tags.length" class="tags">
-						<ul v-for="tag, tag_i of tags">
+						<ul v-for="tag, tag_i of tags" :key="tag.id">
 							<li>
 								<ref-tip :commit="commit" :git_ref="tag" />
 								<pre>{{ tag_details[tag_i] }}</pre>
 								<div class="row gap-5 wrap">
-									<git-action-button v-for="action of tag_actions(tag.name)" :git_action="action" />
+									<git-action-button v-for="action, i of tag_actions(tag.name)" :key="i" :git_action="action" />
 								</div>
 							</li>
 						</ul>
@@ -48,7 +48,7 @@
 							</button>:
 						</h3>
 						<div class="row gap-5 wrap">
-							<git-action-button v-for="action of commit_actions" :git_action="action" />
+							<git-action-button v-for="action, i of commit_actions" :key="i" :git_action="action" />
 						</div>
 					</div>
 				</template>
@@ -57,7 +57,7 @@
 					Parent commits
 				</h3>
 				<ul>
-					<li v-for="parent_hash of parent_hashes">
+					<li v-for="parent_hash of parent_hashes" :key="parent_hash">
 						{{ parent_hash }}
 						<button title="Jump to commit" @click="$emit('hash_clicked',parent_hash)">
 							<i class="codicon codicon-link" />

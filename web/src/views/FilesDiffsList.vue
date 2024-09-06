@@ -8,7 +8,7 @@
 			<button v-if="render_style==='tree'" title="View as list" @click="render_style='list'">
 				<i class="codicon codicon-list-tree" />
 			</button>
-			<button v-else="" title="View as tree" @click="render_style='tree'">
+			<button v-else title="View as tree" @click="render_style='tree'">
 				<i class="codicon codicon-list-flat" />
 			</button>
 		</aside>
@@ -40,7 +40,7 @@
 			</div>
 		</template-file-actions-define>
 		<ul v-if="files_list" class="list">
-			<li v-for="file of files_list" class="list-row flex-1 row align-center gap-10" role="button" @click="$emit('show_diff',file.path)">
+			<li v-for="file of files_list" :key="file.path" class="list-row flex-1 row align-center gap-10" role="button" @click="$emit('show_diff',file.path)">
 				<div class="flex-1 fill-h row align-center gap-10">
 					<img :src="file.icon_path" aria-hidden="true">
 					<div :title="file.filename" class="filename">
@@ -55,13 +55,13 @@
 			</li>
 		</ul>
 		<template-tree-node-define v-slot="{ node }">
-			<details class="tree-node" open="">
+			<details class="tree-node" open>
 				<summary :title="node.path">
 					{{ node.path }}
 				</summary>
 				<div class="body">
-					<template-tree-node-reuse v-for="child of node.children" :node="child" />
-					<template v-for="file of node.files">
+					<template-tree-node-reuse v-for="child of node.children" :key="child.path" :node="child" />
+					<template v-for="file of node.files" :key="file.path">
 						<button class="fill-w row align-center gap-10" @click="$emit('show_diff',file.path)">
 							<img :src="file.icon_path" aria-hidden="true">
 							<div :title="file.filename" class="filename flex-1">

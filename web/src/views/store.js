@@ -2,14 +2,14 @@ import { ref, computed, shallowRef } from 'vue'
 import default_git_actions from './default-git-actions.json'
 import { parse } from './log-utils.js'
 import { git, exchange_message, add_push_listener } from '../bridge.js'
-import GitInputModel, { parse_config_actions } from './GitInput.js'
+import { parse_config_actions } from './GitInput.js'
 
 // ########################
 // This file should be used for state that is of importance for more than just one component.
 // It encompasses state, actions and getters (computed values).
 // ########################
 
-/** @type {Record<string, WritableComputedRef<any>>} */
+/** @type {Record<string, Vue.WritableComputedRef<any>>} */
 let _stateful_computeds = {}
 add_push_listener('state-update', ({ data: { key, value } }) => {
 	if (_stateful_computeds[key])
@@ -22,7 +22,7 @@ add_push_listener('state-update', ({ data: { key, value } }) => {
  * to decide based on the *key*.
  */
 export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load = () => {}) => {
-	/** @type {WritableComputedRef<T>|undefined} */
+	/** @type {Vue.WritableComputedRef<T>|undefined} */
 	let ret = _stateful_computeds[key]
 	if (ret) {
 		on_load()
@@ -50,16 +50,16 @@ export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ defa
 	return ret
 }
 
-/** @type {Ref<Commit[]|null>} */
+/** @type {Vue.Ref<Commit[]|null>} */
 export let commits = ref(null)
 
-/** @type {Ref<Branch[]>} */
+/** @type {Vue.Ref<Branch[]>} */
 export let branches = ref([])
 // this is either a branch id(name) or HEAD in which case it will simply not be shown
 // which is also not necessary because HEAD is then also visible as a branch tip.
 export let head_branch = ref('')
 export let git_status = ref('')
-/** @type {Ref<string|null>} */
+/** @type {Vue.Ref<string|null>} */
 export let default_origin = ref('')
 
 export let git_run_log = async (/** @type {string} */ log_args) => {
@@ -85,19 +85,16 @@ export let git_run_log = async (/** @type {string} */ log_args) => {
 	let likely_default_branch = branches.value.find((b) => b.name === 'master' || b.name === 'main') || branches.value[0]
 	default_origin.value = likely_default_branch?.remote_name || likely_default_branch?.tracking_remote_name || null
 }
-/** @type {Ref<Ref<GitInputModel|null>|null>} */
+/** @type {Vue.Ref<Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
-/**
- * @param args {{before_execute?: ((cmd: string) => string) | undefined}}
- * @param args.before_execute
- */
+/** @param args {{before_execute?: ((cmd: string) => string) | undefined}} */
 export let refresh_main_view = ({ before_execute } = {}) => {
 	console.warn('refreshing main view')
 	return main_view_git_input_ref.value?.value?.execute({ before_execute })
 }
 
-export let update_commit_stats = async (/** @type {Commit[]} */ commits) => {
-	let data = await git('show --format="%h" --shortstat ' + commits.map((c) => c.hash).join(' '))
+export let update_commit_stats = async (/** @type {Commit[]} */ commits_) => {
+	let data = await git('show --format="%h" --shortstat ' + commits_.map((c) => c.hash).join(' '))
 	if (! data)
 		return
 	let hash = ''
@@ -117,19 +114,19 @@ export let update_commit_stats = async (/** @type {Commit[]} */ commits) => {
 			else if (words[1].startsWith('deletion'))
 				stat.deletions = Number(words[0])
 		}
-		commits[commits.findIndex((cp) => cp.hash === hash)].stats = stat
+		commits_[commits_.findIndex((cp) => cp.hash === hash)].stats = stat
 	}
 }
 
-/** @type {Ref<GitAction|null>} */
+/** @type {Vue.Ref<GitAction|null>} */
 export let selected_git_action = ref(null)
 
-/** @type {Ref<any>} */
+/** @type {Vue.Ref<any>} */
 export let config = ref({})
 export let refresh_config = async () =>
 	config.value = await exchange_message('get-config')
 
-/** @type {Ref<ConfigGitAction[]>} */
+/** @type {Vue.Ref<ConfigGitAction[]>} */
 export let global_actions = computed(() =>
 	default_git_actions['actions.global'].concat(config.value.actions?.global || []))
 export let commit_actions = (/** @type {string} */ hash) => computed(() => {
@@ -138,7 +135,7 @@ export let commit_actions = (/** @type {string} */ hash) => computed(() => {
 		['{COMMIT_HASH}', hash],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
-export let commits_actions = (/** @type string[] */ hashes) => computed(() => {
+export let commits_actions = (/** @type {string[]} */ hashes) => computed(() => {
 	let config_commits_actions = default_git_actions['actions.commits'].concat(config.value.actions?.commits || [])
 	return parse_config_actions(config_commits_actions, [
 		['{COMMIT_HASHES}', hashes.join(' ')],
@@ -174,6 +171,7 @@ export let combine_branches_actions = computed(() => {
 
 export let combine_branches_to_branch_name = ref('')
 export let combine_branches_from_branch_name = ref('')
+// TODO: should be called combine_refs because this is also possible with stashes and tags (?)
 export let combine_branches = (/** @type {string} */ from_branch_name, /** @type {string} */ to_branch_name) => {
 	if (from_branch_name === to_branch_name)
 		return

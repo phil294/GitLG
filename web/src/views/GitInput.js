@@ -1,6 +1,6 @@
 import { git } from '../bridge.js'
 import { stateful_computed, push_history } from './store.js'
-import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMounted } from 'vue'
+import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMounted, useTemplateRef } from 'vue'
 
 /**
  * @param actions {ConfigGitAction[]}
@@ -10,8 +10,7 @@ import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMoun
 export let parse_config_actions = (actions, replacements = []) => {
 	let namespace = replacements.map(([k]) => k).join('-') || 'global'
 	function do_replacements(/** @type {string} */ txt) {
-		let replacement
-		for (replacement of replacements)
+		for (let replacement of replacements)
 			txt = txt.replaceAll(replacement[0], replacement[1])
 		return txt
 	}
@@ -27,14 +26,13 @@ export let parse_config_actions = (actions, replacements = []) => {
 export default defineComponent({
 	props: {
 		git_action: {
-			/** @type {() => GitAction} */
+			/** @type {Vue.PropType<GitAction>} */
 			type: Object,
 			required: true,
 		},
 		action: {
-			// somehow impossible to get both validation and type support with coffee JSDoc
-			// (no casting possible), no matter how. Runtime validation is more important < TODO
 			type: Function,
+			default: null,
 		},
 		hide_result: { type: Boolean, default: false },
 	},
@@ -46,41 +44,40 @@ export default defineComponent({
 	 * `params` is never saved and user-edited only.
 	 */
 	setup(props, { emit }) {
-		let ref_form
 		/** @type {GitOption[]} */
 		let options = reactive((props.git_action.options || []).map((option) => ({
 			...option,
 			active: option.default_active,
 		})))
 		let params = reactive([...props.git_action.params || []])
-		function to_cli(/** @type {GitOption[]} */ options = []) {
-			return (props.git_action.args + ' ' + options.map(({ value, active }) =>
+		function to_cli(/** @type {GitOption[]} */ opts = []) {
+			return (props.git_action.args + ' ' + opts.map(({ value, active }) =>
 				active ? value : '',
 			).join(' ')).trim()
 		}
 		let constructed_command = computed(() =>
 			to_cli(options))
 		let command = ref('')
-		if (props.git_action.config_key) {
-			let config_key = 'git input config ' + props.git_action.config_key
-		}
+		let config_key = null
+		if (props.git_action.config_key)
+			config_key = 'git input config ' + props.git_action.config_key
+
 		/** @type {{ options: GitOption[], command: string } | null} */
 		let default_config = { options: [], command: '' }
-		/** @type {WritableComputedRef<typeof default_config>} */
+		/** @type {Vue.WritableComputedRef<typeof default_config>|null} */
 		let config = null
-		let config_load_promise = new Promise((loaded) => {
+		let config_load_promise = new /** @type {typeof Promise<void>} */(Promise)((loaded) => { // eslint-disable-line no-extra-parens
 			if (config_key)
 				config = stateful_computed(config_key, default_config, loaded)
 			else
-				loaded(null)
+				loaded()
 		})
 		let is_saved = computed(() => !! config?.value?.command)
 		let has_unsaved_changes = computed(() =>
 			config?.value?.command !== command.value)
 		watchEffect(async () => {
-			let option
 			if (is_saved.value) {
-				for (option of options) {
+				for (let option of options) {
 					let saved = config?.value.options.find((o) =>
 						o.value === option.value)
 					if (saved)
@@ -89,7 +86,7 @@ export default defineComponent({
 				// because modifying `options` this will have changed `command`
 				// via watchEffect, we need to wait before overwriting it
 				await nextTick()
-				command.value = config?.value.command
+				command.value = config?.value.command || ''
 			}
 		})
 		function save() {
@@ -107,12 +104,10 @@ export default defineComponent({
 		let text_changed = computed(() =>
 			command.value !== constructed_command.value)
 
-		/** @type {Ref<HTMLInputElement[]>} */
-		let params_input_refs = ref([])
-		/** @type {Ref<HTMLInputElement|null>} */
-		let command_input_ref = ref(null)
+		let params_input_refs = /** @type {Readonly<Vue.ShallowRef<Array<HTMLInputElement>>>} */ (useTemplateRef('params_input_refs')) // eslint-disable-line no-extra-parens
+		let command_input_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('command_input_ref')) // eslint-disable-line no-extra-parens
 		onMounted(() => {
-			if (params_input_refs.value.length)
+			if (params_input_refs.value?.length)
 				params_input_refs.value[0].focus()
 			else
 				command_input_ref.value?.focus()
@@ -127,12 +122,13 @@ export default defineComponent({
 			if (_params.some((p) => p.match(/"|(\\([^n]|$))/)))
 				error.value = 'Params cannot contain quotes or backslashes.'
 			let cmd = command.value
+			let pos = null
 			for (let i = 1; i <= _params.length; i++)
 				while ((pos = cmd.indexOf('$' + i)) > -1)
 					cmd = cmd.slice(0, pos) + _params[i - 1] + cmd.slice(pos + 2)
 			if (before_execute)
 				cmd = before_execute(cmd)
-			let result
+			let result = null
 			try {
 				result = await (props.action || git)(cmd)
 			} catch (action_error) {
@@ -161,15 +157,11 @@ export default defineComponent({
 			emit('success', result)
 		}
 
-		// typing doesn't work https://github.com/vuejs/composition-api/issues/402
-		/* @type {Ref<InstanceType<import('../components/PromiseForm.vue')>|null>} */
-		// so we need the ts-ignore below. TODO
-		ref_form = ref(null)
+		let ref_form = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('../components/PromiseForm.vue')>|null>>} */ (useTemplateRef('ref_form')) // eslint-disable-line no-extra-parens
 		onMounted(async () => {
 			await config_load_promise
 			await nextTick()
 			if (props.git_action.immediate)
-				// @ts-ignore
 				await ref_form.value?.request_submit()
 		})
 

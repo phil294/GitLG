@@ -7,7 +7,7 @@
 			{{ commits.map(c=>c.hash).join(' ') }}
 		</p>
 		<div class="row gap-5 wrap">
-			<git-action-button v-for="action of commits_actions" :git_action="action" />
+			<git-action-button v-for="action, i of commits_actions" :key="i" :git_action="action" />
 		</div>
 		<template v-if="commits.length===2">
 			<h3>

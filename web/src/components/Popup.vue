@@ -5,7 +5,7 @@
 				<div class="modal-background fill" @click="close" />
 				<div ref="main_ref" class="modal-main col">
 					<header>
-						<div v-moveable="{move_target}" class="titlebar center">
+						<div v-moveable="{move_target: main_ref}" class="titlebar center">
 							⠿⠿⠿⠿⠿
 						</div>
 						<button class="close" type="button" @click="close">
@@ -20,27 +20,19 @@
 		</Teleport>
 	</div>
 </template>
-<script>
-import { ref, onMounted } from 'vue'
-export default {
+<script setup>
+import { onMounted, useTemplateRef } from 'vue'
 
+defineOptions({
 	inheritAttrs: false,
-	emits: ['close'],
-	setup(props, { emit }) {
-		let move_target = ref(null)
-		let main_ref = ref(null)
-		onMounted(() => {
-			move_target.value = main_ref.value
-			main_ref.value.focus()
-		})
-		return {
-			move_target,
-			main_ref,
-			close() {
-				emit('close')
-			},
-		}
-	},
+})
+let emit = defineEmits(['close'])
+let main_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDivElement|null>>} */ (useTemplateRef('main_ref')) // eslint-disable-line no-extra-parens
+onMounted(() => {
+	main_ref.value?.focus()
+})
+function close() {
+	emit('close')
 }
 </script>
 <style scoped>

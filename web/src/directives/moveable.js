@@ -1,24 +1,21 @@
-import Vue from 'vue'
-
 /**
-@type {Vue.DirectiveHook<HTMLElement>}
-Make element movable. Does not have to be the directive el itself.
-Side effect: This makes the element become position absolute permanently.
+ * @type {Vue.DirectiveHook<HTMLElement, null, { move_target?: HTMLElement | 'parent' | null, onmovestart?: () => any, onmoveend?: (move_result: { offset: { x: number, y: number } }) => any, snap_back?: boolean }>}
+ * Make element movable. Does not have to be the directive el itself.
+ * Side effect: This makes the element become position absolute permanently.
  */
-function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back } = {} }) {
-	if (move_target === undefined)
-		move_target = target
-	else if (move_target === 'parent')
-		move_target = target.parentElement
-	else if (move_target === null)
+function apply(target, { value: { move_target: given_move_target = undefined, onmovestart = undefined, onmoveend = undefined, snap_back = false } = {} }) {
+	let move_target = target
+	if (given_move_target === null)
 		return
+	if (given_move_target === 'parent' && target.parentElement)
+		move_target = target.parentElement
 
 	target.draggable = true
-	function start_move(/** @type {MouseEvent | TouchEvent} */ event) {
-		event.preventDefault()
+	function start_move(/** @type {MouseEvent | TouchEvent} */ move_event) {
+		move_event.preventDefault()
 
-		let mouse_start_x = event.pageX || event.changedTouches[0].pageX
-		let mouse_start_y = event.pageY || event.changedTouches[0].pageY
+		let mouse_start_x = /** @type {MouseEvent} */(move_event).pageX || /** @type {TouchEvent} */(move_event).changedTouches[0].pageX // eslint-disable-line no-extra-parens
+		let mouse_start_y = /** @type {MouseEvent} */(move_event).pageY || /** @type {TouchEvent} */(move_event).changedTouches[0].pageY // eslint-disable-line no-extra-parens
 
 		let el_start_left = parseInt(move_target.style.left, 10) || 0
 		let el_start_top = parseInt(move_target.style.top, 10) || 0
@@ -35,11 +32,11 @@ function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back
 		if (onmovestart)
 			onmovestart()
 
-		function on_mousemove(/** @type {MouseEvent} | TouchEvent */ mouse_event) {
-			event.preventDefault()
+		function on_mousemove(/** @type {MouseEvent | TouchEvent} */ mouse_event) {
+			move_event.preventDefault()
 			window.requestAnimationFrame(() => {
-				offset_x = (mouse_event.pageX || mouse_event.changedTouches?.[0].pageX || 0) - mouse_start_x
-				offset_y = (mouse_event.pageY || mouse_event.changedTouches?.[0].pageY || 0) - mouse_start_y
+				offset_x = (/** @type {MouseEvent} */(mouse_event).pageX || /** @type {TouchEvent} */(mouse_event).changedTouches?.[0].pageX || 0) - mouse_start_x // eslint-disable-line no-extra-parens
+				offset_y = (/** @type {MouseEvent} */(mouse_event).pageY || /** @type {TouchEvent} */(mouse_event).changedTouches?.[0].pageY || 0) - mouse_start_y // eslint-disable-line no-extra-parens
 				move_target.style.left = el_start_left + offset_x + 'px'
 				move_target.style.top = el_start_top + offset_y + 'px'
 			})
@@ -48,8 +45,8 @@ function apply(target, { value: { move_target, onmovestart, onmoveend, snap_back
 		document.addEventListener('mousemove', on_mousemove)
 		document.addEventListener('touchmove', on_mousemove)
 
-		function on_mouseup(/** @type {MouseEvent} | TouchEvent */ event) {
-			event.preventDefault()
+		function on_mouseup(/** @type {MouseEvent | TouchEvent} */ mouseup_event) {
+			mouseup_event.preventDefault()
 			document.removeEventListener('mousemove', on_mousemove)
 			document.removeEventListener('touchmove', on_mousemove)
 			document.removeEventListener('mouseup', on_mouseup)

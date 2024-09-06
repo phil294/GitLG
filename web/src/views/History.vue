@@ -12,7 +12,7 @@
 					</button>
 				</div>
 				<ol class="entries">
-					<li v-for="(entry, entry_i) of history_mapped" class="flex">
+					<li v-for="(entry, entry_i) of history_mapped" :key="entry.datetime" class="flex">
 						<div :title="entry.datetime" class="entry flex-1">
 							<commit-row v-if="entry.type == 'commit_hash' && entry.ref" :commit="entry.ref" role="button" @click="$emit('commit_clicked', entry.ref)" />
 							<div v-else-if="entry.type == 'commit_hash'">
@@ -23,7 +23,7 @@
 								<i class="codicon codicon-search" />
 								Search: <code>{{ entry.value }}</code>
 							</button>
-							<div v-else="">
+							<div v-else>
 								Unknown history entry: {{ entry.value }}
 							</div>
 						</div>
@@ -35,35 +35,40 @@
 					</li>
 				</ol>
 			</div>
-			<p v-else="">
+			<p v-else>
 				Repository history empty!
 			</p>
 		</div>
 	</details>
 </template>
 <script>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { history, commits } from './store.js'
 
 export default {
 	emits: ['commit_clicked', 'apply_txt_filter'],
 	setup() {
 		let history_mapped = computed(() =>
-			(history.value || []).slice().reverse().map((entry) => ({
-				type: entry.type,
-				value: entry.value,
-				datetime: entry.datetime,
-				ref: (function() {
-				switch (entry.type) {
-				case 'commit_hash':
-					return commits.value?.find((commit) =>
-	commit.hash === entry.value);
-				case 'git':                return {
-					title: 'git ' + entry.value,
-					args: entry.value,
-					description: 'History entry',
-					icon: 'history'                };            }          }.call(this))
-			})))
+			(history.value || []).slice().reverse().map((entry) => {
+				let ref = null
+				if (entry.type === 'commit_hash')
+					ref = commits.value?.find((commit) =>
+						commit.hash === entry.value)
+				else if (entry.type === 'git')
+					ref = {
+						title: 'git ' + entry.value,
+						args: entry.value,
+						description: 'History entry',
+						icon: 'history',
+					}
+				return {
+					// TODO obj spread..?
+					type: entry.type,
+					value: entry.value,
+					datetime: entry.datetime,
+					ref,
+				}
+			}))
 		function clear_history() {
 			history.value = []
 		}
@@ -71,14 +76,12 @@ export default {
 			history.value.splice(history.value.length - entry_i - 1, 1)
 			history.value = history.value.slice()
 		}
-		let details_ref = ref(null)
+		let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line no-extra-parens
 		function on_mouse_up(/** @type {MouseEvent} */ event) {
 			let target = event.target
 			while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)
 				target = target.parentElement
 			if (target instanceof Element && target.getAttribute('id') !== 'history')
-			// @ts-ignore TODO: .
-
 				details_ref.value?.removeAttribute('open')
 		}
 		onMounted(() =>

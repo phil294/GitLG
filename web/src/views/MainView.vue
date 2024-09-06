@@ -35,7 +35,7 @@
 							</label>
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
-							<git-action-button v-for="action of global_actions" :git_action="action" class="global-action" />
+							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
 							<button id="refresh" class="btn center" title="Refresh" @click="refresh_main_view()">
 								<i class="codicon codicon-refresh" />
 							</button>
@@ -44,13 +44,15 @@
 				</nav>
 				<div id="quick-branch-tips">
 					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
-					<history @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_hash_user($event.hash)" />
+					<History @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_hash_user($event.hash)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
 						Status: {{ git_status }}
 					</div>
-					<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" v-if="config_show_quick_branch_tips" title="Jump to branch tip" v-bind="branch_elem.bind" @click="scroll_to_branch_tip(branch_elem.branch)">
-						<ref-tip :git_ref="branch_elem.branch" />
-					</button>
+					<template v-if="config_show_quick_branch_tips">
+						<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" :key="branch_elem.branch.id" title="Jump to branch tip" v-bind="branch_elem.bind" @click="scroll_to_branch_tip(branch_elem.branch)">
+							<ref-tip :git_ref="branch_elem.branch" />
+						</button>
+					</template>
 					<button id="jump-to-top" title="Scroll to top" @click="scroll_to_top()">
 						<i class="codicon codicon-arrow-circle-up" />
 					</button>
@@ -58,7 +60,7 @@
 				<div v-if="config_show_quick_branch_tips" id="branches-connection">
 					<commit-row v-if="connection_fake_commit" :commit="connection_fake_commit" :height="110" class="vis" />
 				</div>
-				<recycle-scroller id="log" :buffer="0" :emit-update="true" ref="commits_scroller_ref" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="i" role="list" v-context-menu="commit_context_menu_provider" tabindex="-1" v-slot="{ item: commit }" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
+				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="i" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
 					<commit-row :class="{selected_commit:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" role="button" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
 			</div>
@@ -85,7 +87,7 @@
 		</div>
 		<popup v-if="combine_branches_from_branch_name" @close="combine_branches_from_branch_name=''">
 			<div class="drag-drop-branch-actions col center gap-5">
-				<git-action-button v-for="action of combine_branches_actions" :git_action="action" class="drag-drop-branch-action" />
+				<git-action-button v-for="action, i of combine_branches_actions" :key="i" :git_action="action" class="drag-drop-branch-action" />
 			</div>
 		</popup>
 		<popup v-if="selected_git_action" @close="selected_git_action=null">

@@ -241,7 +241,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	// Needed for git diff views
 	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(`${EXT_ID}-git-show`, {
 		provideTextDocumentContent(uri) {
-			return git.run(`show "${uri.path}"`).maybe()
+			return git.run(`show "${uri.path}"`).catch(() => '')
 		},
 	}))
 
@@ -253,8 +253,8 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			state('selected-repo-index').set(await git.get_repo_index_for_uri(args.rootUri))
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor') {
 			if (webview_container)
-			// Repeated editor panel show
-			// @ts-ignore
+				// Repeated editor panel show
+				// @ts-ignore < TODO ignores in this file
 				return webview_container.reveal()
 			// First editor panel creation + show
 			log.appendLine('create new webview panel')
@@ -359,7 +359,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			current_line_repo_index = await git.get_repo_index_for_uri(uri)
 			if (current_line_repo_index < 0)
 				return hide_blame()
-			let blamed = git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_index).then((b) => b.split('\n')).maybe()
+			let blamed = await git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_index).then((b) => b.split('\n')).maybe()
 			if (! blamed)
 				return hide_blame()
 			// apparently impossible to get the short form right away in easy machine readable format?
