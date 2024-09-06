@@ -65,7 +65,7 @@ export let default_origin = ref('')
 export let git_run_log = async (/** @type {string} */ log_args) => {
 	let sep = '^%^%^%^%^'
 	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s"`)
-	let stash_refs = await git('reflog show --format="%h" stash').catch(() => '')
+	let stash_refs = await git('stash list --format="%h"')
 	log_args = log_args.replace('{STASH_REFS}', stash_refs.replaceAll('\n', ' '))
 	// errors will be handled by GitInput
 	let [log_data, branch_data, stash_data, status_data, head_data] = await Promise.all([
