@@ -27,7 +27,7 @@ export default {
 		 * 	array_values: { [form_key: string]: any[] },
 		 * 	[form_key: string]: any
 		 * }) => any}
-   		 */
+		 */
 		action: { type: Function, required: true },
 		onetime: { type: Boolean, default: false },
 		disabled: { type: Boolean, default: false },
@@ -67,9 +67,21 @@ export default {
 						event,
 					}),
 					// force delay when the network response is quick, because overly fast button responses are confusing
+					// FIXME: main log delayed by this
 					new Promise((ok) => setTimeout(ok, 150)),
 				])
 				this.$emit('success')
+			} catch (e) {
+				if (! (e instanceof Error))
+					// eslint-disable-next-line no-ex-assign
+					e = new Error(e)
+				e.domChain = []
+				let p = this.$el
+				while (p) {
+					e.domChain.push(`${p.tagName.toLowerCase()}.${p.className}#${p.id}`)
+					p = p.parentElement
+				}
+				throw e
 			} finally {
 				if (! this.onetime)
 					this.loading = false
