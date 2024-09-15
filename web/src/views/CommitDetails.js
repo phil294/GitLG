@@ -63,7 +63,7 @@ export default defineComponent({
 
 			tag_details.value = []
 			for (let tag of tags.value) {
-				let details = await git('show --format="" --quiet refs/tags/' + tag.name)
+				let details = await git('show --format="" --quiet --color=never refs/tags/' + tag.name)
 				tag_details.value.push(details)
 			}
 
