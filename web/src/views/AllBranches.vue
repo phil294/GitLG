@@ -21,7 +21,7 @@ import { branches } from '../state/store.js'
 
 defineEmits(['branch_selected'])
 
-let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line no-extra-parens
+let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line @stylistic/no-extra-parens
 let txt_filter = ref('')
 let filtered_branches = computed(() => {
 	if (! txt_filter.value)

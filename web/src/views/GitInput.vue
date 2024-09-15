@@ -136,7 +136,7 @@ if (props.git_action.config_key)
 let default_config = { options: [], command: '' }
 /** @type {Vue.WritableComputedRef<typeof default_config>|null} */
 let config = null
-let config_load_promise = new /** @type {typeof Promise<void>} */(Promise)((loaded) => { // eslint-disable-line no-extra-parens
+let config_load_promise = new /** @type {typeof Promise<void>} */(Promise)((loaded) => { // eslint-disable-line @stylistic/no-extra-parens
 	if (config_key)
 		config = stateful_computed(config_key, default_config, loaded)
 	else
@@ -174,8 +174,8 @@ watchEffect(reset_command)
 let text_changed = computed(() =>
 	command.value !== constructed_command.value)
 
-let params_input_refs = /** @type {Readonly<Vue.ShallowRef<Array<HTMLInputElement>>>} */ (useTemplateRef('params_input_refs')) // eslint-disable-line no-extra-parens
-let command_input_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('command_input_ref')) // eslint-disable-line no-extra-parens
+let params_input_refs = /** @type {Readonly<Vue.ShallowRef<Array<HTMLInputElement>>>} */ (useTemplateRef('params_input_refs')) // eslint-disable-line @stylistic/no-extra-parens
+let command_input_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('command_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
 onMounted(() => {
 	if (params_input_refs.value?.length)
 		params_input_refs.value[0].focus()
@@ -227,7 +227,7 @@ async function execute({ before_execute } = {}) {
 	emit('success', result)
 }
 
-let ref_form = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('../components/PromiseForm.vue')>|null>>} */ (useTemplateRef('ref_form')) // eslint-disable-line no-extra-parens
+let ref_form = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('../components/PromiseForm.vue')>|null>>} */ (useTemplateRef('ref_form')) // eslint-disable-line @stylistic/no-extra-parens
 onMounted(async () => {
 	await config_load_promise
 	await nextTick()

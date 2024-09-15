@@ -75,7 +75,7 @@ function remove_history_entry(/** @type {number} */ entry_i) {
 	history.value.splice(history.value.length - entry_i - 1, 1)
 	history.value = history.value.slice()
 }
-let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line no-extra-parens
+let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line @stylistic/no-extra-parens
 function on_mouse_up(/** @type {MouseEvent} */ event) {
 	let target = event.target
 	while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)

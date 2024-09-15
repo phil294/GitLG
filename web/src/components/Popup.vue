@@ -27,7 +27,7 @@ defineOptions({
 	inheritAttrs: false,
 })
 let emit = defineEmits(['close'])
-let main_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDivElement|null>>} */ (useTemplateRef('main_ref')) // eslint-disable-line no-extra-parens
+let main_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDivElement|null>>} */ (useTemplateRef('main_ref')) // eslint-disable-line @stylistic/no-extra-parens
 onMounted(() => {
 	main_ref.value?.focus()
 })

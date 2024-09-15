@@ -123,7 +123,7 @@ let files = computed(() =>
 		let path_arr = file.path.split('/')
 		// Icons have to be hardcoded because actual theme integration is more or less impossible:
 		// https://github.com/microsoft/vscode/issues/183893
-		let icon = file_extension_icon_path_mapping[/** @type {keyof file_extension_icon_path_mapping} */(file.path.split('.').at(-1) || '')] || 'default_file.svg' // eslint-disable-line no-extra-parens
+		let icon = file_extension_icon_path_mapping[/** @type {keyof file_extension_icon_path_mapping} */(file.path.split('.').at(-1) || '')] || 'default_file.svg' // eslint-disable-line @stylistic/no-extra-parens
 		return {
 			...file,
 			filename: path_arr.at(-1) || '?',

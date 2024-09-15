@@ -14,8 +14,8 @@ function apply(target, { value: { move_target: given_move_target = undefined, on
 	function start_move(/** @type {MouseEvent | TouchEvent} */ move_event) {
 		move_event.preventDefault()
 
-		let mouse_start_x = /** @type {MouseEvent} */(move_event).pageX || /** @type {TouchEvent} */(move_event).changedTouches[0].pageX // eslint-disable-line no-extra-parens
-		let mouse_start_y = /** @type {MouseEvent} */(move_event).pageY || /** @type {TouchEvent} */(move_event).changedTouches[0].pageY // eslint-disable-line no-extra-parens
+		let mouse_start_x = /** @type {MouseEvent} */(move_event).pageX || /** @type {TouchEvent} */(move_event).changedTouches[0].pageX // eslint-disable-line @stylistic/no-extra-parens
+		let mouse_start_y = /** @type {MouseEvent} */(move_event).pageY || /** @type {TouchEvent} */(move_event).changedTouches[0].pageY // eslint-disable-line @stylistic/no-extra-parens
 
 		let el_start_left = parseInt(move_target.style.left, 10) || 0
 		let el_start_top = parseInt(move_target.style.top, 10) || 0
@@ -35,8 +35,8 @@ function apply(target, { value: { move_target: given_move_target = undefined, on
 		function on_mousemove(/** @type {MouseEvent | TouchEvent} */ mouse_event) {
 			move_event.preventDefault()
 			window.requestAnimationFrame(() => {
-				offset_x = (/** @type {MouseEvent} */(mouse_event).pageX || /** @type {TouchEvent} */(mouse_event).changedTouches?.[0].pageX || 0) - mouse_start_x // eslint-disable-line no-extra-parens
-				offset_y = (/** @type {MouseEvent} */(mouse_event).pageY || /** @type {TouchEvent} */(mouse_event).changedTouches?.[0].pageY || 0) - mouse_start_y // eslint-disable-line no-extra-parens
+				offset_x = (/** @type {MouseEvent} */(mouse_event).pageX || /** @type {TouchEvent} */(mouse_event).changedTouches?.[0].pageX || 0) - mouse_start_x // eslint-disable-line @stylistic/no-extra-parens
+				offset_y = (/** @type {MouseEvent} */(mouse_event).pageY || /** @type {TouchEvent} */(mouse_event).changedTouches?.[0].pageY || 0) - mouse_start_y // eslint-disable-line @stylistic/no-extra-parens
 				move_target.style.left = el_start_left + offset_x + 'px'
 				move_target.style.top = el_start_top + offset_y + 'px'
 			})

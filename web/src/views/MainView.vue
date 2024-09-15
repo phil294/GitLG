@@ -155,7 +155,7 @@ async function clear_filter() {
 		scroll_to_commit(selected_commit.value)
 	}
 }
-let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref')) // eslint-disable-line no-extra-parens
+let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref')) // eslint-disable-line @stylistic/no-extra-parens
 function txt_filter_filter(/** @type {Commit} */ commit) {
 	let search_for = txt_filter.value.toLowerCase()
 	for (let str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)].map((s) => s.toLowerCase()))
@@ -163,7 +163,6 @@ function txt_filter_filter(/** @type {Commit} */ commit) {
 			if (str?.match.maybe(search_for))
 				return true
 		} else if (str?.includes(search_for))
-
 			return true
 }
 let initialized = computed(() =>
@@ -260,7 +259,7 @@ add_push_listener('scroll-to-selected-commit', () => {
 	scroll_to_commit(selected_commit.value)
 })
 
-let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line no-extra-parens
+let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
 store.main_view_git_input_ref.value = git_input_ref
 let log_action = {
 	// rearding the -greps: Under normal circumstances, when showing stashes in
@@ -304,7 +303,7 @@ async function run_log(/** @type {string} */ log_args) {
 	}
 }
 
-let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref')) // eslint-disable-line no-extra-parens
+let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref')) // eslint-disable-line @stylistic/no-extra-parens
 /** @type {Vue.Ref<Commit[]>} */
 let visible_commits = ref([])
 let scroll_item_offset = 0
