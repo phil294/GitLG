@@ -52,6 +52,15 @@
 						</div>
 					</div>
 				</template>
+				<template v-else>
+					<div v-if="tags.length" class="tags">
+						<ul v-for="tag, tag_i of tags" :key="tag.id">
+							<li>
+								<pre>{{ tag_details[tag_i] }}</pre>
+							</li>
+						</ul>
+					</div>
+				</template>
 				<files-diffs-list v-if="details_panel_position !== 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev" />
 				<h3>
 					Parent commits
