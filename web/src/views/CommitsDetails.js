@@ -1,6 +1,6 @@
 import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
-import { commits_actions } from './store.js'
+import { commits_actions } from '../state/store.js'
 import { git_numstat_summary_to_changes_array } from './CommitDetails.js'
 
 export default defineComponent({

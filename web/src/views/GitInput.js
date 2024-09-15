@@ -1,5 +1,5 @@
 import { git } from '../bridge.js'
-import { stateful_computed, push_history } from './store.js'
+import { stateful_computed, push_history } from '../state/store.js'
 import { ref, computed, defineComponent, reactive, watchEffect, nextTick, onMounted, useTemplateRef } from 'vue'
 
 /**

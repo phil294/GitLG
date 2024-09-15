@@ -43,7 +43,7 @@
 </template>
 <script>
 import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
-import { history, commits } from './store.js'
+import { history, commits } from '../state/store.js'
 
 export default {
 	emits: ['commit_clicked', 'apply_txt_filter'],

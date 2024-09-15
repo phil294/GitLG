@@ -4,7 +4,7 @@
 	</div>
 </template>
 <script>
-import * as store from './views/store.js'
+import * as store from './state/store.js'
 
 export default {
 	setup() {

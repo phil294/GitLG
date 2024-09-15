@@ -1,6 +1,6 @@
 import { computed, defineComponent } from 'vue'
 import { exchange_message } from '../bridge.js'
-import { stateful_computed, refresh_main_view } from './store.js'
+import { stateful_computed, refresh_main_view } from '../state/store.js'
 import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from './file-extension-icon-path-mapping.json'
 

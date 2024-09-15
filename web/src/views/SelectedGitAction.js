@@ -1,5 +1,5 @@
 import { ref, defineComponent } from 'vue'
-import { selected_git_action, refresh_main_view } from './store.js'
+import { selected_git_action, refresh_main_view } from '../state/store.js'
 
 export default defineComponent({
 	setup() {

@@ -1,6 +1,6 @@
 import { ref, computed, defineComponent, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
-import { commit_actions, stash_actions, branch_actions, tag_actions, config, show_branch } from './store.js'
+import { commit_actions, stash_actions, branch_actions, tag_actions, config, show_branch } from '../state/store.js'
 
 export const git_numstat_summary_to_changes_array = (/** @type {string} */ out) =>
 	Object.values(out.split('\n').filter(Boolean)

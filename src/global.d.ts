@@ -30,7 +30,7 @@ interface BridgeMessage {
 interface GitRef {
 	name: string
 	id: string
-	color?: typeof import('../web/src/views/colors.js')[number]
+	color?: typeof import('../web/src/utils/colors.js')[number]
 	type: "tag" | "stash" | "branch"
 }
 

@@ -1,5 +1,5 @@
 import { ref, computed, watch, nextTick, onMounted, useTemplateRef, defineComponent } from 'vue'
-import * as store from './store.js'
+import * as store from '../state/store.js'
 import { show_error_message, add_push_listener } from '../bridge.js'
 import History from './History.vue'
 

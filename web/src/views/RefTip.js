@@ -1,5 +1,5 @@
 import { defineComponent, computed } from 'vue'
-import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from './store.js'
+import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from '../state/store.js'
 
 export default defineComponent({
 	props: {

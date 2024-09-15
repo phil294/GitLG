@@ -1,5 +1,5 @@
 import { computed, defineComponent } from 'vue'
-import { head_branch, vis_v_width } from './store.js'
+import { head_branch, vis_v_width } from '../state/store.js'
 
 export default defineComponent({
 	props: {

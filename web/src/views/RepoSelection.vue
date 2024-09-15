@@ -9,7 +9,7 @@
 </template>
 <script setup>
 import { watch } from 'vue'
-import { stateful_computed, refresh_main_view } from './store.js'
+import { stateful_computed, refresh_main_view } from '../state/store.js'
 
 let repo_names = stateful_computed('repo-names')
 /** @type {Vue.WritableComputedRef<number>} */

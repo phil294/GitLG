@@ -36,7 +36,7 @@
 </template>
 <script>
 import { computed } from 'vue'
-import { config, vis_width } from './store.js'
+import { config, vis_width } from '../state/store.js'
 
 export default {
 	props: {

@@ -1,5 +1,5 @@
 import { ref, computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
-import { branches } from './store.js'
+import { branches } from '../state/store.js'
 
 export default {
 	emit: ['branch_selected'],
