@@ -1,7 +1,7 @@
 /** @param el {HTMLElement} @param arg {{value: any}} */
 function updated(el, { value }) {
 	if (value)
-		el.setAttribute('draggable', 'draggable')
+		el.setAttribute('draggable', 'true')
 	else
 		el.removeAttribute('draggable')
 	if (value)
