@@ -1,6 +1,7 @@
 {
 	"name": "git-log--graph",
-	"description": "git log --graph, an interactive Git Graph frontend",
+	"displayName": "GitLG",
+	"description": "git log --graph, a free, customizable Git UI",
 	"version": "0.1.15",
 	"icon": "img/logo.png",
 	"publisher": "phil294",
@@ -8,7 +9,7 @@
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/phil294/git-log--graph"
+		"url": "https://github.com/phil294/GitLG"
 	},
 	"engines": {
 		"vscode": "^1.47.0"
@@ -29,31 +30,31 @@
 			{
 				"command": "git-log--graph.start",
 				"title": "Open graph view",
-				"category": "git log --graph",
+				"category": "GitLG",
 				"icon": "$(git-branch)"
 			},
 			{
 				"command": "git-log--graph.close",
 				"title": "Close graph tab",
-				"category": "git log --graph",
+				"category": "GitLG",
 				"icon": "$(git-branch)"
 			},
 			{
 				"command": "git-log--graph.toggle",
 				"title": "Toggle graph tab",
-				"category": "git log --graph",
+				"category": "GitLG",
 				"icon": "$(git-branch)"
 			},
 			{
 				"command": "git-log--graph.blame-line",
 				"title": "Blame: Focus last commit at cursor position in graph view",
-				"category": "git log --graph",
+				"category": "GitLG",
 				"icon": "$(git-commit)"
 			},
 			{
 				"command": "git-log--graph.refresh",
 				"title": "Refresh the main view",
-				"category": "git log --graph",
+				"category": "GitLG",
 				"icon": "$(refresh)"
 			}
 		],
@@ -62,7 +63,7 @@
 				{
 					"type": "webview",
 					"id": "git-log--graph",
-					"name": "git-log--graph"
+					"name": "GitLG"
 				}
 			]
 		},
@@ -77,12 +78,12 @@
 			"editor/context": [
 				{
 					"command": "git-log--graph.blame-line",
-					"group": "1_git-log--graph"
+					"group": "1_GitLG"
 				}
 			]
 		},
 		"configuration": {
-			"title": "git log --graph",
+			"title": "GitLG",
 			"properties": {
 				"git-log--graph.position": {
 					"description": "Decide how/where the extension should appear. Changing this option REQUIRES RELOAD.",

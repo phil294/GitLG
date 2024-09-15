@@ -8,10 +8,10 @@ require('./globals')
 
 let { get_git } = require('./git')
 
-let EXT_NAME = 'git log --graph'
+let EXT_NAME = 'GitLG'
 let EXT_ID = 'git-log--graph'
-let START_CMD = 'git-log--graph.start'
-let BLAME_CMD = 'git-log--graph.blame-line'
+let START_CMD = EXT_ID + '.start'
+let BLAME_CMD = EXT_ID + '.blame-line'
 
 /** @type {vscode.WebviewPanel | vscode.WebviewView | null} */
 let webview_container = null
@@ -20,7 +20,7 @@ let webview_container = null
 let log = vscode.window.createOutputChannel(EXT_NAME)
 module.exports.log = log
 function log_error(/** @type {string} */ e) {
-	vscode.window.showErrorMessage('git-log--graph: ' + e)
+	vscode.window.showErrorMessage('GitLG: ' + e)
 	return log.appendLine(`ERROR: ${e}`)
 }
 
@@ -274,8 +274,8 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	// Close the editor(tab)
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.close', () => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
-			return vscode.window.showInformationMessage("This command can only be used if git-log--graph isn't configured as a main editor (tab)."); if (! webview_container)
-			return vscode.window.showInformationMessage('git-log--graph editor tab is not running.')
+			return vscode.window.showInformationMessage("This command can only be used if GitLG isn't configured as a main editor (tab)."); if (! webview_container)
+			return vscode.window.showInformationMessage('GitLG editor tab is not running.')
 		log.appendLine('close command')
 		// @ts-ignore
 		return webview_container.dispose()
@@ -284,7 +284,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	// Toggle the editor(tab)
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.toggle', () => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
-			return vscode.window.showInformationMessage("This command can only be used if git-log--graph isn't configured as a main editor (tab).")
+			return vscode.window.showInformationMessage("This command can only be used if GitLG isn't configured as a main editor (tab).")
 		log.appendLine('toggle command')
 		if (webview_container)
 		// @ts-ignore
@@ -321,15 +321,15 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	let status_bar_item_command = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
 	status_bar_item_command.command = START_CMD
 	context.subscriptions.push(status_bar_item_command)
-	status_bar_item_command.text = '$(git-branch) Git Log'
-	status_bar_item_command.tooltip = 'Open up the main view of the git-log--graph extension'
+	status_bar_item_command.text = '$(git-branch) GitLG'
+	status_bar_item_command.tooltip = 'Open up the main view of the GitLG extension'
 	status_bar_item_command.show()
 
 	let status_bar_item_blame = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 500)
 	status_bar_item_blame.command = BLAME_CMD
 	context.subscriptions.push(status_bar_item_blame)
 	status_bar_item_blame.text = ''
-	status_bar_item_blame.tooltip = 'Show and focus this commit in the main view of the git-log--graph extension'
+	status_bar_item_blame.tooltip = 'Show and focus this commit in the main view of the GitLG extension'
 	status_bar_item_blame.show()
 
 	let current_line = -1

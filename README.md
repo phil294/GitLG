@@ -1,8 +1,6 @@
-# git log --graph: VSCode extension
+# GitLG: VSCode extension
 
-Customizable Git explorer.
-
-This is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Four_essential_freedoms_of_Free_Software), feature-oriented and maintained alternative to [Git Graph by mhutchie](https://github.com/mhutchie/vscode-git-graph/). More details at the bottom of this Readme.
+GitLG, previously known as "git-log--graph", is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Four_essential_freedoms_of_Free_Software), customizable Git UI.
 
 ![demo](./img/demo6.png)
 
@@ -14,7 +12,7 @@ Also available as a "view" with option `"git-log--graph.position": "view"`
 
 You can **install the extension in VSCode from [HERE](https://marketplace.visualstudio.com/items?itemName=phil294.git-log--graph)** or for VSCodium from [Open VSX Registry](https://open-vsx.org/extension/phil294/git-log--graph).
 
-Then run the command: `git log --graph: Open graph view` or just click the `Git Log` action menu in the bottom status bar. That's all you need to know really, everything below is subordinate.
+Then run the command: `GitLG: Open graph view` or just click the `GitLG` action menu in the bottom status bar. That's all you need to know really, everything below is subordinate.
 
 ## Actions
 
@@ -195,9 +193,9 @@ But there are drawbacks:
  1. Important features such as sticky header or customizable `git log` arguments are missing
  1. There has been [almost no activity](https://github.com/mhutchie/vscode-git-graph/commits/develop) for over a year now. Under normal circumstances, this is of course totally fine. However, in a project that *by License* depends on a sole maintainer and disallows forks, this is - in my opinion - at least problematic, given its popularity.
 
-This very extension, `phil294/git-log--graph`, on the other hand:
+This very extension, `phil294/GitLG`, on the other hand:
  1. Is MIT-licensed which is a [free (FOSS)](https://en.wikipedia.org/wiki/Free_and_open-source_software#Four_essential_freedoms_of_Free_Software) license
- 1. Takes a very minimalist approach in its codebase: I wrote a mere 1,300 lines in total for it (no fork). Now obviously, LOC is a stupid measurement for almost anything, but it does say something about the complexity nonetheless. For example, implementing querying git for commit body and showing it in details view was a change consisting of [six LOC](https://github.com/phil294/git-log--graph/commit/4fb4cf2d08fac833f57758119995d994fee349db)
+ 1. Takes a very minimalist approach in its codebase: I wrote a mere 1,300 lines in total for it (no fork). Now obviously, LOC is a stupid measurement for almost anything, but it does say something about the complexity nonetheless. For example, implementing querying git for commit body and showing it in details view was a change consisting of [six LOC](https://github.com/phil294/GitLG/commit/4fb4cf2d08fac833f57758119995d994fee349db)
  1. All relevant logic is customizable by design
  1. Is built with the help of a web framework (Vue.js)
 
