@@ -1,6 +1,6 @@
 import { ref, computed, shallowRef } from 'vue'
 import default_git_actions from './default-git-actions.json'
-import { parse } from './log-utils.js'
+import { parse } from '../utils/log-parser.js'
 import { git, exchange_message, add_push_listener } from '../bridge.js'
 import { parse_config_actions } from './GitInput.js'
 
