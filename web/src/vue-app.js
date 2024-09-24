@@ -29,11 +29,11 @@ let app = createApp(App)
 app.config.errorHandler = handle_error
 app.config.warnHandler = handle_error
 
+// When adding global components here, also change in vite-config > components.d.ts
+app.component('RecycleScroller', RecycleScroller)
 let sfcs = import.meta.glob('./**/*.vue', { eager: true })
 for (let path in sfcs)
-	app.component(sfcs[path].default.name ?? path.split('/').pop().split('.')[0], sfcs[path].default)
-
-app.component('RecycleScroller', RecycleScroller)
+	app.component(path.split('/').pop().split('.')[0], sfcs[path].default)
 
 // TODO
 app.directive('moveable', moveable)

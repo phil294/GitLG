@@ -1,5 +1,26 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import { globSync, writeFileSync } from 'fs'
+
+let vue_files = globSync('./src/**/*.vue').map(f => ({
+	name: f.split('/').pop()?.split('.')[0],
+	path: '.' + f.slice(3),
+}))
+writeFileSync('./src/components.d.ts', `
+	// DO NOT EDIT - AUTO GENERATED FROM vite.config.js
+
+	// This file solely exists to enable type support in Vue VSCode extension
+	// https://stackoverflow.com/a/70980761/3779853
+
+	import { RecycleScroller } from 'vue-virtual-scroller'
+	${vue_files.map(f => `import ${f.name} from '${f.path}'`).join('\n\t')}
+
+	declare module '@vue/runtime-core' {
+		export interface GlobalComponents {
+			RecycleScroller: typeof RecycleScroller
+			${vue_files.map(f => `${f.name}: typeof ${f.name}`).join('\n\t\t\t')}
+		}
+	}`)
 
 export default defineConfig({
 	plugins: [vue()],
