@@ -189,7 +189,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 		})
 
 		let is_production = context.extensionMode === vscode.ExtensionMode.Production || process.env.GIT_LOG__GRAPH_MODE === 'production'
-		let dev_server_url = 'http://localhost:8080'
+		let dev_server_url = 'http://localhost:5173'
 
 		let csp = "default-src 'none'; " +
 			`style-src ${view.cspSource} 'unsafe-inline' ` +
@@ -202,13 +202,9 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 				(is_production ? '' : '*') + '; ' +
 			`img-src ${view.cspSource} ` +
 				(is_production ? '' : dev_server_url) + '; '
-		function get_web_uri(/** @type {string[]} */...path_segments) {
-			if (is_production)
-				return view.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'web-dist', ...path_segments))
-			else
-
-				return [dev_server_url, ...path_segments].join('/')
-		}
+		let base_url = is_production
+			? view.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'web-dist')) + '/'
+			: dev_server_url
 		let custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
 		if (custom_css)
 			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c) => c.css).maybe()
@@ -220,19 +216,13 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 				<meta charset='UTF-8'>
 				<meta http-equiv='Content-Security-Policy' content="${csp}">
 				<meta name='viewport' content='width=device-width, initial-scale=1.0'>
-				<link href='${get_web_uri('css', 'app.css')}' rel='stylesheet'>
-				<style>
-					@font-face {
-						font-family: 'codicon';
-						src: url('${get_web_uri('fonts', 'codicon.ttf')}') format('truetype');
-					}
-				</style>
+				<base href="${base_url}" />
+				<link href='./index.css' rel='stylesheet' crossorigin>
 				<title>${EXT_NAME}</title>
++				<script type="module" crossorigin src='./index.js'></script>
 			</head>
 			<body>
 			<div id='app'></div>
-			<script src='${get_web_uri('js', 'chunk-vendors.js')}'></script>
-			<script src='${get_web_uri('js', 'app.js')}'></script>
 			<style>${custom_css}</style>
 			</body>
 			</html>`

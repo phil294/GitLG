@@ -29,10 +29,10 @@ let app = createApp(App)
 app.config.errorHandler = handle_error
 app.config.warnHandler = handle_error
 
-let sfcs = require.context('./', true, /\.vue$/i)
-sfcs.keys().forEach(key => {
-	app.component(sfcs(key).default.name ?? key.split('/').pop().split('.')[0], sfcs(key).default)
-})
+let sfcs = import.meta.glob('./**/*.vue', { eager: true })
+for (let path in sfcs)
+	app.component(sfcs[path].default.name ?? path.split('/').pop().split('.')[0], sfcs[path].default)
+
 app.component('RecycleScroller', RecycleScroller)
 
 // TODO

@@ -4,13 +4,8 @@
   "private": false,
   "license": "MIT",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
-  },
-  "postcss": {
-    "plugins": {
-      "autoprefixer": {}
-    }
+    "serve": "vite serve",
+    "build": "vite build"
   },
   "dependencies": {
     "@vscode/codicons": "^0.0.36",
@@ -19,7 +14,7 @@
     "vue-virtual-scroller": "^2.0.0-alpha.1"
   },
   "devDependencies": {
-    "@vue/cli": "^5.0.4",
-    "@vue/cli-service": "~5.0.0"
+    "@vitejs/plugin-vue": "^5.1.4",
+    "vite": "^5.4.7"
   }
 }

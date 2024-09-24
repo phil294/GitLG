@@ -2,7 +2,7 @@
     "recommendations": [
         "mhutchie.git-graph",
         "wayou.vscode-todo-highlight",
-        "octref.vetur",
+        "vue.volar",
         "dbaeumer.vscode-eslint"
     ]
 }

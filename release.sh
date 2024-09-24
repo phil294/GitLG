@@ -21,33 +21,35 @@ fi
 
 git push --tags origin master --dry-run
 
-if grep -R -n --exclude='*.js' -E '\s$' src web/src; then
+if grep -R -n -E '\s$' src web/src; then
     echo 'trailing whitespace found'
     exit 1
 fi
 
 
-todo
-# yarn upgrade
-# pushd web
-# yarn
-# yarn upgrade
-# popd
-# git add yarn.lock
-# git add package.json
-# git add web/yarn.lock
-# git add web/package.json
-# git commit -m 'yarn upgrade' ||:
-# echo yarn upgraded
-# pause
-
-yarn
+: '
+npx ncu -u
+npm i
 pushd web
-yarn build
+npx ncu -u
+npm i
+popd
+git add package.json
+git add package-lock.json
+git add web/package.json
+git add web/package-lock.json
+git commit -m 'dependencies upgrade' ||:
+echo 'deps upgraded'
+pause
+# '
+
+pushd web
+npm run build
 popd
 rm web-dist/index.html
 
-yarn esbuild src/extension.js --bundle --platform=node --outfile=main.js --external:vscode
+echo -e '\nBuilding main bundle:'
+npx esbuild src/extension.js --bundle --platform=node --outfile=main.js --external:vscode
 
 echo built. manual tests:
 pause
@@ -80,7 +82,7 @@ git tag "$version"
 echo 'patched package.json version patch, updated changelog, committed, tagged'
 pause
 
-yarn vsce package --yarn
+npx vsce package
 vsix_file=$(ls -tr git-log--graph-*.vsix* |tail -1)
 mv "$vsix_file" vsix-out/"$vsix_file"
 vsix_file=vsix-out/"$vsix_file"
@@ -93,11 +95,11 @@ echo 'check vsix package before publish'
 pause
 pause
 
-yarn vsce publish --yarn
+npx vsce publish
 echo 'vsce published'
 pause
 
-yarn ovsx publish "$vsix_file" -p "$(cat ~/.open-vsx-access-token)"
+npx ovsx publish "$vsix_file" -p "$(cat ~/.open-vsx-access-token)"
 echo 'ovsx published'
 pause
 
