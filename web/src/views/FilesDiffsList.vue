@@ -79,8 +79,8 @@
 		</div>
 	</div>
 </template>
-<script>
-import { computed, defineComponent } from 'vue'
+<script setup>
+import { computed } from 'vue'
 import { exchange_message } from '../bridge.js'
 import { stateful_computed, refresh_main_view } from '../state/store.js'
 import { createReusableTemplate } from '@vueuse/core'
@@ -108,97 +108,86 @@ let [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate
 let [TemplateFileActionsDefine, TemplateFileActionsReuse] = createReusableTemplate()
 let [TemplateTreeNodeDefine, TemplateTreeNodeReuse] = createReusableTemplate()
 
-export default defineComponent({
-	components: { TemplateFileChangeDefine, TemplateFileChangeReuse, TemplateFileActionsDefine, TemplateFileActionsReuse, TemplateTreeNodeDefine, TemplateTreeNodeReuse },
-	props: {
-		files: {
-			/** @type {Vue.PropType<FileDiff[]>} */
-			type: Array,
-			required: true,
-		},
-	},
-	emits: ['show_diff', 'view_rev'],
-	setup(props) {
-		let files = computed(() =>
-			props.files.map((file) => {
-				// Even on Windows, the delimiter of git paths output is forward slash
-				let path_arr = file.path.split('/')
-				// Icons have to be hardcoded because actual theme integration is more or less impossible:
-				// https://github.com/microsoft/vscode/issues/183893
-				let icon = file_extension_icon_path_mapping[/** @type {keyof file_extension_icon_path_mapping} */(file.path.split('.').at(-1) || '')] || 'default_file.svg' // eslint-disable-line no-extra-parens
-				return {
-					...file,
-					filename: path_arr.at(-1) || '?',
-					dir: path_arr.slice(0, -1).join('/'),
-					dir_arr: path_arr.slice(0, -1),
-					icon_path: './file-icons/' + icon,
-				}
-			}))
-		let files_list = computed(() => {
-			if (render_style?.value === 'list')
-				return files.value
-		})
-		let files_tree = computed(() => {
-			if (render_style?.value !== 'tree')
-				return
-			/** @type {TreeNode} */
-			let out = {
-				children: {},
-				files: [],
-				path: 'Changes',
-			}
-			for (let file of files.value) {
-				let curr = out
-				for (let dir_seg of file.dir_arr)
-					curr = curr.children[dir_seg] ||= {
-						children: {},
-						files: [],
-						path: dir_seg,
-					}
-				curr.files.push(file)
-			}
-			// Now all available dir segments have their own entry in the tree, but they
-			// should be joined together as much as possible (i.e. when there are no files):
-			function unify(/** @type {TreeNode} */ curr) {
-				let modified_children = true
-				while (modified_children) {
-					modified_children = false
-					for (let [child_i, child] of Object.entries(curr.children))
-						if (! child.files.length) {
-							for (let grand_child of Object.values(child.children)) {
-								grand_child.path = child.path + ' / ' + grand_child.path
-								curr.children[grand_child.path] = grand_child
-							}
-							delete curr.children[child_i]
-							modified_children = true
-						} else
-							unify(child)
-				}
-			}
-			unify(out)
-			return out
-		})
-
-		function open_file(/** @type {string} */ filepath) {
-			return exchange_message('open-file', { filename: filepath })
-		}
-
-		function show_file(/** @type {string} */ filepath) {
-			return refresh_main_view({
-				before_execute: (cmd) =>
-					`${cmd} --follow -- "${filepath}"`,
-			})
-		}
-
-		return {
-			files_list,
-			files_tree,
-			render_style,
-			open_file,
-			show_file,
-		}
+let props = defineProps({
+	files: {
+		/** @type {Vue.PropType<FileDiff[]>} */
+		type: Array,
+		required: true,
 	},
 })
+defineEmits(['show_diff', 'view_rev'])
+
+let files = computed(() =>
+	props.files.map((file) => {
+		// Even on Windows, the delimiter of git paths output is forward slash
+		let path_arr = file.path.split('/')
+		// Icons have to be hardcoded because actual theme integration is more or less impossible:
+		// https://github.com/microsoft/vscode/issues/183893
+		let icon = file_extension_icon_path_mapping[/** @type {keyof file_extension_icon_path_mapping} */(file.path.split('.').at(-1) || '')] || 'default_file.svg' // eslint-disable-line no-extra-parens
+		return {
+			...file,
+			filename: path_arr.at(-1) || '?',
+			dir: path_arr.slice(0, -1).join('/'),
+			dir_arr: path_arr.slice(0, -1),
+			icon_path: './file-icons/' + icon,
+		}
+	}))
+let files_list = computed(() => {
+	if (render_style?.value === 'list')
+		return files.value
+})
+let files_tree = computed(() => {
+	if (render_style?.value !== 'tree')
+		return
+	/** @type {TreeNode} */
+	let out = {
+		children: {},
+		files: [],
+		path: 'Changes',
+	}
+	for (let file of files.value) {
+		let curr = out
+		for (let dir_seg of file.dir_arr)
+			curr = curr.children[dir_seg] ||= {
+				children: {},
+				files: [],
+				path: dir_seg,
+			}
+		curr.files.push(file)
+	}
+	// Now all available dir segments have their own entry in the tree, but they
+	// should be joined together as much as possible (i.e. when there are no files):
+	function unify(/** @type {TreeNode} */ curr) {
+		let modified_children = true
+		while (modified_children) {
+			modified_children = false
+			for (let [child_i, child] of Object.entries(curr.children))
+				if (! child.files.length) {
+					for (let grand_child of Object.values(child.children)) {
+						grand_child.path = child.path + ' / ' + grand_child.path
+						curr.children[grand_child.path] = grand_child
+					}
+					delete curr.children[child_i]
+					modified_children = true
+				} else
+					unify(child)
+		}
+	}
+	unify(out)
+	return out
+})
+
+function open_file(/** @type {string} */ filepath) {
+	return exchange_message('open-file', { filename: filepath })
+}
+
+function show_file(/** @type {string} */ filepath) {
+	return refresh_main_view({
+		before_execute: (cmd) =>
+			`${cmd} --follow -- "${filepath}"`,
+	})
+}
+
 </script>
 <style scoped>
 .files-diffs-list {

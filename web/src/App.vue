@@ -6,11 +6,7 @@
 <script>
 import * as store from './state/store.js'
 
-export default {
-	setup() {
-		store.init()
-	},
-}
+store.init()
 </script>
 
 <style>

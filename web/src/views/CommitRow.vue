@@ -34,52 +34,43 @@
 		</div>
 	</div>
 </template>
-<script>
+<script setup>
 import { computed } from 'vue'
 import { config, vis_width } from '../state/store.js'
 
-export default {
-	props: {
-		commit: {
-			required: true,
-			/** @type {Vue.PropType<Commit>} */
-			type: Object,
-		},
-		height: { type: Number, default: null },
+let props = defineProps({
+	commit: {
+		required: true,
+		/** @type {Vue.PropType<Commit>} */
+		type: Object,
 	},
-	setup(props) {
-		let vis_min_width = 15
-		let vis_max_width_vw = 90
-		let vis_style = computed(() => ({
-			width: vis_width.value + 'px',
-			'max-width': vis_max_width_vw + 'vw',
-			'min-width': vis_min_width + 'px',
-		}))
-		function vis_resize_handle_mousedown(/** @type {MouseEvent} */ mousedown_event) {
-			let vis_max_width = window.innerWidth * vis_max_width_vw / 100
-			let start_x = mousedown_event.x
-			let start_width = vis_width.value
-			function on_mousemove(/** @type {MouseEvent} */ mousemove_event) {
-				window.requestAnimationFrame(() => {
-					vis_width.value = Math.min(vis_max_width, Math.max(vis_min_width, start_width + mousemove_event.x - start_x))
-				})
-			}
-			document.addEventListener('mousemove', on_mousemove)
-			document.addEventListener('mouseup', (mouseup_event) => {
-				mouseup_event.preventDefault() // Not sure why this doesn't work
-				document.removeEventListener('mousemove', on_mousemove)
-			}, { capture: true, once: true })
-		}
-		let calculated_height = computed(() =>
-			props.height || config.value['row-height'])
+	height: { type: Number, default: null },
+})
 
-		return {
-			vis_style,
-			vis_resize_handle_mousedown,
-			calculated_height,
-		}
-	},
+let vis_min_width = 15
+let vis_max_width_vw = 90
+let vis_style = computed(() => ({
+	width: vis_width.value + 'px',
+	'max-width': vis_max_width_vw + 'vw',
+	'min-width': vis_min_width + 'px',
+}))
+function vis_resize_handle_mousedown(/** @type {MouseEvent} */ mousedown_event) {
+	let vis_max_width = window.innerWidth * vis_max_width_vw / 100
+	let start_x = mousedown_event.x
+	let start_width = vis_width.value
+	function on_mousemove(/** @type {MouseEvent} */ mousemove_event) {
+		window.requestAnimationFrame(() => {
+			vis_width.value = Math.min(vis_max_width, Math.max(vis_min_width, start_width + mousemove_event.x - start_x))
+		})
+	}
+	document.addEventListener('mousemove', on_mousemove)
+	document.addEventListener('mouseup', (mouseup_event) => {
+		mouseup_event.preventDefault() // Not sure why this doesn't work
+		document.removeEventListener('mousemove', on_mousemove)
+	}, { capture: true, once: true })
 }
+let calculated_height = computed(() =>
+	props.height || config.value['row-height'])
 </script>
 <style scoped>
 .commit {

@@ -41,62 +41,53 @@
 		</div>
 	</details>
 </template>
-<script>
+<script setup>
 import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { history, commits } from '../state/store.js'
 
-export default {
-	emits: ['commit_clicked', 'apply_txt_filter'],
-	setup() {
-		let history_mapped = computed(() =>
-			(history.value || []).slice().reverse().map((entry) => {
-				let ref = null
-				if (entry.type === 'commit_hash')
-					ref = commits.value?.find((commit) =>
-						commit.hash === entry.value)
-				else if (entry.type === 'git')
-					ref = {
-						title: 'git ' + entry.value,
-						args: entry.value,
-						description: 'History entry',
-						icon: 'history',
-					}
-				return {
-					// TODO obj spread..?
-					type: entry.type,
-					value: entry.value,
-					datetime: entry.datetime,
-					ref,
-				}
-			}))
-		function clear_history() {
-			history.value = []
-		}
-		function remove_history_entry(/** @type {number} */ entry_i) {
-			history.value.splice(history.value.length - entry_i - 1, 1)
-			history.value = history.value.slice()
-		}
-		let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line no-extra-parens
-		function on_mouse_up(/** @type {MouseEvent} */ event) {
-			let target = event.target
-			while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)
-				target = target.parentElement
-			if (target instanceof Element && target.getAttribute('id') !== 'history')
-				details_ref.value?.removeAttribute('open')
-		}
-		onMounted(() =>
-			document.addEventListener('mouseup', on_mouse_up))
-		onUnmounted(() =>
-			document.removeEventListener('mouseup', on_mouse_up))
+defineEmits(['commit_clicked', 'apply_txt_filter'])
 
+let history_mapped = computed(() =>
+	(history.value || []).slice().reverse().map((entry) => {
+		let ref = null
+		if (entry.type === 'commit_hash')
+			ref = commits.value?.find((commit) =>
+				commit.hash === entry.value)
+		else if (entry.type === 'git')
+			ref = {
+				title: 'git ' + entry.value,
+				args: entry.value,
+				description: 'History entry',
+				icon: 'history',
+			}
 		return {
-			details_ref,
-			history_mapped,
-			clear_history,
-			remove_history_entry,
+			// TODO obj spread..?
+			type: entry.type,
+			value: entry.value,
+			datetime: entry.datetime,
+			ref,
 		}
-	},
+	}))
+function clear_history() {
+	history.value = []
 }
+function remove_history_entry(/** @type {number} */ entry_i) {
+	history.value.splice(history.value.length - entry_i - 1, 1)
+	history.value = history.value.slice()
+}
+let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line no-extra-parens
+function on_mouse_up(/** @type {MouseEvent} */ event) {
+	let target = event.target
+	while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)
+		target = target.parentElement
+	if (target instanceof Element && target.getAttribute('id') !== 'history')
+		details_ref.value?.removeAttribute('open')
+}
+onMounted(() =>
+	document.addEventListener('mouseup', on_mouse_up))
+onUnmounted(() =>
+	document.removeEventListener('mouseup', on_mouse_up))
+
 </script>
 <style scoped>
 details#history > summary {
