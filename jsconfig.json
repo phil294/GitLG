@@ -4,6 +4,7 @@
     ".vscode-test",
     "dist",
     "dists",
+    "web-dist",
     "todo*",
     ".vscode",
     "docs"

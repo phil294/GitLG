@@ -25,7 +25,6 @@
 	declare module '@vue/runtime-core' {
 		export interface GlobalComponents {
 			RecycleScroller: typeof RecycleScroller
-			History: typeof History
 			App: typeof App
 			AllBranches: typeof AllBranches
 			CommitDetails: typeof CommitDetails
