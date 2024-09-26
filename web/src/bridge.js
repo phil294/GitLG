@@ -11,17 +11,17 @@ window.addEventListener('message', (msg_event) => {
 	/** @type {BridgeMessage} */
 	let message = msg_event.data
 	switch (message.type) {
-	case 'response':
-		if (! response_handlers[message.id])
-			throw new Error('unhandled message response id: ' + JSON.stringify(message))
-		response_handlers[message.id](message)
-		delete response_handlers[message.id]
-		break
-	case 'push':
-		if (! push_handlers[message.id])
-			throw new Error('unhandled message push id: ' + JSON.stringify(message))
-		push_handlers[message.id](message)
-		break
+		case 'response':
+			if (! response_handlers[message.id])
+				throw new Error('unhandled message response id: ' + JSON.stringify(message))
+			response_handlers[message.id](message)
+			delete response_handlers[message.id]
+			break
+		case 'push':
+			if (! push_handlers[message.id])
+				throw new Error('unhandled message push id: ' + JSON.stringify(message))
+			push_handlers[message.id](message)
+			break
 	}
 })
 

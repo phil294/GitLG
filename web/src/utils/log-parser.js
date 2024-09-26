@@ -162,106 +162,106 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			 */
 			let vis_line = { x0: 0, xn: 0 }
 			switch (char) {
-			case '*':
-				if (branch_tip) {
-					v_branch = branch_tip
-					if (v_nw?.char === '\\') {
+				case '*':
+					if (branch_tip) {
+						v_branch = branch_tip
+						if (v_nw?.char === '\\') {
 						// This is branch tip but in previous above lines, this branch
 						// may already have been on display for merging without its actual name known (inferred substitute).
 						// Fix these lines (min 1) now
-						let wrong_branch = v_nw?.branch
-						if (wrong_branch) {
-							let k = commits.length - 1
-							let wrong_branch_matches = []
-							while ((wrong_branch_matches = commits[k]?.vis_lines.filter((v) => v.branch === wrong_branch))?.length) {
-								for (let wrong_branch_match of wrong_branch_matches || [])
-									wrong_branch_match.branch = v_branch
-								k--
+							let wrong_branch = v_nw?.branch
+							if (wrong_branch) {
+								let k = commits.length - 1
+								let wrong_branch_matches = []
+								while ((wrong_branch_matches = commits[k]?.vis_lines.filter((v) => v.branch === wrong_branch))?.length) {
+									for (let wrong_branch_match of wrong_branch_matches || [])
+										wrong_branch_match.branch = v_branch
+									k--
+								}
+								branches.splice(branches.indexOf(wrong_branch), 1)
 							}
-							branches.splice(branches.indexOf(wrong_branch), 1)
 						}
-					}
-				} else if (v_n?.branch)
-					v_branch = v_n?.branch
-				else if (v_nw?.char === '\\')
-					v_branch = v_nw?.branch
-				else if (v_ne?.char === '/')
-					v_branch = v_ne?.branch
-				else {
-					// Stashes
-					v_branch = new_branch(`inferred~${branches.length - 1}`)
-					v_branch.inferred = true
-				}
-				commit_branch = v_branch || undefined
-				vis_line = { x0: 0.5, xn: 0.5 }
-				if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
-					// Branch or inferred branch starts here visually (ends here logically)
-					vis_line.y0 = 0.5
-				break
-			case '|':
-				if (v_n?.branch)
-					v_branch = v_n?.branch
-				else if (v_nw?.char === '\\')
-					v_branch = v_nw?.branch
-				else if (v_ne?.char === '/')
-					v_branch = v_ne?.branch
-				vis_line = { x0: 0.5, xn: 0.5, yn: 0.5 }
-				break
-			case '_':
-				v_branch = v_ee?.branch
-				vis_line = { x0: 1, xn: 0 }
-				break
-			case '/':
-				if (v_ne?.char === '*')
-					v_branch = v_ne?.branch
-				else if (v_ne?.char === '|')
-					if (v_nee?.char === '/' || v_nee?.char === '_')
-						v_branch = v_nee?.branch
-					else
+					} else if (v_n?.branch)
+						v_branch = v_n?.branch
+					else if (v_nw?.char === '\\')
+						v_branch = v_nw?.branch
+					else if (v_ne?.char === '/')
 						v_branch = v_ne?.branch
-				else if (v_ne?.char === '/')
-					v_branch = v_ne?.branch
-				else if (v_n?.char === '\\' || v_n?.char === '|')
-					v_branch = v_n?.branch
-				vis_line = { x0: 1, xn: -0.5, xce: 0.5 }
-				break
-			case '\\':
-				if (v_e?.char === '|')
-					v_branch = v_e?.branch
-				else if (v_w_char === '|') {
-					// right before (chronologically) a merge commit (which would be at v_nw).
-					let last_commit = commits.at(-1)
-					if (last_commit)
-						last_commit.merge = true
-					// The actual branch name isn't known for sure yet: It will either a.) be visible with a branch tip
-					// in the next commit or never directly exposed, in which case we'll b.) try to infer it from the
-					// merge commit message, or if failing to do so, c.) create an inferred branch without name.
-					// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
-					let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
-					if (subject_merge_match) {
-						let branch_id = (subject_merge_match[1] || subject_merge_match[2]) + '~' + (branches.length - 1)
-						let split = branch_id.split('/')
-						if (split.length)
-							v_branch = new_branch(split.at(-1) || '', split.slice(0, split.length - 1).join('/'))
+					else {
+					// Stashes
+						v_branch = new_branch(`inferred~${branches.length - 1}`)
+						v_branch.inferred = true
+					}
+					commit_branch = v_branch || undefined
+					vis_line = { x0: 0.5, xn: 0.5 }
+					if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
+					// Branch or inferred branch starts here visually (ends here logically)
+						vis_line.y0 = 0.5
+					break
+				case '|':
+					if (v_n?.branch)
+						v_branch = v_n?.branch
+					else if (v_nw?.char === '\\')
+						v_branch = v_nw?.branch
+					else if (v_ne?.char === '/')
+						v_branch = v_ne?.branch
+					vis_line = { x0: 0.5, xn: 0.5, yn: 0.5 }
+					break
+				case '_':
+					v_branch = v_ee?.branch
+					vis_line = { x0: 1, xn: 0 }
+					break
+				case '/':
+					if (v_ne?.char === '*')
+						v_branch = v_ne?.branch
+					else if (v_ne?.char === '|')
+						if (v_nee?.char === '/' || v_nee?.char === '_')
+							v_branch = v_nee?.branch
 						else
-							v_branch = new_branch(branch_id)
-					} else
-						v_branch = new_branch(`~${branches.length - 1}`)
-					v_branch.inferred = true
-				} else if (v_nw?.char === '|' || v_nw?.char === '\\')
-					v_branch = v_nw?.branch
-				else if (v_nw?.char === '.' || v_nw?.char === '-') {
-					let k = i - 2
-					let w_char_match = null
-					while ((w_char_match = last_vis[k])?.char === '-')
-						k--
-					v_branch = w_char_match.branch
-				} else if (v_nw?.char === '.' && last_vis[i - 2].char === '-')
-					v_branch = last_vis[i - 3].branch
-				vis_line = { x0: -0.5, xn: 1 }
-				break
-			case ' ': case '.': case '-':
-				v_branch = null
+							v_branch = v_ne?.branch
+					else if (v_ne?.char === '/')
+						v_branch = v_ne?.branch
+					else if (v_n?.char === '\\' || v_n?.char === '|')
+						v_branch = v_n?.branch
+					vis_line = { x0: 1, xn: -0.5, xce: 0.5 }
+					break
+				case '\\':
+					if (v_e?.char === '|')
+						v_branch = v_e?.branch
+					else if (v_w_char === '|') {
+					// right before (chronologically) a merge commit (which would be at v_nw).
+						let last_commit = commits.at(-1)
+						if (last_commit)
+							last_commit.merge = true
+						// The actual branch name isn't known for sure yet: It will either a.) be visible with a branch tip
+						// in the next commit or never directly exposed, in which case we'll b.) try to infer it from the
+						// merge commit message, or if failing to do so, c.) create an inferred branch without name.
+						// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
+						let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
+						if (subject_merge_match) {
+							let branch_id = (subject_merge_match[1] || subject_merge_match[2]) + '~' + (branches.length - 1)
+							let split = branch_id.split('/')
+							if (split.length)
+								v_branch = new_branch(split.at(-1) || '', split.slice(0, split.length - 1).join('/'))
+							else
+								v_branch = new_branch(branch_id)
+						} else
+							v_branch = new_branch(`~${branches.length - 1}`)
+						v_branch.inferred = true
+					} else if (v_nw?.char === '|' || v_nw?.char === '\\')
+						v_branch = v_nw?.branch
+					else if (v_nw?.char === '.' || v_nw?.char === '-') {
+						let k = i - 2
+						let w_char_match = null
+						while ((w_char_match = last_vis[k])?.char === '-')
+							k--
+						v_branch = w_char_match.branch
+					} else if (v_nw?.char === '.' && last_vis[i - 2].char === '-')
+						v_branch = last_vis[i - 3].branch
+					vis_line = { x0: -0.5, xn: 1 }
+					break
+				case ' ': case '.': case '-':
+					v_branch = null
 			}
 			// if v_branch == undefined
 			// 	throw new Error "could not identify branch in row #{row_no} at char #{i}"
@@ -367,11 +367,11 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	for (let branch of branches)
 		branch.color = (() => {
 			switch (branch.name) {
-			case 'master': case 'main': return '#ff3333'
-			case 'development': case 'develop': case 'dev': return '#009000'
-			case 'stage': case 'staging': case 'production': return '#d7d700'
-			default:
-				return colors[Math.abs(branch.name.hashCode() % colors.length)]
+				case 'master': case 'main': return '#ff3333'
+				case 'development': case 'develop': case 'dev': return '#009000'
+				case 'stage': case 'staging': case 'production': return '#d7d700'
+				default:
+					return colors[Math.abs(branch.name.hashCode() % colors.length)]
 			}
 		})()
 

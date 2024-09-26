@@ -146,35 +146,35 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 				return post_message(resp)
 			}
 			switch (message.type) {
-			case 'request':
-				switch (message.command) {
-				case 'git': return h(() =>
-					git.run(d))
-				case 'show-error-message': return h(() =>
-					log_error(d))
-				case 'show-information-message': return h(() =>
-					vscode.window.showInformationMessage(d))
-				case 'get-config': return h(() =>
-					vscode.workspace.getConfiguration(EXT_ID))
-				case 'get-state': return h(() =>
-					state(d).get())
-				case 'set-state': return h(() =>
-					state(d.key).set(d.value, { broadcast: false }))
-				case 'open-diff': return h(() => {
-					let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[0]}:${d.filename}`)
-					let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${d.filename}`)
-					return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, `${d.filename} ${d.hashes[0]} vs. ${d.hashes[1]}`)
-				})
-				case 'view-rev': return h(() => {
-					let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hash}:${d.filename}`)
-					return vscode.commands.executeCommand('vscode.open', uri)
-				})
-				case 'open-file': return h(() => {
-					let workspace = vscode.workspace.workspaceFolders[git.get_selected_repo_index()].uri.fsPath
-					let uri = vscode.Uri.file(path.join(workspace, d.filename))
-					return vscode.commands.executeCommand('vscode.open', uri)
-				})
-				}
+				case 'request':
+					switch (message.command) {
+						case 'git': return h(() =>
+							git.run(d))
+						case 'show-error-message': return h(() =>
+							log_error(d))
+						case 'show-information-message': return h(() =>
+							vscode.window.showInformationMessage(d))
+						case 'get-config': return h(() =>
+							vscode.workspace.getConfiguration(EXT_ID))
+						case 'get-state': return h(() =>
+							state(d).get())
+						case 'set-state': return h(() =>
+							state(d.key).set(d.value, { broadcast: false }))
+						case 'open-diff': return h(() => {
+							let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[0]}:${d.filename}`)
+							let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${d.filename}`)
+							return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, `${d.filename} ${d.hashes[0]} vs. ${d.hashes[1]}`)
+						})
+						case 'view-rev': return h(() => {
+							let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hash}:${d.filename}`)
+							return vscode.commands.executeCommand('vscode.open', uri)
+						})
+						case 'open-file': return h(() => {
+							let workspace = vscode.workspace.workspaceFolders[git.get_selected_repo_index()].uri.fsPath
+							let uri = vscode.Uri.file(path.join(workspace, d.filename))
+							return vscode.commands.executeCommand('vscode.open', uri)
+						})
+					}
 			}
 		})
 
@@ -186,7 +186,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 		let is_production = context.extensionMode === vscode.ExtensionMode.Production || process.env.GIT_LOG__GRAPH_MODE === 'production'
 		let dev_server_url = 'http://localhost:5173'
 
-		let csp = "default-src 'none'; " +
+		let csp = 'default-src \'none\'; ' +
 			`style-src ${view.cspSource} 'unsafe-inline' ` +
 				(is_production ? '' : dev_server_url) + '; ' +
 			`script-src ${view.cspSource} 'unsafe-inline' ` +
@@ -259,7 +259,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	// Close the editor(tab)
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.close', () => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
-			return vscode.window.showInformationMessage("This command can only be used if GitLG isn't configured as a main editor (tab)."); if (! webview_container)
+			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).'); if (! webview_container)
 			return vscode.window.showInformationMessage('GitLG editor tab is not running.')
 		log.appendLine('close command')
 		// @ts-ignore
@@ -269,7 +269,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	// Toggle the editor(tab)
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.toggle', () => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
-			return vscode.window.showInformationMessage("This command can only be used if GitLG isn't configured as a main editor (tab).")
+			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		log.appendLine('toggle command')
 		if (webview_container)
 		// @ts-ignore
