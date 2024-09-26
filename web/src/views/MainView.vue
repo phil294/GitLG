@@ -437,6 +437,8 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 let config_show_quick_branch_tips = computed(() =>
 	! store.config.value['hide-quick-branch-tips'])
 
+let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, selected_git_action, git_status } = store
+
 </script>
 <style scoped>
 details#log-config {
