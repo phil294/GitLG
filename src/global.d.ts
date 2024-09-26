@@ -10,7 +10,7 @@ interface String {
 
 interface Function {
 	/** Call *this* with *args* and silently return `undefined` on error. */
-	maybe<T>(this: (...args: any[]) => T, args: any): T | undefined
+	maybe<T>(this: (...fun_args: any[]) => T, ...call_args: any): T | undefined
 }
 
 interface Promise<T> {

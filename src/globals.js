@@ -10,9 +10,10 @@ String.prototype.hashCode = function() {
 	return hash
 }
 
-Function.prototype.maybe = function(/** @type {Array<any>} */ args = []) {
+Function.prototype.maybe = function(/** @type {Array<any>} */ ..._) {
 	try {
-		return this(...args)
+		// Can't use object spreading because this broke with JSON.stringify (??)
+		return this.apply(this, arguments)
 	} catch (error) {
 		return undefined
 	}
