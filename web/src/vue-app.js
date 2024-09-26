@@ -11,11 +11,14 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import '@vscode/codicons/dist/codicon.css'
 
 let console_error = console.error
-function handle_error(/** @type {any} */ e) {
-	console_error(e, new Error(), e.domChain ? `at element: ${JSON.stringify(e.domChain)}` : '')
+function handle_error(/** @type {any[]} */ ...args) {
+	let e = args.map((x) =>
+		typeof x === 'string' ? x : (x.message || x.msg || x.data || x.body || x.stack || JSON.stringify.maybe(x, null, 4) || x.toString?.())?.toString?.())
+		.join('\n')
+	console_error(...args, new Error(), args[0]?.domChain ? `at element: ${JSON.stringify.maybe(e.domChain, null, 4)}` : '')
 	console.trace()
 	debugger // eslint-disable-line no-debugger
-	show_error_message('GitLG extension encountered an unexpected error. Sorry! Error summary: ' + (e.message || e.msg || e.data || e.body || e.stack || JSON.stringify.maybe(e) || e.toString?.()) + '. For details, see VSCode developer console. Please consider reporting this error.')
+	show_error_message('GitLG extension encountered an unexpected error. Sorry! Error summary: ' + e + '. For details, see VSCode developer console. Please consider reporting this error.')
 }
 window.onerror = handle_error
 console.error = handle_error
