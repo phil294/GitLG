@@ -1,22 +1,15 @@
 import globals from 'globals'
+import neostandard from 'neostandard'
 import pluginVue from 'eslint-plugin-vue'
-
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { FlatCompat } from '@eslint/eslintrc'
-import pluginJs from '@eslint/js'
 import jsdoc from 'eslint-plugin-jsdoc'
 
-// mimic CommonJS variables -- not needed if using CommonJS
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-const compat = new FlatCompat({ baseDirectory: __dirname, recommendedConfig: pluginJs.configs.recommended })
-
+/** @type {import('eslint').Linter.Config[]} */
 export default [
+	...neostandard({}),
 	{ files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
 	{ languageOptions: { globals: { ...globals.browser, ...globals.node } } },
-	...compat.extends('standard'),
-	...pluginVue.configs['flat/recommended'],
+	//  TODO: https://github.com/vuejs/eslint-plugin-vue/issues/2555
+	.../** @type {any} */(pluginVue.configs['flat/recommended']), // eslint-disable-line @stylistic/no-extra-parens
 	jsdoc.configs['flat/recommended-typescript-flavor-error'],
 	{
 		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
@@ -32,22 +25,22 @@ export default [
 		rules: {
 			'prefer-const': 'off',
 			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly
-			indent: ['error', 'tab'],
-			quotes: ['error'],
-			'no-tabs': 'off',
-			'space-before-function-paren': ['error', {
+			'@stylistic/indent': ['error', 'tab'],
+			quotes: ['error', 'single'],
+			'@stylistic/no-tabs': 'off',
+			'@stylistic/space-before-function-paren': ['error', {
 				anonymous: 'never',
 				named: 'never',
 				asyncArrow: 'always',
 			}],
 			curly: ['error', 'multi'],
 			'nonblock-statement-body-position': ['error', 'below'],
-			'comma-dangle': ['error', 'always-multiline'],
+			'@stylistic/comma-dangle': ['error', 'always-multiline'],
 			'func-style': ['error', 'declaration', { allowArrowFunctions: true }],
 			'arrow-body-style': ['error', 'as-needed'],
 			'no-return-assign': 'off',
 			'no-throw-literal': 'off',
-			'space-unary-ops': ['error', {
+			'@stylistic/space-unary-ops': ['error', {
 				words: true,
 				nonwords: true,
 				overrides: {
@@ -56,9 +49,9 @@ export default [
 					'-': false,
 				},
 			}],
-			'no-extra-parens': ['error', 'all'],
+			'@stylistic/no-extra-parens': ['error', 'all'],
 			semi: ['error', 'never', { beforeStatementContinuationChars: 'never' }],
-			'no-extra-semi': 'error',
+			'@stylistic/no-extra-semi': 'error',
 			'init-declarations': ['error', 'always'],
 			'vue/html-indent': ['error', 'tab'],
 			'vue/max-attributes-per-line': 'off',
@@ -81,7 +74,7 @@ export default [
 			'vue/multi-word-component-names': 'off',
 			'no-shadow': 'error',
 			'vue/return-in-computed-property': 'off',
-			'no-mixed-operators': 'off',
+			'@stylistic/no-mixed-operators': 'off',
 			'vue/prop-name-casing': ['error', 'snake_case'],
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/require-returns-type': 'off',
