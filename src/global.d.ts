@@ -1,9 +1,5 @@
 import Vue = GlobalImports.Vue
 
-function is_truthy<T>(value: T | undefined | null | false): value is T
-
-function is_branch(value: GitRef): value is Branch
-
 interface String {
 	hashCode(): number
 }

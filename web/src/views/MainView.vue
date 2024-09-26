@@ -180,7 +180,6 @@ document.addEventListener('keyup', (e) => {
 	if (txt_filter.value && e.key === 'r' && e.altKey)
 		txt_filter_regex.value = ! txt_filter_regex.value
 })
-let select_searched_commit_debouncer = -1
 function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 	if (txt_filter_type.value === 'filter')
 		return
@@ -200,8 +199,7 @@ function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 	}
 	scroll_to_item_centered(next_match_index)
 	txt_filter_last_i = next_match_index
-	window.clearTimeout(select_searched_commit_debouncer)
-	select_searched_commit_debouncer = window.setTimeout(() => {
+	debounce(() => {
 		selected_commits.value = [filtered_commits.value[txt_filter_last_i]]
 	}, 100)
 }

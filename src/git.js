@@ -61,15 +61,11 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 
 	/** @type {import('./vscode.git').Repository[]} */
 	let repos_cache = []
-	/** @type {NodeJS.Timeout|null} */
-	let repos_changed_debouncer = null
 	function repos_changed() {
 		// onDidOpenRepository fires multiple times. At first, there isn't even a repos change..
 		if (api.repositories.length === repos_cache.length)
 			return
-		if (repos_changed_debouncer)
-			clearTimeout(repos_changed_debouncer)
-		repos_changed_debouncer = setTimeout(() => {
+		debounce(() => {
 			log.appendLine('workspace: repo(s) added/removed')
 			api.repositories.filter((repo) => ! repos_cache.includes(repo)).forEach((repo) =>
 				start_observing_repo(repo))

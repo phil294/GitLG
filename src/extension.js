@@ -178,14 +178,9 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			}
 		})
 
-		/** @type {NodeJS.Timeout|null} */
-		let config_change_debouncer = null
 		vscode.workspace.onDidChangeConfiguration((event) => {
-			if (event.affectsConfiguration(EXT_ID)) {
-				if (config_change_debouncer)
-					clearTimeout(config_change_debouncer)
-				config_change_debouncer = setTimeout(() => push_message_id('config-change'), 500)
-			}
+			if (event.affectsConfiguration(EXT_ID))
+				debounce(() => push_message_id('config-change'), 500)
 		})
 
 		let is_production = context.extensionMode === vscode.ExtensionMode.Production || process.env.GIT_LOG__GRAPH_MODE === 'production'

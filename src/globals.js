@@ -34,3 +34,12 @@ globalThis.is_truthy = (value) => !! value
 /** @returns {ref is Branch} */
 globalThis.is_branch = (/** @type {GitRef} */ ref) =>
 	ref.type === 'branch'
+
+/** @type {Record<number,NodeJS.Timeout>} */
+const debounce_timeout_map = {}
+/** relies on the unique hash value of *fun*, so use with care */
+globalThis.debounce = (/** @type {()=>any} */ fun, /** @type {number} */ time) => {
+	let hash = (fun.toString() + time).hashCode()
+	clearTimeout(debounce_timeout_map[hash])
+	debounce_timeout_map[hash] = setTimeout(fun, time)
+}

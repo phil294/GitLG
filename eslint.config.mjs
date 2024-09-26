@@ -26,6 +26,7 @@ export default [
 				is_truthy: 'readonly',
 				is_branch: 'readonly',
 				acquireVsCodeApi: 'readonly',
+				debounce: 'readonly',
 			},
 		},
 		rules: {
