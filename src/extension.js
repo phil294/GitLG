@@ -27,7 +27,7 @@ function log_error(/** @type {string} */ e) {
 // When you convert a folder into a workspace by adding another folder, the extension is de- and reactivated
 // but the webview webview_container isn't destroyed even though we instruct it to (with subscriptions).
 // This is an unresolved bug in VSCode and it seems there is nothing you can do. https://github.com/microsoft/vscode/issues/158839
-module.exports.activate = function(/** @type vscode.ExtensionContext */ context) {
+module.exports.activate = function(/** @type {vscode.ExtensionContext} */ context) {
 	log.appendLine('extension activate')
 
 	function post_message(/** @type {BridgeMessage} */ msg) {
@@ -170,7 +170,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
 						case 'open-file': return h(() => {
-							let workspace = vscode.workspace.workspaceFolders[git.get_selected_repo_index()].uri.fsPath
+							let workspace = vscode.workspace.workspaceFolders?.[git.get_selected_repo_index()].uri.fsPath || ''
 							let uri = vscode.Uri.file(path.join(workspace, d.filename))
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
@@ -259,7 +259,8 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 	// Close the editor(tab)
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.close', () => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
-			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).'); if (! webview_container)
+			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
+		if (! webview_container)
 			return vscode.window.showInformationMessage('GitLG editor tab is not running.')
 		log.appendLine('close command')
 		// @ts-ignore
@@ -272,8 +273,7 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		log.appendLine('toggle command')
 		if (webview_container)
-		// @ts-ignore
-
+			// @ts-ignore
 			return webview_container.dispose()
 		return vscode.commands.executeCommand(START_CMD)
 	}))
@@ -344,13 +344,14 @@ module.exports.activate = function(/** @type vscode.ExtensionContext */ context)
 			current_line_repo_index = await git.get_repo_index_for_uri(uri)
 			if (current_line_repo_index < 0)
 				return hide_blame()
-			let blamed = await git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_index).then((b) => b.split('\n')).maybe()
+			let blamed = await git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_index)
+				.then((b) => b.split('\n')).maybe()
 			if (! blamed)
 				return hide_blame()
 			// apparently impossible to get the short form right away in easy machine readable format?
 			current_line_long_hash = blamed[0].slice(0, 40)
 			let author = blamed[1].slice(7)
-			let time = relative_time.from(blamed[3].slice(12) * 1000)
+			let time = relative_time.from(new Date(Number(blamed[3].slice(12)) * 1000))
 			status_bar_item_blame.text = `$(git-commit) ${author}, ${time}`
 		}, 150)
 	})

@@ -8,8 +8,6 @@ let exec = util.promisify(require('child_process').exec)
  * @param EXT_ID {string}
  * @param log {vscode.OutputChannel}
  * @param args {{on_repo_external_state_change:()=>any, on_repo_names_change:()=>any}}
- * @param args.on_repo_external_state_change
- * @param args.on_repo_names_change
  */
 module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, on_repo_names_change }) {
 	/** @type {import('./vscode.git').API} */
@@ -95,7 +93,8 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 					repo = api.repositories[repo_index]
 					if (! repo)
 						throw `No repository found for repo_index ${repo_index}`
-				} if (! repo)
+				}
+				if (! repo)
 					throw 'No repository selected'
 				cwd = repo.rootUri.fsPath
 			} try {
@@ -119,7 +118,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 			selected_repo_index = index
 		},
 		get_selected_repo_index: () => selected_repo_index,
-		async get_repo_index_for_uri(/** @type vscode.Uri */ uri) {
+		async get_repo_index_for_uri(/** @type {vscode.Uri} */ uri) {
 			let uri_path = await realpath(uri.path)
 			return ((await Promise.all(api.repositories.map(async (repo, index) => {
 				let repo_path = await realpath(repo.rootUri.path)
