@@ -144,7 +144,7 @@ let tag_details = ref([])
 let stash = computed(() => props.commit.refs.find((ref_) =>
 	ref_.type === 'stash'))
 
-/** @type {Vue.Ref<import('./FilesDiffsList').FileDiff[]>} */
+/** @type {Vue.Ref<import('./CommitFileChanges').FileDiff[]>} */
 let changed_files = ref([])
 let body = ref('')
 /** @type {Vue.Ref<string[]>} */

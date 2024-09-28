@@ -1,6 +1,5 @@
 <template>
-	<!-- TODO rename to filesdiffs, incl class -->
-	<div class="files-diffs-list">
+	<div class="commit-file-changes">
 		<h3>
 			Changes ({{ files.length }})
 		</h3>
@@ -190,66 +189,66 @@ function show_file(/** @type {string} */ filepath) {
 
 </script>
 <style scoped>
-.files-diffs-list {
+.commit-file-changes {
 	position: relative;
 }
-.files-diffs-list .change {
+.change {
 	flex-shrink: 0;
 	font-family: monospace;
 	font-size: 90%;
 }
-.files-diffs-list .change > .count {
+.change > .count {
 	width: 2rem;
 }
-.files-diffs-list .filename {
+.filename {
 	white-space: pre;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	color: #e5b567;
 	flex-shrink: 0;
 }
-.files-diffs-list ul.list > li {
+ul.list > li {
 	padding-left: 10px;
 	position: relative;
 }
-.files-diffs-list ul.list > li .dir {
+ul.list > li .dir {
 	font-size: 0.9em;
 	opacity: 0.7;
 	white-space: pre;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-.files-diffs-list .tree-node {
+.tree-node {
 	position: relative;
 }
-.files-diffs-list aside.actions {
+aside.actions {
 	opacity: 0;
 	position: absolute;
 	top: 0;
 	right: 0;
 }
-.files-diffs-list:hover aside.actions {
+.commit-file-changes:hover aside.actions {
 	opacity: 1;
 }
-.files-diffs-list .file-actions {
+.file-actions {
 	display: none;
 }
-.files-diffs-list .list-row,
-.files-diffs-list .tree-node > summary,
-.files-diffs-list .tree-node > .body > .row {
+.list-row,
+.tree-node > summary,
+.tree-node > .body > .row {
 	height: 20px;
 }
-.files-diffs-list .list-row:hover,
-.files-diffs-list .tree-node > summary:hover,
-.files-diffs-list .tree-node > .body > .row:hover {
+.list-row:hover,
+.tree-node > summary:hover,
+.tree-node > .body > .row:hover {
 	background: #2a2d2e;
 }
-.files-diffs-list .list-row:hover > .file-actions,
-.files-diffs-list .tree-node > summary:hover > .file-actions,
-.files-diffs-list .tree-node > .body > .row:hover > .file-actions {
+.list-row:hover > .file-actions,
+.tree-node > summary:hover > .file-actions,
+.tree-node > .body > .row:hover > .file-actions {
 	display: flex;
 }
-.files-diffs-list .tree-node > .body {
+.tree-node > .body {
 	padding-left: 20px;
 }
 </style>
