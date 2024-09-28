@@ -6,7 +6,7 @@ let exec = util.promisify(require('child_process').exec)
 
 /**
  * @param EXT_ID {string}
- * @param log {vscode.OutputChannel}
+ * @param log {ReturnType<import('./logger')>}
  * @param args {{on_repo_external_state_change:()=>any, on_repo_names_change:()=>any}}
  */
 module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, on_repo_names_change }) {
@@ -17,7 +17,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 	/** @type {Record<string,string>} */
 	let repo_state_cache = {}
 	function start_observing_repo(/** @type {import('./vscode.git').Repository} */ repo) {
-		log.appendLine('start observing repo ' + repo.rootUri.fsPath)
+		log.info('start observing repo ' + repo.rootUri.fsPath)
 		return repo.state.onDidChange(() => {
 			// There's no event info available so we need to compare. (https://github.com/microsoft/vscode/issues/142313#issuecomment-1056939973)
 			// Work tree changes is required for detecting stashes.
@@ -52,7 +52,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 			// there is no apparent way to unsubscribe from repo state changes. So filter:
 			if (api.repositories.findIndex((r) => r.rootUri.path === repo.rootUri.path) !== selected_repo_index)
 				return
-			log.appendLine('repo watcher: external index/head change') // from external, e.g. cli or committed via vscode ui
+			log.info('repo watcher: external index/head change') // from external, e.g. cli or committed via vscode ui
 			return on_repo_external_state_change()
 		})
 	}
@@ -64,7 +64,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 		if (api.repositories.length === repos_cache.length)
 			return
 		debounce(() => {
-			log.appendLine('workspace: repo(s) added/removed')
+			log.info('workspace: repo(s) added/removed')
 			api.repositories.filter((repo) => ! repos_cache.includes(repo)).forEach((repo) =>
 				start_observing_repo(repo))
 			repos_cache = api.repositories.slice()
@@ -98,7 +98,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 					throw 'No repository selected'
 				cwd = repo.rootUri.fsPath
 			} try {
-				let { stdout, stderr: _ } = await exec(cmd + ' ' + args, {
+				let { stdout } = await exec(cmd + ' ' + args, {
 					cwd,
 					// 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
 					// is 538 MB or 7.4 MB for the first 15k commits
@@ -114,7 +114,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 			}
 		},
 		set_selected_repo_index(/** @type {number} */ index) {
-			log.appendLine('set selected repo index ' + index)
+			log.info('set selected repo index ' + index)
 			selected_repo_index = index
 		},
 		get_selected_repo_index: () => selected_repo_index,

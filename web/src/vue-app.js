@@ -18,7 +18,7 @@ function handle_error(/** @type {any[]} */ ...args) {
 	console_error(...args, new Error(), args[0]?.domChain ? `at element: ${JSON.stringify.maybe(args[0].domChain, null, 4)}` : '')
 	console.trace()
 	debugger // eslint-disable-line no-debugger
-	show_error_message('GitLG extension encountered an unexpected error. Sorry! Error summary: ' + e + '. For details, see VSCode developer console. Please consider reporting this error.')
+	show_error_message('An unexpected error happened. Sorry! Error summary: ' + e + '. For details, see VSCode developer console. Please consider reporting this error.')
 }
 window.onerror = handle_error
 console.error = handle_error

@@ -79,7 +79,7 @@ export default [
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/require-returns-type': 'off',
 			'no-undef-init': 'off',
-			'import/first': 'off', // brakes script setup + extra script for exports
+			'import/first': 'off', // breaks script setup + extra script for exports
 		},
 	},
 ]

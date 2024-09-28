@@ -7,6 +7,7 @@ let relative_time = new RelativeTime()
 require('./globals')
 
 let { get_git } = require('./git')
+const create_logger = require('./logger')
 
 let EXT_NAME = 'GitLG'
 let EXT_ID = 'git-log--graph'
@@ -16,23 +17,17 @@ let BLAME_CMD = EXT_ID + '.blame-line'
 /** @type {vscode.WebviewPanel | vscode.WebviewView | null} */
 let webview_container = null
 
-// todo proper log with timestamps like e.g. git or extension host
-let log = vscode.window.createOutputChannel(EXT_NAME)
-module.exports.log = log
-function log_error(/** @type {string} */ e) {
-	vscode.window.showErrorMessage('GitLG: ' + e)
-	return log.appendLine(`ERROR: ${e}`)
-}
+let logger = create_logger(EXT_NAME, EXT_ID)
+module.exports.log = logger
 
 // When you convert a folder into a workspace by adding another folder, the extension is de- and reactivated
 // but the webview webview_container isn't destroyed even though we instruct it to (with subscriptions).
 // This is an unresolved bug in VSCode and it seems there is nothing you can do. https://github.com/microsoft/vscode/issues/158839
 module.exports.activate = function(/** @type {vscode.ExtensionContext} */ context) {
-	log.appendLine('extension activate')
+	logger.info('extension activate')
 
 	function post_message(/** @type {BridgeMessage} */ msg) {
-		if (vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging'))
-			log.appendLine('send to webview: ' + JSON.stringify(msg))
+		logger.debug('send to webview: ' + JSON.stringify(msg))
 		return webview_container?.webview.postMessage(msg)
 	}
 	function push_message_id(/** @type {string} */ id) {
@@ -42,7 +37,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 		})
 	}
 
-	let git = get_git(EXT_ID, log, {
+	let git = get_git(EXT_ID, logger, {
 		on_repo_external_state_change() {
 			return push_message_id('repo-external-state-change')
 		},
@@ -126,8 +121,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 		view.options = { enableScripts: true, localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'web-dist')] }
 
 		view.onDidReceiveMessage((/** @type {BridgeMessage} */ message) => {
-			if (vscode.workspace.getConfiguration(EXT_ID).get('verbose-logging'))
-				log.appendLine('receive from webview: ' + JSON.stringify(message))
+			logger.debug('receive from webview: ' + JSON.stringify(message))
 			let d = message.data
 			async function h(/** @type {() => any} */ func) {
 				/** @type {BridgeMessage} */
@@ -151,7 +145,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 						case 'git': return h(() =>
 							git.run(d))
 						case 'show-error-message': return h(() =>
-							log_error(d))
+							logger.error(d))
 						case 'show-information-message': return h(() =>
 							vscode.window.showInformationMessage(d))
 						case 'get-config': return h(() =>
@@ -232,7 +226,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 
 	// General start, will choose from creating/show editor panel or showing side nav view depending on config
 	context.subscriptions.push(vscode.commands.registerCommand(START_CMD, async (args) => {
-		log.appendLine('start command')
+		logger.info('start command')
 		if (args?.rootUri) // invoked via menu scm/title
 
 			state('selected-repo-index').set(await git.get_repo_index_for_uri(args.rootUri))
@@ -242,7 +236,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 				// @ts-ignore < TODO ignores in this file
 				return webview_container.reveal()
 			// First editor panel creation + show
-			log.appendLine('create new webview panel')
+			logger.info('create new webview panel')
 			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn || 1, { retainContextWhenHidden: true })
 			webview_container.iconPath = vscode.Uri.joinPath(context.extensionUri, 'img', 'logo.png')
 			webview_container.onDidDispose(() => { webview_container = null })
@@ -250,7 +244,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 			return populate_webview()
 		} else {
 			// Repeated side nav view show
-			log.appendLine('show view')
+			logger.info('show view')
 			// @ts-ignore
 			return webview_container?.show()
 		}
@@ -262,7 +256,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		if (! webview_container)
 			return vscode.window.showInformationMessage('GitLG editor tab is not running.')
-		log.appendLine('close command')
+		logger.info('close command')
 		// @ts-ignore
 		return webview_container.dispose()
 	}))
@@ -271,7 +265,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.toggle', () => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
-		log.appendLine('toggle command')
+		logger.info('toggle command')
 		if (webview_container)
 			// @ts-ignore
 			return webview_container.dispose()
@@ -282,7 +276,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 	// It would be possible to restore some web view state here too
 	vscode.window.registerWebviewPanelSerializer(EXT_ID, {
 		deserializeWebviewPanel(deserialized_panel) {
-			log.appendLine('deserialize web panel (rebuild editor tab from last session)')
+			logger.info('deserialize web panel (rebuild editor tab from last session)')
 			webview_container = deserialized_panel
 			webview_container.onDidDispose(() => { webview_container = null })
 			context.subscriptions.push(webview_container)
@@ -297,7 +291,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 		resolveWebviewView(view) {
 			if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor')
 				return
-			log.appendLine('provide view')
+			logger.info('provide view')
 			webview_container = view
 			return populate_webview()
 		},
@@ -356,7 +350,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 		}, 150)
 	})
 	context.subscriptions.push(vscode.commands.registerCommand(BLAME_CMD, async () => {
-		log.appendLine('blame cmd')
+		logger.info('blame cmd')
 		if (! current_line_long_hash)
 			return
 		state('selected-repo-index').set(current_line_repo_index)
@@ -368,7 +362,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 	}))
 
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.refresh', () => {
-		log.appendLine('refresh command')
+		logger.info('refresh command')
 		return push_message_id('refresh-main-view')
 	}))
 
@@ -377,5 +371,5 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 }
 
 module.exports.deactivate = function() {
-	return log.appendLine('extension deactivate')
+	return logger.info('extension deactivate')
 }
