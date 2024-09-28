@@ -218,6 +218,9 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		let custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
 		if (custom_css)
 			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c) => c.css).maybe()
+		let loading_prompt = is_production
+			? 'Loading (this should not take long)'
+			: 'Trying to connect to dev server... See CONTRIBUTING.md > "Building" for instructions'
 
 		view.html = `
 			<!DOCTYPE html>
@@ -234,6 +237,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			<body>
 			<div id='app'></div>
 			<style>${custom_css}</style>
+			<p style="color: grey;">${loading_prompt}</p>
 			</body>
 			</html>`
 	}
