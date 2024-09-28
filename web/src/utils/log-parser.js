@@ -370,6 +370,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				case 'master': case 'main': return '#ff3333'
 				case 'development': case 'develop': case 'dev': return '#009000'
 				case 'stage': case 'staging': case 'production': return '#d7d700'
+				case 'HEAD': return '#ffffff'
 				default:
 					return colors[Math.abs(branch.name.hashCode() % colors.length)]
 			}
