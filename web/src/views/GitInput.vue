@@ -234,6 +234,10 @@ onMounted(async () => {
 	if (props.git_action.immediate)
 		await ref_form.value?.request_submit()
 })
+
+defineExpose({
+	execute,
+})
 </script>
 <style>
 .options .option.changed {
