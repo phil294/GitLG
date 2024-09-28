@@ -9,6 +9,7 @@
 	import AllBranches from './views/AllBranches.vue'
 	import CommitDetails from './views/CommitDetails.vue'
 	import CommitFileChanges from './views/CommitFileChanges.vue'
+	import CommitRefTips from './views/CommitRefTips.vue'
 	import CommitRow from './views/CommitRow.vue'
 	import CommitsDetails from './views/CommitsDetails.vue'
 	import GitActionButton from './views/GitActionButton.vue'
@@ -29,6 +30,7 @@
 			AllBranches: typeof AllBranches
 			CommitDetails: typeof CommitDetails
 			CommitFileChanges: typeof CommitFileChanges
+			CommitRefTips: typeof CommitRefTips
 			CommitRow: typeof CommitRow
 			CommitsDetails: typeof CommitsDetails
 			GitActionButton: typeof GitActionButton
