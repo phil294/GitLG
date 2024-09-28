@@ -58,18 +58,13 @@ export default {
 				array_values[form_key] = form_values
 			}
 			try {
-				await Promise.all([
-					this.action({
-						...values,
-						form_data,
-						values,
-						array_values,
-						event,
-					}),
-					// force delay when the network response is quick, because overly fast button responses are confusing
-					// FIXME: main log delayed by this
-					new Promise((ok) => setTimeout(ok, 150)),
-				])
+				await this.action({
+					...values,
+					form_data,
+					values,
+					array_values,
+					event,
+				})
 				this.$emit('success')
 			} catch (e) {
 				if (! (e instanceof Error))
