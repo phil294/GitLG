@@ -454,7 +454,7 @@ details#log-config[open] {
 	min-width: 30%;
 	min-height: 30%;
 	resize: both;
-	overflow: auto;
+	overflow: hidden auto;
 	position: relative;
 }
 #main-panel > nav {
