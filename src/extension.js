@@ -141,7 +141,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		let view = webview_container.webview
 		view.options = { enableScripts: true, localResourceRoots: [vscode.Uri.joinPath(context.extensionUri, 'web-dist')] }
 
-		view.onDidReceiveMessage((/** @type {BridgeMessage} */ message) => {
+		view.onDidReceiveMessage(intercept_errors((/** @type {BridgeMessage} */ message) => {
 			logger.debug('receive from webview: ' + JSON.stringify(message))
 			let d = message.data
 			async function h(/** @type {() => any} */ func) {
@@ -191,12 +191,12 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 						})
 					}
 			}
-		})
+		}))
 
-		vscode.workspace.onDidChangeConfiguration((event) => {
+		vscode.workspace.onDidChangeConfiguration(intercept_errors((event) => {
 			if (event.affectsConfiguration(EXT_ID))
-				debounce(() => push_message_id('config-change'), 500)
-		})
+				debounce(intercept_errors(() => push_message_id('config-change')), 500)
+		}))
 
 		let is_production = context.extensionMode === vscode.ExtensionMode.Production || process.env.GIT_LOG__GRAPH_MODE === 'production'
 		let dev_server_url = 'http://localhost:5173'
@@ -338,8 +338,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		current_line_long_hash = ''
 		status_bar_item_blame.text = ''
 	}
-	vscode.workspace.onDidCloseTextDocument(hide_blame)
-	vscode.window.onDidChangeActiveTextEditor(hide_blame)
+	vscode.workspace.onDidCloseTextDocument(intercept_errors(hide_blame))
+	vscode.window.onDidChangeActiveTextEditor(intercept_errors(hide_blame))
 	vscode.window.onDidChangeTextEditorSelection(intercept_errors(({ textEditor: text_editor }) => {
 		let doc = text_editor.document
 		let uri = doc.uri
@@ -350,7 +350,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		current_line = text_editor.selection.active.line
 		if (line_change_debouncer)
 			clearTimeout(line_change_debouncer)
-		line_change_debouncer = setTimeout(async () => {
+		line_change_debouncer = setTimeout(intercept_errors(async () => {
 			current_line_repo_index = await git.get_repo_index_for_uri(uri)
 			if (current_line_repo_index < 0)
 				return hide_blame()
@@ -363,7 +363,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			let author = blamed[1].slice(7)
 			let time = relative_time.from(new Date(Number(blamed[3].slice(12)) * 1000))
 			status_bar_item_blame.text = `$(git-commit) ${author}, ${time}`
-		}, 150)
+		}), 150)
 	}))
 	context.subscriptions.push(vscode.commands.registerCommand(BLAME_CMD, intercept_errors(async () => {
 		logger.info('blame cmd')
