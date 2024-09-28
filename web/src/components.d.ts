@@ -8,9 +8,9 @@
 	import App from './App.vue'
 	import AllBranches from './views/AllBranches.vue'
 	import CommitDetails from './views/CommitDetails.vue'
+	import CommitFileChanges from './views/CommitFileChanges.vue'
 	import CommitRow from './views/CommitRow.vue'
 	import CommitsDetails from './views/CommitsDetails.vue'
-	import FilesDiffsList from './views/FilesDiffsList.vue'
 	import GitActionButton from './views/GitActionButton.vue'
 	import GitInput from './views/GitInput.vue'
 	import History from './views/History.vue'
@@ -28,9 +28,9 @@
 			App: typeof App
 			AllBranches: typeof AllBranches
 			CommitDetails: typeof CommitDetails
+			CommitFileChanges: typeof CommitFileChanges
 			CommitRow: typeof CommitRow
 			CommitsDetails: typeof CommitsDetails
-			FilesDiffsList: typeof FilesDiffsList
 			GitActionButton: typeof GitActionButton
 			GitInput: typeof GitInput
 			History: typeof History

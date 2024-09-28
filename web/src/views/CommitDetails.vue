@@ -61,7 +61,7 @@
 						</ul>
 					</div>
 				</template>
-				<files-diffs-list v-if="details_panel_position !== 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev" />
+				<commit-file-changes v-if="details_panel_position !== 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev" />
 				<h3>
 					Parent commits
 				</h3>
@@ -87,7 +87,7 @@
 				</p>
 			</div>
 			<div :class="details_panel_position === 'bottom' ? 'flex-1' : ''" class="right">
-				<files-diffs-list v-if="details_panel_position === 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev" />
+				<commit-file-changes v-if="details_panel_position === 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev" />
 			</div>
 		</div>
 	</div>

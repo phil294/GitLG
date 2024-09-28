@@ -13,7 +13,7 @@
 			<h3>
 				Comparison of two commits
 			</h3>
-			<files-diffs-list :files="comparison_files" @show_diff="show_compare_diff" @view_rev="view_rev" />
+			<commit-file-changes :files="comparison_files" @show_diff="show_compare_diff" @view_rev="view_rev" />
 		</template>
 	</div>
 </template>
