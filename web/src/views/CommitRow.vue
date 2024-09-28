@@ -10,7 +10,7 @@
 					{{ commit.subject }}
 				</div>
 			</div>
-			<div :title="commit.author_name+' <'+commit.author_email+'>'" class="author flex-noshrink align-center">
+			<div :title="commit.author_name+' <'+commit.author_email+'>'" class="author align-center">
 				{{ commit.author_name }}
 			</div>
 			<div class="stats flex-noshrink row align-center justify-flex-end gap-5">
@@ -26,8 +26,8 @@
 			<div class="datetime flex-noshrink align-center">
 				{{ commit.datetime }}
 			</div>
-			<button>
-				<div :title="commit.hash_long" class="hash flex-noshrink">
+			<button class="flex-noshrink">
+				<div :title="commit.hash_long" class="hash">
 					{{ commit.hash }}
 				</div>
 			</button>
