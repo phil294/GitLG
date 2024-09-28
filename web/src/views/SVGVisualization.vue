@@ -4,9 +4,6 @@
 			<path v-for="line, i of lines" :key="i" class="vis-line" v-bind="line" />
 			<circle v-if="circle" class="vis-line" v-bind="circle" />
 		</svg>
-		<div :style="refs_elems.style" class="refs row align-center">
-			<ref-tip v-for="ref of refs_elems.refs" :key="ref.id" :commit="commit" :git_ref="ref" />
-		</div>
 	</div>
 </template>
 <script setup>
@@ -62,12 +59,6 @@ let circle = computed(() => {
 		r: 4,
 	}
 })
-let refs_elems = computed(() => ({
-	refs: props.commit.refs,
-	style: {
-		left: (circle.value?.cx || padding_left) + vis_v_width.value - 2 + 'px',
-	},
-}))
 </script>
 <style scoped>
 .vis {
@@ -76,14 +67,6 @@ let refs_elems = computed(() => ({
 }
 .vis .vis-line {
 	stroke-width: 2;
-}
-.vis .refs {
-	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
-	line-height: 1em;
-	opacity: 85%;
-	z-index: 1;
 }
 .vis svg > path {
 	fill: none;
