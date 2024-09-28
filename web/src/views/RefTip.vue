@@ -94,6 +94,12 @@ let context_menu_provider = computed(() => () => {
 	border-radius: 7px;
 	white-space: pre;
 	margin: 0 1px;
+	max-width: 350px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.ref-tip:hover {
+	max-width: unset;
 }
 .ref-tip.head {
 	/* box-shadow: 0px 0px 6px 4px rgba(255,255,255,0.188), 0px 0px 4px 0px rgba(255,255,255,0.188) inset; */

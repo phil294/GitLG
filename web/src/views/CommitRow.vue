@@ -74,7 +74,7 @@ let calculated_height = computed(() =>
 	props.height || config.value['row-height'])
 </script>
 <style scoped>
-.commit {
+.commit-row {
 	user-select: none;
 }
 .info > * {
@@ -90,6 +90,9 @@ let calculated_height = computed(() =>
 	min-width: 150px;
 	display: inline-flex;
 }
+.info > .subject-wrapper:hover {
+	overflow: visible;
+}
 .info > .subject-wrapper > * {
 	text-overflow: ellipsis;
 }
@@ -99,6 +102,11 @@ let calculated_height = computed(() =>
 }
 .info > .subject-wrapper > .vis-resize-handle {
 	cursor: col-resize;
+}
+.vis:hover ~ .info > .subject-wrapper > .commit-ref-tips,
+/* Works starting Chrome v129 which VSCode doesn't include *yet*. TODO test once shipped */
+.info > .subject-wrapper > .commit-ref-tips:has(~ .author:hover) {
+	max-width: 50px;
 }
 .info > .datetime,
 .info > .author {
@@ -113,7 +121,7 @@ let calculated_height = computed(() =>
 .info .stats {
 	width: 91px;
 }
-.commit.merge .subject {
+.commit-row.merge .subject {
 	color: #808080;
 }
 </style>
