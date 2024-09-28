@@ -35,7 +35,7 @@ All the interesting stuff happens inside `web/src/views`:
 
 ## Building
 
-- First, once run `npm install` both in the main and in the `web` subfolder (or `npm i`).
+- First, once run `npm install`.
 - Inside the web folder, run `npm run serve`. This runs the web app part at `http://localhost:5173` which we will access from the extension.
 - Launch the script `Run Extension`.
 
