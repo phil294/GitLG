@@ -55,9 +55,9 @@ let circle = computed(() => {
 			is_head: props.commit.branch.id === head_branch.value,
 		},
 		cx:
-					// I guess this could also be calculated more elegantly, but this kind of
-					// approximation seems to be good enough for all cases
-					padding_left + (branch_line.value.vis_line.x0 + branch_line.value.vis_line.xn + (branch_line.value.vis_line.xcs || 0) + (branch_line.value.vis_line.xce || 0)) / 4 * vis_v_width.value,
+			// I guess this could also be calculated more elegantly, but this kind of
+			// approximation seems to be good enough for all cases
+			padding_left + (branch_line.value.vis_line.x0 + branch_line.value.vis_line.xn + (branch_line.value.vis_line.xcs || 0) + (branch_line.value.vis_line.xce || 0)) / 4 * vis_v_width.value,
 		cy: props.height * 0.5,
 		r: 4,
 	}
