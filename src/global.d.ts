@@ -15,8 +15,7 @@ interface Promise<T> {
 }
 
 interface BridgeMessage {
-	// TODO: direction here isn't obvious, maybe reword to response-to-web, request-from-web, push-to-web
-	type: 'response' | 'request' | 'push',
+	type: 'response-to-web' | 'request-from-web' | 'push-to-web',
 	command?: string,
 	data?: any,
 	error?: any,

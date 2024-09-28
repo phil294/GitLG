@@ -11,13 +11,13 @@ window.addEventListener('message', (msg_event) => {
 	/** @type {BridgeMessage} */
 	let message = msg_event.data
 	switch (message.type) {
-		case 'response':
+		case 'response-to-web':
 			if (! response_handlers[message.id])
 				throw new Error('unhandled message response id: ' + JSON.stringify(message))
 			response_handlers[message.id](message)
 			delete response_handlers[message.id]
 			break
-		case 'push':
+		case 'push-to-web':
 			if (! push_handlers[message.id])
 				throw new Error('unhandled message push id: ' + JSON.stringify(message))
 			push_handlers[message.id](message)
@@ -28,7 +28,7 @@ window.addEventListener('message', (msg_event) => {
 export let exchange_message = async (/** @type {string} */ command, /** @type {any} */ data) => {
 	message_id_counter++
 	/** @type {BridgeMessage} */
-	let request = { command, data, id: message_id_counter, type: 'request' }
+	let request = { command, data, id: message_id_counter, type: 'request-from-web' }
 	// TODO: vscode.get/setState() instead of custom logic for exhacning state
 	vscode.postMessage(request)
 	/** @type {BridgeMessage} */

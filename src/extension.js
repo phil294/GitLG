@@ -53,7 +53,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	}
 	function push_message_id(/** @type {string} */ id) {
 		return post_message({
-			type: 'push',
+			type: 'push-to-web',
 			id,
 		})
 	}
@@ -123,7 +123,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 					memento.set(value)
 					if (options.broadcast !== false)
 						post_message({
-							type: 'push',
+							type: 'push-to-web',
 							id: 'state-update',
 							data: { key, value },
 						})
@@ -147,7 +147,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			async function h(/** @type {() => any} */ func) {
 				/** @type {BridgeMessage} */
 				let resp = {
-					type: 'response',
+					type: 'response-to-web',
 					id: message.id,
 				}
 				let caller_stack = new Error().stack
@@ -161,7 +161,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				return post_message(resp)
 			}
 			switch (message.type) {
-				case 'request':
+				case 'request-from-web':
 					switch (message.command) {
 						case 'git': return h(() =>
 							git.run(d))
@@ -229,7 +229,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				<base href="${base_url}" />
 				<link href='./index.css' rel='stylesheet' crossorigin>
 				<title>${EXT_NAME}</title>
-+				<script type="module" crossorigin src='./index.js'></script>
+				<script type="module" crossorigin src='./index.js'></script>
 			</head>
 			<body>
 			<div id='app'></div>

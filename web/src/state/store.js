@@ -171,7 +171,6 @@ export let combine_branches_actions = computed(() => {
 
 export let combine_branches_to_branch_name = ref('')
 export let combine_branches_from_branch_name = ref('')
-// TODO: should be called combine_refs because this is also possible with stashes and tags (?)
 export let combine_branches = (/** @type {string} */ from_branch_name, /** @type {string} */ to_branch_name) => {
 	if (from_branch_name === to_branch_name)
 		return
