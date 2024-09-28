@@ -119,9 +119,9 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 		},
 		get_selected_repo_index: () => selected_repo_index,
 		async get_repo_index_for_uri(/** @type {vscode.Uri} */ uri) {
-			let uri_path = await realpath(uri.path)
+			let uri_path = await realpath(uri.path).catch(e => { throw new Error(e) /* https://github.com/nodejs/node/issues/30944 */ })
 			return ((await Promise.all(api.repositories.map(async (repo, index) => {
-				let repo_path = await realpath(repo.rootUri.path)
+				let repo_path = await realpath(repo.rootUri.path).catch(e => { throw new Error(e) /* https://github.com/nodejs/node/issues/30944 */ })
 				return { repo_path, index }
 			})))).filter(({ repo_path }) => {
 				// if repo includes uri: stackoverflow.com/q/37521893
