@@ -20,10 +20,31 @@ let webview_container = null
 let logger = create_logger(EXT_NAME, EXT_ID)
 module.exports.log = logger
 
+/**
+ * Necessary because there's no global error handler for VSCode extensions https://github.com/microsoft/vscode/issues/45264
+ * and the suggested alternative of installing a TelemetryLogger fails when the user has set {"telemetry.telemetryLevel": "off"}.
+ * Also we're not doing any telemetry but only want to catch the errors for better formatting and display.
+ * @template {(...args: any[]) => any} Fun
+ * @param fun {Fun}
+ * @returns {Fun}
+ */
+function intercept_errors(fun) {
+	return /** @type {Fun} */ (async (...args) => { // eslint-disable-line @stylistic/no-extra-parens
+		try {
+			return await fun(...args)
+		} catch (e) {
+			logger.error(e)
+			// VSCode api callbacks often don't seem to preserve proper stack trace so not even console.trace() in logger helps
+			console.error('The above error happened inside:', fun.toString())
+			throw e
+		}
+	})
+}
+
 // When you convert a folder into a workspace by adding another folder, the extension is de- and reactivated
 // but the webview webview_container isn't destroyed even though we instruct it to (with subscriptions).
 // This is an unresolved bug in VSCode and it seems there is nothing you can do. https://github.com/microsoft/vscode/issues/158839
-module.exports.activate = function(/** @type {vscode.ExtensionContext} */ context) {
+module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionContext} */ context) {
 	logger.info('extension activate')
 
 	function post_message(/** @type {BridgeMessage} */ msg) {
@@ -219,16 +240,15 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 
 	// Needed for git diff views
 	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(`${EXT_ID}-git-show`, {
-		provideTextDocumentContent(uri) {
-			return git.run(`show "${uri.path}"`).catch(() => '')
-		},
+		provideTextDocumentContent: intercept_errors((uri) =>
+			git.run(`show "${uri.path}"`).catch(() => ''),
+		),
 	}))
 
 	// General start, will choose from creating/show editor panel or showing side nav view depending on config
-	context.subscriptions.push(vscode.commands.registerCommand(START_CMD, async (args) => {
+	context.subscriptions.push(vscode.commands.registerCommand(START_CMD, intercept_errors(async (args) => {
 		logger.info('start command')
 		if (args?.rootUri) // invoked via menu scm/title
-
 			state('selected-repo-index').set(await git.get_repo_index_for_uri(args.rootUri))
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor') {
 			if (webview_container)
@@ -246,51 +266,51 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 			logger.info('show view');
 			/** @type {vscode.WebviewView | null} */ (webview_container)?.show() // eslint-disable-line @stylistic/no-extra-parens
 		}
-	}))
+	})))
 
 	// Close the editor(tab)
-	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.close', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.close', intercept_errors(() => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		if (! webview_container)
 			return vscode.window.showInformationMessage('GitLG editor tab is not running.')
 		logger.info('close command');
 		/** @type {vscode.WebviewPanel} */ (webview_container).dispose() // eslint-disable-line @stylistic/no-extra-parens
-	}))
+	})))
 
 	// Toggle the editor(tab)
-	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.toggle', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.toggle', intercept_errors(() => {
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		logger.info('toggle command')
 		if (webview_container)
 			/** @type {vscode.WebviewPanel} */ (webview_container).dispose() // eslint-disable-line @stylistic/no-extra-parens
 		return vscode.commands.executeCommand(START_CMD)
-	}))
+	})))
 
 	// First editor panel creation + show, but automatically after restart / resume previous session.
 	// It would be possible to restore some web view state here too
 	vscode.window.registerWebviewPanelSerializer(EXT_ID, {
-		deserializeWebviewPanel(deserialized_panel) {
+		deserializeWebviewPanel: intercept_errors((deserialized_panel) => {
 			logger.info('deserialize web panel (rebuild editor tab from last session)')
 			webview_container = deserialized_panel
 			webview_container.onDidDispose(() => { webview_container = null })
 			context.subscriptions.push(webview_container)
 			populate_webview()
 			return Promise.resolve()
-		},
+		}),
 	})
 
 	// Side nav view setup
 	context.subscriptions.push(vscode.window.registerWebviewViewProvider(EXT_ID, {
 		// Side nav view creation
-		resolveWebviewView(view) {
+		resolveWebviewView: intercept_errors((view) => {
 			if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor')
 				return
 			logger.info('provide view')
 			webview_container = view
 			return populate_webview()
-		},
+		}),
 	}, { webviewOptions: { retainContextWhenHidden: true } }))
 
 	let status_bar_item_command = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
@@ -320,7 +340,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 	}
 	vscode.workspace.onDidCloseTextDocument(hide_blame)
 	vscode.window.onDidChangeActiveTextEditor(hide_blame)
-	vscode.window.onDidChangeTextEditorSelection(({ textEditor: text_editor }) => {
+	vscode.window.onDidChangeTextEditorSelection(intercept_errors(({ textEditor: text_editor }) => {
 		let doc = text_editor.document
 		let uri = doc.uri
 		if (uri.scheme !== 'file' || doc.languageId === 'log' || doc.languageId === 'Log' || uri.path.includes('extension-output') || uri.path.includes(EXT_ID)) // vscode/issues/206118
@@ -344,8 +364,8 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 			let time = relative_time.from(new Date(Number(blamed[3].slice(12)) * 1000))
 			status_bar_item_blame.text = `$(git-commit) ${author}, ${time}`
 		}, 150)
-	})
-	context.subscriptions.push(vscode.commands.registerCommand(BLAME_CMD, async () => {
+	}))
+	context.subscriptions.push(vscode.commands.registerCommand(BLAME_CMD, intercept_errors(async () => {
 		logger.info('blame cmd')
 		if (! current_line_long_hash)
 			return
@@ -355,16 +375,16 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 		state('repo:selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)
 		return push_message_id('scroll-to-selected-commit')
-	}))
+	})))
 
-	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.refresh', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.refresh', intercept_errors(() => {
 		logger.info('refresh command')
 		return push_message_id('refresh-main-view')
-	}))
+	})))
 
 	// public api of this extension:
 	return { git, post_message, webview_container, context, state }
-}
+})
 
 module.exports.deactivate = function() {
 	return logger.info('extension deactivate')

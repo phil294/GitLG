@@ -6,10 +6,10 @@ let exec = util.promisify(require('child_process').exec)
 
 /**
  * @param EXT_ID {string}
- * @param log {ReturnType<import('./logger')>}
+ * @param logger {ReturnType<import('./logger')>}
  * @param args {{on_repo_external_state_change:()=>any, on_repo_names_change:()=>any}}
  */
-module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, on_repo_names_change }) {
+module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_change, on_repo_names_change }) {
 	/** @type {import('./vscode.git').API} */
 	let api = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1) || (() => { throw 'VSCode official Git Extension not found, did you disable it?' })()
 	let last_git_execution = 0
@@ -17,7 +17,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 	/** @type {Record<string,string>} */
 	let repo_state_cache = {}
 	function start_observing_repo(/** @type {import('./vscode.git').Repository} */ repo) {
-		log.info('start observing repo ' + repo.rootUri.fsPath)
+		logger.info('start observing repo ' + repo.rootUri.fsPath)
 		return repo.state.onDidChange(() => {
 			// There's no event info available so we need to compare. (https://github.com/microsoft/vscode/issues/142313#issuecomment-1056939973)
 			// Work tree changes is required for detecting stashes.
@@ -52,7 +52,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 			// there is no apparent way to unsubscribe from repo state changes. So filter:
 			if (api.repositories.findIndex((r) => r.rootUri.path === repo.rootUri.path) !== selected_repo_index)
 				return
-			log.info('repo watcher: external index/head change') // from external, e.g. cli or committed via vscode ui
+			logger.info('repo watcher: external index/head change') // from external, e.g. cli or committed via vscode ui
 			return on_repo_external_state_change()
 		})
 	}
@@ -64,7 +64,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 		if (api.repositories.length === repos_cache.length)
 			return
 		debounce(() => {
-			log.info('workspace: repo(s) added/removed')
+			logger.info('workspace: repo(s) added/removed')
 			api.repositories.filter((repo) => ! repos_cache.includes(repo)).forEach((repo) =>
 				start_observing_repo(repo))
 			repos_cache = api.repositories.slice()
@@ -114,7 +114,7 @@ module.exports.get_git = function(EXT_ID, log, { on_repo_external_state_change, 
 			}
 		},
 		set_selected_repo_index(/** @type {number} */ index) {
-			log.info('set selected repo index ' + index)
+			logger.info('set selected repo index ' + index)
 			selected_repo_index = index
 		},
 		get_selected_repo_index: () => selected_repo_index,

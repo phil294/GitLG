@@ -7,6 +7,9 @@ module.exports = (/** @type {string} */ ext_name, /** @type {string} */ ext_id) 
 	}
 	return {
 		error(/** @type {string} */ e) {
+			console.error(e)
+			console.trace()
+			e = `An unexpected error happened. Error summary: ${e}. For details, see VSCode developer tools console. Please consider reporting this error.`
 			vscode.window.showErrorMessage(`${ext_name}: ${e}`)
 			log(`[ERROR] ${e}`)
 		},
