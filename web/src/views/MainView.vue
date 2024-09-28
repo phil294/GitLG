@@ -225,7 +225,7 @@ function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 	// a branch name in a commit's ref list.
 	selected_commits.value = [commit]
-	// For now, set history always to commit_hash as this also shows the branches. Might revisit some day TODO
+	// For now, set history always to commit_hash as this also shows the branches. Might revisit some day
 	// if branch.inferred
 	// 	store.push_history type: 'commit_hash', value: commit.hash
 	// else

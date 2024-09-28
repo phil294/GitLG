@@ -61,10 +61,7 @@ let history_mapped = computed(() =>
 				icon: 'history',
 			}
 		return {
-			// TODO obj spread..?
-			type: entry.type,
-			value: entry.value,
-			datetime: entry.datetime,
+			...entry,
 			ref,
 		}
 	}))

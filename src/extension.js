@@ -370,7 +370,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		if (! current_line_long_hash)
 			return
 		state('selected-repo-index').set(current_line_repo_index)
-		let focus_commit_hash = ((await git.run(`rev-parse --short ${current_line_long_hash}`))).trim() // todo error here goes unnoticed
+		let focus_commit_hash = ((await git.run(`rev-parse --short ${current_line_long_hash}`))).trim()
 		current_line_long_hash = ''
 		state('repo:selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)

@@ -231,7 +231,6 @@ export let init = () => {
 		refresh_main_view()
 	})
 
-	// todo rm =>s v
 	add_push_listener('repo-external-state-change', () => refresh_main_view())
 
 	add_push_listener('refresh-main-view', () => refresh_main_view())

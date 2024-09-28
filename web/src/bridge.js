@@ -29,13 +29,10 @@ export let exchange_message = async (/** @type {string} */ command, /** @type {a
 	message_id_counter++
 	/** @type {BridgeMessage} */
 	let request = { command, data, id: message_id_counter, type: 'request-from-web' }
-	// TODO: vscode.get/setState() instead of custom logic for exhacning state
 	vscode.postMessage(request)
 	/** @type {BridgeMessage} */
 	let resp = await new Promise((ok) => {
-		response_handlers[message_id_counter] = function(data_) { // TODO = ok
-			return ok(data_)
-		}
+		response_handlers[message_id_counter] = ok
 	})
 	console.info('exchange_message', command, data) // , resp
 
