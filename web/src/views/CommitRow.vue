@@ -1,14 +1,12 @@
 <template>
-	<div :class="{merge:commit.merge}" class="commit row">
+	<div :class="{merge:commit.merge}" class="commit-row commit row">
 		<SVGVisualization :commit="commit" :height="calculated_height" :style="vis_style" class="vis" />
 		<div v-if="commit.hash" class="info flex-1 row gap-20">
 			<div class="subject-wrapper flex-1 row align-center">
 				<div :style="commit.branch? {color:commit.branch.color} : undefined" class="vis-ascii-circle vis-resize-handle" @mousedown="vis_resize_handle_mousedown">
 					●&nbsp;
 				</div>
-				<div class="refs row align-center">
-					<ref-tip v-for="ref of commit.refs" :key="ref.id" :commit="commit" :git_ref="ref" />
-				</div>
+				<commit-ref-tips :commit="commit" />
 				<div class="subject">
 					&nbsp;{{ commit.subject }}
 				</div>
@@ -101,10 +99,6 @@ let calculated_height = computed(() =>
 }
 .info > .subject-wrapper > .vis-resize-handle {
 	cursor: col-resize;
-}
-.info > .subject-wrapper > .refs {
-	line-height: 1em;
-	z-index: 1;
 }
 .info > .datetime,
 .info > .author {

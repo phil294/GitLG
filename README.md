@@ -126,6 +126,11 @@ Please consider opening an issue or PR if you think a certain action or option w
             "As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
         ]
     },
+    "git-log--graph.group-branch-remotes": {
+        "description": "If active, branches and their origins will be merged into a single branch-tip bubble, but only if there is no ambiguity.",
+        "type": "boolean",
+        "default": true
+    },
     "git-log--graph.hide-quick-branch-tips": {
         "description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
         "type": "boolean",

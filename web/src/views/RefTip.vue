@@ -1,6 +1,9 @@
 <template>
 	<div v-context-menu="context_menu_provider" v-drag="drag" v-drop="drop" class="ref-tip" v-bind="bind">
 		{{ git_ref.id }}
+		<template v-if="branch?.remote_names_group">
+			<span v-for="remote_name of branch.remote_names_group" :key="remote_name" class="remote-name-group-entry"> + {{ remote_name }}</span>
+		</template>
 	</div>
 </template>
 <script setup>
@@ -115,5 +118,8 @@ let context_menu_provider = computed(() => () => {
 .ref-tip.branch.dragenter {
 	background: #fff !important;
 	color: #f00 !important;
+}
+.remote-name-group-entry {
+	color: #fff;
 }
 </style>

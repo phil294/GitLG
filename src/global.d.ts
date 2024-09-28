@@ -32,6 +32,8 @@ interface GitRef {
 interface Branch extends GitRef {
 	type: "branch"
 	remote_name?: string
+	/** For display of multiple remotes inside one Ref */
+	remote_names_group?: string[]
 	tracking_remote_name?: string
 	inferred?: boolean
 }
