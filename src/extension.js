@@ -233,8 +233,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor') {
 			if (webview_container)
 				// Repeated editor panel show
-				// @ts-ignore < TODO ignores in this file
-				return webview_container.reveal()
+				return /** @type {vscode.WebviewPanel} */ (webview_container).reveal() // eslint-disable-line @stylistic/no-extra-parens
 			// First editor panel creation + show
 			logger.info('create new webview panel')
 			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn || 1, { retainContextWhenHidden: true })
@@ -244,9 +243,8 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 			return populate_webview()
 		} else {
 			// Repeated side nav view show
-			logger.info('show view')
-			// @ts-ignore
-			return webview_container?.show()
+			logger.info('show view');
+			/** @type {vscode.WebviewView | null} */ (webview_container)?.show() // eslint-disable-line @stylistic/no-extra-parens
 		}
 	}))
 
@@ -256,9 +254,8 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		if (! webview_container)
 			return vscode.window.showInformationMessage('GitLG editor tab is not running.')
-		logger.info('close command')
-		// @ts-ignore
-		return webview_container.dispose()
+		logger.info('close command');
+		/** @type {vscode.WebviewPanel} */ (webview_container).dispose() // eslint-disable-line @stylistic/no-extra-parens
 	}))
 
 	// Toggle the editor(tab)
@@ -267,8 +264,7 @@ module.exports.activate = function(/** @type {vscode.ExtensionContext} */ contex
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		logger.info('toggle command')
 		if (webview_container)
-			// @ts-ignore
-			return webview_container.dispose()
+			/** @type {vscode.WebviewPanel} */ (webview_container).dispose() // eslint-disable-line @stylistic/no-extra-parens
 		return vscode.commands.executeCommand(START_CMD)
 	}))
 
