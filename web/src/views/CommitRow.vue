@@ -6,7 +6,7 @@
 				<div :style="commit.branch? {color:commit.branch.color} : undefined" class="vis-ascii-circle vis-resize-handle" @mousedown="vis_resize_handle_mousedown">
 					●&nbsp;
 				</div>
-				<commit-ref-tips :commit="commit" />
+				<commit-ref-tips class="flex-noshrink" :commit="commit" />
 				<div class="subject">
 					&nbsp;{{ commit.subject }}
 				</div>
@@ -95,7 +95,7 @@ let calculated_height = computed(() =>
 }
 .info > .subject-wrapper > .subject {
 	overflow: hidden;
-	flex: 1 1 30%;
+	/* flex: 1 1 30%; */
 }
 .info > .subject-wrapper > .vis-resize-handle {
 	cursor: col-resize;
