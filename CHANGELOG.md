@@ -4,6 +4,29 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.16 2024-09-29
+
+- [`794cf93`](https://github.com/phil294/GitLG/commit/794cf93) Rename the project to GitLG. Commented in #104
+- Lots of internal code rework - removed preprocessors (no more CoffeeScript, SLM or Stylus), dependencies, error handling, refactoring, only thing remaining now is native web technologies + Vue.js. This should lower the barrier for making a PR.
+- [`86de101`](https://github.com/phil294/GitLG/commit/86de101) Rework CONTRIBUTING.md
+- [`488ca68`](https://github.com/phil294/GitLG/commit/488ca68) Move ref tips from graph area to in front of commit subject
+This only shows in detached head state
+- [`5452998`](https://github.com/phil294/GitLG/commit/5452998) Group local branch tip with its remotes into one bubble if they are on the same commit. Only if it's safe to do so, i.e. there are no tags or stashes with the same name. Two remotes without the local one also won't be grouped. Grouping can be deactivated by setting `{ "git-log--graph.group-branch-remotes": false }`
+- [`5ca896b`](https://github.com/phil294/GitLG/commit/5ca896b) Set RefTip max-width to 350px, and make RefTips and subjects fully visible by hovering the graph visualization and the RefTips, respectively.
+In a future VSCode version, hovering the author name will also automatically work for revealing the full subject.
+- [`2ca9714`](https://github.com/phil294/GitLG/commit/2ca9714) Set color of HEAD "branch" to `#FFF`
+- [`610b2fe`](https://github.com/phil294/GitLG/commit/610b2fe) Prevent shrinking of commit stats
+- [`08b094b`](https://github.com/phil294/GitLG/commit/08b094b) Files diff list: Show plus or trash icon if file was added or deleted in commit, respectively
+- [`c5b67fb`](https://github.com/phil294/GitLG/commit/c5b67fb) Add missing file icons: powershell, rust, go
+- [`dcb2464`](https://github.com/phil294/GitLG/commit/dcb2464) Add small prompt text while the webview is loading
+- [`d496b43`](https://github.com/phil294/GitLG/commit/d496b43) Commit Details: Show tag descriptions even if `hide-sidebar-buttons` is active
+- [`1cf38f0`](https://github.com/phil294/GitLG/commit/1cf38f0) Commit Details: Prevent color codes from appearing in tag name
+- [`3357ee7`](https://github.com/phil294/GitLG/commit/3357ee7) Improve logging: timestamps
+- [`9edb92f`](https://github.com/phil294/GitLG/commit/9edb92f) Fix artificial 150 ms delay for main view
+- [`c9edac2`](https://github.com/phil294/GitLG/commit/c9edac2) Fix unnecessary horizontal scrollbar in main view
+- [`2db30f6`](https://github.com/phil294/GitLG/commit/2db30f6) NPM Auto install in web folder
+- [`f4c9d86`](https://github.com/phil294/GitLG/commit/f4c9d86) Change wording in paragraph about Git Graph extension
+
 ### v0.1.15 2024-04-17
 
 - [`f9eaec1`](https://github.com/phil294/GitLG/commit/f9eaec1) Update logo. Thanks @dimateos! (#860
