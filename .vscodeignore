@@ -13,3 +13,4 @@ CONTRIBUTING.md
 vsix-out
 **/*.d.ts
 app
+eslint.config.mjs

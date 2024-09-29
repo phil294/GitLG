@@ -27,7 +27,7 @@ if grep -R -n -E '\s$' src web/src; then
 fi
 
 
-: '
+: ''
 npx ncu -u
 npm i
 pushd web
