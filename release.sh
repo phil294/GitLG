@@ -28,7 +28,7 @@ fi
 
 
 : ''
-npx ncu -u
+npx ncu -u -x '@types/vscode'
 npm i
 pushd web
 npx ncu -u
