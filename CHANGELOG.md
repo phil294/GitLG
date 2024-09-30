@@ -4,6 +4,10 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.18 2024-09-30
+
+- [`ea9da60`](https://github.com/phil294/GitLG/commit/ea9da60) Fix missing graph lines for some merge commits (#105, #106). In particular, if the first commit of said graph line has a branch tip to it *and* that branch id's name does not exactly match the subject of its merge commit.
+
 ### v0.1.17 2024-09-30
 
 - [`234944a`](https://github.com/phil294/GitLG/commit/234944a) Fix bad positioning of loading message once the view has initialized
