@@ -153,7 +153,7 @@ watchEffect(async () => {
 	// so we can see untracked as well
 	let get_files_command = stash.value
 		? `-c core.quotepath=false stash show --include-untracked --numstat --summary --format="" ${props.commit.hash}`
-		: `-c core.quotepath=false diff --numstat --summary --format="" ${props.commit.hash}~1 ${props.commit.hash}`
+		: `-c core.quotepath=false show --numstat --summary --format="" ${props.commit.hash}`
 	changed_files.value = git_numstat_summary_to_changes_array(await git(get_files_command))
 
 	body.value = await git(`show -s --format="%b" ${props.commit.hash}`)
