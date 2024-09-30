@@ -185,7 +185,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
 						case 'open-file': return h(() => {
-							let workspace = vscode.workspace.workspaceFolders?.[git.get_selected_repo_index()].uri.fsPath || ''
+							// vscode.workspace.workspaceFolders is NOT necessarily in the same order as git-api.repositories
+							let workspace = git.get_repo()?.rootUri.fsPath || ''
 							let uri = vscode.Uri.file(path.join(workspace, d.filename))
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})

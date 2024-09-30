@@ -81,23 +81,24 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 		get_repo_names() {
 			return api.repositories.map((f) => basename(f.rootUri.path))
 		},
-		async run(/** @type {string} */ args, /** @type {number|undefined} */ repo_index) {
+		get_repo(/** @type {number|undefined} */ repo_index) {
 			if (repo_index == null)
 				repo_index = selected_repo_index
+			let repo = api.repositories.at(repo_index)
+			if (! repo && repo_index > 0)
+				repo = api.repositories.at(0)
+			return repo
+		},
+		async run(/** @type {string} */ args, /** @type {number|undefined} */ repo_index) {
 			let cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
 			let cmd = vscode.workspace.getConfiguration(EXT_ID).get('git-path') || 'git'
 			if (! cwd) {
-				let repo = api.repositories[repo_index]
-				if (! repo && repo_index > 0) {
-					repo_index = 0
-					repo = api.repositories[repo_index]
-					if (! repo)
-						throw `No repository found for repo_index ${repo_index}`
-				}
+				let repo = this.get_repo(repo_index)
 				if (! repo)
 					throw 'No repository selected'
 				cwd = repo.rootUri.fsPath
-			} try {
+			}
+			try {
 				let { stdout } = await exec(cmd + ' ' + args, {
 					cwd,
 					// 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
