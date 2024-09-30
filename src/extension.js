@@ -235,9 +235,10 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				<script type="module" crossorigin src='./index.js'></script>
 			</head>
 			<body>
-			<div id='app'></div>
+			<div id='app'>
+				<p style="color: grey;">${loading_prompt}</p>
+			</div>
 			<style>${custom_css}</style>
-			<p style="color: grey;">${loading_prompt}</p>
 			</body>
 			</html>`
 	}
