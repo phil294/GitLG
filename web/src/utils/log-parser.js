@@ -78,8 +78,6 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	let densened_vis_line_by_branch_id = {}
 	/** @type {Record<string, VisLine>} */
 	let last_densened_vis_line_by_branch_id = {}
-	/** @type {Record<string, number>} */
-	let xn_by_branch_id = {}
 
 	let graph_chars = ['*', '\\', '/', ' ', '_', '|', /* rare: */ '-', '.']
 	for (let [row_no_s, row] of Object.entries(rows)) {
@@ -166,9 +164,9 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					if (branch_tip) {
 						v_branch = branch_tip
 						if (v_nw?.char === '\\') {
-						// This is branch tip but in previous above lines, this branch
-						// may already have been on display for merging without its actual name known (inferred substitute).
-						// Fix these lines (min 1) now
+							// This is branch tip but in previous above lines/commits, this branch
+							// may already have been on display for merging without its actual name known ("inferred substitute" below).
+							// Fix these lines (min 1) now
 							let wrong_branch = v_nw?.branch
 							if (wrong_branch) {
 								let k = commits.length - 1
@@ -177,6 +175,11 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 									for (let wrong_branch_match of wrong_branch_matches || [])
 										wrong_branch_match.branch = v_branch
 									k--
+								}
+								if (densened_vis_line_by_branch_id[wrong_branch.id] && ! densened_vis_line_by_branch_id[v_branch.id]) {
+									densened_vis_line_by_branch_id[v_branch.id] = densened_vis_line_by_branch_id[wrong_branch.id]
+									densened_vis_line_by_branch_id[v_branch.id].branch = v_branch
+									delete densened_vis_line_by_branch_id[wrong_branch.id]
 								}
 								branches.splice(branches.indexOf(wrong_branch), 1)
 							}
@@ -229,7 +232,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					if (v_e?.char === '|')
 						v_branch = v_e?.branch
 					else if (v_w_char === '|') {
-					// right before (chronologically) a merge commit (which would be at v_nw).
+						// right before (chronologically) a merge commit (which would be at v_nw).
 						let last_commit = commits.at(-1)
 						if (last_commit)
 							last_commit.merge = true
@@ -284,7 +287,6 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					vis_line.branch = v_branch
 					densened_vis_line_by_branch_id[v_branch.id] = vis_line
 				}
-				xn_by_branch_id[v_branch.id] = vis_line.xn
 			}
 		}
 		if (subject) {
