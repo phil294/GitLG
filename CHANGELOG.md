@@ -4,6 +4,13 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.17 2024-09-30
+
+- [`234944a`](https://github.com/phil294/GitLG/commit/234944a) Fix bad positioning of loading message once the view has initialized
+- [`8d97dc4`](https://github.com/phil294/GitLG/commit/8d97dc4) Fix file commit file listing for commits that have no parent
+- [`bb9856d`](https://github.com/phil294/GitLG/commit/bb9856d) Fix "Open file" from within commit file changes in multi-repo scenarios. Sometimes the wrong repo was assumed, leading to a wrong or non-found opened file path
+idk
+
 ### v0.1.16 2024-09-29
 
 - [`794cf93`](https://github.com/phil294/GitLG/commit/794cf93) Rename the project to GitLG. Commented in #104
