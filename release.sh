@@ -94,7 +94,7 @@ mv "$vsix_file" vsix-out/"$vsix_file"
 vsix_file=vsix-out/"$vsix_file"
 echo $vsix_file
 
-run xdg-open "$vsix_file"
+run xdg-open "${vsix_file@Q}"
 ls -hltr vsix-out
 ls -hltr
 echo 'check vsix package before publish'
@@ -117,5 +117,5 @@ if [[ -z $version || -z $changes || -z $vsix_file ]]; then
 fi
 echo 'will create github release'
 pause
-run gh release create "$version" --target master --title "$version" --notes "$changes" --verify-tag "$vsix_file"
+run gh release create "$version" --target master --title "$version" --notes "${changes@Q}" --verify-tag "${vsix_file@Q}"
 echo 'github release created'
