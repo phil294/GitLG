@@ -108,10 +108,11 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				last_git_execution = Date.now()
 				return stdout
 			} catch (error) {
-				let e = error
 				// stderr contains the full message, message itself is too short otherwise
-				e.message = e.stderr || e.stdout
-				throw e
+				// In the case of multi-step commands like branch drop merge, stdout instead
+				// contains the actual important message.
+				error.message = [error.stderr, error.stdout].join('\n')
+				throw error
 			}
 		},
 		set_selected_repo_index(/** @type {number} */ index) {
