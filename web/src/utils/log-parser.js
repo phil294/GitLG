@@ -233,7 +233,9 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						v_branch = v_ne?.branch
 					else if (v_n?.char === '\\' || v_n?.char === '|')
 						v_branch = v_n?.branch
-					vis_line = { x0: 1, xn: -0.5, xce: 0.5 }
+					// Straight line. Looks better this way idk. Also significant change yn=0.5
+					// to avoid branch birth lines to appear before their birth commit circle
+					vis_line = { x0: 1, y0: 0, xn: -0.5, yn: 0.5, xcs: 0.25, xce: 0.25, ycs: 0.25, yce: 0.25 }
 					break
 				case '\\':
 					vis_line = { x0: -0.5, xn: 1 }
