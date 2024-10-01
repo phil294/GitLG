@@ -1,7 +1,7 @@
 import { ref, computed, shallowRef } from 'vue'
 import default_git_actions from './default-git-actions.json'
 import { parse } from '../utils/log-parser.js'
-import { git, exchange_message, add_push_listener } from '../bridge.js'
+import { git, exchange_message, add_push_listener, show_information_message } from '../bridge.js'
 import { parse_config_actions } from '../views/GitInput.vue'
 
 // ########################
@@ -67,9 +67,13 @@ export let git_run_log = async (/** @type {string} */ log_args) => {
 	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s"`)
 	let stash_refs = await git('stash list --format="%h"')
 	log_args = log_args.replace('{STASH_REFS}', stash_refs.replaceAll('\n', ' '))
+	function log_error_handler(/** @type {Error} */ e) {
+		show_information_message('Git LOG failed. Did you change the command by hand? In the main view at the top left, click "Configure", then at the top right click "Reset", then "Save" and try again. If this didn\'t help, it might be a bug! Please open up a GitHub issue.')
+		throw e
+	}
 	// errors will be handled by GitInput
 	let [log_data, branch_data, stash_data, status_data, head_data] = await Promise.all([
-		git(log_args),
+		git(log_args).catch(log_error_handler),
 		git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`),
 		git('stash list --format="%h %gd"').catch(() => ''),
 		git('-c core.quotepath=false status'),
@@ -77,7 +81,11 @@ export let git_run_log = async (/** @type {string} */ log_args) => {
 	])
 	if (log_data == null)
 		return
-	let parsed = parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
+	/** @type {ReturnType<parse>} */
+	let parsed = { commits: [], branches: [] }
+	try {
+		parsed = parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
+	} catch (e) { log_error_handler(e) }
 	commits.value = parsed.commits
 	branches.value = parsed.branches
 	head_branch.value = head_data

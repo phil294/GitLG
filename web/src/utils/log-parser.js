@@ -127,7 +127,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		/** @type {typeof graph_chars} */
 		let vis_chars = vis_str.trimEnd().split('')
 		if (vis_chars.some((v) => ! graph_chars.includes(v)))
-			throw new Error(`Could not parse output of GIT LOG (line:${row_no_s}). Did you change the command by hand? Please in the main view at the top left, click "Configure", then at the top right click "Reset", then "Save" and try again. If this didn't help, it might be a bug! Please open up a GitHub issue.`)
+			throw new Error(`Could not parse output of GIT LOG (line:${row_no_s})`)
 		// format %ad with --date=iso-local returns something like 2021-03-02 15:59:43 +0100
 		let datetime = iso_datetime?.slice(0, 19)
 		/**
