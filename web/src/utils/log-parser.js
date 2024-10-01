@@ -33,7 +33,14 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 
 	/** @type {Branch[]} */
 	let branches = []
-	function new_branch(/** @type {string} */ branch_name, /** @type {string=} */ remote_name, /** @type {string=} */ tracking_remote_name) {
+	// TODO: change signature to desturctign
+	/** If no *remote_name* is given but *branch_name* includes a forward slash, the remote is extracted accordingly */
+	function new_branch(/** @type {string} */ branch_name, /** @type {string=} */ remote_name, /** @type {string=} */ tracking_remote_name, /** @type {boolean=} */ inferred) {
+		if (! remote_name && branch_name.includes('/')) {
+			let split = branch_name.split('/')
+			branch_name = split.at(-1) || ''
+			remote_name = split.slice(0, split.length - 1).join('/')
+		}
 		/** @type {Branch} */
 		let branch = {
 			name: branch_name,
@@ -41,7 +48,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			type: 'branch',
 			remote_name,
 			tracking_remote_name,
-			id: remote_name ? `${remote_name}/${branch_name}` : branch_name,
+			id: (remote_name ? `${remote_name}/${branch_name}` : branch_name) + (inferred ? '~' + (branches.length - 1) : ''),
+			inferred,
 		}
 		branches.push(branch)
 		return branch
@@ -169,11 +177,10 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						v_branch = v_nw?.branch
 					else if (v_ne?.char === '/')
 						v_branch = v_ne?.branch
-					else {
+					else
 						// Stashes
-						v_branch = new_branch(`inferred~${branches.length - 1}`)
-						v_branch.inferred = true
-					}
+						v_branch = new_branch('inferred', undefined, undefined, true)
+
 					commit_branch = v_branch || undefined
 					vis_line = { x0: 0.5, xn: 0.5 }
 					if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
@@ -241,16 +248,11 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						// merge commit message, or if failing to do so, c.) create an inferred branch without name.
 						// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
 						let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
-						if (subject_merge_match) {
-							let branch_id = (subject_merge_match[1] || subject_merge_match[2]) + '~' + (branches.length - 1)
-							let split = branch_id.split('/')
-							if (split.length)
-								v_branch = new_branch(split.at(-1) || '', split.slice(0, split.length - 1).join('/'))
-							else
-								v_branch = new_branch(branch_id)
-						} else
-							v_branch = new_branch(`~${branches.length - 1}`)
-						v_branch.inferred = true
+						if (subject_merge_match)
+							// TODO: new auto remote determination works for these now as exptecd?
+							v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], undefined, undefined, true)
+						else
+							v_branch = new_branch('', undefined, undefined, true)
 					} else if (v_nw?.char === '|' || v_nw?.char === '\\')
 						v_branch = v_nw?.branch
 					else if (v_nw?.char === '.' || v_nw?.char === '-') {
