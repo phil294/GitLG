@@ -236,10 +236,14 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					vis_line = { x0: 1, xn: -0.5, xce: 0.5 }
 					break
 				case '\\':
-					if (v_e?.char === '|' && v_e?.branch)
+					vis_line = { x0: -0.5, xn: 1 }
+					if (v_e?.char === '|' && v_e?.branch) {
 						// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
 						v_branch = new_branch(v_e.branch.id, undefined, undefined, true)
-					else if (v_w_char === '|') {
+						// And because this is now a new one, it won't be joined together with the follow-up branch lines
+						// so the positioning needs to be done entirely here
+						vis_line = { x0: -0.5, xn: 1.5, yn: 0.5, yce: 0.5, xcs: 1.5 }
+					} else if (v_w_char === '|') {
 						// right before (chronologically) a merge commit (which would be at v_nw).
 						let last_commit = commits.at(-1)
 						if (last_commit)
@@ -264,7 +268,6 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						v_branch = w_char_match.branch
 					} else if (v_nw?.char === '.' && last_vis[i - 2].char === '-')
 						v_branch = last_vis[i - 3].branch
-					vis_line = { x0: -0.5, xn: 1 }
 					break
 				case ' ': case '.': case '-':
 					v_branch = null
@@ -336,10 +339,9 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						// First time this branch appeared
 						if (vis_line.xn > vis_line.x0)
 							// so we want an upwards curvature, just like
-							// the logic around initializing xce at '/' above, but reversed:
+							// the logic around initializing xce above, but reversed:
 							vis_line.xcs = vis_line.x0 + 1
 						else
-
 							vis_line.xcs = vis_line.x0
 					vis_line.ycs = curve_radius
 				}
