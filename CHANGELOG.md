@@ -4,6 +4,10 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.19 2024-10-01
+
+- [`8ec690e`](https://github.com/phil294/GitLG/commit/8ec690e) Fix cryptic errors like `ENOENT 'C:\c:\...` on Windows. This happened when navigating files, as the "GitLG: Blame" command would not work anymore. Thanks to @GaryOma for ths fix
+
 ### v0.1.18 2024-09-30
 
 - [`ea9da60`](https://github.com/phil294/GitLG/commit/ea9da60) Fix missing graph lines for some merge commits (#105, #106). In particular, if the first commit of said graph line has a branch tip to it *and* that branch id's name does not exactly match the subject of its merge commit.
