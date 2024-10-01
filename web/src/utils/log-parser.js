@@ -161,45 +161,45 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			let vis_line = { x0: 0, xn: 0 }
 			switch (char) {
 				case '*':
-					if (branch_tip) {
+					if (branch_tip)
 						v_branch = branch_tip
-						if (v_nw?.char === '\\') {
-							// This is branch tip but in previous above lines/commits, this branch
-							// may already have been on display for merging without its actual name known ("inferred substitute" below).
-							// Fix these lines (min 1) now
-							let wrong_branch = v_nw?.branch
-							if (wrong_branch) {
-								let k = commits.length - 1
-								let wrong_branch_matches = []
-								while ((wrong_branch_matches = commits[k]?.vis_lines.filter((v) => v.branch === wrong_branch))?.length) {
-									for (let wrong_branch_match of wrong_branch_matches || [])
-										wrong_branch_match.branch = v_branch
-									k--
-								}
-								if (densened_vis_line_by_branch_id[wrong_branch.id] && ! densened_vis_line_by_branch_id[v_branch.id]) {
-									densened_vis_line_by_branch_id[v_branch.id] = densened_vis_line_by_branch_id[wrong_branch.id]
-									densened_vis_line_by_branch_id[v_branch.id].branch = v_branch
-									delete densened_vis_line_by_branch_id[wrong_branch.id]
-								}
-								branches.splice(branches.indexOf(wrong_branch), 1)
-							}
-						}
-					} else if (v_n?.branch)
+					else if (v_n?.branch)
 						v_branch = v_n?.branch
 					else if (v_nw?.char === '\\')
 						v_branch = v_nw?.branch
 					else if (v_ne?.char === '/')
 						v_branch = v_ne?.branch
 					else {
-					// Stashes
+						// Stashes
 						v_branch = new_branch(`inferred~${branches.length - 1}`)
 						v_branch.inferred = true
 					}
 					commit_branch = v_branch || undefined
 					vis_line = { x0: 0.5, xn: 0.5 }
 					if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
-					// Branch or inferred branch starts here visually (ends here logically)
+						// Branch or inferred branch starts here visually (ends here logically)
 						vis_line.y0 = 0.5
+					if (v_branch && v_nw?.char === '\\') {
+						// This is branch tip but in previous above lines/commits, this branch
+						// may already have been on display for merging without its actual name known ("inferred substitute" below).
+						// Fix these lines (min 1) now
+						let wrong_branch = v_nw?.branch
+						if (wrong_branch?.inferred && ! v_branch.inferred) {
+							let k = commits.length - 1
+							let wrong_branch_matches = []
+							while ((wrong_branch_matches = commits[k]?.vis_lines.filter((v) => v.branch === wrong_branch))?.length) {
+								for (let wrong_branch_match of wrong_branch_matches || [])
+									wrong_branch_match.branch = v_branch
+								k--
+							}
+							if (densened_vis_line_by_branch_id[wrong_branch.id] && ! densened_vis_line_by_branch_id[v_branch.id]) {
+								densened_vis_line_by_branch_id[v_branch.id] = densened_vis_line_by_branch_id[wrong_branch.id]
+								densened_vis_line_by_branch_id[v_branch.id].branch = v_branch
+								delete densened_vis_line_by_branch_id[wrong_branch.id]
+							}
+							branches.splice(branches.indexOf(wrong_branch), 1)
+						}
+					}
 					break
 				case '|':
 					if (v_n?.branch)
