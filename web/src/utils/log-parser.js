@@ -186,7 +186,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
 						// Branch or inferred branch starts here visually (ends here logically)
 						vis_line.y0 = 0.5
-					if (v_branch && v_nw?.char === '\\') {
+					if (v_branch && v_nw?.char === '\\' && v_n?.char !== '|') {
 						// This is branch tip but in previous above lines/commits, this branch
 						// may already have been on display for merging without its actual name known ("inferred substitute" below).
 						// Fix these lines (min 1) now
@@ -236,8 +236,9 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					vis_line = { x0: 1, xn: -0.5, xce: 0.5 }
 					break
 				case '\\':
-					if (v_e?.char === '|')
-						v_branch = v_e?.branch
+					if (v_e?.char === '|' && v_e?.branch)
+						// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
+						v_branch = new_branch(v_e.branch.id, undefined, undefined, true)
 					else if (v_w_char === '|') {
 						// right before (chronologically) a merge commit (which would be at v_nw).
 						let last_commit = commits.at(-1)
