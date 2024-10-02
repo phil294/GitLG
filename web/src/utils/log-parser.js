@@ -298,6 +298,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				if (densened_vis_line_by_branch_id[v_branch.id]) {
 					densened_vis_line_by_branch_id[v_branch.id].xn = vis_line.xn
 					densened_vis_line_by_branch_id[v_branch.id].xce = vis_line.xce
+					densened_vis_line_by_branch_id[v_branch.id].yn = vis_line.yn
+					densened_vis_line_by_branch_id[v_branch.id].yce = vis_line.yce
 				} else {
 					vis_line.branch = v_branch
 					densened_vis_line_by_branch_id[v_branch.id] = vis_line
