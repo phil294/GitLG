@@ -248,8 +248,6 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					} else if (v_w_char === '|') {
 						// right before (chronologically) a merge commit (which would be at v_nw).
 						let last_commit = commits.at(-1)
-						if (last_commit)
-							last_commit.merge = true
 						// The actual branch name isn't known for sure yet: It will either a.) be visible with a branch tip
 						// in the next commit or never directly exposed, in which case we'll b.) try to infer it from the
 						// merge commit message, or if failing to do so, c.) create an inferred branch without name.
@@ -260,6 +258,15 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 							v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], undefined, undefined, true)
 						else
 							v_branch = new_branch('', undefined, undefined, true)
+						if (last_commit) {
+							last_commit.merge = true
+							// Retroactively adjust vis lines so that the merge appears to go upwards into the merge commit circle,
+							// not at the line before. This is like setting y0=-0.6 to *this* vis_line which isn't possible
+							// due to the commit row encapsulation.
+							let new_last_commit_vis_line = { branch: v_branch, x0: i - 1 + 0.5, xn: i - 1 + 0.5, xcs: i - 1 + 0.5, y0: 0.4, yn: 1, ycs: 0.75 }
+							last_commit.vis_lines.push(new_last_commit_vis_line)
+							last_densened_vis_line_by_branch_id[v_branch.id] = new_last_commit_vis_line
+						}
 					} else if (v_nw?.char === '|' || v_nw?.char === '\\')
 						v_branch = v_nw?.branch
 					else if (v_nw?.char === '.' || v_nw?.char === '-') {
