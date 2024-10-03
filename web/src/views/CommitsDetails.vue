@@ -14,7 +14,7 @@
 				Comparison of two commits
 			</h3>
 
-			<commit-file-changes :files="comparison_files" @show_diff="show_compare_diff" @view_rev="view_rev" />
+			<commit-file-changes :files="comparison_files" @show_diff="show_compare_diff" @show_multi_diff="show_multi_compare_diff" @view_rev="view_rev" />
 		</template>
 	</div>
 </template>
@@ -46,6 +46,12 @@ function show_compare_diff(/** @type {string} */ filepath) {
 	exchange_message('open-diff', {
 		hashes: [props.commits[0].hash, props.commits[1].hash],
 		filename: filepath,
+	})
+}
+function show_multi_compare_diff() {
+	return exchange_message('open-multi-diff', {
+		hashes: [props.commits[0].hash, props.commits[1].hash],
+		filenames: comparison_files.value.map(f => f.path),
 	})
 }
 function view_rev(/** @type {string} */ filepath) {

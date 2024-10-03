@@ -180,6 +180,14 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 							let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${d.filename}`)
 							return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, `${d.filename} ${d.hashes[0]} vs. ${d.hashes[1]}`)
 						})
+						case 'open-multi-diff': return h(() =>
+							vscode.commands.executeCommand('vscode.changes',
+								`${d.hashes[0]} vs. ${d.hashes[1]}`,
+								d.filenames.map((/** @type {string} */ filename) => [
+									vscode.Uri.parse(filename),
+									vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[0]}:${filename}`),
+									vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${filename}`),
+								])))
 						case 'view-rev': return h(() => {
 							let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hash}:${d.filename}`)
 							return vscode.commands.executeCommand('vscode.open', uri)

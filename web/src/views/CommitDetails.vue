@@ -62,7 +62,7 @@
 					</div>
 				</template>
 
-				<commit-file-changes v-if="details_panel_position !== 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev" />
+				<commit-file-changes v-if="details_panel_position !== 'bottom'" :files="changed_files" @show_diff="show_diff" @show_multi_diff="show_multi_diff" @view_rev="view_rev" />
 
 				<h3>
 					Parent commits
@@ -89,7 +89,7 @@
 				</p>
 			</div>
 			<div :class="details_panel_position === 'bottom' ? 'flex-1' : ''" class="right">
-				<commit-file-changes v-if="details_panel_position === 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev" />
+				<commit-file-changes v-if="details_panel_position === 'bottom'" :files="changed_files" @show_diff="show_diff" @show_multi_diff="show_multi_diff" @view_rev="view_rev" />
 			</div>
 		</div>
 	</div>
@@ -173,6 +173,12 @@ function show_diff(/** @type {string} */ filepath) {
 	return exchange_message('open-diff', {
 		hashes: [props.commit.hash + '~1', props.commit.hash],
 		filename: filepath,
+	})
+}
+function show_multi_diff() {
+	return exchange_message('open-multi-diff', {
+		hashes: [props.commit.hash + '~1', props.commit.hash],
+		filenames: changed_files.value.map(f => f.path),
 	})
 }
 function view_rev(/** @type {string} */ filepath) {

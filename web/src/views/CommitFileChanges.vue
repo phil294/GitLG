@@ -4,6 +4,9 @@
 			Changes ({{ files.length }})
 		</h3>
 		<aside class="actions center">
+			<button class="row" title="View Changes in Multi Diff" @click="$emit('show_multi_diff')">
+				<i class="codicon codicon-diff-multiple" />
+			</button>
 			<button v-if="render_style==='tree'" class="row" title="View as list" @click="render_style='list'">
 				<i class="codicon codicon-list-tree" />
 			</button>
@@ -117,7 +120,7 @@ let props = defineProps({
 		required: true,
 	},
 })
-defineEmits(['show_diff', 'view_rev'])
+defineEmits(['show_diff', 'view_rev', 'show_multi_diff'])
 
 let files = computed(() =>
 	props.files.map((file) => {
