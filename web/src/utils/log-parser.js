@@ -35,20 +35,20 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	let branches = []
 	// TODO: change signature to desturctign
 	/** If no *remote_name* is given but *branch_name* includes a forward slash, the remote is extracted accordingly */
-	function new_branch(/** @type {string} */ branch_name, /** @type {string=} */ remote_name, /** @type {string=} */ tracking_remote_name, /** @type {boolean=} */ inferred) {
-		if (! remote_name && branch_name.includes('/')) {
-			let split = branch_name.split('/')
-			branch_name = split.at(-1) || ''
+	function new_branch(/** @type {string} */ name, /** @type {string=} */ remote_name, /** @type {string=} */ tracking_remote_name, /** @type {boolean=} */ inferred, /** @type {boolean=} */ name_may_include_remote) {
+		if (name_may_include_remote && ! remote_name && name.includes('/')) {
+			let split = name.split('/')
+			name = split.at(-1) || ''
 			remote_name = split.slice(0, split.length - 1).join('/')
 		}
 		/** @type {Branch} */
 		let branch = {
-			name: branch_name,
+			name,
 			color: undefined,
 			type: 'branch',
 			remote_name,
 			tracking_remote_name,
-			id: (remote_name ? `${remote_name}/${branch_name}` : branch_name) + (inferred ? '~' + (branches.length - 1) : ''),
+			id: (remote_name ? `${remote_name}/${name}` : name) + (inferred ? '~' + (branches.length - 1) : ''),
 			inferred,
 		}
 		branches.push(branch)
@@ -241,7 +241,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					vis_line = { x0: -0.5, xn: 1 }
 					if (v_e?.char === '|' && v_e?.branch) {
 						// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
-						v_branch = new_branch(v_e.branch.id, undefined, undefined, true)
+						v_branch = new_branch(v_e.branch.id, undefined, undefined, true, true)
 						// And because this is now a new one, it won't be joined together with the follow-up branch lines
 						// so the positioning needs to be done entirely here
 						vis_line = { x0: -0.5, xn: 1.5, yn: 0.5, yce: 0.5, xcs: 1.5 }
@@ -255,7 +255,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
 						if (subject_merge_match)
 							// TODO: new auto remote determination works for these now as exptecd?
-							v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], undefined, undefined, true)
+							v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], undefined, undefined, true, true)
 						else
 							v_branch = new_branch('', undefined, undefined, true)
 						if (last_commit) {
