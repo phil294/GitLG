@@ -3,14 +3,15 @@
 		<h3>
 			Changes ({{ files.length }})
 		</h3>
-		<aside class="actions">
-			<button v-if="render_style==='tree'" title="View as list" @click="render_style='list'">
+		<aside class="actions center">
+			<button v-if="render_style==='tree'" class="row" title="View as list" @click="render_style='list'">
 				<i class="codicon codicon-list-tree" />
 			</button>
-			<button v-else title="View as tree" @click="render_style='tree'">
+			<button v-else class="row" title="View as tree" @click="render_style='tree'">
 				<i class="codicon codicon-list-flat" />
 			</button>
 		</aside>
+
 		<template-file-change-define v-slot="{ file }">
 			<button :title="file.insertions+' insertions, '+file.deletions+' deletions'" class="change center gap-10">
 				<div v-if="file.is_creation" class="align-center grey" title="This file was added">
@@ -38,6 +39,7 @@
 				</button>
 			</div>
 		</template-file-actions-define>
+
 		<ul v-if="files_list" class="list">
 			<li v-for="file of files_list" :key="file.path" class="list-row flex-1 row align-center gap-10" role="button" @click="$emit('show_diff',file.path)">
 				<div class="flex-1 fill-h row align-center gap-10">
@@ -53,6 +55,7 @@
 				<template-file-change-reuse :file="file" />
 			</li>
 		</ul>
+
 		<template-tree-node-define v-slot="{ node }">
 			<details class="tree-node" open>
 				<summary :title="node.path">
@@ -221,17 +224,20 @@ ul.list > li .dir {
 .tree-node {
 	position: relative;
 }
-aside.actions {
+.commit-file-changes > aside.actions {
 	opacity: 0;
 	position: absolute;
-	top: 0;
-	right: 0;
+	top: 10px;
+	right: 10px;
 }
 .commit-file-changes:hover aside.actions {
 	opacity: 1;
 }
 .file-actions {
 	display: none;
+}
+.file-actions > *, .actions > * {
+	padding: 2px;
 }
 .list-row,
 .tree-node > summary,

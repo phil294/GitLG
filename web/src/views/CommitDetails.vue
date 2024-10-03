@@ -61,7 +61,9 @@
 						</ul>
 					</div>
 				</template>
+
 				<commit-file-changes v-if="details_panel_position !== 'bottom'" :files="changed_files" @show_diff="show_diff" @view_rev="view_rev" />
+
 				<h3>
 					Parent commits
 				</h3>

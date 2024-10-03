@@ -13,6 +13,7 @@
 			<h3>
 				Comparison of two commits
 			</h3>
+
 			<commit-file-changes :files="comparison_files" @show_diff="show_compare_diff" @view_rev="view_rev" />
 		</template>
 	</div>
@@ -31,6 +32,7 @@ let props = defineProps({
 	},
 })
 
+// todo use interface from other file
 /** @type {Vue.Ref<{path:string,insertions:number,deletions:number}[]>} */
 let comparison_files = ref([])
 watchEffect(async () => {
