@@ -574,7 +574,7 @@
 		"eslint-plugin-n": "^17.10.3",
 		"eslint-plugin-promise": "^7.1.0",
 		"eslint-plugin-vue": "^9.28.0",
-		"globals": "^15.9.0",
+		"globals": "^15.10.0",
 		"neostandard": "^0.11.6",
 		"npm-check-updates": "^17.1.3",
 		"ovsx": "^0.9.5",
