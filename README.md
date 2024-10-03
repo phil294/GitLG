@@ -42,6 +42,7 @@ Notable features:
  - Right click context menus
  - Quick jump search and filtering 🔍 (also via Ctrl+f)
  - Changed files can be clicked and open up diff view in new tab
+ - Multi-diff changes
  - By default, 15,000 commits are loaded and displayed at once (see log cmd) and rendered efficiently inside a virtual scroller. Because of this, you can quickly scroll over thousands of commits without slowing down or performance issues.
  - Show stashes
  - Green/red insertions/deletion stats
