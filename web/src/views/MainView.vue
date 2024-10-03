@@ -216,10 +216,6 @@ function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	})
 	if (first_branch_commit_i === -1)
 		return show_error_message(`No commit found for branch ${branch.id}. Not enough commits loaded?`)
-	if (branch.inferred)
-	// We want to go the the actual merge commit, not the first any-commit where
-	// this line appeared (could be entirely unrelated)
-		first_branch_commit_i--
 	scroll_to_item_centered(first_branch_commit_i)
 	let commit = filtered_commits.value[first_branch_commit_i]
 	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
