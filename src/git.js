@@ -1,6 +1,7 @@
 let vscode = require('vscode')
 let util = require('util')
 let { basename, relative, isAbsolute } = require('path')
+const { existsSync } = require('fs')
 let { realpath } = require('fs').promises
 let exec = util.promisify(require('child_process').exec)
 
@@ -121,6 +122,8 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 		},
 		get_selected_repo_index: () => selected_repo_index,
 		async get_repo_index_for_uri(/** @type {vscode.Uri} */ uri) {
+			if (! existsSync(uri.fsPath))
+				return -1
 			let uri_path = await realpath(uri.fsPath).catch(e => { throw new Error(e) /* https://github.com/nodejs/node/issues/30944 */ })
 			return ((await Promise.all(api.repositories.map(async (repo, index) => {
 				let repo_path = await realpath(repo.rootUri.fsPath).catch(e => { throw new Error(e) /* https://github.com/nodejs/node/issues/30944 */ })
@@ -132,7 +135,8 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				// There can be multiple matches with git submodules, in which case the longest
 				// path will be the right one
 			}).sort((a, b) =>
-				b.repo_path.length - a.repo_path.length)[0]?.index ?? -1
+				b.repo_path.length - a.repo_path.length)
+				.at(0)?.index ?? -1
 		},
 	}
 }
