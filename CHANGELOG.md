@@ -4,6 +4,18 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.20 2024-10-03
+
+- [`c85b4bb`](https://github.com/phil294/GitLG/commit/c85b4bb) Add multi-diff viewer button to commit file changes (#83)
+- [`00dfc90`](https://github.com/phil294/GitLG/commit/00dfc90) Fix missing display of merge commit lines in parallel branches (#106)
+- [`3136e36`](https://github.com/phil294/GitLG/commit/3136e36) Fix wrong positioning of branch birth lines. Now they properly start *with* their birth commit, not before. (#81)
+- [`39c7b7b`](https://github.com/phil294/GitLG/commit/39c7b7b) Merge commit lines into the merge commit circle, not the line below (#81)
+- [`acfe462`](https://github.com/phil294/GitLG/commit/acfe462) Fix the small subtle gaps in graph lines between all lines. The thickness is now constant
+- [`d023633`](https://github.com/phil294/GitLG/commit/d023633) Fix error when navigating to a file in deleted state (#109)
+- [`c49060c`](https://github.com/phil294/GitLG/commit/c49060c) Fix layout of commit changes icons
+- [`303ae55`](https://github.com/phil294/GitLG/commit/303ae55) Fix proper display of git error messages in two-step actions such as branch drop merge
+- [`111e325`](https://github.com/phil294/GitLG/commit/111e325) Improve error message when the main LOG action fails (#108)
+
 ### v0.1.19 2024-10-01
 
 - [`8ec690e`](https://github.com/phil294/GitLG/commit/8ec690e) Fix cryptic errors like `ENOENT 'C:\c:\...` on Windows. This happened when navigating files, as the "GitLG: Blame" command would not work anymore. Thanks to @GaryOma for ths fix
