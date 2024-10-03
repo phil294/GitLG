@@ -31,9 +31,7 @@ let lines = computed(() =>
 		class: {
 			is_head: vis_line.branch?.id === head_branch.value,
 		},
-		// https://stackoverflow.com/q/44040163
-		// TODO: Didn't find a working solution yet to fix the gaps between the svg elements.
-		'vector-effect': 'non-scaling-stroke',
+		'stroke-linecap': 'round',
 	})))
 let branch_line = computed(() => {
 	if (! props.commit.branch)
