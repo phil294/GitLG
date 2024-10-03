@@ -33,9 +33,11 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 
 	/** @type {Branch[]} */
 	let branches = []
-	// TODO: change signature to desturctign
-	/** If no *remote_name* is given but *branch_name* includes a forward slash, the remote is extracted accordingly */
-	function new_branch(/** @type {string} */ name, /** @type {string=} */ remote_name, /** @type {string=} */ tracking_remote_name, /** @type {boolean=} */ inferred, /** @type {boolean=} */ name_may_include_remote) {
+	/**
+	 * @param name {string}
+	 * @param options {{ remote_name?: string, tracking_remote_name?: string, is_inferred?: boolean, name_may_include_remote?: boolean}}=
+	 */
+	function new_branch(name, { remote_name, tracking_remote_name, is_inferred, name_may_include_remote } = {}) {
 		if (name_may_include_remote && ! remote_name && name.includes('/')) {
 			let split = name.split('/')
 			name = split.at(-1) || ''
@@ -48,8 +50,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			type: 'branch',
 			remote_name,
 			tracking_remote_name,
-			id: (remote_name ? `${remote_name}/${name}` : name) + (inferred ? '~' + (branches.length - 1) : ''),
-			inferred,
+			id: (remote_name ? `${remote_name}/${name}` : name) + (is_inferred ? '~' + (branches.length - 1) : ''),
+			inferred: is_inferred,
 		}
 		branches.push(branch)
 		return branch
@@ -58,12 +60,12 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	for (let branch_line of branch_data.split('\n')) {
 		// origin-name{SEP}refs/heads/local-branch-name
 		// {SEP}refs/remotes/origin-name/remote-branch-name
-		let [tracking_remote_branch_name, ref_name] = branch_line.split(separator)
+		let [tracking_remote_name, ref_name] = branch_line.split(separator)
 		if (ref_name.startsWith('refs/heads/'))
-			new_branch(ref_name.slice(11), undefined, tracking_remote_branch_name)
+			new_branch(ref_name.slice(11), { tracking_remote_name })
 		else {
 			let [remote_name, ...remote_branch_name_parts] = ref_name.slice(13).split('/')
-			new_branch(remote_branch_name_parts.join('/'), remote_name)
+			new_branch(remote_branch_name_parts.join('/'), { remote_name })
 		}
 	}
 	// Not actually a branch but since it's included in the log refs and is neither stash nor tag
@@ -163,7 +165,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			/**
 			 * Parsing from top to bottom (reverse chronologically). The flow is
 			 * generally rtl horizontally. So for example, the "/" char would direct the
-			 * branch line from top right to bottom left and thus yield a {x0:1,xn:0} vis line.
+			 * branch line from top right to bottom left and thus yield a {x0:1,xn:0} vis line,
+			 * with y0=0 and yn=1 either way (unless specified otherwise)
 			 * @type {VisLine}
 			 */
 			let vis_line = { x0: 0, xn: 0 }
@@ -179,7 +182,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						v_branch = v_ne?.branch
 					else
 						// Stashes
-						v_branch = new_branch('inferred', undefined, undefined, true)
+						v_branch = new_branch('inferred', { is_inferred: true })
 
 					commit_branch = v_branch || undefined
 					vis_line = { x0: 0.5, xn: 0.5 }
@@ -241,7 +244,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					vis_line = { x0: -0.5, xn: 1 }
 					if (v_e?.char === '|' && v_e?.branch) {
 						// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
-						v_branch = new_branch(v_e.branch.id, undefined, undefined, true, true)
+						v_branch = new_branch(v_e.branch.id, { is_inferred: true, name_may_include_remote: true })
 						// And because this is now a new one, it won't be joined together with the follow-up branch lines
 						// so the positioning needs to be done entirely here
 						vis_line = { x0: -0.5, xn: 1.5, yn: 0.5, yce: 0.5, xcs: 1.5 }
@@ -254,10 +257,9 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
 						let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
 						if (subject_merge_match)
-							// TODO: new auto remote determination works for these now as exptecd?
-							v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], undefined, undefined, true, true)
+							v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], { is_inferred: true, name_may_include_remote: true })
 						else
-							v_branch = new_branch('', undefined, undefined, true)
+							v_branch = new_branch('', { is_inferred: true })
 						if (last_commit) {
 							last_commit.merge = true
 							// Retroactively adjust vis lines so that the merge appears to go upwards into the merge commit circle,
@@ -281,8 +283,6 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				case ' ': case '.': case '-':
 					v_branch = null
 			}
-			// if v_branch == undefined
-			// 	throw new Error "could not identify branch in row #{row_no} at char #{i}"
 			vis[i] = {
 				char,
 				branch: v_branch || null,
