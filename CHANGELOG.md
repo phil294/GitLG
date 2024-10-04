@@ -4,6 +4,10 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.21 2024-10-04
+
+fix bad release
+
 ### v0.1.20 2024-10-03
 
 - [`c85b4bb`](https://github.com/phil294/GitLG/commit/c85b4bb) Add multi-diff viewer button to commit file changes (#83)
