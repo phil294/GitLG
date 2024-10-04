@@ -242,24 +242,26 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					break
 				case '\\':
 					vis_line = { x0: -0.5, xn: 1 }
-					if (v_e?.char === '|' && v_e?.branch) {
-						// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
-						v_branch = new_branch(v_e.branch.id, { is_inferred: true, name_may_include_remote: true })
-						// And because this is now a new one, it won't be joined together with the follow-up branch lines
-						// so the positioning needs to be done entirely here
-						vis_line = { x0: -0.5, xn: 1.5, yn: 0.5, yce: 0.5, xcs: 1.5 }
-					} else if (v_w_char === '|') {
-						// right before (chronologically) a merge commit (which would be at v_nw).
+					if (v_w_char === '|') {
+						// right below a merge commit (which would be at v_nw).
 						let last_commit = commits.at(-1)
-						// The actual branch name isn't known for sure yet: It will either a.) be visible with a branch tip
-						// in the next commit or never directly exposed, in which case we'll b.) try to infer it from the
-						// merge commit message, or if failing to do so, c.) create an inferred branch without name.
-						// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
-						let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
-						if (subject_merge_match)
-							v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], { is_inferred: true, name_may_include_remote: true })
-						else
-							v_branch = new_branch('', { is_inferred: true })
+						if (v_e?.char === '|' && v_e?.branch) {
+							// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
+							v_branch = new_branch(v_e.branch.id, { is_inferred: true, name_may_include_remote: true })
+							// And because this is now a new one, it won't be joined together with the follow-up branch lines
+							// so the positioning needs to be done entirely here
+							vis_line = { x0: -0.5, xn: 1.5, yn: 0.5, yce: 0.5, xcs: 1.5 }
+						} else {
+							// The actual branch name isn't known for sure yet: It will either a.) be visible with a branch tip
+							// in the next commit or never directly exposed, in which case we'll b.) try to infer it from the
+							// merge commit message, or if failing to do so, c.) create an inferred branch without name.
+							// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
+							let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
+							if (subject_merge_match)
+								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], { is_inferred: true, name_may_include_remote: true })
+							else
+								v_branch = new_branch('', { is_inferred: true })
+						}
 						if (last_commit) {
 							last_commit.merge = true
 							// Retroactively adjust vis lines so that the merge appears to go upwards into the merge commit circle,
