@@ -18,27 +18,23 @@
 					<repo-selection />
 					<aside class="center gap-20">
 						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
-							<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="🔍 search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
+							<vscode-textfield id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="🔍 search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)" />
 							<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 								<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 							</button>
 							<button v-if="txt_filter" id="clear-filter" class="center" title="Clear search" @click="clear_filter()">
 								<i class="codicon codicon-close" />
 							</button>
-							<label id="filter-type-filter" class="row align-center">
-								<input v-model="txt_filter_type" type="radio" value="filter">
-								Filter
-							</label>
-							<label id="filter-type-jump" class="row align-center" title="Jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3">
-								<input v-model="txt_filter_type" type="radio" value="jump">
-								Jump
-							</label>
+							<vscode-radio-group>
+								<vscode-radio :checked="txt_filter_type == 'filter'" label="Filter" value="filter" />
+								<vscode-radio :checked="txt_filter_type == 'jump'" label="Jump" value="jump" title="Jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3" />
+							</vscode-radio-group>
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<button id="refresh" class="btn center" title="Refresh" @click="refresh_main_view()">
-								<i class="codicon codicon-refresh" />
-							</button>
+							<vscode-button id="refresh" class="btn-icon" title="Refresh" @click="refresh_main_view()">
+								<vscode-icon name="refresh" />
+							</vscode-button>
 						</section>
 					</aside>
 				</nav>
@@ -449,7 +445,7 @@ details#log-config[open] {
 	width: 100%;
 	min-width: 30%;
 	min-height: 30%;
-	resize: both;
+	resize: horizontal;
 	overflow: hidden auto;
 	position: relative;
 }
@@ -461,7 +457,7 @@ details#log-config[open] {
 	border-bottom: 1px solid #424242;
 }
 #main-panel > nav #repo-selection {
-	overflow: hidden;
+	/* overflow: hidden; */
 	min-width: 50x;
 	flex-shrink: 1;
 }

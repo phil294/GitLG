@@ -6,10 +6,9 @@
 		<div class="dv">
 			<div v-if="history_mapped.length">
 				<div class="flex justify-flex-end">
-					<button id="clear-history" class="btn" @click="clear_history">
-						<i class="codicon codicon-trash" />
+					<vscode-button id="clear-history" icon="trash" @click="clear_history">
 						Clear repository history
-					</button>
+					</vscode-button>
 				</div>
 				<ol class="entries">
 					<li v-for="(entry, entry_i) of history_mapped" :key="entry.datetime" class="flex">
@@ -19,18 +18,17 @@
 								Commit '{{ entry.value }}' not found!
 							</div>
 							<git-action-button v-else-if="entry.type == 'git'" :git_action="entry.ref" />
-							<button v-else-if="entry.type == 'txt_filter'" class="btn" @click="$emit('apply_txt_filter', entry.value)">
-								<i class="codicon codicon-search" />
+							<vscode-button v-else-if="entry.type == 'txt_filter'" icon="search" @click="$emit('apply_txt_filter', entry.value)">
 								Search: <code>{{ entry.value }}</code>
-							</button>
+							</vscode-button>
 							<div v-else>
 								Unknown history entry: {{ entry.value }}
 							</div>
 						</div>
 						<div class="delete">
-							<button class="btn" title="Remove this item from the repository history" @click="remove_history_entry(entry_i)">
-								<i class="codicon codicon-trash" />
-							</button>
+							<vscode-button title="Remove this item from the repository history" class="btn-icon" @click="remove_history_entry(entry_i)">
+								<vscode-icon name="trash" />
+							</vscode-button>
 						</div>
 					</li>
 				</ol>

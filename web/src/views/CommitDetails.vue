@@ -23,9 +23,9 @@
 								<ref-tip :commit="commit" :git_ref="branch_tip" />
 								<div class="row gap-5 wrap">
 									<git-action-button v-for="action, i of branch_actions(branch_tip)" :key="i" :git_action="action" />
-									<button class="show-branch btn gap-5" title="Show the log for this branch only. Revert with a simple click on the main refresh button." @click="show_branch(branch_tip)">
-										<i class="codicon codicon-eye" />Show
-									</button>
+									<vscode-button class="show-branch" title="Show the log for this branch only. Revert with a simple click on the main refresh button." icon="eye" @click="show_branch(branch_tip)">
+										Show
+									</vscode-button>
 								</div>
 							</li>
 						</ul>
