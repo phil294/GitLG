@@ -8,8 +8,7 @@ export default [
 	...neostandard({}),
 	{ files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
 	{ languageOptions: { globals: { ...globals.browser, ...globals.node } } },
-	//  TODO: https://github.com/vuejs/eslint-plugin-vue/issues/2555
-	.../** @type {any} */(pluginVue.configs['flat/recommended']), // eslint-disable-line @stylistic/no-extra-parens
+	...pluginVue.configs['flat/recommended'],
 	jsdoc.configs['flat/recommended-typescript-flavor-error'],
 	{
 		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
