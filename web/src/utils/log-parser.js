@@ -35,15 +35,15 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	let branches = []
 	/**
 	 * @param name {string}
-	 * @param options {{ remote_name?: string, tracking_remote_name?: string, is_inferred?: boolean, name_may_include_remote?: boolean}}=
+	 * @param options {{ remote_name?: string, tracking_remote_name?: string, inferred?: boolean, name_may_include_remote?: boolean}}=
 	 */
-	function new_branch(name, { remote_name, tracking_remote_name, is_inferred, name_may_include_remote } = {}) {
+	function new_branch(name, { remote_name, tracking_remote_name, inferred, name_may_include_remote } = {}) {
 		if (name_may_include_remote && ! remote_name && name.includes('/')) {
 			let split = name.split('/')
 			name = split.at(-1) || ''
 			remote_name = split.slice(0, split.length - 1).join('/')
 		}
-		if (! name && is_inferred)
+		if (! name && inferred)
 			name = `${branches.length - 1}`
 		/** @type {Branch} */
 		let branch = {
@@ -52,8 +52,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			type: 'branch',
 			remote_name,
 			tracking_remote_name,
-			id: (remote_name ? `${remote_name}/${name}` : name) + (is_inferred ? '~' + (branches.length - 1) : ''),
-			inferred: is_inferred,
+			id: (remote_name ? `${remote_name}/${name}` : name) + (inferred ? '~' + (branches.length - 1) : ''),
+			inferred,
 		}
 		branches.push(branch)
 		return branch
@@ -184,7 +184,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						v_branch = v_ne?.branch
 					else
 						// Stashes or no context because of --skip arg
-						v_branch = new_branch('', { is_inferred: true })
+						v_branch = new_branch('', { inferred: true })
 
 					commit_branch = v_branch || undefined
 					vis_line = { x0: 0.5, xn: 0.5 }
@@ -249,7 +249,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						let last_commit = commits.at(-1)
 						if (v_e?.char === '|' && v_e?.branch) {
 							// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
-							v_branch = new_branch(v_e.branch.id, { is_inferred: true, name_may_include_remote: true })
+							v_branch = new_branch(v_e.branch.name, { ...v_e.branch })
 							// And because this is now a new one, it won't be joined together with the follow-up branch lines
 							// so the positioning needs to be done entirely here
 							vis_line = { x0: -0.5, xn: 1.5, yn: 0.5, yce: 0.5, xcs: 1.5 }
@@ -260,9 +260,9 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 							// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
 							let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
 							if (subject_merge_match)
-								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], { is_inferred: true, name_may_include_remote: true })
+								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], { inferred: true, name_may_include_remote: true })
 							else
-								v_branch = new_branch('', { is_inferred: true })
+								v_branch = new_branch('', { inferred: true })
 						}
 						if (last_commit) {
 							last_commit.merge = true
