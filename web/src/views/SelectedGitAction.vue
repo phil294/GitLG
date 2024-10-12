@@ -41,6 +41,6 @@ function success() {
 .selected-git-action > details > summary {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	color: #808080;
+	color: var(--text-secondary);
 }
 </style>

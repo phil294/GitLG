@@ -206,6 +206,7 @@ h2.summary {
 	word-break: break-word;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	margin-top: 0;
 }
 .body {
 	white-space: pre-wrap;

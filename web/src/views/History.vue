@@ -92,7 +92,6 @@ details#history > summary {
 }
 details#history .dv {
 	padding: 20px;
-	background: #000;
 }
 details#history .dv li {
 	overflow: hidden;

@@ -11,23 +11,17 @@ store.init()
 
 <style>
 :root {
-	--container-padding: 20px;
+	--container-padding: 12px;
 	--input-padding-vertical: 6px;
 	--input-padding-horizontal: 4px;
 	--input-margin-vertical: 4px;
 	--input-margin-horizontal: 0;
+	--text-secondary: rgb(from var(--vscode-editor-foreground) r g b / 0.7);
 }
 body {
-	color: #ccc;
 	font-size: var(--vscode-font-size);
 	font-weight: var(--vscode-font-weight);
 	font-family: var(--vscode-font-family);
-	background-color: #161616;
-}
-body.vscode-light,
-body.vscode-high-contrast-light {
-	background-color: var(--vscode-editor-background);
-	filter: invert(1) hue-rotate(180deg);
 }
 ol,
 ul,
@@ -48,7 +42,6 @@ a:active {
 }
 code {
 	font-family: var(--vscode-editor-font-family);
-	color: #ccc;
 }
 details {
 	overflow: auto;
@@ -61,7 +54,6 @@ details > summary {
 details > summary::before {
 	font: 16px/1 codicon;
 	user-select: none;
-	height: 100%;
 	padding-right: 6px;
 	vertical-align: middle;
 	display: inline-block;
@@ -164,7 +156,7 @@ html {
 	gap: 20px;
 }
 .padding {
-	padding: 0.5vmax;
+	padding: 12px;
 }
 .padding-l {
 	padding: 1vh 1vw;
@@ -179,7 +171,7 @@ html {
 	color: #ffa500;
 }
 .grey {
-	color: #808080;
+	color: var(--text-secondary);
 }
 button {
 	appearance: none;
@@ -191,7 +183,6 @@ button {
 	color: inherit;
 	user-select: none;
 	cursor: pointer;
-	color: #e5b567;
 }
 *[role=button] {
 	cursor: pointer;
@@ -230,7 +221,7 @@ input[type="button"]:enabled:active {
 input[type="submit"]:disabled,
 input[type="reset"]:disabled,
 input[type="button"]:disabled {
-	color: #808080;
+	color: var(--text-secondary);
 	pointer-events: auto;
 }
 .btn.btn-2 {
@@ -246,11 +237,15 @@ input[type="button"]:disabled {
 .btn-icon > vscode-icon {
 	display: inline;
 }
+vscode-button vscode-icon {
+	color: inherit !important;
+}
 progress.diff {
 	width: 30px;
 	height: 3px;
-	color: #090;
-	background-color: #8b0000;
+	opacity: 0.8;
+	color: lime;
+	background-color: red;
 }
 progress.diff::-webkit-progress-bar {
 	background-color: #8b0000;

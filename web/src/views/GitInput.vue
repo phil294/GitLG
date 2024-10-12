@@ -235,6 +235,8 @@ defineExpose({
 <style>
 .options .option.changed {
 	border-left: 2px solid #bc9550;
+	margin-left: -6px;
+	padding-left: 4px;
 }
 .options .option label {
 	white-space: pre;
@@ -246,7 +248,7 @@ defineExpose({
 .options .option details > summary {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	color: #808080;
+	color: var(--text-secondary);
 }
 .error-response,
 .success-response {
