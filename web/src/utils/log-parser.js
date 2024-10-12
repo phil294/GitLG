@@ -360,7 +360,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				}
 			}
 			commits.push({
-				i: Number(row_no_s),
+				index_in_graph_output: Number(row_no_s),
 				vis_lines: Object.values(densened_vis_line_by_branch_id)
 					// Leftmost branches should appear later so they are on top of the rest
 					.sort((a, b) => (b.xcs || 0) + (b.xce || 0) - (a.xcs || 0) - (a.xce || 0)),

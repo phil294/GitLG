@@ -60,13 +60,21 @@
 				<div v-if="config_show_quick_branch_tips" id="branches-connection">
 					<commit-row v-if="connection_fake_commit" :commit="connection_fake_commit" :height="110" class="vis" />
 				</div>
-				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="i" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
+				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
 					<commit-row :class="{selected_commit:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" role="button" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
 			</div>
 			<div v-if="selected_commit || selected_commits.length" id="details-panel" class="col flex-1">
 				<template v-if="selected_commit">
-					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="scroll_to_commit_hash_user($event)" />
+					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="scroll_to_commit_hash_user($event)">
+						<template #details_text>
+							<template v-if="filtered_commits.length !== commits.length">
+								Index in filtered commits: {{ selected_commit_index_in_filtered_commits }}<br>
+							</template>
+							Index in all loaded commits: {{ selected_commit_index_in_commits }}<br>
+							Index in raw graph output: {{ selected_commit.index_in_graph_output }}
+						</template>
+					</commit-details>
 					<button id="close-selected-commit" class="center" title="Close" @click="selected_commits=[]">
 						<i class="codicon codicon-close" />
 					</button>
@@ -120,6 +128,10 @@ let selected_commit = computed(() => {
 	if (selected_commits.value.length === 1)
 		return selected_commits.value[0]
 })
+let selected_commit_index_in_filtered_commits = computed(() =>
+	filtered_commits.value.indexOf(selected_commit.value))
+let selected_commit_index_in_commits = computed(() =>
+	store.commits.value.indexOf(selected_commit.value))
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 	if (! commit.hash)
 		return
@@ -430,7 +442,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 let config_show_quick_branch_tips = computed(() =>
 	! store.config.value['hide-quick-branch-tips'])
 
-let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, selected_git_action, git_status } = store
+let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, selected_git_action, git_status, commits } = store
 
 </script>
 <style scoped>

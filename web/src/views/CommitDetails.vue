@@ -85,7 +85,8 @@
 					Details
 				</h3>
 				<p>
-					Full hash: {{ commit.hash_long }}
+					Full hash: {{ commit.hash_long }}<br>
+					<slot name="details_text" />
 				</p>
 			</div>
 			<div :class="details_panel_position === 'bottom' ? 'flex-1' : ''" class="right">
