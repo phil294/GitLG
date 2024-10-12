@@ -269,7 +269,9 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 							// Retroactively adjust vis lines so that the merge appears to go upwards into the merge commit circle,
 							// not at the line before. This is like setting y0=-0.6 to *this* vis_line which isn't possible
 							// due to the commit row encapsulation.
-							let new_last_commit_vis_line = { branch: v_branch, x0: i - 1 + 0.5, xn: i - 1 + 0.5, xcs: i - 1 + 0.5, y0: 0.4, yn: 1, ycs: 0.75 }
+							let last_vis_line = last_densened_vis_line_by_branch_id[last_commit.branch?.id || -1]
+							let last_xm = last_vis_line ? (last_vis_line.x0 + last_vis_line.xn) / 2 : i - 1 + 0.5
+							let new_last_commit_vis_line = { branch: v_branch, x0: last_xm, xn: last_xm, xcs: last_xm, y0: 0.4, yn: 1, ycs: 0.75 }
 							last_commit.vis_lines.push(new_last_commit_vis_line)
 							last_densened_vis_line_by_branch_id[v_branch.id] = new_last_commit_vis_line
 						}

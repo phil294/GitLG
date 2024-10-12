@@ -17,7 +17,7 @@ function handle_error(/** @type {any[]} */ ...args) {
 		.join('\n')
 	console_error(...args, new Error(), args[0]?.domChain ? `at element: ${JSON.stringify.maybe(args[0].domChain, null, 4)}` : '')
 	console.trace()
-	debugger // eslint-disable-line no-debugger
+	// debugger // eslint-disable-line no-debugger
 	show_error_message(e)
 }
 window.onerror = handle_error
