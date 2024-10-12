@@ -122,7 +122,13 @@ export let update_commit_stats = async (/** @type {Commit[]} */ commits_) => {
 			else if (words[1].startsWith('deletion'))
 				stat.deletions = Number(words[0])
 		}
-		commits_[commits_.findIndex((cp) => cp.hash === hash)].stats = stat
+		let commit = commits_[commits_.findIndex((cp) => cp.hash === hash)]
+		if (! commit) {
+			// Happened once, but no idea why
+			console.warn('Failed to retrieve commit stats. Hash:', hash, 'Commits:', commits_, 'returned data:', data)
+			throw new Error(`Tried to retrieve commit stats but the returned hash '${hash}' can't be found in the commit listing`)
+		}
+		commit.stats = stat
 	}
 }
 
