@@ -32,6 +32,7 @@ export default defineConfig({
 		// Make it more readable.
 		// This increases output size by factor 2-3 gzipped and 4-5 unzipped though.
 		minify: false,
+		sourcemap: false,
 		rollupOptions: {
 			output: {
 				entryFileNames: '[name].js',
