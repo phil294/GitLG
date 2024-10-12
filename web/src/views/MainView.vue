@@ -18,7 +18,7 @@
 					<repo-selection />
 					<aside class="center gap-20">
 						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
-							<vscode-textfield id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="🔍 search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)" />
+							<vscode-textfield id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)" />
 							<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 								<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 							</button>

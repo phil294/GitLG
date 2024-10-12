@@ -5,7 +5,7 @@
 				All branches...
 			</summary>
 			<div class="dv">
-				<vscode-textfield v-model="txt_filter" class="filter" placeholder="🔍 filter branch name" />
+				<vscode-textfield v-model="txt_filter" class="filter" placeholder="Filter branch name" />
 				<div class="branches">
 					<button v-for="branch of filtered_branches" :key="branch.id" title="Jump to branch tip" @click="$emit('branch_selected',branch);show_all_branches=false">
 						<ref-tip :git_ref="branch" />
