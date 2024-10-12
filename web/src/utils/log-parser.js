@@ -43,6 +43,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			name = split.at(-1) || ''
 			remote_name = split.slice(0, split.length - 1).join('/')
 		}
+		if (! name && is_inferred)
+			name = `${branches.length - 1}`
 		/** @type {Branch} */
 		let branch = {
 			name,
@@ -181,8 +183,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					else if (v_ne?.char === '/')
 						v_branch = v_ne?.branch
 					else
-						// Stashes
-						v_branch = new_branch('inferred', { is_inferred: true })
+						// Stashes or no context because of --skip arg
+						v_branch = new_branch('', { is_inferred: true })
 
 					commit_branch = v_branch || undefined
 					vis_line = { x0: 0.5, xn: 0.5 }
