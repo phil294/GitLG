@@ -318,7 +318,8 @@ let scroll_item_offset = 0
 function commits_scroller_updated(/** @type {number} */ start_index, /** @type {number} */ end_index) {
 	scroll_item_offset = start_index
 	let commits_start_index = scroll_item_offset < 3 ? 0 : scroll_item_offset
-	visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index)
+	debounce(() =>
+		visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index), 50)
 }
 function scroller_on_wheel(/** @type {WheelEvent} */ event) {
 	if (store.config.value['disable-scroll-snapping'])
