@@ -164,14 +164,11 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			let v_nee = last_vis[i + 2]
 			let v_e = vis[i + 1]
 			let v_ee = vis[i + 2]
-			/**
-			 * Parsing from top to bottom (reverse chronologically). The flow is
-			 * generally rtl horizontally. So for example, the "/" char would direct the
-			 * branch line from top right to bottom left and thus yield a {x0:1,xn:0} vis line,
-			 * with y0=0 and yn=1 either way (unless specified otherwise)
-			 * @type {VisLine}
-			 */
-			let vis_line = { x0: 0, xn: 0 }
+			// Parsing from top to bottom (reverse chronologically), rtl horizontally
+			// This line connects this commit with the previous one. There will be a second
+			// line later for connecting to the follow-up one.
+			/** @type {VisLine} */
+			let vis_line = { x0: 0, xn: i + 0.5, y0: -0.5, yn: 0.5 }
 			switch (char) {
 				case '*':
 					if (branch_tip)
@@ -187,10 +184,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						v_branch = new_branch('', { inferred: true })
 
 					commit_branch = v_branch || undefined
-					vis_line = { x0: 0.5, xn: 0.5 }
-					if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
-						// Branch or inferred branch starts here visually (ends here logically)
-						vis_line.y0 = 0.5
+					// if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
+					// 	Branch or inferred branch starts here visually (ends here logically)
 					if (v_branch && v_nw?.char === '\\' && v_n?.char !== '|') {
 						// This is branch tip but in previous above lines/commits, this branch
 						// may already have been on display for merging without its actual name known ("inferred substitute" below).
@@ -220,13 +215,12 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						v_branch = v_nw?.branch
 					else if (v_ne?.char === '/')
 						v_branch = v_ne?.branch
-					vis_line = { x0: 0.5, xn: 0.5, yn: 0.5 }
 					break
 				case '_':
 					v_branch = v_ee?.branch
-					vis_line = { x0: 1, xn: 0 }
 					break
 				case '/':
+					vis_line.xn -= 1
 					if (v_ne?.char === '*')
 						v_branch = v_ne?.branch
 					else if (v_ne?.char === '|')
@@ -238,22 +232,16 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						v_branch = v_ne?.branch
 					else if (v_n?.char === '\\' || v_n?.char === '|')
 						v_branch = v_n?.branch
-					// Straight line. Looks better this way idk. Also significant change yn=0.5
-					// to avoid branch birth lines to appear before their birth commit circle
-					vis_line = { x0: 1, y0: 0, xn: -0.5, yn: 0.5, xcs: 0.25, xce: 0.25, ycs: 0.25, yce: 0.25 }
 					break
 				case '\\':
-					vis_line = { x0: -0.5, xn: 1 }
-					if (v_w_char === '|') {
-						// right below a merge commit (which would be at v_nw).
+					vis_line.xn += 1
+					if (v_w_char === '|' && v_nw.char === '*') {
+						// right below a merge commit
 						let last_commit = commits.at(-1)
-						if (v_e?.char === '|' && v_e?.branch) {
+						if (v_e?.char === '|' && v_e?.branch)
 							// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
 							v_branch = new_branch(v_e.branch.name, { ...v_e.branch })
-							// And because this is now a new one, it won't be joined together with the follow-up branch lines
-							// so the positioning needs to be done entirely here
-							vis_line = { x0: -0.5, xn: 1.5, yn: 0.5, yce: 0.5, xcs: 1.5 }
-						} else {
+						else {
 							// The actual branch name isn't known for sure yet: It will either a.) be visible with a branch tip
 							// in the next commit or never directly exposed, in which case we'll b.) try to infer it from the
 							// merge commit message, or if failing to do so, c.) create an inferred branch without name.
@@ -264,17 +252,12 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 							else
 								v_branch = new_branch('', { inferred: true })
 						}
-						if (last_commit) {
+						if (last_commit)
 							last_commit.merge = true
-							// Retroactively adjust vis lines so that the merge appears to go upwards into the merge commit circle,
-							// not at the line before. This is like setting y0=-0.6 to *this* vis_line which isn't possible
-							// due to the commit row encapsulation.
-							let last_vis_line = last_densened_vis_line_by_branch_id[last_commit.branch?.id || -1]
-							let last_xm = last_vis_line ? (last_vis_line.x0 + last_vis_line.xn) / 2 : i - 1 + 0.5
-							let new_last_commit_vis_line = { branch: v_branch, x0: last_xm, xn: last_xm, xcs: last_xm, y0: 0.4, yn: 1, ycs: 0.75 }
-							last_commit.vis_lines.push(new_last_commit_vis_line)
-							last_densened_vis_line_by_branch_id[v_branch.id] = new_last_commit_vis_line
-						}
+						let last_vis_line = last_densened_vis_line_by_branch_id[v_nw.branch?.id || -1]
+						if (last_vis_line)
+							// Can't rely on the normal last_vis_line logic as there is nothing to connect to
+							vis_line.x0 = last_vis_line.xn
 					} else if (v_nw?.char === '|' || v_nw?.char === '\\')
 						v_branch = v_nw?.branch
 					else if (v_nw?.char === '.' || v_nw?.char === '-') {
@@ -294,73 +277,52 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				branch: v_branch || null,
 			}
 
-			if (v_branch) {
-				vis_line.x0 += i
-				vis_line.xn += i
-				if (vis_line.xcs != null)
-					vis_line.xcs += i
-				if (vis_line.xce != null)
-					vis_line.xce += i
-				if (densened_vis_line_by_branch_id[v_branch.id]) {
+			if (v_branch)
+				if (densened_vis_line_by_branch_id[v_branch.id])
 					densened_vis_line_by_branch_id[v_branch.id].xn = vis_line.xn
-					densened_vis_line_by_branch_id[v_branch.id].xce = vis_line.xce
-					densened_vis_line_by_branch_id[v_branch.id].yn = vis_line.yn
-					densened_vis_line_by_branch_id[v_branch.id].yce = vis_line.yce
-				} else {
+				else {
 					vis_line.branch = v_branch
 					densened_vis_line_by_branch_id[v_branch.id] = vis_line
 				}
-			}
 		}
 		if (subject) {
 			// After 1-n parsed rows, we have now arrived at what will become one row
 			// in *our* application too.
 			for (let [branch_id, vis_line] of Object.entries(densened_vis_line_by_branch_id)) {
-				if (vis_line.y0 == null)
-					vis_line.y0 = 0
-				if (vis_line.yn == null)
-					vis_line.yn = 1
-				if (vis_line.xce == null)
-					// We don't know yet if this line is the last one of rows for this branch
-					// or if more will be to come. The latter case is handled later, so for the former
-					// case to look nice, some downwards angle is added by default by moving the end
-					// control point upwards. This makes sense because the last line is the birth
-					// spot and branches are always based on another branch, so this draws an
-					// upwards splitting effect
-					vis_line.xce = vis_line.xn
-				if (vis_line.yce == null)
-					vis_line.yce = 1 - curve_radius / 2 // Must not be too strong
-				// Make connection to previous row's branch line curvy?
-				let last_vis_line = last_densened_vis_line_by_branch_id?.[branch_id]
-				if (last_vis_line) {
-					// So far, a line is simply defined as the connection between x0 and xn with
-					// y0 and y1 being 0 and 1, respectively. The lines all connect to each
-					// other. But between them, there is no curvature yet (hard edge).
-					// Determining two control points near this junction:
-					// (see VisLine JSDoc for naming info)
-					let last_xce = last_vis_line.x0 + (last_vis_line.xn - last_vis_line.x0) * (1 - curve_radius)
-					let xcs = vis_line.x0 + (vis_line.xn - vis_line.x0) * curve_radius
-					// ...and the strategy for creating a curve is to mark the control points fixed
-					// but move the actual junction point's x toward the average between both control
-					// points:
-					let middle_x = (xcs + last_xce) / 2
-					last_vis_line.xn = middle_x
-					last_vis_line.xce = last_xce
-					last_vis_line.yce = 1 - curve_radius
-					last_vis_line.yn = 1
-					vis_line.x0 = middle_x
-					vis_line.xcs = xcs
-					vis_line.ycs = curve_radius
-				} else {
-					if (vis_line.xcs == null)
-						// First time this branch appeared
-						if (vis_line.xn > vis_line.x0)
-							// so we want an upwards curvature, just like
-							// the logic around initializing xce above, but reversed:
-							vis_line.xcs = vis_line.x0 + 1
-						else
-							vis_line.xcs = vis_line.x0
-					vis_line.ycs = curve_radius
+				vis_line.xce = vis_line.xn
+				vis_line.yce = vis_line.yn
+				vis_line.xcs = vis_line.x0
+				vis_line.ycs = vis_line.y0
+				if (! vis_line.x0) {
+					let last_vis_line = last_densened_vis_line_by_branch_id?.[branch_id]
+					if (last_vis_line) {
+						// Connect the line to the previous commit
+						vis_line.x0 = last_vis_line.xn
+						vis_line.xcs = vis_line.x0
+						if (last_vis_line.y0 !== last_vis_line.yn) {
+							// make curvy
+							// So far, a line is simply defined as the connection between x0 and xn.
+							// The lines all connect to each other. But between them, there is no curvature yet (hard edge).
+							// Determining two control points near this junction:
+							let last_xce = last_vis_line.x0 + (last_vis_line.xn - last_vis_line.x0) * (1 - curve_radius)
+							let xcs = vis_line.x0 + (vis_line.xn - vis_line.x0) * curve_radius
+							// ...and the strategy for creating a curve is to mark the control points fixed
+							// but move the actual junction point's x toward the average between both control
+							// points:
+							let middle_x = (xcs + last_xce) / 2
+							last_vis_line.xn = middle_x
+							last_vis_line.xce = last_xce
+							last_vis_line.yce = (last_vis_line.yn || 100) - curve_radius
+							vis_line.x0 = middle_x
+							vis_line.xcs = xcs
+							vis_line.ycs = (vis_line.y0 || 100) + curve_radius
+						}
+					} else {
+						// Nothing useful to connect to, probably a branch tip. Don't show anything
+						// but store x/yn to be able to connect to it in next line
+						vis_line.y0 = vis_line.ycs = vis_line.yn
+						vis_line.x0 = vis_line.xcs = vis_line.xn
+					}
 				}
 			}
 			commits.push({
@@ -386,6 +348,20 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		}
 		last_vis = vis
 	}
+	for (let i = 1; i < commits.length; i++)
+		for (let vis_line of commits[i].vis_lines) {
+			if (vis_line.y0 === vis_line.yn)
+				continue
+			// Duplicate the line into the previous commit's lines because both rows
+			// need to display it (each being only half-visible vertically)
+			commits[i - 1].vis_lines.push({
+				...vis_line,
+				y0: (vis_line.y0 || 0) + 1,
+				yn: (vis_line.yn || 0) + 1,
+				ycs: (vis_line.ycs || 0) + 1,
+				yce: (vis_line.yce || 0) + 1,
+			})
+		}
 
 	// cannot do this at creation because branches list is not fixed before this (see "inferred substitute")
 	for (let branch of branches)

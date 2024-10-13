@@ -353,6 +353,7 @@ watch(visible_commits, async () => {
 let visible_branches = computed(() => [
 	...new Set(visible_commits.value.flatMap((commit) => (commit.vis_lines || []).map((v) => v.branch))),
 ].filter(is_truthy))
+// todo ref_tips?
 let visible_branch_tips = computed(() => [
 	...new Set(visible_commits.value.flatMap((commit) =>
 		commit.refs)),
@@ -372,13 +373,12 @@ let connection_fake_commit = computed(() => {
 		refs: [],
 		vis_lines: commit.vis_lines
 			.filter((line) => line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch))
-			.map((line) => ({
-				...line,
-				xn: line.x0,
-				x0: line.x0 + ((line.xcs || 0) - line.x0) * -1,
-				xcs: line.x0 + ((line.xcs || 0) - line.x0) * -1,
-				xce: line.x0 + ((line.xcs || 0) - line.x0) * -3,
-			})),
+			.filter((line, i, all) => all.findIndex(l => l.branch === line.branch) === i) // rm duplicates
+			.map((line) => {
+				// This approx only works properly with curve radius 0
+				let x = (line.x0 + line.xn) / 2
+				return { ...line, xn: x, x0: x, xcs: x, xce: x, y0: 0, yn: 1 }
+			}),
 	}
 })
 // To show branch tips on top of connection_fake_commit lines
