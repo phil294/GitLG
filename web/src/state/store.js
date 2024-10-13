@@ -62,13 +62,14 @@ export let git_status = ref('')
 /** @type {Vue.Ref<string|null>} */
 export let default_origin = ref('')
 
+const default_log_action_n = 15000
 export let log_action = {
 	// regarding the -greps: Under normal circumstances, when showing stashes in
 	// git log, each of the stashes 2 or 3 parents are being shown. That because of
 	// git internals, but they are completely useless to the user.
 	// Could not find any easy way to skip those other than de-grepping them, TODO:.
 	// Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-	args: 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "',
+	args: `log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n ${default_log_action_n} --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "`,
 	options: [
 		{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' },
 		{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' },
@@ -81,6 +82,10 @@ export let log_action = {
 	immediate: true,
 }
 
+/**
+ * This function usually shouldn't be called in favor of `refresh_main_view()` because the latter
+ * allows the user to edit the arg, shows loading animation, prints errors accordingly etc.
+ */
 async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true, fetch_branches = true } = {}) {
 	let sep = '^%^%^%^%^'
 	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s"`)
@@ -263,6 +268,14 @@ export let push_history = (/** @type {HistoryEntry} */ entry) => {
 
 export let init = () => {
 	refresh_config()
+
+	// The "main" main log happens via the `immediate` flag of log_action which is rendered in a git-input in MainView.
+	// But because of the large default_log_action_n, this can take several seconds for large repos.
+	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
+	git_log(log_action.args
+		.replace(` -n ${default_log_action_n} `, ' -n 40 '),
+	{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
+		commits.value = parsed.commits)
 
 	add_push_listener('config-change', async () => {
 		await refresh_config()
