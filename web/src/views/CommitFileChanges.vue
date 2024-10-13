@@ -210,7 +210,7 @@ function show_file(/** @type {string} */ filepath) {
 	white-space: pre;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	color: #e5b567;
+	color: var(--vscode-gitDecoration-modifiedResourceForeground);
 	flex-shrink: 0;
 }
 ul.list > li {
@@ -250,7 +250,7 @@ ul.list > li .dir {
 .list-row:hover,
 .tree-node > summary:hover,
 .tree-node > .body > .row:hover {
-	background: #2a2d2e;
+	background: var(--vscode-list-hoverBackground);
 }
 .list-row:hover > .file-actions,
 .tree-node > summary:hover > .file-actions,

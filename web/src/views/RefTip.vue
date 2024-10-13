@@ -7,8 +7,8 @@
 	</div>
 </template>
 <script setup>
-import { computed } from 'vue'
-import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from '../state/store.js'
+import { computed } from 'vue';
+import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from '../state/store.js';
 
 let props = defineProps({
 	git_ref: {
@@ -85,7 +85,7 @@ let context_menu_provider = computed(() => () => {
 </script>
 <style scoped>
 .ref-tip {
-	background: #000;
+	background: #1f1f1f;
 	font-weight: bold;
 	font-style: italic;
 	display: inline-block;
@@ -97,6 +97,7 @@ let context_menu_provider = computed(() => () => {
 	max-width: 350px;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	color: white;
 }
 .ref-tip:hover {
 	max-width: unset;

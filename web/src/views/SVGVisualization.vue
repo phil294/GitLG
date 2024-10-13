@@ -69,11 +69,14 @@ let circle = computed(() => {
 .vis svg > path {
 	fill: none;
 }
+.vis svg > circle {
+	fill: var(--vscode-editor-background);
+}
 .vis svg > path.vis-line.is_head {
-	filter: drop-shadow(3px 0px 1px rgba(255,255,255,0.3)) drop-shadow(-3px 0px 1px rgba(255,255,255,0.3));
+	filter: drop-shadow(3px 0px 1px rgb(from var(--vscode-editor-foreground) r g b / 0.3)) drop-shadow(-3px 0px 1px rgb(from var(--vscode-editor-foreground) r g b / 0.3));
 }
 .vis svg > circle.vis-line.is_head {
-	fill: #fff;
+	fill: var(--vscode-editor-foreground);
 }
 .vis:after {
 	content: '';

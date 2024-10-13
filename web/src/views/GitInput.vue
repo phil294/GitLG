@@ -3,7 +3,7 @@
 		<promise-form ref="ref_form" :action="execute" class="col gap-5">
 			<div class="row align-center gap-10">
 				<code>git</code>
-				<input ref="command_input_ref" v-model="command" class="command flex-1">
+				<vscode-textfield ref="command_input_ref" v-model="command" class="command flex-1" />
 			</div>
 			<div class="input-controls justify-flex-end align-center gap-10">
 				<div v-if="text_changed" class="warn">
@@ -14,29 +14,25 @@
 						Editing this field can be dangerous, as it is executed without escaping. If you do not know what you are doing, please click Reset.
 					</details>
 				</div>
-				<button v-if="text_changed" class="reset btn btn-2 gap-3" type="button" @click="reset_command()">
-					<i class="codicon codicon-discard" />
+				<vscode-button v-if="text_changed" class="reset" secondary type="button" icon="discard" @click="reset_command()">
 					Reset
-				</button>
+				</vscode-button>
 				<div v-if="is_saved && ! has_unsaved_changes" class="saved">
 					Saved
 				</div>
-				<button v-if="has_unsaved_changes" class="save btn btn-2 gap-3" type="button" @click="save()">
-					<i class="codicon codicon-save" />
+				<vscode-button v-if="has_unsaved_changes" class="save" secondary icon="save" type="button" @click="save()">
 					Save
-				</button>
+				</vscode-button>
 			</div>
 			<div v-for="(param, i) in params" :key="i" class="param">
 				<label class="row align-center gap-5">
 					Param ${{ i+1 }}
-					<input ref="params_input_refs" v-model="params[i]" class="flex-1" onfocus="select()">
-				</label>
+					<vscode-textfield ref="params_input_refs" v-model="params[i]" class="flex-1" /></label>
 			</div>
 			<div class="execute">
-				<button class="btn gap-3">
-					<i class="codicon codicon-check" />
+				<vscode-button icon="check">
 					Execute
-				</button>
+				</vscode-button>
 			</div>
 		</promise-form>
 		<div v-if="error" class="error-response padding-l">
@@ -51,12 +47,9 @@
 			</div>
 			<ul>
 				<li v-for="option of options" :key="option.value" :class="{changed: option.active !== option.default_active}" class="option row gap-10">
-					<label class="row align-center flex-1">
-						<input v-model="option.active" :disabled="text_changed" type="checkbox">
-						{{ option.value }}
-					</label>
+					<vscode-checkbox v-model="option.active" :disabled="text_changed" :label="option.value" />
 					<details v-if="option.info" class="flex-1">
-						<summary>
+						<summary class="align-center">
 							{{ option.info }}
 						</summary>
 						{{ option.info }}
@@ -242,6 +235,8 @@ defineExpose({
 <style>
 .options .option.changed {
 	border-left: 2px solid #bc9550;
+	margin-left: -6px;
+	padding-left: 4px;
 }
 .options .option label {
 	white-space: pre;
@@ -253,7 +248,7 @@ defineExpose({
 .options .option details > summary {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	color: #808080;
+	color: var(--text-secondary);
 }
 .error-response,
 .success-response {

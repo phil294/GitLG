@@ -18,27 +18,23 @@
 					<repo-selection />
 					<aside class="center gap-20">
 						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
-							<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="🔍 search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
+							<vscode-textfield id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)" />
 							<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 								<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 							</button>
 							<button v-if="txt_filter" id="clear-filter" class="center" title="Clear search" @click="clear_filter()">
 								<i class="codicon codicon-close" />
 							</button>
-							<label id="filter-type-filter" class="row align-center">
-								<input v-model="txt_filter_type" type="radio" value="filter">
-								Filter
-							</label>
-							<label id="filter-type-jump" class="row align-center" title="Jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3">
-								<input v-model="txt_filter_type" type="radio" value="jump">
-								Jump
-							</label>
+							<vscode-radio-group>
+								<vscode-radio :checked="txt_filter_type == 'filter'" label="Filter" value="filter" />
+								<vscode-radio :checked="txt_filter_type == 'jump'" label="Jump" value="jump" title="Jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3" />
+							</vscode-radio-group>
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<button id="refresh" class="btn center" title="Refresh" @click="refresh_main_view()">
-								<i class="codicon codicon-refresh" />
-							</button>
+							<vscode-button id="refresh" class="btn-icon" title="Refresh" @click="refresh_main_view()">
+								<vscode-icon name="refresh" />
+							</vscode-button>
 						</section>
 					</aside>
 				</nav>
@@ -447,7 +443,7 @@ let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_
 </script>
 <style scoped>
 details#log-config {
-	color: #808080;
+	color: var(--text-secondary);
 	overflow: hidden;
 	min-width: 65px;
 }
@@ -461,7 +457,7 @@ details#log-config[open] {
 	width: 100%;
 	min-width: 30%;
 	min-height: 30%;
-	resize: both;
+	resize: horizontal;
 	overflow: hidden auto;
 	position: relative;
 }
@@ -469,11 +465,10 @@ details#log-config[open] {
 	padding: 5px;
 	position: sticky;
 	z-index: 2;
-	background: #111;
-	border-bottom: 1px solid #424242;
+	border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
 }
 #main-panel > nav #repo-selection {
-	overflow: hidden;
+	/* overflow: hidden; */
 	min-width: 50x;
 	flex-shrink: 1;
 }
@@ -511,8 +506,7 @@ details#log-config[open] {
 	padding: 0 2px;
 }
 #main-panel #quick-branch-tips,
-#main-panel #branches-connection,
-#main-panel #log.scroller {
+#main-panel #branches-connection {
 	padding-left: var(--container-padding);
 }
 #main-panel #branches-connection {
@@ -522,7 +516,7 @@ details#log-config[open] {
 	stroke-dasharray: 4;
 }
 #main-panel #git-status {
-	color: #555;
+	color: var(--text-secondary);
 	height: 110px;
 	position: fixed;
 	overflow: auto;
@@ -541,8 +535,10 @@ details#log-config[open] {
 #main-panel #quick-branch-tips > #all-branches,
 #main-panel #quick-branch-tips > #history {
 	position: absolute;
-	background: rgba(22,22,22,0.867);
-	box-shadow: 0 0 5px 2px rgba(22,22,22,0.867);
+	background: var(--vscode-editorWidget-background);
+	border: 1px solid var(--vscode-editorWidget-border);
+	padding: 5px;
+	padding-right: 10px;
 	border-radius: 5px;
 }
 #main-panel #quick-branch-tips > #all-branches {
@@ -552,8 +548,8 @@ details#log-config[open] {
 	max-width: clamp(300px, 70vw, 80vw);
 }
 #main-panel #quick-branch-tips > #history {
-	top: 35px;
-	right: 39px;
+	top: 52px;
+	right: 41px;
 	z-index: 2;
 }
 #main-panel #quick-branch-tips > #history[open] {
@@ -568,14 +564,15 @@ details#log-config[open] {
 	outline: none;
 }
 #main-panel #log.scroller .commit {
+	padding-left: var(--container-padding);
 	cursor: pointer;
 }
 #main-panel #log.scroller .commit.selected_commit {
-	box-shadow: 0 0 3px 0px #ffd700;
-	background: #292616;
+	background: var(--vscode-list-activeSelectionBackground)
 }
 #main-panel #log.scroller .commit :deep(.info) {
-	border-top: 1px solid #2e2e2e;
+	border-top: 1px solid var(--vscode-sideBarSectionHeader-border);
+	padding-right: var(--container-padding);
 }
 #main-panel #log.scroller .commit :deep(.info:hover) {
 	z-index: 1;
@@ -593,7 +590,8 @@ details#log-config[open] {
 #details-panel #selected-commits {
 	overflow: auto;
 	z-index: 1;
-	background: #161616;
+	background: var(--vscode-editorWidget-background);
+	border-left: 1px solid var(--vscode-sideBarSectionHeader-border);
 }
 #details-panel #close-selected-commit,
 #details-panel #close-selected-commits {
@@ -603,15 +601,21 @@ details#log-config[open] {
 	z-index: 1;
 }
 #details-panel .resize-hint {
-	color: #555;
+	color: var(--text-secondary);
 	font-size: small;
 	padding-left: 10px;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1;
+	background: var(--vscode-editorWidget-background);
 }
 </style>
 
 <style>
 .vue-recycle-scroller__item-view.hover > .commit {
-	background: #323232;
+	background: var(--vscode-list-hoverBackground);
 }
 </style>
 
@@ -619,6 +623,6 @@ details#log-config[open] {
 .info:hover,
 .info:hover,
 .vue-recycle-scroller__item-view.hover > .commit .info:hover {
-	background: #323232 !important;
+	background: var(--vscode-list-hoverBackground) !important;
 }
 </style>

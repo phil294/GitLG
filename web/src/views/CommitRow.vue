@@ -19,7 +19,7 @@
 					<span>
 						<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
 					</span>
-					<span class="grey"> in</span>
+					<span class="grey"> in </span>
 					<span class="grey">{{ commit.stats.files_changed }}</span>
 				</div>
 				<progress v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" class="diff" title="Ratio insertions / deletions" />
@@ -110,7 +110,7 @@ let calculated_height = computed(() =>
 }
 .info > .datetime,
 .info > .author {
-	color: #808080;
+	color: var(--text-secondary);
 }
 .info > .datetime {
 	font-size: 12px;
@@ -122,6 +122,6 @@ let calculated_height = computed(() =>
 	width: 91px;
 }
 .commit-row.merge .subject {
-	color: #808080;
+	color: var(--text-secondary);
 }
 </style>
