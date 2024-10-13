@@ -62,32 +62,56 @@ export let git_status = ref('')
 /** @type {Vue.Ref<string|null>} */
 export let default_origin = ref('')
 
-export let git_run_log = async (/** @type {string} */ log_args) => {
+export let log_action = {
+	// regarding the -greps: Under normal circumstances, when showing stashes in
+	// git log, each of the stashes 2 or 3 parents are being shown. That because of
+	// git internals, but they are completely useless to the user.
+	// Could not find any easy way to skip those other than de-grepping them, TODO:.
+	// Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
+	args: 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "',
+	options: [
+		{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' },
+		{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' },
+		{ value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' },
+		{ value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' },
+		{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' },
+		{ value: '--reflog', default_active: false, info: 'Pretend as if all objects mentioned by reflogs are listed on the command line as <commit>. / Reference logs, or "reflogs", record when the tips of branches and other references were updated in the local repository. Reflogs are useful in various Git commands, to specify the old value of a reference. For example, HEAD@{2} means "where HEAD used to be two moves ago", master@{one.week.ago} means "where master used to point to one week ago in this local repository", and so on. See gitrevisions(7) for more details.' },
+		{ value: '--simplify-by-decoration', default_active: false, info: 'Allows you to view only the big picture of the topology of the history, by omitting commits that are not referenced by some branch or tag. Can be useful for very large repositories.' }],
+	config_key: 'main-log',
+	immediate: true,
+}
+
+async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true, fetch_branches = true } = {}) {
 	let sep = '^%^%^%^%^'
 	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s"`)
-	let stash_refs = await git('stash list --format="%h"')
+	let stash_refs = ''
+	if (fetch_stash_refs)
+		stash_refs = await git('stash list --format="%h"')
 	log_args = log_args.replace('{STASH_REFS}', stash_refs.replaceAll('\n', ' '))
-	function log_error_handler(/** @type {Error} */ e) {
-		show_information_message('Git LOG failed. Did you change the command by hand? In the main view at the top left, click "Configure", then at the top right click "Reset", then "Save" and try again. If this didn\'t help, it might be a bug! Please open up a GitHub issue.')
-		throw e
-	}
-	// errors will be handled by GitInput
-	let [log_data, branch_data, stash_data, status_data, head_data] = await Promise.all([
-		git(log_args).catch(log_error_handler),
-		git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`),
+	let [log_data, branch_data, stash_data] = await Promise.all([
+		git(log_args),
+		fetch_branches ? git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`) : '',
 		git('stash list --format="%h %gd"').catch(() => ''),
+	])
+	/** @type {ReturnType<parse>} */
+	let parsed = { commits: [], branches: [] }
+	if (log_data)
+		parsed = parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
+	return parsed
+}
+
+export let main_view_action = async (/** @type {string} */ log_args) => {
+	// errors will be handled by GitInput
+	let [parsed_log_data, status_data, head_data] = await Promise.all([
+		git_log(log_args).catch(error => {
+			show_information_message('Git LOG failed. Did you change the command by hand? In the main view at the top left, click "Configure", then at the top right click "Reset", then "Save" and try again. If this didn\'t help, it might be a bug! Please open up a GitHub issue.')
+			throw error
+		}),
 		git('-c core.quotepath=false status'),
 		git('rev-parse --abbrev-ref HEAD'),
 	])
-	if (log_data == null)
-		return
-	/** @type {ReturnType<parse>} */
-	let parsed = { commits: [], branches: [] }
-	try {
-		parsed = parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
-	} catch (e) { log_error_handler(e) }
-	commits.value = parsed.commits
-	branches.value = parsed.branches
+	commits.value = parsed_log_data.commits
+	branches.value = parsed_log_data.branches
 	head_branch.value = head_data
 	git_status.value = status_data
 	let likely_default_branch = branches.value.find((b) => b.name === 'master' || b.name === 'main') || branches.value[0]

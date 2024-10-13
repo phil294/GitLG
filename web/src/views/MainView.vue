@@ -13,7 +13,7 @@
 						<summary class="align-center">
 							Configure...
 						</summary>
-						<git-input ref="git_input_ref" :action="run_log" :git_action="log_action" hide_result="" />
+						<git-input ref="git_input_ref" :action="run_log" :git_action="log_action" hide_result />
 					</details>
 					<repo-selection />
 					<aside class="center gap-20">
@@ -269,31 +269,12 @@ add_push_listener('scroll-to-selected-commit', () => {
 
 let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
 store.main_view_git_input_ref.value = git_input_ref
-let log_action = {
-	// rearding the -greps: Under normal circumstances, when showing stashes in
-	// git log, each of the stashes 2 or 3 parents are being shown. That because of
-	// git internals, but they are completely useless to the user.
-	// Could not find any easy way to skip those other than de-grepping them, TODO:.
-	// Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-	args: 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "',
-	options: [
-		{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' },
-		{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' },
-		{ value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' },
-		{ value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' },
-		{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' },
-		{ value: '--reflog', default_active: false, info: 'Pretend as if all objects mentioned by reflogs are listed on the command line as <commit>. / Reference logs, or "reflogs", record when the tips of branches and other references were updated in the local repository. Reflogs are useful in various Git commands, to specify the old value of a reference. For example, HEAD@{2} means "where HEAD used to be two moves ago", master@{one.week.ago} means "where master used to point to one week ago in this local repository", and so on. See gitrevisions(7) for more details.' },
-		{ value: '--simplify-by-decoration', default_active: false, info: 'Allows you to view only the big picture of the topology of the history, by omitting commits that are not referenced by some branch or tag. Can be useful for very large repositories.' }],
-
-	config_key: 'main-log',
-	immediate: true,
-}
 let is_first_log_run = true
 /* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
     	This function exists so we can modify the args before sending to git, otherwise
     	GitInput would have done the git call  */
 async function run_log(/** @type {string} */ log_args) {
-	await store.git_run_log(log_args)
+	await store.main_view_action(log_args)
 	await new Promise((ok) => setTimeout(ok, 0))
 	if (is_first_log_run) {
 		let first_selected_hash = selected_commits.value[0]?.hash
@@ -443,7 +424,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 let config_show_quick_branch_tips = computed(() =>
 	! store.config.value['hide-quick-branch-tips'])
 
-let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, selected_git_action, git_status, commits } = store
+let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, selected_git_action, git_status, commits, log_action } = store
 
 </script>
 <style scoped>

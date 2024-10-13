@@ -60,6 +60,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	}
 
 	for (let branch_line of branch_data.split('\n')) {
+		if (! branch_line)
+			continue
 		// origin-name{SEP}refs/heads/local-branch-name
 		// {SEP}refs/remotes/origin-name/remote-branch-name
 		let [tracking_remote_name, ref_name] = branch_line.split(separator)
@@ -121,14 +123,13 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					}
 					return ref
 				} else {
-					let branch_match = branches.find((branch) => id === branch.id)
+					let branch_match = branches.find((branch) => branch.id === id)
 					if (branch_match)
 						return branch_match
-					else {
-						// Can happen with grafted branches
-						console.warn(`Could not find ref '${id}' in list of branches for commit '${hash}'`)
-						return undefined
-					}
+					else
+						// Can happen with grafted branches or at first fast prefetch
+						// console.warn(`Could not find ref '${id}' in list of branches for commit '${hash}'`)
+						return new_branch(id, { name_may_include_remote: true })
 				}
 			}).filter(is_truthy)
 			.sort(git_ref_sort)
