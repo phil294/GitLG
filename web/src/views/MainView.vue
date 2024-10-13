@@ -2,10 +2,7 @@
 	<div id="main-view" class="fill col">
 		<div :class="details_panel_position === 'bottom' ? 'col' : 'row'" class="flex-1">
 			<div id="main-panel" class="col">
-				<p v-if="!initialized" class="loading">
-					Loading...
-				</p>
-				<p v-else-if="!filtered_commits.length" class="no-commits-found">
+				<p v-if="initialized && !filtered_commits.length" class="no-commits-found">
 					No commits found
 				</p>
 				<nav class="row align-center justify-space-between gap-10">
@@ -46,7 +43,12 @@
 					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
 					<History @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_hash_user($event.hash)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
-						Status: {{ git_status }}
+						<p v-if="!initialized" class="loading">
+							Loading...
+						</p>
+						<p v-else>
+							Status: {{ git_status }}
+						</p>
 					</div>
 					<template v-if="config_show_quick_branch_tips">
 						<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" :key="branch_elem.branch.id" title="Jump to branch tip" v-bind="branch_elem.bind" @click="scroll_to_branch_tip(branch_elem.branch)">
@@ -177,8 +179,6 @@ function txt_filter_filter(/** @type {Commit} */ commit) {
 		} else if (str?.includes(search_for))
 			return true
 }
-let initialized = computed(() =>
-	!! store.commits.value)
 let filtered_commits = computed(() => {
 	if (! txt_filter.value || txt_filter_type.value === 'jump')
 		return store.commits.value || []
@@ -269,18 +269,18 @@ add_push_listener('scroll-to-selected-commit', () => {
 
 let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
 store.main_view_git_input_ref.value = git_input_ref
-let is_first_log_run = true
+let initialized = ref(false)
 /* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
     	This function exists so we can modify the args before sending to git, otherwise
     	GitInput would have done the git call  */
 async function run_log(/** @type {string} */ log_args) {
 	await store.main_view_action(log_args)
 	await new Promise((ok) => setTimeout(ok, 0))
-	if (is_first_log_run) {
+	if (! initialized.value) {
 		let first_selected_hash = selected_commits.value[0]?.hash
 		if (first_selected_hash)
 			scroll_to_commit_hash(first_selected_hash)
-		is_first_log_run = false
+		initialized.value = true
 	} else {
 		if (selected_commit.value) {
 			let new_commit = filtered_commits.value.find((commit) =>
