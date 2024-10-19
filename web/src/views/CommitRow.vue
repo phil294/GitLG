@@ -3,7 +3,7 @@
 		<SVGVisualization :commit="commit" :height="calculated_height" :style="vis_style" class="vis" />
 		<div v-if="commit.hash" class="info flex-1 row gap-20">
 			<div class="subject-wrapper flex-1 row align-center">
-				<div :style="commit.branch? {color:commit.branch.color} : undefined" class="vis-ascii-circle vis-resize-handle" @mousedown="vis_resize_handle_mousedown">
+				<div :style="branch? {color:branch.color} : undefined" class="vis-ascii-circle vis-resize-handle" @mousedown="vis_resize_handle_mousedown">
 					●&nbsp;
 				</div>
 				<commit-ref-tips class="flex-noshrink" :commit="commit" />
@@ -37,7 +37,7 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { config, vis_width } from '../state/store.js'
+import { branch_by_id, config, vis_width } from '../state/store.js'
 
 let props = defineProps({
 	commit: {
@@ -47,6 +47,9 @@ let props = defineProps({
 	},
 	height: { type: Number, default: null },
 })
+
+let branch = computed(() =>
+	branch_by_id(props.commit.branch_id || ''))
 
 let vis_min_width = 15
 let vis_max_width_vw = 90

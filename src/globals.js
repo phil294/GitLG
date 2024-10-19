@@ -24,6 +24,17 @@ Promise.prototype.maybe = function() {
 }
 
 /**
+ * To use in place of TypeScript's `!` operator
+ * @template T
+ * @param value {T | undefined | null}
+ */
+globalThis.not_null = (value) => {
+	if (value == null)
+		throw new Error(`not_null assertion failed for ${value}`)
+	return value
+}
+
+/**
  * To use in place of `.filter(Boolean)` for type safety with strict null checks.
  * @template T
  * @param value {T | undefined | null | false}

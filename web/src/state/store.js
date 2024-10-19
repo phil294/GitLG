@@ -1,8 +1,8 @@
 import { ref, computed, shallowRef } from 'vue'
 import default_git_actions from './default-git-actions.json'
-import { parse } from '../utils/log-parser.js'
 import { git, exchange_message, add_push_listener, show_information_message } from '../bridge.js'
 import { parse_config_actions } from '../views/GitInput.vue'
+import { decompress } from 'compress-json'
 
 // ########################
 // This file should be used for state that is of importance for more than just one component.
@@ -53,10 +53,24 @@ export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ defa
 /** @type {Vue.Ref<Commit[]|null>} */
 export let commits = ref(null)
 
-/** @type {Vue.Ref<Branch[]>} */
-export let branches = ref([])
+/** @type {Vue.Ref<GitRef[]>} */
+export let git_refs = ref([])
+export let branches = computed(() =>
+	git_refs.value.filter(is_branch))
+export let git_ref_by_id = computed(() =>
+	git_refs.value.reduce((/** @type {Record<string, GitRef>} */ all, git_ref) => {
+		all[git_ref.id] = git_ref
+		return all
+	}, {}))
+export function branch_by_id(/** @type {string} */ id) {
+	let git_ref = git_ref_by_id.value[id]
+	if (git_ref && is_branch(git_ref))
+		return git_ref
+	return undefined
+}
 // this is either a branch id(name) or HEAD in which case it will simply not be shown
 // which is also not necessary because HEAD is then also visible as a branch tip.
+// TODO rename to make type more clear
 export let head_branch = ref('')
 export let git_status = ref('')
 /** @type {Vue.Ref<string|null>} */
@@ -85,38 +99,27 @@ export let log_action = {
 /**
  * This function usually shouldn't be called in favor of `refresh_main_view()` because the latter
  * allows the user to edit the arg, shows loading animation, prints errors accordingly etc.
+ * @param args {object}
+ * @param args.args {string}
+ * @param args.fetch_stash_refs {boolean=}
+ * @param args.fetch_branches {boolean=}
  */
-async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true, fetch_branches = true } = {}) {
-	let sep = '^%^%^%^%^'
-	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s"`)
-	let stash_refs = ''
-	if (fetch_stash_refs)
-		stash_refs = await git('stash list --format="%h"')
-	log_args = log_args.replace('{STASH_REFS}', stash_refs.replaceAll('\n', ' '))
-	let [log_data, branch_data, stash_data] = await Promise.all([
-		git(log_args),
-		fetch_branches ? git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`) : '',
-		git('stash list --format="%h %gd"').catch(() => ''),
-	])
-	/** @type {ReturnType<parse>} */
-	let parsed = { commits: [], branches: [] }
-	if (log_data)
-		parsed = parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
-	return parsed
+function git_log(args) {
+	return exchange_message('git-log', args) // .then(data => decompress(data))
 }
 
 export let main_view_action = async (/** @type {string} */ log_args) => {
 	// errors will be handled by GitInput
 	let [parsed_log_data, status_data, head_data] = await Promise.all([
-		git_log(log_args).catch(error => {
+		git_log({ args: log_args }).catch(error => {
 			show_information_message('Git LOG failed. Did you change the command by hand? In the main view at the top left, click "Configure", then at the top right click "Reset", then "Save" and try again. If this didn\'t help, it might be a bug! Please open up a GitHub issue.')
 			throw error
 		}),
 		git('-c core.quotepath=false status'),
 		git('rev-parse --abbrev-ref HEAD'),
 	])
+	git_refs.value = parsed_log_data.refs
 	commits.value = parsed_log_data.commits
-	branches.value = parsed_log_data.branches
 	head_branch.value = head_data
 	git_status.value = status_data
 	let likely_default_branch = branches.value.find((b) => b.name === 'master' || b.name === 'main') || branches.value[0]
@@ -272,10 +275,15 @@ export let init = () => {
 	// The "main" main log happens via the `immediate` flag of log_action which is rendered in a git-input in MainView.
 	// But because of the large default_log_action_n, this can take several seconds for large repos.
 	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
-	git_log(log_action.args
-		.replace(` -n ${default_log_action_n} `, ' -n 40 '),
-	{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
-		commits.value = parsed.commits)
+	git_log({
+		// TODO: also work with -n[number] and --max-count=[number] and --max-count\s+[number]
+		args: log_action.args.replace(` -n ${default_log_action_n} `, ' -n 40 '),
+		fetch_stash_refs: false,
+		fetch_branches: false,
+	}).then((parsed) => {
+		git_refs.value = parsed.refs
+		commits.value = parsed.commits
+	})
 
 	add_push_listener('config-change', async () => {
 		await refresh_config()

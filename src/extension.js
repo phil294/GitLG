@@ -4,10 +4,12 @@ let postcss = require('postcss')
 let postcss_sanitize = require('postcss-sanitize')
 let RelativeTime = require('@yaireo/relative-time')
 let relative_time = new RelativeTime()
+let { compress } = require('compress-json')
 require('./globals')
 
 let { get_git } = require('./git')
-const create_logger = require('./logger')
+let create_logger = require('./logger')
+let { parse } = require('./log-parser')
 
 let EXT_NAME = 'GitLG'
 let EXT_ID = 'git-log--graph'
@@ -48,8 +50,10 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	logger.info('extension activate')
 
 	function post_message(/** @type {BridgeMessage} */ msg) {
-		logger.debug('send to webview: ' + JSON.stringify(msg))
-		return webview_container?.webview.postMessage(msg)
+		let str = JSON.stringify(msg)
+		// logger.debug('send to webview: ' + str)
+		vscode.window.showInformationMessage('sending')
+		return webview_container?.webview.postMessage(str)
 	}
 	function push_message_id(/** @type {string} */ id) {
 		return post_message({
@@ -151,20 +155,56 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 					id: message.id,
 				}
 				let caller_stack = new Error().stack
+				let data = undefined
 				try {
-					resp.data = await func()
+					data = await func()
 				} catch (error) {
 					console.warn(error, caller_stack)
 					// We can't really just be passing e along here because it might be serialized as empty {}
 					resp.error = error.message || error
 				}
-				return post_message(resp)
+				// if (Array.isArray(data)) {
+				// 	let max_chunk_size = 5000
+				// 	if (data.length > max_chunk_size)
+				// 		for (let i = 0; i < data.length; i += max_chunk_size) {
+				// 			let chunk = data.slice(i, i + max_chunk_size)
+				// 			await post_message({
+				// 				...resp,
+				// 				data: chunk,
+				// 				chunk: i + 1,
+				// 				total_chunks: data.length,
+				// 			})
+				// 		}
+				// } else {
+				resp.data = data
+				post_message(resp)
+				// }
 			}
 			switch (message.type) {
 				case 'request-from-web':
 					switch (message.command) {
 						case 'git': return h(() =>
 							git.run(d))
+						case 'git-log': return h(async () => {
+							let { args, fetch_stash_refs, fetch_branches } = d
+							let sep = '^%^%^%^%^'
+							args = args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s"`)
+							let stash_refs = ''
+							if (fetch_stash_refs)
+								stash_refs = await git.run('stash list --format="%h"')
+							args = args.replace('{STASH_REFS}', stash_refs.replaceAll('\n', ' '))
+							let [log_data, branch_data, stash_data] = await Promise.all([
+								git.run(args),
+								fetch_branches ? git.run(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`) : '',
+								git.run('stash list --format="%h %gd"').catch(() => ''),
+							])
+							/** @type {ReturnType<parse>} */
+							let parsed = { commits: [], refs: [] }
+							if (log_data)
+								parsed = parse(log_data, branch_data, stash_data, sep, vscode.workspace.getConfiguration(EXT_ID)['curve-radius'])
+							// return compress(parsed)
+							return parsed
+						})
 						case 'show-error-message': return h(() =>
 							logger.error(d))
 						case 'show-information-message': return h(() =>
@@ -213,7 +253,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		let csp = 'default-src \'none\'; ' +
 			`style-src ${view.cspSource} 'unsafe-inline' ` +
 				(is_production ? '' : dev_server_url) + '; ' +
-			`script-src ${view.cspSource} 'unsafe-inline' ` +
+			`script-src ${view.cspSource} 'unsafe-inline' blob: ` +
 				(is_production ? '' : `${dev_server_url} 'unsafe-eval'`) + '; ' +
 			`font-src ${view.cspSource} ` +
 				(is_production ? '' : dev_server_url) + '; ' +

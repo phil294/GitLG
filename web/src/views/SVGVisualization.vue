@@ -9,7 +9,7 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { head_branch, vis_v_width } from '../state/store.js'
+import { branch_by_id, head_branch, vis_v_width } from '../state/store.js'
 
 let props = defineProps({
 	commit: {
@@ -21,33 +21,40 @@ let props = defineProps({
 	style: { type: Object, default: () => {} },
 })
 
+let commit_branch = computed(() =>
+	branch_by_id(props.commit.branch_id || ''))
+
 let padding_left = 5
 let lines = computed(() =>
-	props.commit.vis_lines.map((vis_line) => ({
-		d: `M${padding_left + vis_line.x0 * vis_v_width.value},${(vis_line.y0 || 0) * props.height} C${padding_left + (vis_line.xcs || 0) * vis_v_width.value},${(vis_line.ycs || 0) * props.height} ${padding_left + (vis_line.xce || 0) * vis_v_width.value},${(vis_line.yce || 0) * props.height} ${padding_left + vis_line.xn * vis_v_width.value},${(vis_line.yn || 0) * props.height}`,
-		vis_line,
-		style: {
-			stroke: vis_line.branch?.color,
-		},
-		class: {
-			is_head: vis_line.branch?.id === head_branch.value,
-		},
-	})))
+	props.commit.vis_lines.map((vis_line) => {
+		// TODO: test performance by this lookup in massive scrolling and otherwise duplicate color onto vis line directly in log parser
+		let branch = branch_by_id(vis_line.branch_id || '')
+		return {
+			d: `M${padding_left + vis_line.x0 * vis_v_width.value},${(vis_line.y0 || 0) * props.height} C${padding_left + (vis_line.xcs || 0) * vis_v_width.value},${(vis_line.ycs || 0) * props.height} ${padding_left + (vis_line.xce || 0) * vis_v_width.value},${(vis_line.yce || 0) * props.height} ${padding_left + vis_line.xn * vis_v_width.value},${(vis_line.yn || 0) * props.height}`,
+			vis_line,
+			style: {
+				stroke: branch?.color,
+			},
+			class: {
+				is_head: vis_line.branch_id === head_branch.value,
+			},
+		}
+	}))
 let branch_line = computed(() => {
-	if (! props.commit.branch)
+	if (! props.commit.branch_id)
 		return null
 	return lines.value.find((line) =>
-		line.vis_line.branch === props.commit.branch)
+		line.vis_line.branch_id === props.commit.branch_id)
 })
 let circle = computed(() => {
-	if (! branch_line.value || ! props.commit.branch)
+	if (! branch_line.value || ! commit_branch.value)
 		return null
 	return {
 		style: {
-			stroke: props.commit.branch.color,
+			stroke: commit_branch.value.color,
 		},
 		class: {
-			is_head: props.commit.branch.id === head_branch.value,
+			is_head: props.commit.branch_id === head_branch.value,
 		},
 		cx:
 			// branch_line is the first of the 1 to 2 lines per row per branch, so the upper one,

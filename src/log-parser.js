@@ -1,9 +1,9 @@
-import colors from './colors.js'
+let colors = require('./colors')
 
 /**
  * @typedef {{
  *	char: string
- *	branch: Branch | null
+ *	branch_id: string | null
  * }[]} Vis
  * Chars as they are returned from git, with proper branch association
  */
@@ -31,8 +31,10 @@ function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
 function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	let rows = log_data.split('\n')
 
-	/** @type {Branch[]} */
-	let branches = []
+	/** @type {GitRef[]} */
+	let refs = []
+	/** @type {Record<string, Branch>} Helper while iterating */
+	let branch_by_id = {}
 	/**
 	 * @param name {string}
 	 * @param options {{ remote_name?: string, tracking_remote_name?: string, inferred?: boolean, name_may_include_remote?: boolean}}=
@@ -44,18 +46,21 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			remote_name = split.slice(0, split.length - 1).join('/')
 		}
 		if (! name && inferred)
-			name = `${branches.length - 1}`
+			name = `${refs.length - 1}`
 		/** @type {Branch} */
 		let branch = {
 			name,
 			color: undefined,
 			type: 'branch',
-			remote_name,
-			tracking_remote_name,
-			id: (remote_name ? `${remote_name}/${name}` : name) + (inferred ? '~' + (branches.length - 1) : ''),
-			inferred,
+			id: (remote_name ? `${remote_name}/${name}` : name) + (inferred ? '~' + (refs.length - 1) : ''),
+			inferred: inferred || false,
 		}
-		branches.push(branch)
+		if (remote_name)
+			branch.remote_name = remote_name
+		if (tracking_remote_name)
+			branch.tracking_remote_name = tracking_remote_name
+		refs.push(branch)
+		branch_by_id[branch.id] = branch
 		return branch
 	}
 
@@ -65,10 +70,10 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		// origin-name{SEP}refs/heads/local-branch-name
 		// {SEP}refs/remotes/origin-name/remote-branch-name
 		let [tracking_remote_name, ref_name] = branch_line.split(separator)
-		if (ref_name.startsWith('refs/heads/'))
+		if (ref_name?.startsWith('refs/heads/'))
 			new_branch(ref_name.slice(11), { tracking_remote_name })
 		else {
-			let [remote_name, ...remote_branch_name_parts] = ref_name.slice(13).split('/')
+			let [remote_name, ...remote_branch_name_parts] = (ref_name || '').slice(13).split('/')
 			new_branch(remote_branch_name_parts.join('/'), { remote_name })
 		}
 	}
@@ -106,7 +111,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		// Much, much slower than everything else so better not log
 		// if vis_str.at(-1) != ' '
 		// 	console.warn "unknown git graph syntax returned at row " + row_no
-		let refs = refs_csv
+		let commit_refs = refs_csv
 			.split(', ')
 			// map to ["master", "origin/master", "tag: xyz"]
 			.map((r) => r.split(' -> ')[1] || r)
@@ -121,9 +126,10 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 						color: undefined,
 						type: 'tag',
 					}
+					refs.push(ref)
 					return ref
 				} else {
-					let branch_match = branches.find((branch) => branch.id === id)
+					let branch_match = branch_by_id[id]
 					if (branch_match)
 						return branch_match
 					else
@@ -133,7 +139,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				}
 			}).filter(is_truthy)
 			.sort(git_ref_sort)
-		let branch_tips = refs
+		let branch_tips = commit_refs
 			.filter(is_branch)
 		let branch_tip = branch_tips[0]
 
@@ -152,12 +158,12 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		 * @type {Vis}
 		 */
 		let vis = []
-		/** @type {Branch|undefined} */
-		let commit_branch = undefined
+		/** @type {string|undefined} */
+		let commit_branch_id = undefined
 		for (let [i_s, char] of Object.entries(vis_chars).reverse()) {
 			let i = Number(i_s)
-			/** @type {Branch | null | undefined } */
-			let v_branch = undefined
+			/** @type {string | null | undefined } */
+			let v_branch_id = undefined
 			let v_n = last_vis[i]
 			let v_nw = last_vis[i - 1]
 			let v_w_char = vis_chars[i - 1]
@@ -173,117 +179,119 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			switch (char) {
 				case '*':
 					if (branch_tip)
-						v_branch = branch_tip
-					else if (v_n?.branch)
-						v_branch = v_n?.branch
+						v_branch_id = branch_tip.id
+					else if (v_n?.branch_id)
+						v_branch_id = v_n?.branch_id
 					else if (v_nw?.char === '\\')
-						v_branch = v_nw?.branch
+						v_branch_id = v_nw?.branch_id
 					else if (v_ne?.char === '/')
-						v_branch = v_ne?.branch
+						v_branch_id = v_ne?.branch_id
 					else
 						// Stashes or no context because of --skip arg
-						v_branch = new_branch('', { inferred: true })
+						v_branch_id = new_branch('', { inferred: true }).id
 
-					commit_branch = v_branch || undefined
+					commit_branch_id = v_branch_id || undefined
 					// if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
 					// 	Branch or inferred branch starts here visually (ends here logically)
-					if (v_branch && v_nw?.char === '\\' && v_n?.char !== '|') {
+					if (v_branch_id && v_nw?.char === '\\' && v_n?.char !== '|') {
 						// This is branch tip but in previous above lines/commits, this branch
 						// may already have been on display for merging without its actual name known ("inferred substitute" below).
 						// Fix these lines (min 1) now
-						let wrong_branch = v_nw?.branch
-						if (wrong_branch?.inferred && ! v_branch.inferred) {
+						let wrong_branch = branch_by_id[v_nw?.branch_id || -1]
+						if (wrong_branch && wrong_branch.inferred && ! branch_by_id[v_branch_id]?.inferred) {
 							let k = commits.length - 1
 							let wrong_branch_matches = []
-							while ((wrong_branch_matches = commits[k]?.vis_lines.filter((v) => v.branch === wrong_branch))?.length) {
+							while ((wrong_branch_matches = commits[k]?.vis_lines.filter((v) => v.branch_id === wrong_branch.id) || []).length) {
 								for (let wrong_branch_match of wrong_branch_matches || [])
-									wrong_branch_match.branch = v_branch
+									wrong_branch_match.branch_id = v_branch_id
 								k--
 							}
-							if (densened_vis_line_by_branch_id[wrong_branch.id] && ! densened_vis_line_by_branch_id[v_branch.id]) {
-								densened_vis_line_by_branch_id[v_branch.id] = densened_vis_line_by_branch_id[wrong_branch.id]
-								densened_vis_line_by_branch_id[v_branch.id].branch = v_branch
+							let densened = densened_vis_line_by_branch_id[wrong_branch.id]
+							if (densened && ! densened_vis_line_by_branch_id[v_branch_id]) {
+								densened.branch_id = v_branch_id
+								densened_vis_line_by_branch_id[v_branch_id] = densened
 								delete densened_vis_line_by_branch_id[wrong_branch.id]
 							}
-							branches.splice(branches.indexOf(wrong_branch), 1)
+							refs.splice(refs.indexOf(wrong_branch), 1)
 						}
 					}
 					break
 				case '|':
-					if (v_n?.branch)
-						v_branch = v_n?.branch
+					if (v_n?.branch_id)
+						v_branch_id = v_n?.branch_id
 					else if (v_nw?.char === '\\')
-						v_branch = v_nw?.branch
+						v_branch_id = v_nw?.branch_id
 					else if (v_ne?.char === '/')
-						v_branch = v_ne?.branch
+						v_branch_id = v_ne?.branch_id
 					break
 				case '_':
-					v_branch = v_ee?.branch
+					v_branch_id = v_ee?.branch_id
 					break
 				case '/':
 					vis_line.xn -= 1
 					if (v_ne?.char === '*')
-						v_branch = v_ne?.branch
+						v_branch_id = v_ne?.branch_id
 					else if (v_ne?.char === '|')
 						if (v_nee?.char === '/' || v_nee?.char === '_')
-							v_branch = v_nee?.branch
+							v_branch_id = v_nee?.branch_id
 						else
-							v_branch = v_ne?.branch
+							v_branch_id = v_ne?.branch_id
 					else if (v_ne?.char === '/')
-						v_branch = v_ne?.branch
+						v_branch_id = v_ne?.branch_id
 					else if (v_n?.char === '\\' || v_n?.char === '|')
-						v_branch = v_n?.branch
+						v_branch_id = v_n?.branch_id
 					break
 				case '\\':
 					vis_line.xn += 1
-					if (v_w_char === '|' && v_nw.char === '*') {
+					if (v_w_char === '|' && v_nw?.char === '*') {
 						// right below a merge commit
 						let last_commit = commits.at(-1)
-						if (v_e?.char === '|' && v_e?.branch)
+						if (v_e?.char === '|' && v_e?.branch_id) {
+							let v_e_branch = not_null(branch_by_id[v_e.branch_id])
 							// Actually the very same branch as v_e, but the densened_vis_line logic can only handle one line per branch at a time.
-							v_branch = new_branch(v_e.branch.name, { ...v_e.branch })
-						else {
+							v_branch_id = new_branch(v_e_branch.name, { ...v_e_branch }).id
+						} else {
 							// The actual branch name isn't known for sure yet: It will either a.) be visible with a branch tip
 							// in the next commit or never directly exposed, in which case we'll b.) try to infer it from the
 							// merge commit message, or if failing to do so, c.) create an inferred branch without name.
 							// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
 							let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
 							if (subject_merge_match)
-								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], { inferred: true, name_may_include_remote: true })
+								v_branch_id = new_branch(subject_merge_match[1] || subject_merge_match[2] || '', { inferred: true, name_may_include_remote: true }).id
 							else
-								v_branch = new_branch('', { inferred: true })
+								v_branch_id = new_branch('', { inferred: true }).id
 						}
 						if (last_commit)
 							last_commit.merge = true
-						let last_vis_line = last_densened_vis_line_by_branch_id[v_nw.branch?.id || -1]
+						let last_vis_line = last_densened_vis_line_by_branch_id[v_nw.branch_id || -1]
 						if (last_vis_line)
 							// Can't rely on the normal last_vis_line logic as there is nothing to connect to
 							vis_line.x0 = last_vis_line.xn
 					} else if (v_nw?.char === '|' || v_nw?.char === '\\')
-						v_branch = v_nw?.branch
+						v_branch_id = v_nw?.branch_id
 					else if (v_nw?.char === '.' || v_nw?.char === '-') {
 						let k = i - 2
 						let w_char_match = null
 						while ((w_char_match = last_vis[k])?.char === '-')
 							k--
-						v_branch = w_char_match.branch
-					} else if (v_nw?.char === '.' && last_vis[i - 2].char === '-')
-						v_branch = last_vis[i - 3].branch
+						v_branch_id = w_char_match?.branch_id
+					} else if (v_nw?.char === '.' && last_vis[i - 2]?.char === '-')
+						v_branch_id = last_vis[i - 3]?.branch_id
 					break
 				case ' ': case '.': case '-':
-					v_branch = null
+					v_branch_id = null
 			}
 			vis[i] = {
 				char,
-				branch: v_branch || null,
+				branch_id: v_branch_id || null,
 			}
 
-			if (v_branch)
-				if (densened_vis_line_by_branch_id[v_branch.id])
-					densened_vis_line_by_branch_id[v_branch.id].xn = vis_line.xn
+			if (v_branch_id)
+				if (densened_vis_line_by_branch_id[v_branch_id])
+					not_null(densened_vis_line_by_branch_id[v_branch_id]).xn = vis_line.xn
 				else {
-					vis_line.branch = v_branch
-					densened_vis_line_by_branch_id[v_branch.id] = vis_line
+					vis_line.branch_id = v_branch_id
+					densened_vis_line_by_branch_id[v_branch_id] = vis_line
 				}
 		}
 		if (subject) {
@@ -327,17 +335,33 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				}
 			}
 			commits.push({
-				index_in_graph_output: Number(row_no_s),
+				i: Number(row_no_s),
 				vis_lines: Object.values(densened_vis_line_by_branch_id)
+					.map(line => {
+						line.x0 = Math.round(line.x0 * 100) / 100
+						// @ts-ignore
+						line.xcs = Math.round(line.xcs * 100) / 100
+						// @ts-ignore
+						line.xce = Math.round(line.xce * 100) / 100
+						// @ts-ignore
+						line.y0 = Math.round(line.y0 * 100) / 100
+						// @ts-ignore
+						line.ycs = Math.round(line.ycs * 100) / 100
+						// @ts-ignore
+						line.yce = Math.round(line.yce * 100) / 100
+						// @ts-ignore
+						line.yn = Math.round(line.yn * 100) / 100
+						return line
+					})
 					// Leftmost branches should appear later so they are on top of the rest
 					.sort((a, b) => (b.xcs || 0) + (b.xce || 0) - (a.xcs || 0) - (a.xce || 0)),
-				branch: commit_branch,
+				branch_id: commit_branch_id,
 				hash_long,
 				hash,
 				author_name,
 				author_email,
 				datetime,
-				refs,
+				ref_ids: commit_refs.map(ref => ref.id),
 				subject,
 			})
 
@@ -350,12 +374,12 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		last_vis = vis
 	}
 	for (let i = 1; i < commits.length; i++)
-		for (let vis_line of commits[i].vis_lines) {
+		for (let vis_line of not_null(commits[i]).vis_lines) {
 			if (vis_line.y0 === vis_line.yn)
 				continue
 			// Duplicate the line into the previous commit's lines because both rows
 			// need to display it (each being only half-visible vertically)
-			commits[i - 1].vis_lines.push({
+			not_null(commits[i - 1]).vis_lines.push({
 				...vis_line,
 				y0: (vis_line.y0 || 0) + 1,
 				yn: (vis_line.yn || 0) + 1,
@@ -365,23 +389,18 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		}
 
 	// cannot do this at creation because branches list is not fixed before this (see "inferred substitute")
-	for (let branch of branches)
-		branch.color = (() => {
-			switch (branch.name) {
-				case 'master': case 'main': return '#ff3333'
-				case 'development': case 'develop': case 'dev': return '#009000'
-				case 'stage': case 'staging': case 'production': return '#d7d700'
-				case 'HEAD': return '#ffffff'
-				default:
-					return colors[Math.abs(branch.name.hashCode() % colors.length)]
-			}
-		})()
-
-	branches = branches.filter((branch) =>
-		// these now reside linked inside vis objects (with colors), but don't mention them in the listing
-		! branch.inferred,
-	).sort(git_ref_sort)
-		.slice(0, 10000)
+	for (let ref of refs)
+		if (is_branch(ref))
+			ref.color = (() => {
+				switch (ref.name) {
+					case 'master': case 'main': return '#ff3333'
+					case 'development': case 'develop': case 'dev': return '#009000'
+					case 'stage': case 'staging': case 'production': return '#d7d700'
+					case 'HEAD': return '#ffffff'
+					default:
+						return colors[Math.abs(ref.name.hashCode() % colors.length)]
+				}
+			})()
 
 	// stashes were queried (git reflog show stash) but shown as commits. Need to add refs:
 	for (let stash of (stash_data || '').split('\n')) {
@@ -389,14 +408,17 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		let split = stash.split(' ')
 		let commit = commits.find((c) => c.hash === split[0])
 		let name = split.slice(1).join(' ')
-		commit?.refs.push({
+		/** @type {GitRef} */
+		let stash_ref = {
 			name,
 			id: name,
 			type: 'stash',
 			color: '#fff',
-		})
+		}
+		refs.push(stash_ref)
+		commit?.ref_ids.push(stash_ref.id)
 	}
 
-	return { commits, branches }
+	return { commits, refs }
 }
-export { parse }
+module.exports.parse = parse

@@ -10,6 +10,7 @@
   "dependencies": {
     "@vscode/codicons": "^0.0.36",
     "@vueuse/core": "^11.1.0",
+    "compress-json": "^3.1.0",
     "vue": "^3.5.12",
     "vue-virtual-scroller": "^2.0.0-alpha.1"
   },

@@ -43,4 +43,5 @@
     "files.trimTrailingWhitespace": true,
     "eslint.experimental.useFlatConfig": true,
     "eslint.useFlatConfig": true,
+    "typescript.tsdk": "node_modules/typescript/lib",
 }

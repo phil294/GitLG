@@ -103,14 +103,15 @@ export const git_numstat_summary_to_changes_array = (/** @type {string} */ out) 
 			if (line.startsWith(' ')) {
 				let split = line.split(' ')
 				let path = split.slice(4).join(' ')
-				if (split[1] === 'delete')
-					all[path].is_deletion = true
-				else if (split[1] === 'create')
-					all[path].is_creation = true
+				if (all[path])
+					if (split[1] === 'delete')
+						all[path].is_deletion = true
+					else if (split[1] === 'create')
+						all[path].is_creation = true
 			} else {
 				let split = line.split('\t')
-				all[split[2]] = {
-					path: split[2],
+				all[split[2] || ''] = {
+					path: split[2] || '',
 					insertions: Number(split[0]),
 					deletions: Number(split[1]),
 				}
@@ -122,7 +123,7 @@ export const git_numstat_summary_to_changes_array = (/** @type {string} */ out) 
 <script setup>
 import { ref, computed, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
-import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_, config, show_branch } from '../state/store.js'
+import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_, config, show_branch, git_ref_by_id } from '../state/store.js'
 
 let props = defineProps({
 	commit: {
@@ -136,15 +137,18 @@ defineEmits(['hash_clicked'])
 let details_panel_position = computed(() =>
 	config.value['details-panel-position'])
 
-let branch_tips = computed(() =>
-	props.commit.refs.filter(is_branch))
+let git_refs = computed(() =>
+	props.commit.ref_ids.map(id => not_null(git_ref_by_id.value[id])))
 
-let tags = computed(() => props.commit.refs.filter((ref_) =>
+let branch_tips = computed(() =>
+	git_refs.value.filter(is_branch))
+
+let tags = computed(() => git_refs.value.filter((ref_) =>
 	ref_.type === 'tag'))
 /** @type {Vue.Ref<string[]>} */
 let tag_details = ref([])
 
-let stash = computed(() => props.commit.refs.find((ref_) =>
+let stash = computed(() => git_refs.value.find((ref_) =>
 	ref_.type === 'stash'))
 
 /** @type {Vue.Ref<import('./CommitFileChanges').FileDiff[]>} */

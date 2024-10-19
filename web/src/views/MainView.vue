@@ -62,7 +62,7 @@
 				<div v-if="config_show_quick_branch_tips" id="branches-connection">
 					<commit-row v-if="connection_fake_commit" :commit="connection_fake_commit" :height="110" class="vis" />
 				</div>
-				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
+				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="i" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
 					<commit-row :class="{selected_commit:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" role="button" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
 			</div>
@@ -70,11 +70,11 @@
 				<template v-if="selected_commit">
 					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="scroll_to_commit_hash_user($event)">
 						<template #details_text>
-							<template v-if="filtered_commits.length !== commits.length">
+							<template v-if="filtered_commits.length !== commits?.length">
 								Index in filtered commits: {{ selected_commit_index_in_filtered_commits }}<br>
 							</template>
 							Index in all loaded commits: {{ selected_commit_index_in_commits }}<br>
-							Index in raw graph output: {{ selected_commit.index_in_graph_output }}
+							Index in raw graph output: {{ selected_commit.i }}
 						</template>
 					</commit-details>
 					<button id="close-selected-commit" class="center" title="Close" @click="selected_commits=[]">
@@ -131,9 +131,9 @@ let selected_commit = computed(() => {
 		return selected_commits.value[0]
 })
 let selected_commit_index_in_filtered_commits = computed(() =>
-	filtered_commits.value.indexOf(selected_commit.value))
+	selected_commit.value ? filtered_commits.value.indexOf(selected_commit.value) : -1)
 let selected_commit_index_in_commits = computed(() =>
-	store.commits.value.indexOf(selected_commit.value))
+	selected_commit.value ? store.commits.value?.indexOf(selected_commit.value) || -1 : -1)
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 	if (! commit.hash)
 		return
@@ -145,7 +145,7 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 			selected_commits.value = [...selected_commits.value, commit]
 	else if (event?.shiftKey) {
 		let total_index = filtered_commits.value.indexOf(commit)
-		let last_total_index = filtered_commits.value.indexOf(selected_commits.value[selected_commits.value.length - 1])
+		let last_total_index = filtered_commits.value.indexOf(not_null(selected_commits.value.at(-1)))
 		if (total_index > last_total_index && total_index - last_total_index < 1000)
 			selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index + 1).filter((c) =>
 				! selected_commits.value.includes(c)))
@@ -172,7 +172,7 @@ async function clear_filter() {
 let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref')) // eslint-disable-line @stylistic/no-extra-parens
 function txt_filter_filter(/** @type {Commit} */ commit) {
 	let search_for = txt_filter.value.toLowerCase()
-	for (let str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)].map((s) => s.toLowerCase()))
+	for (let str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.ref_ids].map((s) => s.toLowerCase()))
 		if (txt_filter_regex.value) {
 			if (str?.match.maybe(search_for))
 				return true
@@ -211,7 +211,9 @@ function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 	scroll_to_item_centered(next_match_index)
 	txt_filter_last_i = next_match_index
 	debounce(() => {
-		selected_commits.value = [filtered_commits.value[txt_filter_last_i]]
+		let commit = filtered_commits.value[txt_filter_last_i]
+		if (commit)
+			selected_commits.value = [commit]
 	}, 100)
 }
 watch(txt_filter, () => {
@@ -222,14 +224,14 @@ watch(txt_filter, () => {
 function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	let first_branch_commit_i = filtered_commits.value.findIndex((commit) => {
 		if (branch.inferred)
-			return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
+			return commit.vis_lines.some((vis_line) => vis_line.branch_id === branch.id)
 		else
-			return commit.refs.some((ref_) => ref_ === branch)
+			return commit.ref_ids.some((ref_id) => ref_id === branch.id)
 	})
 	if (first_branch_commit_i === -1)
 		return show_error_message(`No commit found for branch ${branch.id}. Not enough commits loaded?`)
 	scroll_to_item_centered(first_branch_commit_i)
-	let commit = filtered_commits.value[first_branch_commit_i]
+	let commit = not_null(filtered_commits.value[first_branch_commit_i])
 	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 	// a branch name in a commit's ref list.
 	selected_commits.value = [commit]
@@ -244,11 +246,11 @@ function scroll_to_commit_hash(/** @type {string} */ hash) {
 	let commit_i = filtered_commits.value.findIndex((commit) =>
 		commit.hash === hash)
 	if (commit_i === -1) {
-		console.log(new Error().stack)
-		return show_error_message(`No commit found for hash ${hash}. No idea why :/`)
+		console.warn(new Error().stack)
+		return show_error_message(`No commit found for hash ${hash}!`)
 	}
 	scroll_to_item_centered(commit_i)
-	selected_commits.value = [filtered_commits.value[commit_i]]
+	selected_commits.value = [not_null(filtered_commits.value[commit_i])]
 }
 function scroll_to_commit_hash_user(/** @type {string} */ hash) {
 	scroll_to_commit_hash(hash)
@@ -333,14 +335,16 @@ watch(visible_commits, async () => {
 	await store.update_commit_stats(visible_cp)
 })
 let visible_branches = computed(() => [
-	...new Set(visible_commits.value.flatMap((commit) => (commit.vis_lines || []).map((v) => v.branch))),
+	...new Set(visible_commits.value.flatMap((commit) =>
+		(commit.vis_lines || [])
+			.map((v) => store.branch_by_id(v.branch_id || '')))),
 ].filter(is_truthy))
-// todo ref_tips?
 let visible_branch_tips = computed(() => [
 	...new Set(visible_commits.value.flatMap((commit) =>
-		commit.refs)),
+		commit.ref_ids
+			.map(ref_id => store.git_ref_by_id.value[ref_id]))),
 ].filter((ref_) =>
-	is_branch(ref_) && ! ref_.inferred))
+	ref_ && is_branch(ref_) && ! ref_.inferred))
 let invisible_branch_tips_of_visible_branches = computed(() =>
 // alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
 	visible_branches.value.filter((branch) =>
@@ -354,8 +358,8 @@ let connection_fake_commit = computed(() => {
 	return {
 		refs: [],
 		vis_lines: commit.vis_lines
-			.filter((line) => line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch))
-			.filter((line, i, all) => all.findIndex(l => l.branch === line.branch) === i) // rm duplicates
+			.filter((line) => line.branch_id && invisible_branch_tips_of_visible_branches.value.some(tip => tip.id === line.branch_id))
+			.filter((line, i, all) => all.findIndex(l => l.branch_id === line.branch_id) === i) // rm duplicates
 			.map((line) => {
 				// This approx only works properly with curve radius 0
 				let x = (line.x0 + line.xn) / 2
@@ -368,13 +372,14 @@ let invisible_branch_tips_of_visible_branches_elems = computed(() => {
 	let row = -1
 	return [...connection_fake_commit.value?.vis_lines || []].reverse()
 		.map((line) => {
-			if (! line.branch)
+			let branch = store.branch_by_id(line.branch_id || '')
+			if (! branch)
 				return null
 			row++
 			if (row > 5)
 				row = 0
 			return {
-				branch: line.branch,
+				branch,
 				bind: {
 					style: {
 						left: 0 + store.vis_v_width.value * line.x0 + 'px',
@@ -390,7 +395,7 @@ let global_actions = computed(() =>
 
 onMounted(() => {
 	// didn't work with @keyup.escape.native on the components root element
-	// when focus was in a sub component (??) so doing this instaed:
+	// when focus was in a sub component (??) so doing this instead:
 	document.addEventListener('keyup', (e) => {
 		if (e.key === 'Escape')
 			selected_commits.value = []

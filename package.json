@@ -582,6 +582,7 @@
 	},
 	"dependencies": {
 		"@yaireo/relative-time": "1.0.5",
+		"compress-json": "^3.1.0",
 		"postcss": "^8.4.47",
 		"postcss-sanitize": "^0.0.9"
 	}

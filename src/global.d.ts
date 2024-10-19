@@ -19,13 +19,15 @@ interface BridgeMessage {
 	command?: string,
 	data?: any,
 	error?: any,
-	id: number | string
+	id: number | string,
+	chunk?: number,
+	total_chunks?: number
 }
 
 interface GitRef {
 	name: string
 	id: string
-	color?: typeof import('../web/src/utils/colors.js')[number]
+	color?: string
 	type: "tag" | "stash" | "branch"
 }
 
@@ -47,7 +49,8 @@ interface Branch extends GitRef {
  * https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d#cubic_b%C3%A9zier_curve
  */
 interface VisLine {
-	branch?: Branch | undefined
+	branch_id?: string
+	color?: string
 	x0: number
 	y0?: number
 	xn: number
@@ -59,15 +62,15 @@ interface VisLine {
 }
 
 interface Commit {
-	index_in_graph_output: number
+	i: number
 	vis_lines: VisLine[]
-	branch?: Branch
+	branch_id?: string
 	hash: string
 	hash_long: string
 	author_name: string
 	author_email: string
 	datetime?: string
-	refs: GitRef[]
+	ref_ids: string[]
 	subject: string
 	merge?: boolean
 	stats?: {

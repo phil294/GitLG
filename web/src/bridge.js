@@ -3,25 +3,41 @@ let vscode = acquireVsCodeApi()
 /** @type {Record<string, (r: BridgeMessage) => void>} */
 let response_handlers = {}
 let message_id_counter = 0
+/** @type {Record<string, any[]>} */
+let response_chunks = {}
 
 /** @type {Record<string, (r: BridgeMessage) => void>} */
 let push_handlers = {}
 
 window.addEventListener('message', (msg_event) => {
 	/** @type {BridgeMessage} */
-	let message = msg_event.data
+	debugger
+	let message = JSON.parse(msg_event.data)
+	debugger
 	switch (message.type) {
-		case 'response-to-web':
-			if (! response_handlers[message.id])
+		case 'response-to-web': {
+			let handler = response_handlers[message.id]
+			if (! handler)
 				throw new Error('unhandled message response id: ' + JSON.stringify(message))
-			response_handlers[message.id](message)
+			if (message.chunk) {
+				response_chunks[message.id] = (response_chunks[message.id] || []).concat(message.data)
+				if (message.chunk === message.total_chunks) {
+					message.data = response_chunks[message.id]
+					delete response_chunks[message.id]
+				} else
+					break
+			}
+			handler(message)
 			delete response_handlers[message.id]
 			break
-		case 'push-to-web':
-			if (! push_handlers[message.id])
+		}
+		case 'push-to-web': {
+			let handler = push_handlers[message.id]
+			if (! handler)
 				throw new Error('unhandled message push id: ' + JSON.stringify(message))
-			push_handlers[message.id](message)
+			handler(message)
 			break
+		}
 	}
 })
 
@@ -34,7 +50,7 @@ export let exchange_message = async (/** @type {string} */ command, /** @type {a
 	let resp = await new Promise((ok) => {
 		response_handlers[message_id_counter] = ok
 	})
-	console.info('exchange_message', command, data) // , resp
+	// console.info('exchange_message', command, data) // , resp
 
 	if (resp.error) {
 		let error = new Error(JSON.stringify({ error_response: resp.error, request }))

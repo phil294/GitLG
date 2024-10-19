@@ -1,11 +1,11 @@
 <template>
 	<div class="commit-ref-tips row align-center">
-		<ref-tip v-for="ref of refs" :key="ref.id" :commit="commit" :git_ref="ref" />
+		<ref-tip v-for="ref of grouped_git_refs" :key="ref.id" :commit="commit" :git_ref="ref" />
 	</div>
 </template>
 <script setup>
 import { computed } from 'vue'
-import { config } from '../state/store'
+import { config, git_ref_by_id } from '../state/store'
 
 let props = defineProps({
 	commit: {
@@ -17,21 +17,22 @@ let props = defineProps({
 
 function group_same_name_branches_into_one(/** @type {Branch[]} */ branches) {
 	return {
-		...branches[0],
+		...not_null(branches[0]),
 		remote_name: undefined,
-		id: branches[0].name,
+		id: not_null(branches[0]).name,
 		remote_names_group: branches
 			.map(ref => ref.remote_name)
 			.filter(is_truthy),
 	}
 }
 
-let refs = computed(() => {
+let git_refs = computed(() =>
+	props.commit.ref_ids.map(id => not_null(git_ref_by_id.value[id])))
+let grouped_git_refs = computed(() => {
 	if (config.value['group-branch-remotes'] === false)
-		return props.commit.refs
-	return Object.values(props.commit.refs.reduce((/** @type {Record<string, GitRef[]>} */ all, ref) => {
-		all[ref.name] ||= []
-		all[ref.name].push(ref)
+		return git_refs.value
+	return Object.values(git_refs.value.reduce((/** @type {Record<string, GitRef[]>} */ all, ref) => {
+		all[ref.name] = [...all[ref.name] || [], ref]
 		return all
 	}, {}))
 		.map(name_group => {
