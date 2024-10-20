@@ -16,6 +16,7 @@ export default [
 		languageOptions: {
 			globals: {
 				not_null: 'readonly',
+				sleep: 'readonly',
 				is_truthy: 'readonly',
 				is_branch: 'readonly',
 				acquireVsCodeApi: 'readonly',

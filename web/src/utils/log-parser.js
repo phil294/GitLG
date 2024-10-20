@@ -28,7 +28,8 @@ function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
  * @param separator {string}
  * @param curve_radius {number}
  */
-function parse(log_data, branch_data, stash_data, separator, curve_radius) {
+async function parse(log_data, branch_data, stash_data, separator, curve_radius) {
+	console.time('GitLG: parsing log')
 	let rows = log_data.split('\n')
 
 	/** @type {Branch[]} */
@@ -348,6 +349,12 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			// get rid of collected connection lines - freshly start at this commit again
 			densened_vis_line_by_branch_id = {}
 		}
+		if (Number(row_no_s) % 300 === 0)
+			// Keep the UI responsive. An alternative would be delegating the heavy work to a
+			// separate thread (web service worker or rather extension backend), but the serialization
+			// performance penalty is super big. With loads of optimizations it could work great though.
+			await sleep(0)
+
 		last_vis = vis
 	}
 	for (let i = 1; i < commits.length; i++)
@@ -398,6 +405,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		})
 	}
 
+	console.timeEnd('GitLG: parsing log')
 	return { commits, branches }
 }
 export { parse }

@@ -98,10 +98,10 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 		fetch_branches ? git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`) : '',
 		git('stash list --format="%h %gd"').catch(() => ''),
 	])
-	/** @type {ReturnType<parse>} */
+	/** @type {Awaited<ReturnType<parse>>} */
 	let parsed = { commits: [], branches: [] }
 	if (log_data)
-		parsed = parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
+		parsed = await parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
 	return parsed
 }
 

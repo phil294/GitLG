@@ -34,6 +34,10 @@ globalThis.not_null = (value) => {
 	return value
 }
 
+globalThis.sleep = (/** @type {number} */ ms) =>
+	new Promise(bingbong =>
+		setTimeout(bingbong, ms))
+
 /**
  * To use in place of `.filter(Boolean)` for type safety with strict null checks.
  * @template T
