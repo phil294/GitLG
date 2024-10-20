@@ -271,7 +271,7 @@ export let init = () => {
 	// The "main" main log happens via the `immediate` flag of log_action which is rendered in a git-input in MainView.
 	// But because of the large default_log_action_n, this can take several seconds for large repos.
 	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
-	git_log('log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} -n 40 --all --color=never',
+	git_log('log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} -n 100 --all --color=never',
 		{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 		commits.value = parsed.commits
 			.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', id: '' } }], author_name: '', hash_long: '', refs: [] }))
