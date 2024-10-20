@@ -266,13 +266,9 @@ add_push_listener('scroll-to-selected-commit', async () => {
 	txt_filter.value = ''
 	if (! selected_commit.value) {
 		let hash = selected_commits_hashes.value[0]
-		if (hash) {
-			await store.refresh_main_view({
-				before_execute: () =>
-					`log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} --color=never -n 500 ${hash}`,
-			})
-			show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
-		} else
+		if (hash)
+			await store.load_commit_hash(hash)
+		else
 			return
 	}
 	if (selected_commit.value)

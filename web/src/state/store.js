@@ -80,6 +80,8 @@ export let log_action = {
 	config_key: 'main-log',
 	immediate: true,
 }
+/** For when the extension needs to display something without the user being allowed to intervene. A default to be extended. */
+let log_args_override_base = 'log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} --color=never'
 
 /**
  * This function usually shouldn't be called in favor of `refresh_main_view()` because the latter
@@ -285,13 +287,20 @@ export let push_history = (/** @type {HistoryEntry} */ entry) => {
 	history.value = _history
 }
 
+/** Make sure *hash* is temporarily part of the loaded commits */
+export let load_commit_hash = async (/** @type {string} */ hash) => {
+	let { commits: _commits } = await git_log(`${log_args_override_base} -n 500 ${hash}`, { fetch_stash_refs: false, fetch_branches: false })
+	commits.value = _commits
+	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
+}
+
 export let init = () => {
 	refresh_config()
 
 	// The "main" main log happens via the `immediate` flag of log_action which is rendered in a git-input in MainView.
 	// But because of the large default_log_action_n, this can take several seconds for large repos.
 	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
-	git_log('log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} -n 100 --all --color=never',
+	git_log(`${log_args_override_base} -n 100 --all`,
 		{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 		commits.value = parsed.commits
 			.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', id: '' } }], author_name: '', hash_long: '', refs: [] })
