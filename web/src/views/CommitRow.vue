@@ -15,14 +15,16 @@
 				{{ commit.author_name }}
 			</div>
 			<div class="stats flex-noshrink row align-center justify-flex-end gap-5">
-				<div v-if="commit.stats" class="changes" title="Changed lines in amount of files">
-					<span>
-						<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
-					</span>
-					<span class="grey"> in</span>
-					<span class="grey">{{ commit.stats.files_changed }}</span>
-				</div>
-				<progress v-if="commit.stats" :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" class="diff" title="Ratio insertions / deletions" />
+				<template v-if="commit.stats?.files_changed">
+					<div class="changes" title="Changed lines in amount of files">
+						<span>
+							<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
+						</span>
+						<span class="grey"> in </span>
+						<span class="grey">{{ commit.stats.files_changed }}</span>
+					</div>
+					<progress :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" class="diff" title="Ratio insertions / deletions" />
+				</template>
 			</div>
 			<div class="datetime flex-noshrink align-center">
 				{{ commit.datetime }}

@@ -91,6 +91,7 @@ import { stateful_computed, refresh_main_view } from '../state/store.js'
 import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from '../state/file-extension-icon-path-mapping.json'
 
+// TODO: share/extend type and component with commit.stats?
 /**
  * @typedef {{
  *	path: string

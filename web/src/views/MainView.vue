@@ -328,7 +328,7 @@ let scroll_item_height = computed(() =>
 	store.config.value['row-height'])
 
 watch(visible_commits, async () => {
-	let visible_cp = [...visible_commits.value].filter((commit) => // to avoid race conditions
+	let visible_cp = visible_commits.value.filter((commit) =>
 		commit.hash && ! commit.stats)
 	if (! visible_cp.length)
 		return

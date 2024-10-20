@@ -129,7 +129,24 @@ export let refresh_main_view = ({ before_execute } = {}) => {
 	return main_view_git_input_ref.value?.value?.execute({ before_execute })
 }
 
+let is_updating_commit_stats = false
+/** @type {Commit[]} */
+let queued_commits_for_update_stats = []
 export let update_commit_stats = async (/** @type {Commit[]} */ commits_) => {
+	if (is_updating_commit_stats)
+		return queued_commits_for_update_stats.push(...commits_)
+	is_updating_commit_stats = true
+	await work_update_commit_stats(commits_)
+	is_updating_commit_stats = false
+	if (queued_commits_for_update_stats.length) {
+		update_commit_stats(queued_commits_for_update_stats.filter(c => ! c.stats))
+		queued_commits_for_update_stats = []
+	}
+}
+/** Can be *very* slow in very big repos so it's important to keep it to a minimum */
+async function work_update_commit_stats(/** @type {Commit[]} */ commits_) {
+	if (! commits_.length)
+		return
 	let data = await git('show --format="%h" --shortstat ' + commits_.map((c) => c.hash).join(' '))
 	if (! data)
 		return
@@ -274,7 +291,8 @@ export let init = () => {
 	git_log('log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} -n 100 --all --color=never',
 		{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 		commits.value = parsed.commits
-			.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', id: '' } }], author_name: '', hash_long: '', refs: [] }))
+			.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', id: '' } }], author_name: '', hash_long: '', refs: [] })
+			.map(c => ({ ...c, stats: /* to prevent loading them */ { files_changed: 0, insertions: 0, deletions: 0 } })))
 
 	add_push_listener('config-change', async () => {
 		await refresh_config()
