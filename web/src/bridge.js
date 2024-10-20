@@ -11,17 +11,21 @@ window.addEventListener('message', (msg_event) => {
 	/** @type {BridgeMessage} */
 	let message = msg_event.data
 	switch (message.type) {
-		case 'response-to-web':
-			if (! response_handlers[message.id])
+		case 'response-to-web': {
+			let handler = response_handlers[message.id]
+			if (! handler)
 				throw new Error('unhandled message response id: ' + JSON.stringify(message))
-			response_handlers[message.id](message)
+			handler(message)
 			delete response_handlers[message.id]
 			break
-		case 'push-to-web':
-			if (! push_handlers[message.id])
+		}
+		case 'push-to-web': {
+			let handler = push_handlers[message.id]
+			if (! handler)
 				throw new Error('unhandled message push id: ' + JSON.stringify(message))
-			push_handlers[message.id](message)
+			handler(message)
 			break
+		}
 	}
 })
 

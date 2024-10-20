@@ -65,10 +65,10 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		// origin-name{SEP}refs/heads/local-branch-name
 		// {SEP}refs/remotes/origin-name/remote-branch-name
 		let [tracking_remote_name, ref_name] = branch_line.split(separator)
-		if (ref_name.startsWith('refs/heads/'))
+		if (ref_name?.startsWith('refs/heads/'))
 			new_branch(ref_name.slice(11), { tracking_remote_name })
 		else {
-			let [remote_name, ...remote_branch_name_parts] = ref_name.slice(13).split('/')
+			let [remote_name, ...remote_branch_name_parts] = (ref_name || '').slice(13).split('/')
 			new_branch(remote_branch_name_parts.join('/'), { remote_name })
 		}
 	}
@@ -106,7 +106,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		// Much, much slower than everything else so better not log
 		// if vis_str.at(-1) != ' '
 		// 	console.warn "unknown git graph syntax returned at row " + row_no
-		let refs = refs_csv
+		let commit_refs = refs_csv
 			.split(', ')
 			// map to ["master", "origin/master", "tag: xyz"]
 			.map((r) => r.split(' -> ')[1] || r)
@@ -133,7 +133,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				}
 			}).filter(is_truthy)
 			.sort(git_ref_sort)
-		let branch_tips = refs
+		let branch_tips = commit_refs
 			.filter(is_branch)
 		let branch_tip = branch_tips[0]
 
@@ -200,9 +200,10 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 									wrong_branch_match.branch = v_branch
 								k--
 							}
-							if (densened_vis_line_by_branch_id[wrong_branch.id] && ! densened_vis_line_by_branch_id[v_branch.id]) {
-								densened_vis_line_by_branch_id[v_branch.id] = densened_vis_line_by_branch_id[wrong_branch.id]
-								densened_vis_line_by_branch_id[v_branch.id].branch = v_branch
+							let densened = densened_vis_line_by_branch_id[wrong_branch.id]
+							if (densened && ! densened_vis_line_by_branch_id[v_branch.id]) {
+								densened.branch = v_branch
+								densened_vis_line_by_branch_id[v_branch.id] = densened
 								delete densened_vis_line_by_branch_id[wrong_branch.id]
 							}
 							branches.splice(branches.indexOf(wrong_branch), 1)
@@ -236,7 +237,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					break
 				case '\\':
 					vis_line.xn += 1
-					if (v_w_char === '|' && v_nw.char === '*') {
+					if (v_w_char === '|' && v_nw?.char === '*') {
 						// right below a merge commit
 						let last_commit = commits.at(-1)
 						if (v_e?.char === '|' && v_e?.branch)
@@ -249,7 +250,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 							// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
 							let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
 							if (subject_merge_match)
-								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], { inferred: true, name_may_include_remote: true })
+								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2] || '', { inferred: true, name_may_include_remote: true })
 							else
 								v_branch = new_branch('', { inferred: true })
 						}
@@ -337,7 +338,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 				author_name,
 				author_email,
 				datetime,
-				refs,
+				refs: commit_refs,
 				subject,
 			})
 
@@ -350,12 +351,12 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		last_vis = vis
 	}
 	for (let i = 1; i < commits.length; i++)
-		for (let vis_line of commits[i].vis_lines) {
+		for (let vis_line of not_null(commits[i]).vis_lines) {
 			if (vis_line.y0 === vis_line.yn)
 				continue
 			// Duplicate the line into the previous commit's lines because both rows
 			// need to display it (each being only half-visible vertically)
-			commits[i - 1].vis_lines.push({
+			not_null(commits[i - 1]).vis_lines.push({
 				...vis_line,
 				y0: (vis_line.y0 || 0) + 1,
 				yn: (vis_line.yn || 0) + 1,

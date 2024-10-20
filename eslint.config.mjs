@@ -15,6 +15,7 @@ export default [
 		plugins: { jsdoc },
 		languageOptions: {
 			globals: {
+				not_null: 'readonly',
 				is_truthy: 'readonly',
 				is_branch: 'readonly',
 				acquireVsCodeApi: 'readonly',
@@ -79,6 +80,7 @@ export default [
 			'jsdoc/require-returns-type': 'off',
 			'no-undef-init': 'off',
 			'import/first': 'off', // breaks script setup + extra script for exports
+			'@stylistic/multiline-ternary': 'off',
 		},
 	},
 ]

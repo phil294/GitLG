@@ -70,7 +70,7 @@
 				<template v-if="selected_commit">
 					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="scroll_to_commit_hash_user($event)">
 						<template #details_text>
-							<template v-if="filtered_commits.length !== commits.length">
+							<template v-if="filtered_commits.length !== commits?.length">
 								Index in filtered commits: {{ selected_commit_index_in_filtered_commits }}<br>
 							</template>
 							Index in all loaded commits: {{ selected_commit_index_in_commits }}<br>
@@ -131,9 +131,9 @@ let selected_commit = computed(() => {
 		return selected_commits.value[0]
 })
 let selected_commit_index_in_filtered_commits = computed(() =>
-	filtered_commits.value.indexOf(selected_commit.value))
+	selected_commit.value ? filtered_commits.value.indexOf(selected_commit.value) : -1)
 let selected_commit_index_in_commits = computed(() =>
-	store.commits.value.indexOf(selected_commit.value))
+	selected_commit.value ? store.commits.value?.indexOf(selected_commit.value) || -1 : -1)
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 	if (! commit.hash)
 		return
@@ -145,7 +145,7 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 			selected_commits.value = [...selected_commits.value, commit]
 	else if (event?.shiftKey) {
 		let total_index = filtered_commits.value.indexOf(commit)
-		let last_total_index = filtered_commits.value.indexOf(selected_commits.value[selected_commits.value.length - 1])
+		let last_total_index = filtered_commits.value.indexOf(not_null(selected_commits.value.at(-1)))
 		if (total_index > last_total_index && total_index - last_total_index < 1000)
 			selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index + 1).filter((c) =>
 				! selected_commits.value.includes(c)))
@@ -211,7 +211,9 @@ function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 	scroll_to_item_centered(next_match_index)
 	txt_filter_last_i = next_match_index
 	debounce(() => {
-		selected_commits.value = [filtered_commits.value[txt_filter_last_i]]
+		let commit = filtered_commits.value[txt_filter_last_i]
+		if (commit)
+			selected_commits.value = [commit]
 	}, 100)
 }
 watch(txt_filter, () => {
@@ -229,7 +231,7 @@ function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	if (first_branch_commit_i === -1)
 		return show_error_message(`No commit found for branch ${branch.id}. Not enough commits loaded?`)
 	scroll_to_item_centered(first_branch_commit_i)
-	let commit = filtered_commits.value[first_branch_commit_i]
+	let commit = not_null(filtered_commits.value[first_branch_commit_i])
 	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 	// a branch name in a commit's ref list.
 	selected_commits.value = [commit]
@@ -244,11 +246,11 @@ function scroll_to_commit_hash(/** @type {string} */ hash) {
 	let commit_i = filtered_commits.value.findIndex((commit) =>
 		commit.hash === hash)
 	if (commit_i === -1) {
-		console.log(new Error().stack)
-		return show_error_message(`No commit found for hash ${hash}. No idea why :/`)
+		console.warn(new Error().stack)
+		return show_error_message(`No commit found for hash ${hash}`)
 	}
 	scroll_to_item_centered(commit_i)
-	selected_commits.value = [filtered_commits.value[commit_i]]
+	selected_commits.value = [not_null(filtered_commits.value[commit_i])]
 }
 function scroll_to_commit_hash_user(/** @type {string} */ hash) {
 	scroll_to_commit_hash(hash)
@@ -333,14 +335,15 @@ watch(visible_commits, async () => {
 	await store.update_commit_stats(visible_cp)
 })
 let visible_branches = computed(() => [
-	...new Set(visible_commits.value.flatMap((commit) => (commit.vis_lines || []).map((v) => v.branch))),
+	...new Set(visible_commits.value.flatMap((commit) =>
+		(commit.vis_lines || [])
+			.map((v) => v.branch))),
 ].filter(is_truthy))
-// todo ref_tips?
 let visible_branch_tips = computed(() => [
 	...new Set(visible_commits.value.flatMap((commit) =>
 		commit.refs)),
 ].filter((ref_) =>
-	is_branch(ref_) && ! ref_.inferred))
+	ref_ && is_branch(ref_) && ! ref_.inferred))
 let invisible_branch_tips_of_visible_branches = computed(() =>
 // alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
 	visible_branches.value.filter((branch) =>
@@ -390,7 +393,7 @@ let global_actions = computed(() =>
 
 onMounted(() => {
 	// didn't work with @keyup.escape.native on the components root element
-	// when focus was in a sub component (??) so doing this instaed:
+	// when focus was in a sub component (??) so doing this instead:
 	document.addEventListener('keyup', (e) => {
 		if (e.key === 'Escape')
 			selected_commits.value = []
