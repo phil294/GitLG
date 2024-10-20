@@ -41,7 +41,7 @@
 				</nav>
 				<div id="quick-branch-tips">
 					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
-					<History @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_hash_user($event.hash)" />
+					<History @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
 						<p v-if="!initialized" class="loading">
 							Loading...
@@ -68,7 +68,7 @@
 			</div>
 			<div v-if="selected_commit || selected_commits.length" id="details-panel" class="col flex-1">
 				<template v-if="selected_commit">
-					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="scroll_to_commit_hash_user($event)">
+					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="show_commit_hash($event)">
 						<template #details_text>
 							<template v-if="filtered_commits.length !== commits?.length">
 								Index in filtered commits: {{ selected_commit_index_in_filtered_commits }}<br>
@@ -246,13 +246,27 @@ function scroll_to_commit_hash(/** @type {string} */ hash) {
 		commit.hash === hash)
 	if (commit_i === -1) {
 		console.warn(new Error().stack)
-		return show_error_message(`No commit found for hash ${hash}`)
+		console.warn(`No commit found for hash ${hash}`)
 	}
 	scroll_to_item_centered(commit_i)
 	selected_commits.value = [not_null(filtered_commits.value[commit_i])]
 }
-function scroll_to_commit_hash_user(/** @type {string} */ hash) {
-	scroll_to_commit_hash(hash)
+/** Like `scroll_to_commit_hash`, but if the hash isn't available, load it at all costs, and select */
+async function show_commit_hash(/** @type {string} */ hash) {
+	txt_filter.value = ''
+	let commit_i = filtered_commits.value.findIndex((commit) =>
+		commit.hash === hash)
+	if (commit_i === -1)
+		await store.load_commit_hash(hash)
+
+	commit_i = filtered_commits.value.findIndex((commit) =>
+		commit.hash === hash)
+	if (commit_i === -1) {
+		console.warn(new Error().stack)
+		throw new Error(`No commit found for hash '${hash}'`)
+	}
+	scroll_to_item_centered(commit_i)
+	selected_commits_hashes.value = [hash]
 	store.push_history({ type: 'commit_hash', value: hash })
 }
 function scroll_to_commit(/** @type {Commit} */ commit) {
@@ -263,16 +277,10 @@ function scroll_to_top() {
 	commits_scroller_ref.value?.scrollToItem(0)
 }
 add_push_listener('scroll-to-selected-commit', async () => {
-	txt_filter.value = ''
-	if (! selected_commit.value) {
-		let hash = selected_commits_hashes.value[0]
-		if (hash)
-			await store.load_commit_hash(hash)
-		else
-			return
-	}
-	if (selected_commit.value)
-		scroll_to_commit(selected_commit.value)
+	let hash = selected_commits_hashes.value[0]
+	if (! hash)
+		return
+	show_commit_hash(hash)
 })
 
 let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
