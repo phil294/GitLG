@@ -14,7 +14,7 @@ function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
 	// prefer branch over tag/stash
 	// prefer tag over stash
 	// prefer local branch over remote branch
-	return Number(a_is_tag || ! a.id.startsWith('refs/')) - Number(b_is_tag || ! b.id.startsWith('refs/')) || Number(b_is_tag) - Number(a_is_tag) || a.id.indexOf('/') - b.id.indexOf('/')
+	return Number(a_is_tag || ! a.id.startsWith('refs/')) - Number(b_is_tag || ! b.id.startsWith('refs/')) || Number(b_is_tag) - Number(a_is_tag) || Number(Boolean(/** @type {Branch} */ (a).remote_name)) - Number(Boolean(/** @type {Branch} */ (b).remote_name)) // eslint-disable-line @stylistic/no-extra-parens
 }
 
 /**
