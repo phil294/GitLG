@@ -106,9 +106,9 @@
 	</div>
 </template>
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, useTemplateRef } from 'vue'
+import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
 import * as store from '../state/store.js'
-import { show_error_message, add_push_listener } from '../bridge.js'
+import { show_error_message, add_push_listener, show_information_message } from '../bridge.js'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -262,10 +262,21 @@ function scroll_to_commit(/** @type {Commit} */ commit) {
 function scroll_to_top() {
 	commits_scroller_ref.value?.scrollToItem(0)
 }
-add_push_listener('scroll-to-selected-commit', () => {
-	if (! selected_commit.value)
-		return
-	scroll_to_commit(selected_commit.value)
+add_push_listener('scroll-to-selected-commit', async () => {
+	txt_filter.value = ''
+	if (! selected_commit.value) {
+		let hash = selected_commits_hashes.value[0]
+		if (hash) {
+			await store.refresh_main_view({
+				before_execute: () =>
+					`log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} --color=never -n 500 ${hash}`,
+			})
+			show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
+		} else
+			return
+	}
+	if (selected_commit.value)
+		scroll_to_commit(selected_commit.value)
 })
 
 let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
