@@ -106,9 +106,9 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 	return parsed
 }
 
-export let is_refreshing = ref(false)
 export let main_view_action = async (/** @type {string} */ log_args) => {
-	is_refreshing.value = true
+	if (web_phase.value !== 'initializing')
+		web_phase.value = 'refreshing'
 	// errors will be handled by GitInput
 	let [parsed_log_data, status_data, head_data] = await Promise.all([
 		git_log(log_args).catch(error => {
@@ -124,7 +124,7 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 	git_status.value = status_data
 	let likely_default_branch = branches.value.find((b) => b.name === 'master' || b.name === 'main') || branches.value[0]
 	default_origin.value = likely_default_branch?.remote_name || likely_default_branch?.tracking_remote_name || null
-	is_refreshing.value = false
+	web_phase.value = 'ready'
 }
 /** @type {Vue.Ref<Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
@@ -293,6 +293,8 @@ export let load_commit_hash = async (/** @type {string} */ hash) => {
 	commits.value = _commits
 	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
 }
+
+export let web_phase = stateful_computed('web-phase', /** @type {'dead' | 'initializing' | 'ready' | 'refreshing'} */ ('initializing')) // eslint-disable-line @stylistic/no-extra-parens
 
 export let init = () => {
 	refresh_config()

@@ -70,18 +70,21 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	// something to be synchronized with the web view - initialization, storage,
 	// update and retrieval is supported in both directions
 	let state = (() => {
+		/** @template T */
 		function global_state_memento(/** @type {string} */ key) {
 			return {
 				get: () => context.globalState.get(key),
-				set: (/** @type {any} */ v) => context.globalState.update(key, v),
+				set: (/** @type {T} */ v) => context.globalState.update(key, v),
 			}
 		}
+		/** @template T */
 		function workspace_state_memento(/** @type {string} */ key) {
 			return {
 				get: () => context.workspaceState.get(key),
-				set: (/** @type {any} */ v) => context.workspaceState.update(key, v),
+				set: (/** @type {T} */ v) => context.workspaceState.update(key, v),
 			}
 		}
+		/** @template T */
 		function repo_state_memento(/** @type {string} */ local_key) {
 			function key() {
 				let repo_name = git.get_repo_names()[state('selected-repo-index').get()]
@@ -89,7 +92,16 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			}
 			return {
 				get: () => context.workspaceState.get(key()),
-				set: (/** @type {any} */ v) => context.workspaceState.update(key(), v),
+				set: (/** @type {T} */ v) => context.workspaceState.update(key(), v),
+			}
+		}
+		/** @template T */
+		function transient_memento() {
+			/** @type {T | null} */
+			let stored = null
+			return {
+				get: () => stored,
+				set: (/** @type {T} */ v) => stored = v,
 			}
 		}
 		/** @type {Record<string, {get:()=>any,set:(value:any)=>any}>} */
@@ -113,6 +125,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			},
 			'repo:selected-commits-hashes': repo_state_memento('selected-commits-hashes'),
 			'repo:action-history': repo_state_memento('action-history'),
+			'web-phase': transient_memento(),
 		}
 		let default_memento = global_state_memento
 		return (/** @type {string} */ key) => {
@@ -272,7 +285,10 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			logger.info('create new webview panel')
 			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn || 1, { retainContextWhenHidden: true })
 			webview_container.iconPath = vscode.Uri.joinPath(context.extensionUri, 'img', 'logo.png')
-			webview_container.onDidDispose(() => { webview_container = null })
+			webview_container.onDidDispose(() => {
+				state('web-phase').set(null, { broadcast: false })
+				webview_container = null
+			})
 			context.subscriptions.push(webview_container)
 			return populate_webview()
 		} else {

@@ -2,7 +2,7 @@
 	<div id="main-view" class="fill col">
 		<div :class="details_panel_position === 'bottom' ? 'col' : 'row'" class="flex-1">
 			<div id="main-panel" class="col">
-				<p v-if="initialized && !filtered_commits.length" class="no-commits-found">
+				<p v-if="web_phase !== 'initializing' && !filtered_commits.length" class="no-commits-found">
 					No commits found
 				</p>
 				<nav class="row align-center justify-space-between gap-10">
@@ -33,7 +33,7 @@
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<button id="refresh" class="btn center" title="Refresh" :disabled="is_refreshing" @click="refresh_main_view()">
+							<button id="refresh" class="btn center" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'" @click="refresh_main_view()">
 								<i class="codicon codicon-refresh" />
 							</button>
 						</section>
@@ -43,7 +43,7 @@
 					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
 					<History @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
-						<p v-if="!initialized" class="loading">
+						<p v-if="web_phase === 'initializing'" class="loading">
 							Loading...
 						</p>
 						<p v-else>
@@ -285,18 +285,17 @@ add_push_listener('scroll-to-selected-commit', async () => {
 
 let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
 store.main_view_git_input_ref.value = git_input_ref
-let initialized = ref(false)
 /* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
     	This function exists so we can modify the args before sending to git, otherwise
     	GitInput would have done the git call  */
 async function run_log(/** @type {string} */ log_args) {
+	let is_initializing = store.web_phase.value === 'initializing'
 	await store.main_view_action(log_args)
 	await sleep(0)
-	if (! initialized.value) {
+	if (is_initializing) {
 		let first_selected_hash = selected_commits.value[0]?.hash
 		if (first_selected_hash)
 			scroll_to_commit_hash(first_selected_hash)
-		initialized.value = true
 	} else {
 		if (selected_commit.value) {
 			let new_commit = filtered_commits.value.find((commit) =>
@@ -441,7 +440,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 let config_show_quick_branch_tips = computed(() =>
 	! store.config.value['hide-quick-branch-tips'])
 
-let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, is_refreshing, selected_git_action, git_status, commits, log_action } = store
+let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, web_phase, selected_git_action, git_status, commits, log_action } = store
 
 </script>
 <style scoped>
