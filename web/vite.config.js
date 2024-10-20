@@ -23,7 +23,19 @@ writeFileSync('./src/components.d.ts', `
 	}`)
 
 export default defineConfig({
-	plugins: [vue()],
+	plugins: [
+		vue(),
+		{
+			// also doesn't seem to work for Vue sfcs in dev mode TODO https://github.com/vitejs/vite/issues/9825#issuecomment-2413567622
+			name: 'remove-sourcemaps',
+			transform(code) {
+				return {
+					code,
+					map: { mappings: '' },
+				}
+			},
+		},
+	],
 	// dev: HMR. prod: "./" as it will be affected by <base href> defined from extension.js
 	base: process.env.NODE_ENV === 'production' ? './' : 'http://localhost:5173',
 	build: {
