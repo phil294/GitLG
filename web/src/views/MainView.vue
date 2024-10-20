@@ -19,7 +19,7 @@
 							<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 								<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 							</button>
-							<button v-if="txt_filter" id="clear-filter" class="center" title="Clear search" @click="clear_filter()">
+							<button v-if="txt_filter" id="clear-filter" class="center" title="Clear" @click="txt_filter=''">
 								<i class="codicon codicon-close" />
 							</button>
 							<label id="filter-type-filter" class="row align-center">
@@ -162,13 +162,6 @@ let txt_filter = ref('')
 /** @type {Vue.Ref<'filter' | 'jump'>} */
 let txt_filter_type = ref('filter')
 let txt_filter_regex = store.stateful_computed('filter-options-regex', false)
-async function clear_filter() {
-	txt_filter.value = ''
-	if (selected_commit.value) {
-		await nextTick()
-		scroll_to_commit(selected_commit.value)
-	}
-}
 let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref')) // eslint-disable-line @stylistic/no-extra-parens
 function txt_filter_filter(/** @type {Commit} */ commit) {
 	let search_for = txt_filter.value.toLowerCase()
@@ -219,6 +212,12 @@ function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 watch(txt_filter, () => {
 	if (txt_filter.value)
 		store.push_history({ type: 'txt_filter', value: txt_filter.value })
+	if (txt_filter_type.value === 'jump')
+		return
+	debounce(() => {
+		if (selected_commit.value)
+			scroll_to_commit(selected_commit.value)
+	}, 250)
 })
 
 function scroll_to_branch_tip(/** @type {Branch} */ branch) {
