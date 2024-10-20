@@ -276,7 +276,7 @@ function scroll_to_commit(/** @type {Commit} */ commit) {
 function scroll_to_top() {
 	commits_scroller_ref.value?.scrollToItem(0)
 }
-add_push_listener('scroll-to-selected-commit', async () => {
+add_push_listener('show-selected-commit', async () => {
 	let hash = selected_commits_hashes.value[0]
 	if (! hash)
 		return

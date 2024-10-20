@@ -67,6 +67,9 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		},
 	})
 
+	/** @typedef {(v: any) => Awaited<'stay-subscribed' | 'unsubscribe'>} StateChangeListener */
+	/** @type {Record<string, Array<StateChangeListener>>} */
+	let state_change_listeners = {}
 	// something to be synchronized with the web view - initialization, storage,
 	// update and retrieval is supported in both directions
 	let state = (() => {
@@ -106,7 +109,6 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		}
 		/** @type {Record<string, {get:()=>any,set:(value:any)=>any}>} */
 		let special_states = { // "Normal" states instead are just default_memento
-
 			'selected-repo-index': {
 				get: () => context.workspaceState.get('selected-repo-index'),
 				set(v) {
@@ -118,7 +120,6 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 						state(key).set(state(key).get())
 				},
 			},
-
 			'repo-names': {
 				get: () => git.get_repo_names(),
 				set() {},
@@ -139,11 +140,20 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 							type: 'push-to-web',
 							id: 'state-update',
 							data: { key, value },
-						})
+						});
+					(state_change_listeners[key] || []).forEach(async listener => {
+						let response = await listener(value)
+						if (response === 'unsubscribe')
+							delete state_change_listeners[key]
+					})
 				},
 			}
 		}
 	})()
+	function add_state_change_listener(/** @type {string} */ key, /** @type {StateChangeListener} */ listener) {
+		state_change_listeners[key] ||= []
+		state_change_listeners[key].push(listener)
+	}
 
 	git.set_selected_repo_index(state('selected-repo-index').get() || 0)
 
@@ -404,7 +414,16 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		current_line_long_hash = ''
 		state('repo:selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)
-		return push_message_id('scroll-to-selected-commit')
+		if (state('web-phase').get() === 'ready')
+			return push_message_id('show-selected-commit')
+		else
+			add_state_change_listener('web-phase', (phase) => {
+				if (phase === 'ready') {
+					push_message_id('show-selected-commit')
+					return 'unsubscribe'
+				}
+				return 'stay-subscribed'
+			})
 	})))
 
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.refresh', intercept_errors(() => {
