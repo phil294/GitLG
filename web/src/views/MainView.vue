@@ -33,7 +33,7 @@
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<button id="refresh" class="btn center" title="Refresh" @click="refresh_main_view()">
+							<button id="refresh" class="btn center" title="Refresh" :disabled="is_refreshing" @click="refresh_main_view()">
 								<i class="codicon codicon-refresh" />
 							</button>
 						</section>
@@ -277,7 +277,7 @@ let initialized = ref(false)
     	GitInput would have done the git call  */
 async function run_log(/** @type {string} */ log_args) {
 	await store.main_view_action(log_args)
-	await new Promise((ok) => setTimeout(ok, 0))
+	await sleep(0)
 	if (! initialized.value) {
 		let first_selected_hash = selected_commits.value[0]?.hash
 		if (first_selected_hash)
@@ -427,7 +427,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 let config_show_quick_branch_tips = computed(() =>
 	! store.config.value['hide-quick-branch-tips'])
 
-let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, selected_git_action, git_status, commits, log_action } = store
+let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, is_refreshing, selected_git_action, git_status, commits, log_action } = store
 
 </script>
 <style scoped>
@@ -494,6 +494,13 @@ details#log-config[open] {
 #main-panel > nav > aside > section#actions :deep(button.btn) {
 	font-size: 21px;
 	padding: 0 2px;
+}
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+#main-panel > nav > aside > section#actions > button#refresh:disabled > i.codicon.codicon-refresh {
+	animation: spin 2s infinite linear;
 }
 #main-panel #quick-branch-tips,
 #main-panel #branches-connection,
