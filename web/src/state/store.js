@@ -275,7 +275,8 @@ export let init = () => {
 	git_log(log_action.args
 		.replace(` -n ${default_log_action_n} `, ' -n 40 '),
 	{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
-		commits.value = parsed.commits)
+		commits.value = parsed.commits
+			.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', id: '' } }], author_name: '', hash_long: '', refs: [] }))
 
 	add_push_listener('config-change', async () => {
 		await refresh_config()
