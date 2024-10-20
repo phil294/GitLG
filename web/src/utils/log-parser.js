@@ -166,7 +166,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 			let v_branch = undefined
 			let v_n = last_vis[char_i]
 			let v_nw = last_vis[char_i - 1]
-			let v_w_char = vis_chars[char_i - 1]
+			let v_w_char = vis_chars[char_i_ltr + 1] // bc .reverse()
 			let v_ne = last_vis[char_i + 1]
 			let v_nee = last_vis[char_i + 2]
 			let v_e = vis[char_i + 1]
