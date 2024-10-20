@@ -29,6 +29,7 @@ console.error = handle_error
 window.addEventListener('unhandledrejection', (e) =>
 	handle_error(e.reason))
 
+// this doesn't work, even the overridden calls are blocked by vscode
 window.alert = show_information_message
 
 let app = createApp(App)

@@ -82,6 +82,7 @@ export default [
 			'no-undef-init': 'off',
 			'import/first': 'off', // breaks script setup + extra script for exports
 			'@stylistic/multiline-ternary': 'off',
+			'no-unused-vars': ['error', { varsIgnorePattern: '^_.*' }],
 		},
 	},
 ]

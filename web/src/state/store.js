@@ -62,14 +62,13 @@ export let git_status = ref('')
 /** @type {Vue.Ref<string|null>} */
 export let default_origin = ref('')
 
-const default_log_action_n = 15000
 export let log_action = {
 	// regarding the -greps: Under normal circumstances, when showing stashes in
 	// git log, each of the stashes 2 or 3 parents are being shown. That because of
 	// git internals, but they are completely useless to the user.
 	// Could not find any easy way to skip those other than de-grepping them, TODO:.
 	// Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-	args: `log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n ${default_log_action_n} --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "`,
+	args: 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "',
 	options: [
 		{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' },
 		{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' },
@@ -272,9 +271,8 @@ export let init = () => {
 	// The "main" main log happens via the `immediate` flag of log_action which is rendered in a git-input in MainView.
 	// But because of the large default_log_action_n, this can take several seconds for large repos.
 	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
-	git_log(log_action.args
-		.replace(` -n ${default_log_action_n} `, ' -n 40 '),
-	{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
+	git_log('log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} -n 40 --all --color=never',
+		{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 		commits.value = parsed.commits
 			.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', id: '' } }], author_name: '', hash_long: '', refs: [] }))
 
