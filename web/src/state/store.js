@@ -97,7 +97,7 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 	let [log_data, branch_data, stash_data] = await Promise.all([
 		git(log_args),
 		fetch_branches ? git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`) : '',
-		git('stash list --format="%h %gd"').catch(() => ''),
+		fetch_stash_refs ? git('stash list --format="%h %gd"').catch(() => '') : '',
 	])
 	/** @type {Awaited<ReturnType<parse>>} */
 	let parsed = { commits: [], branches: [] }
