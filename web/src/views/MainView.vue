@@ -108,7 +108,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
 import * as store from '../state/store.js'
-import { show_error_message, add_push_listener, show_information_message } from '../bridge.js'
+import { add_push_listener, git } from '../bridge.js'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -220,17 +220,21 @@ watch(txt_filter, () => {
 	}, 250)
 })
 
-function scroll_to_branch_tip(/** @type {Branch} */ branch) {
-	let first_branch_commit_i = filtered_commits.value.findIndex((commit) => {
+async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
+	txt_filter.value = ''
+	let commit_i = filtered_commits.value.findIndex((commit) => {
 		if (branch.inferred)
 			return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
 		else
 			return commit.refs.some((ref_) => ref_ === branch)
 	})
-	if (first_branch_commit_i === -1)
-		return show_error_message(`No commit found for branch ${branch.id}. Not enough commits loaded?`)
-	scroll_to_item_centered(first_branch_commit_i)
-	let commit = not_null(filtered_commits.value[first_branch_commit_i])
+	if (commit_i === -1) {
+		let hash = await git(`rev-parse --short "${branch.id}"`)
+		await store.load_commit_hash(hash)
+		commit_i = 0
+	}
+	scroll_to_item_centered(commit_i)
+	let commit = not_null(filtered_commits.value[commit_i])
 	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 	// a branch name in a commit's ref list.
 	selected_commits.value = [commit]
@@ -261,10 +265,9 @@ async function show_commit_hash(/** @type {string} */ hash) {
 
 	commit_i = filtered_commits.value.findIndex((commit) =>
 		commit.hash === hash)
-	if (commit_i === -1) {
-		console.warn(new Error().stack)
+	if (commit_i === -1)
 		throw new Error(`No commit found for hash '${hash}'`)
-	}
+
 	scroll_to_item_centered(commit_i)
 	selected_commits_hashes.value = [hash]
 	store.push_history({ type: 'commit_hash', value: hash })
