@@ -14,7 +14,8 @@ window.addEventListener('message', (msg_event) => {
 		case 'response-to-web': {
 			let handler = response_handlers[message.id]
 			if (! handler)
-				throw new Error('unhandled message response id: ' + JSON.stringify(message))
+				// Can't figure out why, but sometimes a very out of order ID appears out of nowhere
+				return console.warn('unhandled message response id:', message)
 			handler(message)
 			delete response_handlers[message.id]
 			break
