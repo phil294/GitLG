@@ -378,9 +378,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		current_line_long_hash = ''
 		status_bar_item_blame.text = ''
 	}
-	vscode.workspace.onDidCloseTextDocument(intercept_errors(hide_blame))
-	vscode.window.onDidChangeActiveTextEditor(intercept_errors(hide_blame))
-	vscode.window.onDidChangeTextEditorSelection(intercept_errors(({ textEditor: text_editor }) => {
+	function show_blame(/** @type {vscode.TextEditor} */ text_editor) {
 		let doc = text_editor.document
 		let uri = doc.uri
 		if (uri.scheme !== 'file' || doc.languageId === 'log' || doc.languageId === 'Log' || uri.path.includes('extension-output') || uri.path.includes(EXT_ID)) // vscode/issues/206118
@@ -394,16 +392,27 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			current_line_repo_index = await git.get_repo_index_for_uri(uri)
 			if (current_line_repo_index < 0)
 				return hide_blame()
+
 			let blamed = await git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_index)
 				.then((b) => b.split('\n')).maybe()
 			if (! blamed)
 				return hide_blame()
+
 			// apparently impossible to get the short form right away in easy machine readable format?
-			current_line_long_hash = blamed[0].slice(0, 40)
-			let author = blamed[1].slice(7)
-			let time = relative_time.from(new Date(Number(blamed[3].slice(12)) * 1000))
+			current_line_long_hash = blamed[0]?.slice(0, 40) || ''
+			let author = blamed[1]?.slice(7)
+			let time = relative_time.from(new Date(Number(blamed[3]?.slice(12)) * 1000))
 			status_bar_item_blame.text = `$(git-commit) ${author}, ${time}`
 		}), 150)
+	}
+	vscode.window.onDidChangeActiveTextEditor(intercept_errors((text_editor) => {
+		if (! text_editor)
+			return hide_blame()
+
+		return show_blame(text_editor)
+	}))
+	vscode.window.onDidChangeTextEditorSelection(intercept_errors(({ textEditor: text_editor }) => {
+		show_blame(text_editor)
 	}))
 	context.subscriptions.push(vscode.commands.registerCommand(BLAME_CMD, intercept_errors(async () => {
 		logger.info('blame cmd')
