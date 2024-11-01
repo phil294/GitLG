@@ -17,7 +17,7 @@
 			<div class="stats flex-noshrink row align-center justify-flex-end gap-5">
 				<template v-if="commit.stats?.files_changed">
 					<div class="changes" title="Changed lines in amount of files">
-						<span>
+						<span v-if="commit.stats.insertions != null">
 							<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
 						</span>
 						<span class="grey"> in </span>

@@ -70,10 +70,13 @@ interface Commit {
 	refs: GitRef[]
 	subject: string
 	merge?: boolean
+	/** undefined means not yet queried, an empty object signifies a loading state,
+	only files_changed present means it went through name stats already and
+	full properties come after full retrieval  */
 	stats?: {
-		files_changed: number
-		insertions: number
-		deletions: number
+		files_changed?: number
+		insertions?: number
+		deletions?: number
 	}
 }
 

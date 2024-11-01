@@ -39,7 +39,7 @@ export let exchange_message = async (/** @type {string} */ command, /** @type {a
 	let resp = await new Promise((ok) => {
 		response_handlers[message_id_counter] = ok
 	})
-	console.info('exchange_message', command, data) // , resp
+	// console.info('exchange_message', command, data) // , resp
 
 	if (resp.error) {
 		let error = new Error(JSON.stringify({ error_response: resp.error, request }))
