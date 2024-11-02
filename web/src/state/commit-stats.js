@@ -1,9 +1,15 @@
 import { git } from '../bridge'
 
+/** @type {Record<string, Commit["stats"]>} */
+let stats_cache = {}
+
 let is_updating_commit_stats = false
 /** @type {Commit[]} */
 let queued_commits_for_update_stats = []
 export let update_commit_stats = async (/** @type {Commit[]} */ commits_, level = 0) => {
+	for (let commit of commits_)
+		commit.stats = stats_cache[commit.hash]
+	commits_ = commits_.filter(c => ! c.stats)
 	if (! commits_.length || level === 0 && /* probably heavily overloaded */queued_commits_for_update_stats.length > 120)
 		return
 	commits_.forEach(commit => commit.stats = {}) // Prevent from running them twice
@@ -84,6 +90,7 @@ async function update_commit_stats_full(/** @type {Commit[]} */ commits_) {
 			console.warn('Commit stats files_changed mismatch between fast and full mode. Fast: ', commit.stats?.files_changed, ', full:', stat.files_changed, ', commit: ', commit)
 
 		commit.stats = stat
+		stats_cache[hash] = stat
 	}
 	// console.timeEnd('update_commit_stats_full')
 }

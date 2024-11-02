@@ -348,7 +348,8 @@ watch(visible_commits, async () => {
 		commit.hash && ! commit.stats)
 	if (! visible_cp.length)
 		return
-	await store.update_commit_stats(visible_cp)
+	if (! store.config.value['disable-commit-stats'])
+		await store.update_commit_stats(visible_cp)
 })
 let visible_branches = computed(() => [
 	...new Set(visible_commits.value.flatMap((commit) =>

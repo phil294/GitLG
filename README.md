@@ -175,6 +175,11 @@ Please consider opening an issue or PR if you think a certain action or option w
         "maximum": 1,
         "default": 0.4
     },
+    "git-log--graph.disable-commit-stats": {
+        "description": "If active, the stats for commits in the main view (green/red bars showing the amounts of changes, e.g. \"25 in 4\") will not be shown anymore. This can greatly improve performance if your commits regularly contain changes to very large files.",
+        "type": "boolean",
+        "default": false
+    },
     "git-log--graph.custom-css": {
 		"description": "An abitrary string of CSS that will be injected into the main web view. Example: * { text-transform: uppercase; }",
 		"type": "string",
