@@ -108,9 +108,23 @@ export default
 		###* @type {Ref<HTMLElement | null>} ###
 		txt_filter_ref = ref null
 		txt_filter_filter = (###* @type Commit ### commit) =>
-			search_for = txt_filter.value.toLowerCase()
+			search_for = txt_filter.value.toLowerCase().split(' ').map((x)=>x.trim()).filter((x) => x)
+
+			remain_match_set = new Set
+			curr_match_set = new Set
+			for curr_word from search_for
+				remain_match_set.add curr_word
 			for str from [commit.subject, commit.full_hash, commit.author_name, commit.author_email, commit.branch?.id]
-				return true if str?.includes(search_for)
+				str_lower = str?.toLowerCase()
+				curr_match_set.clear()
+				for curr_word from remain_match_set
+					if str_lower?.includes(curr_word)
+						curr_match_set.add curr_word
+				remain_match_set = new Set([...remain_match_set].filter((x) => !curr_match_set.has(x)))
+				if remain_match_set.size == 0
+					break
+			return remain_match_set.size == 0
+
 		hash_filter = (###* @type Commit ### commit) =>
 			search_for = txt_filter.value.toLowerCase()
 			return true if commit.full_hash.startsWith(search_for)
