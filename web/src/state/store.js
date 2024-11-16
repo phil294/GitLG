@@ -116,7 +116,8 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 			throw error
 		}),
 		git('-c core.quotepath=false status'),
-		git('rev-parse --abbrev-ref HEAD'),
+		git('rev-parse --abbrev-ref HEAD').then(h =>
+			h.startsWith('heads/') ? h.slice(6) : h),
 	])
 	commits.value = parsed_log_data.commits
 	branches.value = parsed_log_data.branches
