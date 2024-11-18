@@ -154,6 +154,20 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		state_change_listeners[key] ||= []
 		state_change_listeners[key].push(listener)
 	}
+	function wait_until_web_ready() {
+		return new Promise(is_ready => {
+			if (state('web-phase').get() === 'ready')
+				is_ready(true)
+			else
+				add_state_change_listener('web-phase', (phase) => {
+					if (phase === 'ready') {
+						is_ready(true)
+						return 'unsubscribe'
+					}
+					return 'stay-subscribed'
+				})
+		})
+	}
 
 	git.set_selected_repo_index(state('selected-repo-index').get() || 0)
 
@@ -423,16 +437,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		current_line_long_hash = ''
 		state('repo:selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)
-		if (state('web-phase').get() === 'ready')
-			return push_message_id('show-selected-commit')
-		else
-			add_state_change_listener('web-phase', (phase) => {
-				if (phase === 'ready') {
-					push_message_id('show-selected-commit')
-					return 'unsubscribe'
-				}
-				return 'stay-subscribed'
-			})
+		await wait_until_web_ready()
+		return push_message_id('show-selected-commit')
 	})))
 
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.refresh', intercept_errors(() => {
