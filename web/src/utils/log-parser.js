@@ -81,6 +81,8 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 		// origin-name{SEP}refs/heads/local-branch-name
 		// {SEP}refs/remotes/origin-name/remote-branch-name
 		let [tracking_remote_name, ref_name] = branch_line.split(separator)
+		if (ref_name?.startsWith('(HEAD detached at '))
+			continue
 		new_branch(ref_name || '???', { tracking_remote_name })
 	}
 	// Not actually a branch but since it's included in the log refs and is neither stash nor tag
