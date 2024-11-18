@@ -104,7 +104,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 
 		view.onDidReceiveMessage(intercept_errors((/** @type {BridgeMessage} */ message) => {
 			logger.debug('receive from webview: ' + JSON.stringify(message))
-			let d = message.data
+			let data = message.data
 			async function h(/** @type {() => any} */ func) {
 				/** @type {BridgeMessage} */
 				let resp = {
@@ -115,7 +115,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				try {
 					resp.data = await func()
 				} catch (error) {
-					console.warn(error, caller_stack)
+					console.warn(error, caller_stack, func, data)
 					// We can't really just be passing e along here because it might be serialized as empty {}
 					resp.error = error.message || error
 				}
@@ -125,38 +125,38 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				case 'request-from-web':
 					switch (message.command) {
 						case 'git': return h(() =>
-							git.run(d))
+							git.run(data))
 						case 'show-error-message': return h(() =>
-							logger.error(d))
+							logger.error(data))
 						case 'show-information-message': return h(() =>
-							vscode.window.showInformationMessage(d))
+							vscode.window.showInformationMessage(data))
 						case 'get-config': return h(() =>
 							vscode.workspace.getConfiguration(EXT_ID))
 						case 'get-state': return h(() =>
-							state(d).get())
+							state(data).get())
 						case 'set-state': return h(() =>
-							state(d.key).set(d.value, { broadcast: false }))
+							state(data.key).set(data.value, { broadcast: false }))
 						case 'open-diff': return h(() => {
-							let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[0]}:${d.filename}`)
-							let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${d.filename}`)
-							return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, `${d.filename} ${d.hashes[0]} vs. ${d.hashes[1]}`)
+							let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[0]}:${data.filename}`)
+							let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[1]}:${data.filename}`)
+							return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, `${data.filename} ${data.hashes[0]} vs. ${data.hashes[1]}`)
 						})
 						case 'open-multi-diff': return h(() =>
 							vscode.commands.executeCommand('vscode.changes',
-								`${d.hashes[0]} vs. ${d.hashes[1]}`,
-								d.filenames.map((/** @type {string} */ filename) => [
+								`${data.hashes[0]} vs. ${data.hashes[1]}`,
+								data.filenames.map((/** @type {string} */ filename) => [
 									vscode.Uri.parse(filename),
-									vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[0]}:${filename}`),
-									vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${filename}`),
+									vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[0]}:${filename}`),
+									vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[1]}:${filename}`),
 								])))
 						case 'view-rev': return h(() => {
-							let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hash}:${d.filename}`)
+							let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hash}:${data.filename}`)
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
 						case 'open-file': return h(() => {
 							// vscode.workspace.workspaceFolders is NOT necessarily in the same order as git-api.repositories
 							let workspace = git.get_repo()?.rootUri.fsPath || ''
-							let uri = vscode.Uri.file(path.join(workspace, d.filename))
+							let uri = vscode.Uri.file(path.join(workspace, data.filename))
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
 					}
