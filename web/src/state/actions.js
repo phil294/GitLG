@@ -41,8 +41,10 @@ export let commits_actions = (/** @type {string[]} */ hashes) => computed(() => 
 export let branch_actions = (/** @type {Branch} */ branch) => computed(() => {
 	let config_branch_actions = default_git_actions['actions.branch'].concat(config.value.actions?.branch || [])
 	return parse_config_actions(config_branch_actions, [
-		['{BRANCH_NAME}', branch.id],
-		['{LOCAL_BRANCH_NAME}', branch.name],
+		['{BRANCH_ID}', branch.id],
+		['{BRANCH_DISPLAY_NAME}', branch.display_name],
+		['{BRANCH_NAME}', branch.name],
+		['{LOCAL_BRANCH_NAME}', branch.remote_name ? /** User intervention required */ '' : branch.name],
 		['{REMOTE_NAME}', branch.remote_name || branch.tracking_remote_name || default_origin.value || 'MISSING_REMOTE_NAME'],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })

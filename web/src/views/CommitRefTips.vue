@@ -19,7 +19,7 @@ function group_same_name_branches_into_one(/** @type {Branch[]} */ branches) {
 	return {
 		...not_null(branches[0]),
 		remote_name: undefined,
-		id: not_null(branches[0]).name,
+		id: not_null(branches[0]).id,
 		remote_names_group: branches
 			.map(ref => ref.remote_name)
 			.filter(is_truthy),

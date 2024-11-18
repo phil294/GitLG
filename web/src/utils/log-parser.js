@@ -9,12 +9,12 @@ import colors from './colors.js'
  */
 
 function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
-	let a_is_tag = a.id.startsWith('tag: ')
-	let b_is_tag = b.id.startsWith('tag: ')
+	let a_is_tag = a.id.startsWith('refs/tags/')
+	let b_is_tag = b.id.startsWith('refs/tags/')
 	// prefer branch over tag/stash
 	// prefer tag over stash
 	// prefer local branch over remote branch
-	return Number(a_is_tag || ! a.id.startsWith('refs/')) - Number(b_is_tag || ! b.id.startsWith('refs/')) || Number(b_is_tag) - Number(a_is_tag) || Number(Boolean(/** @type {Branch} */ (a).remote_name)) - Number(Boolean(/** @type {Branch} */ (b).remote_name)) // eslint-disable-line @stylistic/no-extra-parens
+	return Number(a_is_tag || ! a.id.startsWith('refs/stash')) - Number(b_is_tag || ! b.id.startsWith('refs/stash')) || Number(b_is_tag) - Number(a_is_tag) || Number(Boolean(/** @type {Branch} */ (a).remote_name)) - Number(Boolean(/** @type {Branch} */ (b).remote_name)) // eslint-disable-line @stylistic/no-extra-parens
 }
 
 /**
@@ -35,25 +35,40 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 	/** @type {Branch[]} */
 	let branches = []
 	/**
-	 * @param name {string}
-	 * @param options {{ remote_name?: string, tracking_remote_name?: string, inferred?: boolean, name_may_include_remote?: boolean}}=
+	 * @param from {string}
+	 * @param options {{ remote_name?: string, tracking_remote_name?: string, inferred?: boolean, from_includes_remote?: boolean}}=
 	 */
-	function new_branch(name, { remote_name, tracking_remote_name, inferred, name_may_include_remote } = {}) {
-		if (name_may_include_remote && ! remote_name && name.includes('/')) {
-			let split = name.split('/')
-			name = split.at(-1) || ''
+	function new_branch(from, { remote_name, tracking_remote_name, inferred, from_includes_remote } = {}) {
+		if (from.startsWith('refs/heads/'))
+			from = from.slice(11)
+		else if (from.startsWith('refs/remotes/')) {
+			from = from.slice(13)
+			from_includes_remote = true
+		}
+		if (from_includes_remote) {
+			let split = from.split('/')
+			from = split.at(-1) || ''
 			remote_name = split.slice(0, split.length - 1).join('/')
 		}
-		if (! name && inferred)
-			name = `${branches.length - 1}`
+		let inferred_id = branches.length - 1
+		if (! from && inferred)
+			from = `${inferred_id}`
 		/** @type {Branch} */
 		let branch = {
-			name,
+			id: inferred
+				? `inferred-${from}-${inferred_id}`
+				: remote_name
+					? `refs/remotes/${remote_name}/${from}`
+					: `refs/heads/${from}`,
+			name: from,
+			display_name: (remote_name
+				? `${remote_name}/${from}`
+				: from) +
+					(inferred ? '~' + inferred_id : ''),
 			color: undefined,
 			type: 'branch',
 			remote_name,
 			tracking_remote_name,
-			id: (remote_name ? `${remote_name}/${name}` : name) + (inferred ? '~' + (branches.length - 1) : ''),
 			inferred,
 		}
 		branches.push(branch)
@@ -66,12 +81,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 		// origin-name{SEP}refs/heads/local-branch-name
 		// {SEP}refs/remotes/origin-name/remote-branch-name
 		let [tracking_remote_name, ref_name] = branch_line.split(separator)
-		if (ref_name?.startsWith('refs/heads/'))
-			new_branch(ref_name.slice(11), { tracking_remote_name })
-		else {
-			let [remote_name, ...remote_branch_name_parts] = (ref_name || '').slice(13).split('/')
-			new_branch(remote_branch_name_parts.join('/'), { remote_name })
-		}
+		new_branch(ref_name || '???', { tracking_remote_name })
 	}
 	// Not actually a branch but since it's included in the log refs and is neither stash nor tag
 	// and checking it out works, we can just treat it as one:
@@ -116,23 +126,26 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 			.filter((r) => r !== 'refs/stash')
 			.filter(is_truthy)
 			.map((id) => {
-				if (id.startsWith('tag: ')) {
+				if (id.startsWith('tag: refs/tags/')) {
 					/** @type {GitRef} */
 					let ref = {
 						id,
-						name: id.slice(5),
+						name: id.slice(15),
+						display_name: id.slice(15),
 						color: undefined,
 						type: 'tag',
 					}
 					return ref
 				} else {
+					if (id === 'HEAD')
+						id = 'refs/heads/HEAD'
 					let branch_match = branches.find((branch) => branch.id === id)
 					if (branch_match)
 						return branch_match
 					else
 						// Can happen with grafted branches or at first fast prefetch
 						// console.warn(`Could not find ref '${id}' in list of branches for commit '${hash}'`)
-						return new_branch(id, { name_may_include_remote: true })
+						return new_branch(id, { from_includes_remote: true })
 				}
 			}).filter(is_truthy)
 			.sort(git_ref_sort)
@@ -256,7 +269,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 							// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
 							let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
 							if (subject_merge_match)
-								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2] || '', { inferred: true, name_may_include_remote: true })
+								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2] || '', { inferred: true, from_includes_remote: true })
 							else
 								v_branch = new_branch('', { inferred: true })
 						}
@@ -411,6 +424,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 		commit?.refs.push({
 			name,
 			id: name,
+			display_name: name,
 			type: 'stash',
 			color: '#fff',
 		})

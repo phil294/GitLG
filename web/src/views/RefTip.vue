@@ -1,6 +1,6 @@
 <template>
 	<div v-context-menu="context_menu_provider" v-drag="drag" v-drop="drop" class="ref-tip" v-bind="bind">
-		{{ git_ref.id }}
+		{{ git_ref.display_name }}
 		<template v-if="branch?.remote_names_group">
 			<span v-for="remote_name of branch.remote_names_group" :key="remote_name" class="remote-name-group-entry"> + {{ remote_name }}</span>
 		</template>
@@ -39,6 +39,8 @@ function to_context_menu_entries(/** @type {GitAction[]} */ actions) {
 	}))
 }
 let	bind = computed(() => {
+	// This also works with remote_names_group-grouped branches, presumably because
+	// the local one is always the first in git log %D ref list, yielding the id
 	let is_head = props.git_ref.id === head_branch.value
 	return {
 		style: {
@@ -56,15 +58,15 @@ let	bind = computed(() => {
 })
 let drag = computed(() => {
 	if (branch.value)
-		return props.git_ref.id
+		return props.git_ref.display_name
 })
 function drop(/** @type {import('../directives/drop').DropCallbackPayload} */ event) {
 	if (! branch.value)
 		return
-	let source_branch_name = event.data
-	if (typeof source_branch_name !== 'string')
+	let source_branch_display_name = event.data
+	if (typeof source_branch_display_name !== 'string')
 		return
-	return combine_branches(source_branch_name, props.git_ref.id)
+	return combine_branches(source_branch_display_name, props.git_ref.display_name)
 }
 let context_menu_provider = computed(() => () => {
 	if (branch.value)

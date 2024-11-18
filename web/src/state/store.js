@@ -89,7 +89,7 @@ let log_args_override_base = 'log --graph --author-date-order --date=iso-local -
  */
 async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true, fetch_branches = true } = {}) {
 	let sep = '^%^%^%^%^'
-	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s"`)
+	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s" --decorate=full `)
 	let stash_refs = ''
 	if (fetch_stash_refs)
 		stash_refs = await git('stash list --format="%h"')
@@ -116,12 +116,11 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 			throw error
 		}),
 		git('-c core.quotepath=false status'),
-		git('rev-parse --abbrev-ref HEAD').then(h =>
-			h.startsWith('heads/') ? h.slice(6) : h),
+		git('symbolic-ref HEAD').maybe(),
 	])
 	commits.value = parsed_log_data.commits
 	branches.value = parsed_log_data.branches
-	head_branch.value = head_data
+	head_branch.value = head_data || 'refs/heads/HEAD'
 	git_status.value = status_data
 	let likely_default_branch = branches.value.find((b) => b.name === 'master' || b.name === 'main') || branches.value[0]
 	default_origin.value = likely_default_branch?.remote_name || likely_default_branch?.tracking_remote_name || null
@@ -145,6 +144,7 @@ export let refresh_config = async () =>
 
 export let combine_branches_to_branch_name = ref('')
 export let combine_branches_from_branch_name = ref('')
+// should be id not name (?)
 export let combine_branches = (/** @type {string} */ from_branch_name, /** @type {string} */ to_branch_name) => {
 	if (from_branch_name === to_branch_name)
 		return
