@@ -53,8 +53,8 @@ export let exchange_message = async (/** @type {string} */ command, /** @type {a
 	return resp.data
 }
 
-export let git = (/** @type {string} */ args) =>
-	exchange_message('git', args).then((/** @type {string} */ s) => s.trim())
+export let git = (/** @type {string} */ args, /** @type {{ignore_errors?: boolean}} */ { ignore_errors } = {}) =>
+	exchange_message('git', { args, ignore_errors }).then((/** @type {string} */ s) => s.trim())
 export let show_information_message = (/** @type {string} */ msg) =>
 	exchange_message('show-information-message', msg)
 export let show_error_message = (/** @type {string} */ msg) =>

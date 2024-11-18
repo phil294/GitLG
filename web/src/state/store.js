@@ -97,7 +97,7 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 	let [log_data, branch_data, stash_data] = await Promise.all([
 		git(log_args),
 		fetch_branches ? git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`) : '',
-		fetch_stash_refs ? git('stash list --format="%h %gd"').catch(() => '') : '',
+		fetch_stash_refs ? git('stash list --format="%h %gd"', { ignore_errors: true }).catch(() => '') : '',
 	])
 	/** @type {Awaited<ReturnType<parse>>} */
 	let parsed = { commits: [], branches: [] }
@@ -116,7 +116,7 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 			throw error
 		}),
 		git('-c core.quotepath=false status'),
-		git('symbolic-ref HEAD').maybe(),
+		git('symbolic-ref HEAD', { ignore_errors: true }).maybe(),
 	])
 	commits.value = parsed_log_data.commits
 	branches.value = parsed_log_data.branches
@@ -216,7 +216,7 @@ export let init = () => {
 		git_log(`${log_args_override_base} -n 100 --all`,
 			{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 			commits.value = parsed.commits
-				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', id: '' } }], author_name: '', hash_long: '', refs: [] })
+				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [] })
 				.map(c => ({ ...c, stats: /* to prevent loading them */ {} })))
 	})
 

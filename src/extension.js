@@ -125,7 +125,11 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				case 'request-from-web':
 					switch (message.command) {
 						case 'git': return h(() =>
-							git.run(data))
+							git.run(data.args).catch(e => {
+								if (data.ignore_errors)
+									return
+								throw e
+							}))
 						case 'show-error-message': return h(() =>
 							logger.error(data))
 						case 'show-information-message': return h(() =>
