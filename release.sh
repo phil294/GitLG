@@ -43,7 +43,7 @@ run npx vsce verify-pat
 run npx ncu -u -x '@types/vscode'
 run npm i
 pushd web
-run npx ncu -u
+run npx ncu -u -x '@vscode-elements/elements'
 run npm i
 popd
 run git add package.json package-lock.json web/package.json web/package-lock.json
