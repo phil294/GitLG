@@ -114,82 +114,87 @@ Please consider opening an issue or PR if you think a certain action or option w
 ```jsonc
 // VSCode settings.json
 {
-    "git-log--graph.position": {
-        "description": "Decide how/where the extension should appear. Changing this option REQUIRES RELOAD.",
-        "type": "string",
-        "default": "editor",
-        "enum": [
-            "editor",
-            "view"
-        ],
-        "enumDescriptions": [
-            "As a regular editor tab, so it will be treated like one of your open files",
-            "As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
-        ]
-    },
-    "git-log--graph.group-branch-remotes": {
-        "description": "If active, branches and their origins will be merged into a single branch-tip bubble, but only if there is no ambiguity.",
-        "type": "boolean",
-        "default": true
-    },
-    "git-log--graph.hide-quick-branch-tips": {
-        "description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.show-inferred-quick-branch-tips": {
-        "description": "(Depends on 'hide-quick-branch-tips' to be false) If active, the area at the top with the dotted branch lines will also include inferred branch lines, meaning branches that have been deleted or are unavailable but whose name could be reconstructed based on merge commit message.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.disable-scroll-snapping": {
-        "description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.branch-width": {
-        "description": "The width of the individual branch lines, including both line and right spacing. The default 'auto' chooses between 10 and 2 depending on the size of the repository.",
-        "type": [
-            "integer",
-            "string"
-        ],
-        "default": "auto"
-    },
-    "git-log--graph.hide-sidebar-buttons": {
-        "description": "If active, the buttons for commit, branches, stashes and tags will not be shown anymore in the side bar for a selected commit. The actions are then only available via context menu (right click) in the main view itself.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.folder": {
-        "description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
-        "type": "string"
-    },
-    "git-log--graph.verbose-logging": {
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.curve-radius": {
-        "description": "How curvy the branch visualization should look. Set to 0 to disable curviness. Otherwise, it's recommended to set between 0.3 and 0.6 or things look weird.",
-        "type": "number",
-        "minimum": 0,
-        "maximum": 1,
-        "default": 0.4
-    },
-    "git-log--graph.disable-commit-stats": {
-        "description": "If active, the stats for commits in the main view (green/red bars showing the amounts of changes, e.g. \"25 in 4\") will not be shown anymore. This can greatly improve performance if your commits regularly contain changes to very large files.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.custom-css": {
+	"git-log--graph.position": {
+		"description": "Decide how/where the extension should appear. Changing this option REQUIRES RELOAD.",
+		"type": "string",
+		"default": "editor",
+		"enum": [
+			"editor",
+			"view"
+		],
+		"enumDescriptions": [
+			"As a regular editor tab, so it will be treated like one of your open files",
+			"As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
+		]
+	},
+	"git-log--graph.group-branch-remotes": {
+		"description": "If active, branches and their origins will be merged into a single branch-tip bubble, but only if there is no ambiguity.",
+		"type": "boolean",
+		"default": true
+	},
+	"git-log--graph.hide-quick-branch-tips": {
+		"description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.show-inferred-quick-branch-tips": {
+		"description": "(Depends on 'hide-quick-branch-tips' to be false) If active, the area at the top with the dotted branch lines will also include inferred branch lines, meaning branches that have been deleted or are unavailable but whose name could be reconstructed based on merge commit message.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.disable-scroll-snapping": {
+		"description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.branch-width": {
+		"description": "The width of the individual branch lines, including both line and right spacing. The default 'auto' chooses between 10 and 2 depending on the size of the repository.",
+		"type": [
+			"integer",
+			"string"
+		],
+		"default": "auto"
+	},
+	"git-log--graph.hide-sidebar-buttons": {
+		"description": "If active, the buttons for commit, branches, stashes and tags will not be shown anymore in the side bar for a selected commit. The actions are then only available via context menu (right click) in the main view itself.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.folder": {
+		"description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
+		"type": "string"
+	},
+	"git-log--graph.verbose-logging": {
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.curve-radius": {
+		"description": "How curvy the branch visualization should look. Set to 0 to disable curviness. Otherwise, it's recommended to set between 0.3 and 0.6 or things look weird.",
+		"type": "number",
+		"minimum": 0,
+		"maximum": 1,
+		"default": 0.4
+	},
+	"git-log--graph.disable-commit-stats": {
+		"description": "If active, the stats for commits in the main view (green/red bars showing the amounts of changes, e.g. \"25 in 4\") will not be shown anymore. This can greatly improve performance if your commits regularly contain changes to very large files.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.disable-preliminary-loading": {
+		"description": "Normally, once at extension start, the first few commits are queried and shown thanks to a small request optimized for speed while the rest keeps loading in the background. This is especially helpful with large repos and if the -n option is set to a high value such as 15000, the default number of commits loaded. But since this request does not respect your configured log arguments, you may see slightly different results for a few moments. If it bothers you, you can disable this first small request by setting this option to true.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.custom-css": {
 		"description": "An abitrary string of CSS that will be injected into the main web view. Example: * { text-transform: uppercase; }",
 		"type": "string",
 		"default": ""
 	},
-    "git-log--graph.git-path": {
-        "description": "Absolute path to the git executable. If not set, it is expected to be on your $PATH.",
-        "type": "string",
-        "default": ""
-    },
+	"git-log--graph.git-path": {
+		"description": "Absolute path to the git executable. If not set, it is expected to be on your $PATH.",
+		"type": "string",
+		"default": ""
+	},
 }
 ```
 
