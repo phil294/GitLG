@@ -29,7 +29,7 @@
 			<div v-for="(param, i) in params" :key="i" class="param">
 				<label class="row align-center gap-5">
 					Param ${{ i+1 }}
-					<input ref="params_input_refs" v-model="params[i]" class="flex-1" onfocus="select()">
+					<input ref="params_input_refs" v-model="params[i]" required class="flex-1" onfocus="select()">
 				</label>
 			</div>
 			<div class="execute">
