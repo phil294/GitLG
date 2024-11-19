@@ -7,8 +7,12 @@ function apply(target, { value: { move_target: given_move_target = undefined, on
 	let move_target = target
 	if (given_move_target === null)
 		return
-	if (given_move_target === 'parent' && target.parentElement)
+	if (given_move_target === 'parent') {
+		if (! target.parentElement)
+			throw new Error('parentElement not set')
 		move_target = target.parentElement
+	} else if (given_move_target)
+		move_target = given_move_target
 
 	target.draggable = true
 	function start_move(/** @type {MouseEvent | TouchEvent} */ move_event) {
