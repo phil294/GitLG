@@ -23,7 +23,13 @@ writeFileSync('./src/components.d.ts', `
 	}`)
 
 export default defineConfig({
-	plugins: [vue()],
+	plugins: [vue({
+		template: {
+			compilerOptions: {
+				isCustomElement: (tag) => tag.startsWith('vscode-'),
+			},
+		},
+	})],
 	// dev: HMR. prod: "./" as it will be affected by <base href> defined from extension.js
 	base: process.env.NODE_ENV === 'production' ? './' : 'http://localhost:5173',
 	build: {

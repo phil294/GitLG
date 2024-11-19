@@ -8,7 +8,14 @@ import drop from './directives/drop'
 import context_menu from './directives/context-menu'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
-import '@vscode/codicons/dist/codicon.css'
+import codeiconUrl from '@vscode/codicons/dist/codicon.css?url'
+import '@vscode-elements/elements'
+
+const codiconElement = document.createElement('link')
+codiconElement.rel = 'stylesheet'
+codiconElement.href = codeiconUrl
+codiconElement.id = 'vscode-codicon-stylesheet'
+document.head.append(codiconElement)
 
 let console_error = console.error
 function handle_error(/** @type {any[]} */ ...args) {

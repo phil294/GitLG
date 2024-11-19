@@ -8,7 +8,7 @@
 						<div v-moveable="{move_target: main_ref}" class="titlebar center">
 							⠿⠿⠿⠿⠿
 						</div>
-						<button class="close" type="button" @click="close">
+						<button class="close center" type="button" @click="close">
 							<i class="codicon codicon-close" />
 						</button>
 					</header>
@@ -44,7 +44,7 @@ function close() {
 	right: 0;
 	z-index: 9999;
 	box-sizing: border-box;
-	background: rgba(0,0,0,0.9);
+	background: rgb(from var(--vscode-editor-foreground) r g b / 0.5);
 }
 .modal-background {
 	position: absolute;
@@ -56,8 +56,7 @@ function close() {
 	position: relative;
 	box-sizing: border-box;
 	overflow: auto;
-	resize: both;
-	background: rgba(128,128,128,0.125);
+	background: var(--vscode-editor-background);
 }
 .titlebar,
 .close {
@@ -72,10 +71,18 @@ function close() {
 	top: 0;
 	right: 1.3vmax;
 	font-family: revert;
+	height: 26px;
+	width: 26px;
 }
 .popup-content {
-	padding: 0 2vmax 3vmax;
+	padding: 0 24px 24px;
 	overflow: auto;
 	height: fit-content;
+}
+header {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
 }
 </style>

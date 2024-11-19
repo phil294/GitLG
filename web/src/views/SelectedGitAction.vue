@@ -15,7 +15,7 @@
 		<git-input :git_action="selected_git_action" @executed="refresh_main_view()" @success="success()" />
 		<br>
 		<label class="row align-center gap-5">
-			<input v-model="keep_open" type="checkbox">
+			<vscode-checkbox @change="keep_open = $event.target.checked" />
 			Keep window open after success
 		</label>
 	</div>
@@ -41,6 +41,6 @@ function success() {
 .selected-git-action > details > summary {
 	overflow: hidden;
 	text-overflow: ellipsis;
-	color: #808080;
+	color: var(--text-secondary);
 }
 </style>
