@@ -27,7 +27,7 @@
 			<div v-for="(param, i) in params" :key="i" class="param">
 				<label class="row align-center gap-5">
 					Param ${{ i+1 }}
-					<vscode-textfield ref="params_input_refs" v-model="params[i]" class="flex-1" /></label>
+					<vscode-textfield ref="params_input_refs" v-model="params[i]" class="flex-1" required /></label>
 			</div>
 			<div class="execute">
 				<vscode-button icon="check" type="submit">
@@ -59,28 +59,6 @@
 		</div>
 	</div>
 </template>
-<script>
-/**
- * @param actions {ConfigGitAction[]}
- * @param replacements {[string,string][]}
- * @returns {GitAction[]}
- */
-export let parse_config_actions = (actions, replacements = []) => {
-	let namespace = replacements.map(([k]) => k).join('-') || 'global'
-	function do_replacements(/** @type {string} */ txt) {
-		for (let replacement of replacements)
-			txt = txt.replaceAll(replacement[0], replacement[1])
-		return txt
-	}
-	return actions.map((action) => ({
-		...action,
-		title: do_replacements(action.title),
-		description: action.description ? do_replacements(action.description) : undefined,
-		config_key: `action-${namespace}-${action.title}`,
-		params: action.params?.map(do_replacements),
-	}))
-}
-</script>
 
 <script setup>
 /*

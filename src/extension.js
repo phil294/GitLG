@@ -8,6 +8,7 @@ require('./globals')
 
 let { get_git } = require('./git')
 const create_logger = require('./logger')
+const { get_state } = require('./state')
 
 let EXT_NAME = 'GitLG'
 let EXT_ID = 'git-log--graph'
@@ -67,70 +68,30 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		},
 	})
 
-	// something to be synchronized with the web view - initialization, storage,
-	// update and retrieval is supported in both directions
-	let state = (() => {
-		function global_state_memento(/** @type {string} */ key) {
-			return {
-				get: () => context.globalState.get(key),
-				set: (/** @type {any} */ v) => context.globalState.update(key, v),
-			}
-		}
-		function workspace_state_memento(/** @type {string} */ key) {
-			return {
-				get: () => context.workspaceState.get(key),
-				set: (/** @type {any} */ v) => context.workspaceState.update(key, v),
-			}
-		}
-		function repo_state_memento(/** @type {string} */ local_key) {
-			function key() {
-				let repo_name = git.get_repo_names()[state('selected-repo-index').get()]
-				return `repo-${local_key}-${repo_name}`
-			}
-			return {
-				get: () => context.workspaceState.get(key()),
-				set: (/** @type {any} */ v) => context.workspaceState.update(key(), v),
-			}
-		}
-		/** @type {Record<string, {get:()=>any,set:(value:any)=>any}>} */
-		let special_states = { // "Normal" states instead are just default_memento
+	let { state, add_state_change_listener } = get_state({
+		context,
+		git,
+		on_broadcast: data => post_message({
+			type: 'push-to-web',
+			id: 'state-update',
+			data,
+		}),
+	})
 
-			'selected-repo-index': {
-				get: () => context.workspaceState.get('selected-repo-index'),
-				set(v) {
-					context.workspaceState.update('selected-repo-index', v)
-					git.set_selected_repo_index(Number(v) || 0)
-					// These will have changed now, so notify clients of updated value
-
-					for (let key of ['repo:action-history', 'repo:selected-commits-hashes'])
-						state(key).set(state(key).get())
-				},
-			},
-
-			'repo-names': {
-				get: () => git.get_repo_names(),
-				set() {},
-			},
-			'repo:selected-commits-hashes': repo_state_memento('selected-commits-hashes'),
-			'repo:action-history': repo_state_memento('action-history'),
-		}
-		let default_memento = global_state_memento
-		return (/** @type {string} */ key) => {
-			let memento = special_states[key] || default_memento(key)
-			return {
-				get: memento.get,
-				set(/** @type {any} */ value, /** @type {{broadcast?:boolean}} */ options = {}) {
-					memento.set(value)
-					if (options.broadcast !== false)
-						post_message({
-							type: 'push-to-web',
-							id: 'state-update',
-							data: { key, value },
-						})
-				},
-			}
-		}
-	})()
+	function wait_until_web_ready() {
+		return new Promise(is_ready => {
+			if (state('web-phase').get() === 'ready')
+				is_ready(true)
+			else
+				add_state_change_listener('web-phase', (phase) => {
+					if (phase === 'ready') {
+						is_ready(true)
+						return 'unsubscribe'
+					}
+					return 'stay-subscribed'
+				})
+		})
+	}
 
 	git.set_selected_repo_index(state('selected-repo-index').get() || 0)
 
@@ -143,7 +104,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 
 		view.onDidReceiveMessage(intercept_errors((/** @type {BridgeMessage} */ message) => {
 			logger.debug('receive from webview: ' + JSON.stringify(message))
-			let d = message.data
+			let data = message.data
 			async function h(/** @type {() => any} */ func) {
 				/** @type {BridgeMessage} */
 				let resp = {
@@ -154,7 +115,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				try {
 					resp.data = await func()
 				} catch (error) {
-					console.warn(error, caller_stack)
+					console.warn(error, caller_stack, func, data)
 					// We can't really just be passing e along here because it might be serialized as empty {}
 					resp.error = error.message || error
 				}
@@ -164,38 +125,42 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				case 'request-from-web':
 					switch (message.command) {
 						case 'git': return h(() =>
-							git.run(d))
+							git.run(data.args).catch(e => {
+								if (data.ignore_errors)
+									return
+								throw e
+							}))
 						case 'show-error-message': return h(() =>
-							logger.error(d))
+							logger.error(data))
 						case 'show-information-message': return h(() =>
-							vscode.window.showInformationMessage(d))
+							vscode.window.showInformationMessage(data))
 						case 'get-config': return h(() =>
 							vscode.workspace.getConfiguration(EXT_ID))
 						case 'get-state': return h(() =>
-							state(d).get())
+							state(data).get())
 						case 'set-state': return h(() =>
-							state(d.key).set(d.value, { broadcast: false }))
+							state(data.key).set(data.value, { broadcast: false }))
 						case 'open-diff': return h(() => {
-							let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[0]}:${d.filename}`)
-							let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${d.filename}`)
-							return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, `${d.filename} ${d.hashes[0]} vs. ${d.hashes[1]}`)
+							let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[0]}:${data.filename}`)
+							let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[1]}:${data.filename}`)
+							return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, `${data.filename} ${data.hashes[0]} vs. ${data.hashes[1]}`)
 						})
 						case 'open-multi-diff': return h(() =>
 							vscode.commands.executeCommand('vscode.changes',
-								`${d.hashes[0]} vs. ${d.hashes[1]}`,
-								d.filenames.map((/** @type {string} */ filename) => [
+								`${data.hashes[0]} vs. ${data.hashes[1]}`,
+								data.filenames.map((/** @type {string} */ filename) => [
 									vscode.Uri.parse(filename),
-									vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[0]}:${filename}`),
-									vscode.Uri.parse(`${EXT_ID}-git-show:${d.hashes[1]}:${filename}`),
+									vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[0]}:${filename}`),
+									vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[1]}:${filename}`),
 								])))
 						case 'view-rev': return h(() => {
-							let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${d.hash}:${d.filename}`)
+							let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hash}:${data.filename}`)
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
 						case 'open-file': return h(() => {
 							// vscode.workspace.workspaceFolders is NOT necessarily in the same order as git-api.repositories
 							let workspace = git.get_repo()?.rootUri.fsPath || ''
-							let uri = vscode.Uri.file(path.join(workspace, d.filename))
+							let uri = vscode.Uri.file(path.join(workspace, data.filename))
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
 					}
@@ -272,7 +237,10 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			logger.info('create new webview panel')
 			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn || 1, { retainContextWhenHidden: true })
 			webview_container.iconPath = vscode.Uri.joinPath(context.extensionUri, 'img', 'logo.png')
-			webview_container.onDidDispose(() => { webview_container = null })
+			webview_container.onDidDispose(() => {
+				state('web-phase').set(null, { broadcast: false })
+				webview_container = null
+			})
 			context.subscriptions.push(webview_container)
 			return populate_webview()
 		} else {
@@ -352,9 +320,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		current_line_long_hash = ''
 		status_bar_item_blame.text = ''
 	}
-	vscode.workspace.onDidCloseTextDocument(intercept_errors(hide_blame))
-	vscode.window.onDidChangeActiveTextEditor(intercept_errors(hide_blame))
-	vscode.window.onDidChangeTextEditorSelection(intercept_errors(({ textEditor: text_editor }) => {
+	function show_blame(/** @type {vscode.TextEditor} */ text_editor) {
 		let doc = text_editor.document
 		let uri = doc.uri
 		if (uri.scheme !== 'file' || doc.languageId === 'log' || doc.languageId === 'Log' || uri.path.includes('extension-output') || uri.path.includes(EXT_ID)) // vscode/issues/206118
@@ -368,16 +334,27 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			current_line_repo_index = await git.get_repo_index_for_uri(uri)
 			if (current_line_repo_index < 0)
 				return hide_blame()
+
 			let blamed = await git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_index)
 				.then((b) => b.split('\n')).maybe()
 			if (! blamed)
 				return hide_blame()
+
 			// apparently impossible to get the short form right away in easy machine readable format?
-			current_line_long_hash = blamed[0].slice(0, 40)
-			let author = blamed[1].slice(7)
-			let time = relative_time.from(new Date(Number(blamed[3].slice(12)) * 1000))
+			current_line_long_hash = blamed[0]?.slice(0, 40) || ''
+			let author = blamed[1]?.slice(7)
+			let time = relative_time.from(new Date(Number(blamed[3]?.slice(12)) * 1000))
 			status_bar_item_blame.text = `$(git-commit) ${author}, ${time}`
 		}), 150)
+	}
+	vscode.window.onDidChangeActiveTextEditor(intercept_errors((text_editor) => {
+		if (! text_editor)
+			return hide_blame()
+
+		return show_blame(text_editor)
+	}))
+	vscode.window.onDidChangeTextEditorSelection(intercept_errors(({ textEditor: text_editor }) => {
+		show_blame(text_editor)
 	}))
 	context.subscriptions.push(vscode.commands.registerCommand(BLAME_CMD, intercept_errors(async () => {
 		logger.info('blame cmd')
@@ -388,7 +365,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		current_line_long_hash = ''
 		state('repo:selected-commits-hashes').set([focus_commit_hash])
 		vscode.commands.executeCommand(START_CMD)
-		return push_message_id('scroll-to-selected-commit')
+		await wait_until_web_ready()
+		return push_message_id('show-selected-commit')
 	})))
 
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.refresh', intercept_errors(() => {

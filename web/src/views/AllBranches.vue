@@ -28,7 +28,7 @@ let filtered_branches = computed(() => {
 		return branches.value
 	else
 		return branches.value.filter((branch) =>
-			branch.id.toLowerCase().includes(txt_filter.value.toLowerCase()))
+			branch.display_name.toLowerCase().includes(txt_filter.value.toLowerCase()))
 })
 function on_mouse_up(/** @type {MouseEvent} */ event) {
 	if (! (event.target instanceof Element) ||

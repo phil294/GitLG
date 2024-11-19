@@ -38,24 +38,25 @@ let comparison_files = ref([])
 watchEffect(async () => {
 	if (props.commits.length !== 2)
 		return
-	let get_files_command = `-c core.quotepath=false diff --numstat --summary --format="" ${props.commits[0].hash} ${props.commits[1].hash}`
+	let get_files_command = `-c core.quotepath=false diff --numstat --summary --format="" ${not_null(props.commits[0]).hash} ${not_null(props.commits[1]).hash}`
 	comparison_files.value = git_numstat_summary_to_changes_array(await git(get_files_command))
 })
 
 function show_compare_diff(/** @type {string} */ filepath) {
 	exchange_message('open-diff', {
-		hashes: [props.commits[0].hash, props.commits[1].hash],
+		hashes: [not_null(props.commits[0]).hash, not_null(props.commits[1]).hash],
 		filename: filepath,
 	})
 }
 function show_multi_compare_diff() {
 	return exchange_message('open-multi-diff', {
-		hashes: [props.commits[0].hash, props.commits[1].hash],
+		hashes: [not_null(props.commits[0]).hash, not_null(props.commits[1]).hash],
 		filenames: comparison_files.value.map(f => f.path),
 	})
 }
 function view_rev(/** @type {string} */ filepath) {
 	exchange_message('view-rev', {
+		// TODO: ?
 		hash: props.commits[1].hash,
 		filename: filepath,
 	})

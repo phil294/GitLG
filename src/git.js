@@ -112,7 +112,8 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				// stderr contains the full message, message itself is too short otherwise
 				// In the case of multi-step commands like branch drop merge, stdout instead
 				// contains the actual important message.
-				error.message = [error.stderr, error.stdout].join('\n')
+				// When the error comes from the internals of cp/exec, it's in .message.
+				error.message = [error.stderr, error.stdout].join('\n').trim() || error.message || error.code
 				throw error
 			}
 		},

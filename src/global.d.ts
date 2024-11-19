@@ -24,16 +24,31 @@ interface BridgeMessage {
 
 interface GitRef {
 	name: string
+	/**
+	 * Begins with `refs/heads/` or `refs/remotes/` or `refs/tags/` for actual git refs
+	 * or `inferred~` for gitlg-specific inferred ones
+	 */
 	id: string
+	/** Same way git log shows them. Note that there can be duplicate *display_name*s, see `name` */
+	display_name: string
 	color?: typeof import('../web/src/utils/colors.js')[number]
 	type: "tag" | "stash" | "branch"
 }
 
 interface Branch extends GitRef {
+	/**
+	 * The full name without the remote, e.g. for id `refs/remotes/origin/master` it would be
+	 * `master`. Branch names may contain slashes, so for something contorted such as
+	 * `refs/heads/origin/master`, *name* would be `origin/master` where `origin` does *not* refer
+	 * to a remote.
+	 */
+	name: string
 	type: "branch"
+	/** e.g. `origin` */
 	remote_name?: string
 	/** For display of multiple remotes inside one Ref */
 	remote_names_group?: string[]
+	/** e.g. `origin`. For non-remote branches. */
 	tracking_remote_name?: string
 	inferred?: boolean
 }
@@ -70,10 +85,13 @@ interface Commit {
 	refs: GitRef[]
 	subject: string
 	merge?: boolean
+	/** undefined means not yet queried, an empty object signifies a loading state,
+	only files_changed present means it went through name stats already and
+	full properties come after full retrieval  */
 	stats?: {
-		files_changed: number
-		insertions: number
-		deletions: number
+		files_changed?: number
+		insertions?: number
+		deletions?: number
 	}
 }
 

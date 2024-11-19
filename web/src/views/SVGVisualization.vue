@@ -1,8 +1,7 @@
 <template>
 	<div class="vis svg">
-		<!-- +1 avoids gaps between rows in certain zoom levels -->
-		<svg :height="height+1" :style="style">
-			<path v-for="line, i of lines" :key="i" class="vis-line" v-bind="line" stroke-linecap="round" />
+		<svg :height="height" :style="style">
+			<path v-for="line, i of lines" :key="i" class="vis-line" v-bind="line" />
 			<circle v-if="circle" class="vis-line" v-bind="circle" />
 		</svg>
 	</div>
@@ -77,10 +76,5 @@ let circle = computed(() => {
 }
 .vis svg > circle.vis-line.is_head {
 	fill: var(--vscode-editor-foreground);
-}
-.vis:after {
-	content: '';
-	position: absolute;
-	inset: 0;
 }
 </style>

@@ -2,10 +2,7 @@
 	<div id="main-view" class="fill col">
 		<div :class="details_panel_position === 'bottom' ? 'col' : 'row'" class="flex-1">
 			<div id="main-panel" class="col">
-				<p v-if="!initialized" class="loading">
-					Loading...
-				</p>
-				<p v-else-if="!filtered_commits.length" class="no-commits-found">
+				<p v-if="web_phase !== 'initializing' && !filtered_commits.length" class="no-commits-found">
 					No commits found
 				</p>
 				<nav class="row align-center justify-space-between gap-10">
@@ -13,7 +10,7 @@
 						<summary class="align-center">
 							Configure...
 						</summary>
-						<git-input ref="git_input_ref" :action="run_log" :git_action="log_action" hide_result="" />
+						<git-input ref="git_input_ref" :action="run_log" :git_action="log_action" hide_result />
 					</details>
 					<repo-selection />
 					<aside class="center gap-20">
@@ -22,7 +19,7 @@
 							<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 								<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 							</button>
-							<button v-if="txt_filter" id="clear-filter" class="center" title="Clear search" @click="clear_filter()">
+							<button v-if="txt_filter" id="clear-filter" class="center" title="Clear" @click="txt_filter=''">
 								<i class="codicon codicon-close" />
 							</button>
 							<vscode-radio-group>
@@ -32,17 +29,24 @@
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<vscode-button id="refresh" class="btn-icon" title="Refresh" @click="refresh_main_view()">
-								<vscode-icon name="refresh" />
+							<vscode-button id="refresh" class="btn-icon" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'" @click="refresh_main_view()">
+								<div class="icon-wrapper center">
+									<vscode-icon name="refresh" />
+								</div>
 							</vscode-button>
 						</section>
 					</aside>
 				</nav>
 				<div id="quick-branch-tips">
 					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
-					<History @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>scroll_to_commit_hash_user($event.hash)" />
+					<History @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
-						Status: {{ git_status }}
+						<p v-if="web_phase === 'initializing'" class="loading">
+							Loading...
+						</p>
+						<p v-else>
+							Status: {{ git_status }}
+						</p>
 					</div>
 					<template v-if="config_show_quick_branch_tips">
 						<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" :key="branch_elem.branch.id" title="Jump to branch tip" v-bind="branch_elem.bind" @click="scroll_to_branch_tip(branch_elem.branch)">
@@ -62,9 +66,9 @@
 			</div>
 			<div v-if="selected_commit || selected_commits.length" id="details-panel" class="col flex-1">
 				<template v-if="selected_commit">
-					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="scroll_to_commit_hash_user($event)">
+					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="show_commit_hash($event)">
 						<template #details_text>
-							<template v-if="filtered_commits.length !== commits.length">
+							<template v-if="filtered_commits.length !== commits?.length">
 								Index in filtered commits: {{ selected_commit_index_in_filtered_commits }}<br>
 							</template>
 							Index in all loaded commits: {{ selected_commit_index_in_commits }}<br>
@@ -100,9 +104,9 @@
 	</div>
 </template>
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, useTemplateRef } from 'vue'
+import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
 import * as store from '../state/store.js'
-import { show_error_message, add_push_listener } from '../bridge.js'
+import { add_push_listener, git } from '../bridge.js'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -125,9 +129,9 @@ let selected_commit = computed(() => {
 		return selected_commits.value[0]
 })
 let selected_commit_index_in_filtered_commits = computed(() =>
-	filtered_commits.value.indexOf(selected_commit.value))
+	selected_commit.value ? filtered_commits.value.indexOf(selected_commit.value) : -1)
 let selected_commit_index_in_commits = computed(() =>
-	store.commits.value.indexOf(selected_commit.value))
+	selected_commit.value ? store.commits.value?.indexOf(selected_commit.value) || -1 : -1)
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 	if (! commit.hash)
 		return
@@ -139,7 +143,7 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 			selected_commits.value = [...selected_commits.value, commit]
 	else if (event?.shiftKey) {
 		let total_index = filtered_commits.value.indexOf(commit)
-		let last_total_index = filtered_commits.value.indexOf(selected_commits.value[selected_commits.value.length - 1])
+		let last_total_index = filtered_commits.value.indexOf(not_null(selected_commits.value.at(-1)))
 		if (total_index > last_total_index && total_index - last_total_index < 1000)
 			selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index + 1).filter((c) =>
 				! selected_commits.value.includes(c)))
@@ -156,13 +160,6 @@ let txt_filter = ref('')
 /** @type {Vue.Ref<'filter' | 'jump'>} */
 let txt_filter_type = ref('filter')
 let txt_filter_regex = store.stateful_computed('filter-options-regex', false)
-async function clear_filter() {
-	txt_filter.value = ''
-	if (selected_commit.value) {
-		await nextTick()
-		scroll_to_commit(selected_commit.value)
-	}
-}
 let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref')) // eslint-disable-line @stylistic/no-extra-parens
 function txt_filter_filter(/** @type {Commit} */ commit) {
 	let search_for = txt_filter.value.toLowerCase()
@@ -173,8 +170,6 @@ function txt_filter_filter(/** @type {Commit} */ commit) {
 		} else if (str?.includes(search_for))
 			return true
 }
-let initialized = computed(() =>
-	!! store.commits.value)
 let filtered_commits = computed(() => {
 	if (! txt_filter.value || txt_filter_type.value === 'jump')
 		return store.commits.value || []
@@ -207,25 +202,37 @@ function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 	scroll_to_item_centered(next_match_index)
 	txt_filter_last_i = next_match_index
 	debounce(() => {
-		selected_commits.value = [filtered_commits.value[txt_filter_last_i]]
+		let commit = filtered_commits.value[txt_filter_last_i]
+		if (commit)
+			selected_commits.value = [commit]
 	}, 100)
 }
 watch(txt_filter, () => {
 	if (txt_filter.value)
 		store.push_history({ type: 'txt_filter', value: txt_filter.value })
+	if (txt_filter_type.value === 'jump')
+		return
+	debounce(() => {
+		if (selected_commit.value)
+			scroll_to_commit(selected_commit.value)
+	}, 250)
 })
 
-function scroll_to_branch_tip(/** @type {Branch} */ branch) {
-	let first_branch_commit_i = filtered_commits.value.findIndex((commit) => {
+async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
+	txt_filter.value = ''
+	let commit_i = filtered_commits.value.findIndex((commit) => {
 		if (branch.inferred)
 			return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
 		else
 			return commit.refs.some((ref_) => ref_ === branch)
 	})
-	if (first_branch_commit_i === -1)
-		return show_error_message(`No commit found for branch ${branch.id}. Not enough commits loaded?`)
-	scroll_to_item_centered(first_branch_commit_i)
-	let commit = filtered_commits.value[first_branch_commit_i]
+	if (commit_i === -1) {
+		let hash = await git(`rev-parse --short "${branch.id}"`)
+		await store.load_commit_hash(hash)
+		commit_i = 0
+	}
+	scroll_to_item_centered(commit_i)
+	let commit = not_null(filtered_commits.value[commit_i])
 	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 	// a branch name in a commit's ref list.
 	selected_commits.value = [commit]
@@ -240,14 +247,27 @@ function scroll_to_commit_hash(/** @type {string} */ hash) {
 	let commit_i = filtered_commits.value.findIndex((commit) =>
 		commit.hash === hash)
 	if (commit_i === -1) {
-		console.log(new Error().stack)
-		return show_error_message(`No commit found for hash ${hash}. No idea why :/`)
+		console.warn(new Error().stack)
+		console.warn(`No commit found for hash ${hash}`)
 	}
 	scroll_to_item_centered(commit_i)
-	selected_commits.value = [filtered_commits.value[commit_i]]
+	selected_commits.value = [not_null(filtered_commits.value[commit_i])]
 }
-function scroll_to_commit_hash_user(/** @type {string} */ hash) {
-	scroll_to_commit_hash(hash)
+/** Like `scroll_to_commit_hash`, but if the hash isn't available, load it at all costs, and select */
+async function show_commit_hash(/** @type {string} */ hash) {
+	txt_filter.value = ''
+	let commit_i = filtered_commits.value.findIndex((commit) =>
+		commit.hash === hash)
+	if (commit_i === -1)
+		await store.load_commit_hash(hash)
+
+	commit_i = filtered_commits.value.findIndex((commit) =>
+		commit.hash === hash)
+	if (commit_i === -1)
+		throw new Error(`No commit found for hash '${hash}'`)
+
+	scroll_to_item_centered(commit_i)
+	selected_commits_hashes.value = [hash]
 	store.push_history({ type: 'commit_hash', value: hash })
 }
 function scroll_to_commit(/** @type {Commit} */ commit) {
@@ -257,45 +277,26 @@ function scroll_to_commit(/** @type {Commit} */ commit) {
 function scroll_to_top() {
 	commits_scroller_ref.value?.scrollToItem(0)
 }
-add_push_listener('scroll-to-selected-commit', () => {
-	if (! selected_commit.value)
+add_push_listener('show-selected-commit', async () => {
+	let hash = selected_commits_hashes.value[0]
+	if (! hash)
 		return
-	scroll_to_commit(selected_commit.value)
+	show_commit_hash(hash)
 })
 
 let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
 store.main_view_git_input_ref.value = git_input_ref
-let log_action = {
-	// rearding the -greps: Under normal circumstances, when showing stashes in
-	// git log, each of the stashes 2 or 3 parents are being shown. That because of
-	// git internals, but they are completely useless to the user.
-	// Could not find any easy way to skip those other than de-grepping them, TODO:.
-	// Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-	args: 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "',
-	options: [
-		{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' },
-		{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' },
-		{ value: '--date-order', default_active: false, info: 'Show no parents before all of its children are shown, but otherwise show commits in the commit timestamp order.' },
-		{ value: '--author-date-order', default_active: true, info: 'Show no parents before all of its children are shown, but otherwise show commits in the author timestamp order.' },
-		{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' },
-		{ value: '--reflog', default_active: false, info: 'Pretend as if all objects mentioned by reflogs are listed on the command line as <commit>. / Reference logs, or "reflogs", record when the tips of branches and other references were updated in the local repository. Reflogs are useful in various Git commands, to specify the old value of a reference. For example, HEAD@{2} means "where HEAD used to be two moves ago", master@{one.week.ago} means "where master used to point to one week ago in this local repository", and so on. See gitrevisions(7) for more details.' },
-		{ value: '--simplify-by-decoration', default_active: false, info: 'Allows you to view only the big picture of the topology of the history, by omitting commits that are not referenced by some branch or tag. Can be useful for very large repositories.' }],
-
-	config_key: 'main-log',
-	immediate: true,
-}
-let is_first_log_run = true
 /* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
     	This function exists so we can modify the args before sending to git, otherwise
     	GitInput would have done the git call  */
 async function run_log(/** @type {string} */ log_args) {
-	await store.git_run_log(log_args)
-	await new Promise((ok) => setTimeout(ok, 0))
-	if (is_first_log_run) {
+	let is_initializing = store.web_phase.value === 'initializing'
+	await store.main_view_action(log_args)
+	await sleep(0)
+	if (is_initializing) {
 		let first_selected_hash = selected_commits.value[0]?.hash
 		if (first_selected_hash)
 			scroll_to_commit_hash(first_selected_hash)
-		is_first_log_run = false
 	} else {
 		if (selected_commit.value) {
 			let new_commit = filtered_commits.value.find((commit) =>
@@ -314,7 +315,8 @@ let scroll_item_offset = 0
 function commits_scroller_updated(/** @type {number} */ start_index, /** @type {number} */ end_index) {
 	scroll_item_offset = start_index
 	let commits_start_index = scroll_item_offset < 3 ? 0 : scroll_item_offset
-	visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index)
+	debounce(() =>
+		visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index), 50)
 }
 function scroller_on_wheel(/** @type {WheelEvent} */ event) {
 	if (store.config.value['disable-scroll-snapping'])
@@ -340,21 +342,23 @@ let scroll_item_height = computed(() =>
 	store.config.value['row-height'])
 
 watch(visible_commits, async () => {
-	let visible_cp = [...visible_commits.value].filter((commit) => // to avoid race conditions
+	let visible_cp = visible_commits.value.filter((commit) =>
 		commit.hash && ! commit.stats)
 	if (! visible_cp.length)
 		return
-	await store.update_commit_stats(visible_cp)
+	if (! store.config.value['disable-commit-stats'])
+		await store.update_commit_stats(visible_cp)
 })
 let visible_branches = computed(() => [
-	...new Set(visible_commits.value.flatMap((commit) => (commit.vis_lines || []).map((v) => v.branch))),
+	...new Set(visible_commits.value.flatMap((commit) =>
+		(commit.vis_lines || [])
+			.map((v) => v.branch))),
 ].filter(is_truthy))
-// todo ref_tips?
 let visible_branch_tips = computed(() => [
 	...new Set(visible_commits.value.flatMap((commit) =>
 		commit.refs)),
 ].filter((ref_) =>
-	is_branch(ref_) && ! ref_.inferred))
+	ref_ && is_branch(ref_) && ! ref_.inferred))
 let invisible_branch_tips_of_visible_branches = computed(() =>
 // alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
 	visible_branches.value.filter((branch) =>
@@ -404,7 +408,7 @@ let global_actions = computed(() =>
 
 onMounted(() => {
 	// didn't work with @keyup.escape.native on the components root element
-	// when focus was in a sub component (??) so doing this instaed:
+	// when focus was in a sub component (??) so doing this instead:
 	document.addEventListener('keyup', (e) => {
 		if (e.key === 'Escape')
 			selected_commits.value = []
@@ -438,7 +442,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 let config_show_quick_branch_tips = computed(() =>
 	! store.config.value['hide-quick-branch-tips'])
 
-let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, selected_git_action, git_status, commits } = store
+let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view, web_phase, selected_git_action, git_status, commits, log_action } = store
 
 </script>
 <style scoped>
@@ -504,6 +508,13 @@ details#log-config[open] {
 #main-panel > nav > aside > section#actions :deep(button.btn) {
 	font-size: 21px;
 	padding: 0 2px;
+}
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+#main-panel > nav > aside > section#actions > #refresh:disabled > .icon-wrapper {
+	animation: spin 2s infinite linear;
 }
 #main-panel #quick-branch-tips,
 #main-panel #branches-connection {

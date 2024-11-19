@@ -103,14 +103,15 @@ export const git_numstat_summary_to_changes_array = (/** @type {string} */ out) 
 			if (line.startsWith(' ')) {
 				let split = line.split(' ')
 				let path = split.slice(4).join(' ')
-				if (split[1] === 'delete')
-					all[path].is_deletion = true
-				else if (split[1] === 'create')
-					all[path].is_creation = true
+				if (all[path])
+					if (split[1] === 'delete')
+						all[path].is_deletion = true
+					else if (split[1] === 'create')
+						all[path].is_creation = true
 			} else {
 				let split = line.split('\t')
-				all[split[2]] = {
-					path: split[2],
+				all[split[2] || ''] = {
+					path: split[2] || '',
 					insertions: Number(split[0]),
 					deletions: Number(split[1]),
 				}

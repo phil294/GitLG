@@ -13,10 +13,10 @@
 				<ol class="entries">
 					<li v-for="(entry, entry_i) of history_mapped" :key="entry.datetime" class="flex">
 						<div :title="entry.datetime" class="entry flex-1">
-							<commit-row v-if="entry.type == 'commit_hash' && entry.ref" :commit="entry.ref" role="button" @click="$emit('commit_clicked', entry.ref)" />
-							<div v-else-if="entry.type == 'commit_hash'">
-								Commit '{{ entry.value }}' not found!
-							</div>
+							<commit-row v-if="entry.type == 'commit_hash' && entry.ref" :commit="entry.ref" role="button" @click="$emit('commit_clicked', entry.ref.hash)" />
+							<button v-else-if="entry.type == 'commit_hash'" class="btn" @click="$emit('commit_clicked', entry.value)">
+								Commit '{{ entry.value }}'
+							</button>
 							<git-action-button v-else-if="entry.type == 'git'" :git_action="entry.ref" />
 							<vscode-button v-else-if="entry.type == 'txt_filter'" icon="search" @click="$emit('apply_txt_filter', entry.value)">
 								Search: <code>{{ entry.value }}</code>

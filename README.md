@@ -24,7 +24,7 @@ This allows you to set params and modify the command before executing, both via 
 
 All Git actions (blue buttons) work like that. Even the main `git log` action itself is a modifiable field: By default it holds
 
-    log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep=\"^untracked files on \" --grep=\"^index on \"" --author-date-order
+	log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep=\"^untracked files on \" --grep=\"^index on \"" --author-date-order
 
 You shouldn't edit the `--pretty` argument of course, but if you for example want to view the log of a subfolder or for a specific file, all you need to do is add ` -- subfolder` to the end of the command. If you want to get rid of the entire branch visualization, remove the `--graph` part.
 
@@ -77,28 +77,28 @@ The only required parameters per action are `title` and `args`.
 ```jsonc
 // VSCode settings.json
 "git-log--graph.actions.branch": [
-    // You'll be extending the default actions here with your custom additions:
-    {
-        "title": "Switch", // Whatever you want to appear on the button itself. Title is also used as a cache key (see `Save` above).
-        "icon": "arrow-swap", // An icon to display next to the title. Choose one from https://microsoft.github.io/vscode-codicons/dist/codicon.html
-        "description": "git switch - Switch branches", // An extended title that will be shown as tooltip on button mouse hover and as a subtitle in the action popup. For the defaults, this is the first NAME line of `git help [the-command]`.
-        // More detailed help to understand what this command is about: Will help more inexperienced users. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the DESCRIPTION section of `git help [the-command]`:
-        "info": "Switch to a specified branch. The working tree and the index are updated to match the branch. All new commits will be added to the tip of this branch.\n\nOptionally a new branch could be created with either -c, -C, automatically from a remote branch of bla bla etc",
-        "args": "switch \"$1\"", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`.
-        "params": [ "{LOCAL_BRANCH_NAME}" ], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: {BRANCH_NAME}, {LOCAL_BRANCH_NAME}, {REMOTE_NAME}, {COMMIT_HASH}, {COMMIT_HASHES}, {STASH_NAME}, {TAG_NAME}, {SOURCE_BRANCH_NAME}, {TARGET_BRANCH_NAME} and {DEFAULT_REMOTE_NAME} (where it makes sense, respectively).
-        // `options` are just an easy and quick way to toggle common trailing options. You can also specify them manually in `args` of course, given that `args` is also editable yet again at runtime.
-        "options": [
-            {
-            	"value": "--detach", // what is to be appended to the input field if toggled
-            	"default_active": false,
-            	// More detailed help to understand what this option is about. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the --option description text of `git help [the-command]`:
-            	"info": "For inspection and discardable experiments"
-            },
-            { "value": "--force", "default_active": false },
-        ],
-        "immediate": false, // if true, the command executes without another user interaction step and closes again, except on error.
-        "ignore_errors": false // can rarely be useful in combination with `immediate`
-    }
+	// You'll be extending the default actions here with your custom additions:
+	{
+		"title": "Switch", // Whatever you want to appear on the button itself. Title is also used as a cache key (see `Save` above).
+		"icon": "arrow-swap", // An icon to display next to the title. Choose one from https://microsoft.github.io/vscode-codicons/dist/codicon.html
+		"description": "git switch - Switch branches", // An extended title that will be shown as tooltip on button mouse hover and as a subtitle in the action popup. For the defaults, this is the first NAME line of `git help [the-command]`.
+		// More detailed help to understand what this command is about: Will help more inexperienced users. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the DESCRIPTION section of `git help [the-command]`:
+		"info": "Switch to a specified branch. The working tree and the index are updated to match the branch. All new commits will be added to the tip of this branch.\n\nOptionally a new branch could be created with either -c, -C, automatically from a remote branch of bla bla etc",
+		"args": "switch \"$1\"", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`.
+		"params": [ "{LOCAL_BRANCH_NAME}" ], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: {BRANCH_DISPLAY_NAME}, {BRANCH_NAME}, {LOCAL_BRANCH_NAME}, {BRANCH_ID}, {REMOTE_NAME}, {COMMIT_HASH}, {COMMIT_HASHES}, {STASH_NAME}, {TAG_NAME}, {SOURCE_BRANCH_NAME}, {TARGET_BRANCH_NAME} and {DEFAULT_REMOTE_NAME} (where it makes sense, respectively).
+		// `options` are just an easy and quick way to toggle common trailing options. You can also specify them manually in `args` of course, given that `args` is also editable yet again at runtime.
+		"options": [
+			{
+				"value": "--detach", // what is to be appended to the input field if toggled
+				"default_active": false,
+				// More detailed help to understand what this option is about. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the --option description text of `git help [the-command]`:
+				"info": "For inspection and discardable experiments"
+			},
+			{ "value": "--force", "default_active": false },
+		],
+		"immediate": false, // if true, the command executes without another user interaction step and closes again, except on error.
+		"ignore_errors": false // can rarely be useful in combination with `immediate`
+	}
 ]
 ```
 This is what you'll get:
@@ -114,77 +114,87 @@ Please consider opening an issue or PR if you think a certain action or option w
 ```jsonc
 // VSCode settings.json
 {
-    "git-log--graph.position": {
-        "description": "Decide how/where the extension should appear. Changing this option REQUIRES RELOAD.",
-        "type": "string",
-        "default": "editor",
-        "enum": [
-            "editor",
-            "view"
-        ],
-        "enumDescriptions": [
-            "As a regular editor tab, so it will be treated like one of your open files",
-            "As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
-        ]
-    },
-    "git-log--graph.group-branch-remotes": {
-        "description": "If active, branches and their origins will be merged into a single branch-tip bubble, but only if there is no ambiguity.",
-        "type": "boolean",
-        "default": true
-    },
-    "git-log--graph.hide-quick-branch-tips": {
-        "description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.show-inferred-quick-branch-tips": {
-        "description": "(Depends on 'hide-quick-branch-tips' to be false) If active, the area at the top with the dotted branch lines will also include inferred branch lines, meaning branches that have been deleted or are unavailable but whose name could be reconstructed based on merge commit message.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.disable-scroll-snapping": {
-        "description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.branch-width": {
-        "description": "The width of the individual branch lines, including both line and right spacing. The default 'auto' chooses between 10 and 2 depending on the size of the repository.",
-        "type": [
-            "integer",
-            "string"
-        ],
-        "default": "auto"
-    },
-    "git-log--graph.hide-sidebar-buttons": {
-        "description": "If active, the buttons for commit, branches, stashes and tags will not be shown anymore in the side bar for a selected commit. The actions are then only available via context menu (right click) in the main view itself.",
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.folder": {
-        "description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
-        "type": "string"
-    },
-    "git-log--graph.verbose-logging": {
-        "type": "boolean",
-        "default": false
-    },
-    "git-log--graph.curve-radius": {
-        "description": "How curvy the branch visualization should look. Set to 0 to disable curviness. Otherwise, it's recommended to set between 0.3 and 0.6 or things look weird.",
-        "type": "number",
-        "minimum": 0,
-        "maximum": 1,
-        "default": 0.4
-    },
-    "git-log--graph.custom-css": {
+	"git-log--graph.position": {
+		"description": "Decide how/where the extension should appear. Changing this option REQUIRES RELOAD.",
+		"type": "string",
+		"default": "editor",
+		"enum": [
+			"editor",
+			"view"
+		],
+		"enumDescriptions": [
+			"As a regular editor tab, so it will be treated like one of your open files",
+			"As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
+		]
+	},
+	"git-log--graph.group-branch-remotes": {
+		"description": "If active, branches and their origins will be merged into a single branch-tip bubble, but only if there is no ambiguity.",
+		"type": "boolean",
+		"default": true
+	},
+	"git-log--graph.hide-quick-branch-tips": {
+		"description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.show-inferred-quick-branch-tips": {
+		"description": "(Depends on 'hide-quick-branch-tips' to be false) If active, the area at the top with the dotted branch lines will also include inferred branch lines, meaning branches that have been deleted or are unavailable but whose name could be reconstructed based on merge commit message.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.disable-scroll-snapping": {
+		"description": "If active, the mouse wheel event on the scroller will not be caught and instead behave normally. This comes at the expense of the dotted connection lines at the top being offset wrongly more often.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.branch-width": {
+		"description": "The width of the individual branch lines, including both line and right spacing. The default 'auto' chooses between 10 and 2 depending on the size of the repository.",
+		"type": [
+			"integer",
+			"string"
+		],
+		"default": "auto"
+	},
+	"git-log--graph.hide-sidebar-buttons": {
+		"description": "If active, the buttons for commit, branches, stashes and tags will not be shown anymore in the side bar for a selected commit. The actions are then only available via context menu (right click) in the main view itself.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.folder": {
+		"description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
+		"type": "string"
+	},
+	"git-log--graph.verbose-logging": {
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.curve-radius": {
+		"description": "How curvy the branch visualization should look. Set to 0 to disable curviness. Otherwise, it's recommended to set between 0.3 and 0.6 or things look weird.",
+		"type": "number",
+		"minimum": 0,
+		"maximum": 1,
+		"default": 0.4
+	},
+	"git-log--graph.disable-commit-stats": {
+		"description": "If active, the stats for commits in the main view (green/red bars showing the amounts of changes, e.g. \"25 in 4\") will not be shown anymore. This can greatly improve performance if your commits regularly contain changes to very large files.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.disable-preliminary-loading": {
+		"description": "Normally, once at extension start, the first few commits are queried and shown thanks to a small request optimized for speed while the rest keeps loading in the background. This is especially helpful with large repos and if the -n option is set to a high value such as 15000, the default number of commits loaded. But since this request does not respect your configured log arguments, you may see slightly different results for a few moments. If it bothers you, you can disable this first small request by setting this option to true.",
+		"type": "boolean",
+		"default": false
+	},
+	"git-log--graph.custom-css": {
 		"description": "An abitrary string of CSS that will be injected into the main web view. Example: * { text-transform: uppercase; }",
 		"type": "string",
 		"default": ""
 	},
-    "git-log--graph.git-path": {
-        "description": "Absolute path to the git executable. If not set, it is expected to be on your $PATH.",
-        "type": "string",
-        "default": ""
-    },
+	"git-log--graph.git-path": {
+		"description": "Absolute path to the git executable. If not set, it is expected to be on your $PATH.",
+		"type": "string",
+		"default": ""
+	},
 }
 ```
 

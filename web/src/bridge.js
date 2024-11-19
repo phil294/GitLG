@@ -11,17 +11,22 @@ window.addEventListener('message', (msg_event) => {
 	/** @type {BridgeMessage} */
 	let message = msg_event.data
 	switch (message.type) {
-		case 'response-to-web':
-			if (! response_handlers[message.id])
-				throw new Error('unhandled message response id: ' + JSON.stringify(message))
-			response_handlers[message.id](message)
+		case 'response-to-web': {
+			let handler = response_handlers[message.id]
+			if (! handler)
+				// Can't figure out why, but sometimes a very out of order ID appears out of nowhere
+				return console.warn('unhandled message response id:', message)
+			handler(message)
 			delete response_handlers[message.id]
 			break
-		case 'push-to-web':
-			if (! push_handlers[message.id])
+		}
+		case 'push-to-web': {
+			let handler = push_handlers[message.id]
+			if (! handler)
 				throw new Error('unhandled message push id: ' + JSON.stringify(message))
-			push_handlers[message.id](message)
+			handler(message)
 			break
+		}
 	}
 })
 
@@ -34,7 +39,7 @@ export let exchange_message = async (/** @type {string} */ command, /** @type {a
 	let resp = await new Promise((ok) => {
 		response_handlers[message_id_counter] = ok
 	})
-	console.info('exchange_message', command, data) // , resp
+	// console.info('exchange_message', command, data) // , resp
 
 	if (resp.error) {
 		let error = new Error(JSON.stringify({ error_response: resp.error, request }))
@@ -48,8 +53,8 @@ export let exchange_message = async (/** @type {string} */ command, /** @type {a
 	return resp.data
 }
 
-export let git = (/** @type {string} */ args) =>
-	exchange_message('git', args).then((/** @type {string} */ s) => s.trim())
+export let git = (/** @type {string} */ args, /** @type {{ignore_errors?: boolean}} */ { ignore_errors } = {}) =>
+	exchange_message('git', { args, ignore_errors }).then((/** @type {string} */ s) => s.trim())
 export let show_information_message = (/** @type {string} */ msg) =>
 	exchange_message('show-information-message', msg)
 export let show_error_message = (/** @type {string} */ msg) =>

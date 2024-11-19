@@ -9,12 +9,12 @@ import colors from './colors.js'
  */
 
 function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
-	let a_is_tag = a.id.startsWith('tag: ')
-	let b_is_tag = b.id.startsWith('tag: ')
+	let a_is_tag = a.id.startsWith('refs/tags/')
+	let b_is_tag = b.id.startsWith('refs/tags/')
 	// prefer branch over tag/stash
 	// prefer tag over stash
 	// prefer local branch over remote branch
-	return Number(a_is_tag || ! a.id.startsWith('refs/')) - Number(b_is_tag || ! b.id.startsWith('refs/')) || Number(b_is_tag) - Number(a_is_tag) || a.id.indexOf('/') - b.id.indexOf('/')
+	return Number(a_is_tag || ! a.id.startsWith('refs/stash')) - Number(b_is_tag || ! b.id.startsWith('refs/stash')) || Number(b_is_tag) - Number(a_is_tag) || Number(Boolean(/** @type {Branch} */ (a).remote_name)) - Number(Boolean(/** @type {Branch} */ (b).remote_name)) // eslint-disable-line @stylistic/no-extra-parens
 }
 
 /**
@@ -28,31 +28,47 @@ function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
  * @param separator {string}
  * @param curve_radius {number}
  */
-function parse(log_data, branch_data, stash_data, separator, curve_radius) {
+async function parse(log_data, branch_data, stash_data, separator, curve_radius) {
+	console.time('GitLG: parsing log')
 	let rows = log_data.split('\n')
 
 	/** @type {Branch[]} */
 	let branches = []
 	/**
-	 * @param name {string}
-	 * @param options {{ remote_name?: string, tracking_remote_name?: string, inferred?: boolean, name_may_include_remote?: boolean}}=
+	 * @param from {string}
+	 * @param options {{ remote_name?: string, tracking_remote_name?: string, inferred?: boolean, from_includes_remote?: boolean}}=
 	 */
-	function new_branch(name, { remote_name, tracking_remote_name, inferred, name_may_include_remote } = {}) {
-		if (name_may_include_remote && ! remote_name && name.includes('/')) {
-			let split = name.split('/')
-			name = split.at(-1) || ''
+	function new_branch(from, { remote_name, tracking_remote_name, inferred, from_includes_remote } = {}) {
+		if (from.startsWith('refs/heads/'))
+			from = from.slice(11)
+		else if (from.startsWith('refs/remotes/')) {
+			from = from.slice(13)
+			from_includes_remote = true
+		}
+		if (from_includes_remote) {
+			let split = from.split('/')
+			from = split.at(-1) || ''
 			remote_name = split.slice(0, split.length - 1).join('/')
 		}
-		if (! name && inferred)
-			name = `${branches.length - 1}`
+		let inferred_id = branches.length - 1
+		if (! from && inferred)
+			from = `${inferred_id}`
 		/** @type {Branch} */
 		let branch = {
-			name,
+			id: inferred
+				? `inferred-${from}-${inferred_id}`
+				: remote_name
+					? `refs/remotes/${remote_name}/${from}`
+					: `refs/heads/${from}`,
+			name: from,
+			display_name: (remote_name
+				? `${remote_name}/${from}`
+				: from) +
+					(inferred ? '~' + inferred_id : ''),
 			color: undefined,
 			type: 'branch',
 			remote_name,
 			tracking_remote_name,
-			id: (remote_name ? `${remote_name}/${name}` : name) + (inferred ? '~' + (branches.length - 1) : ''),
 			inferred,
 		}
 		branches.push(branch)
@@ -60,15 +76,14 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	}
 
 	for (let branch_line of branch_data.split('\n')) {
+		if (! branch_line)
+			continue
 		// origin-name{SEP}refs/heads/local-branch-name
 		// {SEP}refs/remotes/origin-name/remote-branch-name
 		let [tracking_remote_name, ref_name] = branch_line.split(separator)
-		if (ref_name.startsWith('refs/heads/'))
-			new_branch(ref_name.slice(11), { tracking_remote_name })
-		else {
-			let [remote_name, ...remote_branch_name_parts] = ref_name.slice(13).split('/')
-			new_branch(remote_branch_name_parts.join('/'), { remote_name })
-		}
+		if (ref_name?.startsWith('(HEAD detached at '))
+			continue
+		new_branch(ref_name || '???', { tracking_remote_name })
 	}
 	// Not actually a branch but since it's included in the log refs and is neither stash nor tag
 	// and checking it out works, we can just treat it as one:
@@ -92,7 +107,9 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 	let last_densened_vis_line_by_branch_id = {}
 
 	let graph_chars = ['*', '\\', '/', ' ', '_', '|', /* rare: */ '-', '.']
-	for (let [row_no_s, row] of Object.entries(rows)) {
+	for (let row_no = 0; row_no < rows.length; row_no++) {
+		// Not using not_null() in this file as it slows down the parser by factor 3
+		let row = /** @type {string} */ (rows[row_no]) // eslint-disable-line @stylistic/no-extra-parens
 		if (row === '... ')
 			continue // with `--follow -- pathname`, this can happen even though we're specifying a strict --format.
 		// Example row:
@@ -104,42 +121,45 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		// Much, much slower than everything else so better not log
 		// if vis_str.at(-1) != ' '
 		// 	console.warn "unknown git graph syntax returned at row " + row_no
-		let refs = refs_csv
+		let commit_refs = refs_csv
 			.split(', ')
 			// map to ["master", "origin/master", "tag: xyz"]
 			.map((r) => r.split(' -> ')[1] || r)
 			.filter((r) => r !== 'refs/stash')
 			.filter(is_truthy)
 			.map((id) => {
-				if (id.startsWith('tag: ')) {
+				if (id.startsWith('tag: refs/tags/')) {
 					/** @type {GitRef} */
 					let ref = {
 						id,
-						name: id.slice(5),
+						name: id.slice(15),
+						display_name: id.slice(15),
 						color: undefined,
 						type: 'tag',
 					}
 					return ref
 				} else {
-					let branch_match = branches.find((branch) => id === branch.id)
+					if (id === 'HEAD')
+						id = 'refs/heads/HEAD'
+					let branch_match = branches.find((branch) => branch.id === id)
 					if (branch_match)
 						return branch_match
-					else {
-						// Can happen with grafted branches
-						console.warn(`Could not find ref '${id}' in list of branches for commit '${hash}'`)
-						return undefined
-					}
+					else
+						// Can happen with grafted branches or at first fast prefetch
+						// console.warn(`Could not find ref '${id}' in list of branches for commit '${hash}'`)
+						return new_branch(id, { from_includes_remote: true })
 				}
 			}).filter(is_truthy)
 			.sort(git_ref_sort)
-		let branch_tips = refs
+		let branch_tips = commit_refs
 			.filter(is_branch)
 		let branch_tip = branch_tips[0]
 
 		/** @type {typeof graph_chars} */
-		let vis_chars = vis_str.trimEnd().split('')
-		if (vis_chars.some((v) => ! graph_chars.includes(v)))
-			throw new Error(`Could not parse output of GIT LOG (line:${row_no_s})`)
+		let vis_chars = vis_str.trimEnd().split('').reverse()
+		// This check makes sense but slows down the parsing noticably:
+		//   if (vis_chars.some((v) => ! graph_chars.includes(v)))
+		//   	throw new Error(`Could not parse output of GIT LOG. line:${row_no}, row content:${row}`)
 		// format %ad with --date=iso-local returns something like 2021-03-02 15:59:43 +0100
 		let datetime = iso_datetime?.slice(0, 19)
 		/**
@@ -153,22 +173,24 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		let vis = []
 		/** @type {Branch|undefined} */
 		let commit_branch = undefined
-		for (let [i_s, char] of Object.entries(vis_chars).reverse()) {
-			let i = Number(i_s)
+		for (let char_i_ltr = 0; char_i_ltr < vis_chars.length; char_i_ltr++) {
+			let char = /** @type {string} */ (vis_chars[char_i_ltr]) // eslint-disable-line @stylistic/no-extra-parens
+			// Significantly faster than iterating via for(;;i--)
+			let char_i = vis_chars.length - char_i_ltr - 1
 			/** @type {Branch | null | undefined } */
 			let v_branch = undefined
-			let v_n = last_vis[i]
-			let v_nw = last_vis[i - 1]
-			let v_w_char = vis_chars[i - 1]
-			let v_ne = last_vis[i + 1]
-			let v_nee = last_vis[i + 2]
-			let v_e = vis[i + 1]
-			let v_ee = vis[i + 2]
+			let v_n = last_vis[char_i]
+			let v_nw = last_vis[char_i - 1]
+			let v_w_char = vis_chars[char_i_ltr + 1] // bc .reverse()
+			let v_ne = last_vis[char_i + 1]
+			let v_nee = last_vis[char_i + 2]
+			let v_e = vis[char_i + 1]
+			let v_ee = vis[char_i + 2]
 			// Parsing from top to bottom (reverse chronologically), rtl horizontally
 			// This line connects this commit with the previous one. There will be a second
 			// line later for connecting to the follow-up one.
 			/** @type {VisLine} */
-			let vis_line = { x0: 0, xn: i + 0.5, y0: -0.5, yn: 0.5 }
+			let vis_line = { x0: 0, xn: char_i + 0.5, y0: -0.5, yn: 0.5 }
 			switch (char) {
 				case '*':
 					if (branch_tip)
@@ -199,9 +221,10 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 									wrong_branch_match.branch = v_branch
 								k--
 							}
-							if (densened_vis_line_by_branch_id[wrong_branch.id] && ! densened_vis_line_by_branch_id[v_branch.id]) {
-								densened_vis_line_by_branch_id[v_branch.id] = densened_vis_line_by_branch_id[wrong_branch.id]
-								densened_vis_line_by_branch_id[v_branch.id].branch = v_branch
+							let densened = densened_vis_line_by_branch_id[wrong_branch.id]
+							if (densened && ! densened_vis_line_by_branch_id[v_branch.id]) {
+								densened.branch = v_branch
+								densened_vis_line_by_branch_id[v_branch.id] = densened
 								delete densened_vis_line_by_branch_id[wrong_branch.id]
 							}
 							branches.splice(branches.indexOf(wrong_branch), 1)
@@ -235,7 +258,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					break
 				case '\\':
 					vis_line.xn += 1
-					if (v_w_char === '|' && v_nw.char === '*') {
+					if (v_w_char === '|' && v_nw?.char === '*') {
 						// right below a merge commit
 						let last_commit = commits.at(-1)
 						if (v_e?.char === '|' && v_e?.branch)
@@ -248,7 +271,7 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 							// b.) and c.) will be overwritten again if a.) occurs [see "inferred substitute"].
 							let subject_merge_match = last_commit?.subject.match(/^Merge (?:(?:remote[ -]tracking )?branch '([^ ]+)'.*)|(?:pull request #[0-9]+ from (.+))$/)
 							if (subject_merge_match)
-								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2], { inferred: true, name_may_include_remote: true })
+								v_branch = new_branch(subject_merge_match[1] || subject_merge_match[2] || '', { inferred: true, from_includes_remote: true })
 							else
 								v_branch = new_branch('', { inferred: true })
 						}
@@ -261,18 +284,18 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					} else if (v_nw?.char === '|' || v_nw?.char === '\\')
 						v_branch = v_nw?.branch
 					else if (v_nw?.char === '.' || v_nw?.char === '-') {
-						let k = i - 2
+						let k = char_i - 2
 						let w_char_match = null
 						while ((w_char_match = last_vis[k])?.char === '-')
 							k--
 						v_branch = w_char_match.branch
-					} else if (v_nw?.char === '.' && last_vis[i - 2].char === '-')
-						v_branch = last_vis[i - 3].branch
+					} else if (v_nw?.char === '.' && last_vis[char_i - 2].char === '-')
+						v_branch = last_vis[char_i - 3].branch
 					break
 				case ' ': case '.': case '-':
 					v_branch = null
 			}
-			vis[i] = {
+			vis[char_i] = {
 				char,
 				branch: v_branch || null,
 			}
@@ -288,7 +311,8 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		if (subject) {
 			// After 1-n parsed rows, we have now arrived at what will become one row
 			// in *our* application too.
-			for (let [branch_id, vis_line] of Object.entries(densened_vis_line_by_branch_id)) {
+			for (let branch_id in densened_vis_line_by_branch_id) {
+				let vis_line = /** @type {VisLine} */ (densened_vis_line_by_branch_id[branch_id]) // eslint-disable-line @stylistic/no-extra-parens
 				vis_line.xce = vis_line.xn
 				vis_line.yce = vis_line.yn
 				vis_line.xcs = vis_line.x0
@@ -325,18 +349,23 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 					}
 				}
 			}
+			/** @type {VisLine[]} */
+			let vis_lines = []
+			for (let branch_id in densened_vis_line_by_branch_id)
+				// This is 4x faster than Object.values()
+				vis_lines.push(/** @type {VisLine} */ (densened_vis_line_by_branch_id[branch_id])) // eslint-disable-line @stylistic/no-extra-parens
+			// Leftmost branches should appear later so they are on top of the rest
+			vis_lines.sort((a, b) => (b.xcs || 0) + (b.xce || 0) - (a.xcs || 0) - (a.xce || 0))
 			commits.push({
-				index_in_graph_output: Number(row_no_s),
-				vis_lines: Object.values(densened_vis_line_by_branch_id)
-					// Leftmost branches should appear later so they are on top of the rest
-					.sort((a, b) => (b.xcs || 0) + (b.xce || 0) - (a.xcs || 0) - (a.xce || 0)),
+				index_in_graph_output: row_no,
+				vis_lines,
 				branch: commit_branch,
 				hash_long,
 				hash,
 				author_name,
 				author_email,
 				datetime,
-				refs,
+				refs: commit_refs,
 				subject,
 			})
 
@@ -346,15 +375,21 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 			// get rid of collected connection lines - freshly start at this commit again
 			densened_vis_line_by_branch_id = {}
 		}
+		if (row_no % 700 === 0)
+			// Keep the UI responsive. An alternative would be delegating the heavy work to a
+			// separate thread (web service worker or rather extension backend), but the serialization
+			// performance penalty is super big. With loads of optimizations it could work great though.
+			await sleep(0)
+
 		last_vis = vis
 	}
 	for (let i = 1; i < commits.length; i++)
-		for (let vis_line of commits[i].vis_lines) {
+		for (let vis_line of /** @type {Commit} */ (commits[i]).vis_lines) { // eslint-disable-line @stylistic/no-extra-parens
 			if (vis_line.y0 === vis_line.yn)
 				continue
 			// Duplicate the line into the previous commit's lines because both rows
 			// need to display it (each being only half-visible vertically)
-			commits[i - 1].vis_lines.push({
+			/** @type {Commit} */ (commits[i - 1]).vis_lines.push({ // eslint-disable-line @stylistic/no-extra-parens
 				...vis_line,
 				y0: (vis_line.y0 || 0) + 1,
 				yn: (vis_line.yn || 0) + 1,
@@ -391,11 +426,13 @@ function parse(log_data, branch_data, stash_data, separator, curve_radius) {
 		commit?.refs.push({
 			name,
 			id: name,
+			display_name: name,
 			type: 'stash',
 			color: '#fff',
 		})
 	}
 
+	console.timeEnd('GitLG: parsing log')
 	return { commits, branches }
 }
 export { parse }

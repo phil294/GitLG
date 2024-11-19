@@ -385,7 +385,7 @@
 			"immediate": true,
 			"args": "checkout \"$1\"",
 			"params": [
-				"{LOCAL_BRANCH_NAME}"
+				"{BRANCH_NAME}"
 			]
 		},
 		{
@@ -395,7 +395,7 @@
 			"icon": "git-merge",
 			"args": "merge \"$1\"",
 			"params": [
-				"{BRANCH_NAME}"
+				"{BRANCH_DISPLAY_NAME}"
 			],
 			"options": [
 				{
@@ -423,7 +423,7 @@
 			"args": "pull \"$1\" \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
-				"{LOCAL_BRANCH_NAME}"
+				"{BRANCH_NAME}"
 			],
 			"options": [
 				{
@@ -451,7 +451,7 @@
 			"args": "push \"$1\" \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
-				"{LOCAL_BRANCH_NAME}"
+				"{BRANCH_NAME}"
 			],
 			"options": [
 				{
@@ -475,7 +475,7 @@
 			"icon": "edit",
 			"args": "branch -m \"$1\" \"$2\"",
 			"params": [
-				"{BRANCH_NAME}",
+				"{LOCAL_BRANCH_NAME}",
 				"new_branch_name"
 			]
 		},
@@ -486,7 +486,7 @@
 			"icon": "references",
 			"args": "rebase \"$1\"",
 			"params": [
-				"{BRANCH_NAME}"
+				"{BRANCH_DISPLAY_NAME}"
 			]
 		},
 		{
@@ -496,7 +496,7 @@
 			"icon": "trash",
 			"args": "branch --delete \"$1\"",
 			"params": [
-				"{BRANCH_NAME}"
+				"{LOCAL_BRANCH_NAME}"
 			],
 			"options": [
 				{
@@ -513,7 +513,7 @@
 			"args": "push \"$1\" --delete \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
-				"{LOCAL_BRANCH_NAME}"
+				"{BRANCH_DISPLAY_NAME}"
 			]
 		}
 	]
