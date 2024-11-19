@@ -11,6 +11,9 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import codeiconUrl from '@vscode/codicons/dist/codicon.css?url'
 import '@vscode-elements/elements'
 
+// Necessary because the ID tag must be set on the stylesheet in order to be retrievable from @vscode-elements
+// https://github.com/vscode-elements/elements/blob/1d2b32cf8/src/vscode-icon/vscode-icon.ts#L81
+// Which is apparently not possible to control in Vite https://github.com/vitejs/vite/issues/18324
 const codiconElement = document.createElement('link')
 codiconElement.rel = 'stylesheet'
 codiconElement.href = codeiconUrl

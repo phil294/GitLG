@@ -457,7 +457,7 @@ details#log-config[open] {
 	width: 100%;
 	min-width: 30%;
 	min-height: 30%;
-	resize: horizontal;
+	resize: both;
 	overflow: hidden auto;
 	position: relative;
 }

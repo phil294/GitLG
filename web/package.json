@@ -8,7 +8,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@vscode-elements/elements": "^1.6.1",
+    "@vscode-elements/elements": "1.6.1",
     "@vscode/codicons": "^0.0.36",
     "@vueuse/core": "^11.1.0",
     "vue": "^3.5.12",

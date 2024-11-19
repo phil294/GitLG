@@ -44,7 +44,7 @@ function close() {
 	right: 0;
 	z-index: 9999;
 	box-sizing: border-box;
-	background: rgb(from var(--vscode-editor-foreground) r g b / 0.5);
+	background: rgb(from var(--vscode-editorWidget-background) r g b / 0.9);
 }
 .modal-background {
 	position: absolute;
@@ -57,19 +57,16 @@ function close() {
 	box-sizing: border-box;
 	overflow: auto;
 	background: var(--vscode-editor-background);
-}
-.titlebar,
-.close {
-	line-height: 2em;
-	margin-top: 1vmax;
+	box-shadow: 2px 2px 3px var(--vscode-editor-background);
 }
 .titlebar {
 	color: rgba(128,128,128,0.125);
+	margin-top: 5px;
 }
 .close {
 	position: absolute;
-	top: 0;
-	right: 1.3vmax;
+	top: 7px;
+	right: 10px;
 	font-family: revert;
 	height: 26px;
 	width: 26px;
@@ -78,11 +75,5 @@ function close() {
 	padding: 0 24px 24px;
 	overflow: auto;
 	height: fit-content;
-}
-header {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
 }
 </style>

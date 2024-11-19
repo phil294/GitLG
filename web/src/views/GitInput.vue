@@ -30,7 +30,7 @@
 					<vscode-textfield ref="params_input_refs" v-model="params[i]" class="flex-1" /></label>
 			</div>
 			<div class="execute">
-				<vscode-button icon="check">
+				<vscode-button icon="check" type="submit">
 					Execute
 				</vscode-button>
 			</div>
@@ -47,7 +47,7 @@
 			</div>
 			<ul>
 				<li v-for="option of options" :key="option.value" :class="{changed: option.active !== option.default_active}" class="option row gap-10">
-					<vscode-checkbox v-model="option.active" :disabled="text_changed" :label="option.value" />
+					<vscode-checkbox :disabled="text_changed" :label="option.value" :checked="option.active" @change="option.active = $event.target.checked" />
 					<details v-if="option.info" class="flex-1">
 						<summary class="align-center">
 							{{ option.info }}

@@ -264,7 +264,7 @@ input:not([type='checkbox']):not([type='radio']).filter {
 }
 ul.context-menu-wrapper {
 	position: absolute;
-	background: rgba(17,17,17,0.867);
+	background: var(--vscode-menu-background);
 	min-width: 150px;
 	cursor: pointer;
 	box-shadow: 0 2px 3px 2px rgba(17,17,17,0.867);
@@ -279,6 +279,8 @@ ul.context-menu-wrapper > li:not(:last-child) {
 }
 ul.context-menu-wrapper > li:hover {
 	background: #000;
+	background-color: var(--vscode-menu-selectionBackground, var(--vscode-menu-background));
+	color: var(--vscode-menu-selectionForeground, var(--vscode-menu-foreground));
 }
 </style>
 
