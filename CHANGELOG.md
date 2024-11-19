@@ -4,6 +4,34 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.22 2024-11-19
+
+- [`f52512a`](https://github.com/phil294/GitLG/commit/f52512a) [`af8aa6d`](https://github.com/phil294/GitLG/commit/af8aa6d) Light mode support and misc improvements. Much more consistent UI now thanks to @samfundev! (#111)
+- [`559feb4`](https://github.com/phil294/GitLG/commit/559feb4) [`59a6777`](https://github.com/phil294/GitLG/commit/59a6777) Improve log parser. Outputs pretty similar graphs but less bugs and the internal logic is a bit different now. Also performance improvements, now about twice as fast than before
+- [`29277bb`](https://github.com/phil294/GitLG/commit/29277bb) [`c3ca376`](https://github.com/phil294/GitLG/commit/c3ca376) Improve stats querying performance (insertions/deletions/files changed). Fixes immense lags for repos with very large files in its commits. Now first only the "files changed" amount is queried and the additions/deletions fixed after, with an upper limit on how many will be calculated in parallel.  Reason being that the insertions/deletions aren't cached by Git so it needs to read through the entire commit files. Stats can also now be disabled entirely.
+- [`25769b7`](https://github.com/phil294/GitLG/commit/25769b7) Vastly improve scrolling performance by adding a 50 ms debounce
+- [`215bcad`](https://github.com/phil294/GitLG/commit/215bcad) [`9b5a5e7`](https://github.com/phil294/GitLG/commit/9b5a5e7) Improve time to paint by showing the first 100 commits immediately after load, and parsing the rest (default: 15,000) afterward. This behavior can be disabled with `"git-log--graph.disable-preliminary-loading": true`
+- [`9d846f2`](https://github.com/phil294/GitLG/commit/9d846f2) Fix freeze / keep the UI responsive while processing the git data on startup, after refresh or after any action run
+- [`13e12a9`](https://github.com/phil294/GitLG/commit/13e12a9) Fix duplicate commit stats loading. Was heavy on performance
+- [`d880d44`](https://github.com/phil294/GitLG/commit/d880d44) Blame: Allow jumping to commit even if it isn't currently loaded in the main view. In this case, GitLG will temporarily load the commits around the respective hash. Undo by clicking reload button. Also shows a popup to the user explaining what just happened.
+- [`ba8b688`](https://github.com/phil294/GitLG/commit/ba8b688) Allow jumping to branch even if it isn't currently loaded in the main view. Like blame
+- [`925c79c`](https://github.com/phil294/GitLG/commit/925c79c) Fix blame when switching between editors, no long necessary to type something to get the blame command to work
+
+- [`eac3404`](https://github.com/phil294/GitLG/commit/eac3404) Fix ordering of branches in "all branches": Local ones first, even if they contain a `/` slash
+- [`85b49d8`](https://github.com/phil294/GitLG/commit/85b49d8) Always keep selected commit centered while filtering. Previously it was only kept when you pressed the X clear button, now it aggressively jumps back to it
+
+- [`aa143ce`](https://github.com/phil294/GitLG/commit/aa143ce) [`54a367a`](https://github.com/phil294/GitLG/commit/54a367a) Fix row-gaps in graph lines
+- [`e80a225`](https://github.com/phil294/GitLG/commit/e80a225) Add Vue file type in diff list
+- [`e899469`](https://github.com/phil294/GitLG/commit/e899469) Add animation while refreshing
+- [`a410127`](https://github.com/phil294/GitLG/commit/a410127) Fix merge commit rendering in parallel branch scenarios `|\|` (#106)
+- [`7b1f89e`](https://github.com/phil294/GitLG/commit/7b1f89e) Show commit index in commit details
+- [`a91c0e8`](https://github.com/phil294/GitLG/commit/a91c0e8) Fix wrong graph line color right below merge commits originating form inferred branches
+- [`6593dad`](https://github.com/phil294/GitLG/commit/6593dad) Fix highlighting current HEAD after checking out a remote branch with -b for which there is another branch with the same name
+- [`7a70695`](https://github.com/phil294/GitLG/commit/7a70695) Fix duplicate branches / HEADs in exotic cases such as a *local* branch name such as `origin/my-branch` which would be duplicate with remote=origin and name=my-branch. Added `{BRANCH_ID}` and `{BRANCH_DISPLAY_NAME}` magic vars to git action parameter parsing
+- [`69d19d2`](https://github.com/phil294/GitLG/commit/69d19d2) Prevent `(HEAD detached at [hash])` from showing up in branch listing
+- [`0822080`](https://github.com/phil294/GitLG/commit/0822080) Change position of "Loading...". Now in status box instead above everything else. So no more vertical jumping after initial load
+- [`64edf8e`](https://github.com/phil294/GitLG/commit/64edf8e) Make all params in git commands required
+
 ### v0.1.21 2024-10-04
 
 fix bad release
