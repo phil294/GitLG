@@ -570,7 +570,8 @@
 		}
 	},
 	"scripts": {
-		"postinstall": "cd web && npm install"
+		"postinstall": "cd web && npm install",
+		"lint": "eslint ."
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.2.0",
