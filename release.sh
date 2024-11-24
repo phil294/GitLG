@@ -38,6 +38,7 @@ if grep -R -n -E '\s$' src web/src; then
 fi
 
 run npx vsce verify-pat
+pause
 
 : ''
 run npx ncu -u -x '@types/vscode'
