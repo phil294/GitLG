@@ -2,9 +2,6 @@
 	<div id="main-view" class="fill col">
 		<div :class="details_panel_position === 'bottom' ? 'col' : 'row'" class="flex-1">
 			<div id="main-panel" class="col">
-				<p v-if="web_phase !== 'initializing' && !filtered_commits.length" class="no-commits-found">
-					No commits found
-				</p>
 				<nav class="row align-center justify-space-between gap-10">
 					<details id="log-config" class="flex-1">
 						<summary class="align-center">
@@ -60,6 +57,9 @@
 				<div v-if="config_show_quick_branch_tips" id="branches-connection">
 					<commit-row v-if="connection_fake_commit" :commit="connection_fake_commit" :height="110" class="vis" />
 				</div>
+				<p v-if="web_phase !== 'initializing' && !filtered_commits.length" id="no-commits-found">
+					No commits found
+				</p>
 				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
 					<commit-row :class="{selected_commit:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" role="button" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
@@ -517,7 +517,8 @@ details#log-config[open] {
 	animation: spin 2s infinite linear;
 }
 #main-panel #quick-branch-tips,
-#main-panel #branches-connection {
+#main-panel #branches-connection,
+#main-panel #no-commits-found {
 	padding-left: var(--container-padding);
 }
 #main-panel #branches-connection {
