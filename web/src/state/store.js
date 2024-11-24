@@ -1,4 +1,4 @@
-import { ref, computed, shallowRef } from 'vue'
+import { ref, computed, shallowRef, nextTick } from 'vue'
 import { parse } from '../utils/log-parser.js'
 import { git, exchange_message, add_push_listener, show_information_message } from '../bridge.js'
 export { update_commit_stats } from './commit-stats'
@@ -25,7 +25,8 @@ export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ defa
 	/** @type {Vue.WritableComputedRef<T>|undefined} */
 	let ret = _stateful_computeds[key]
 	if (ret) {
-		on_load()
+		nextTick()
+			.then(on_load)
 		return ret
 	}
 	// shallow because type error https://github.com/vuejs/composition-api/issues/483
@@ -45,6 +46,7 @@ export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ defa
 			internal.value = stored // to skip the unnecessary roundtrip to backend
 			ret.value = stored
 		}
+		await nextTick()
 		on_load?.()
 	})()
 	return ret
