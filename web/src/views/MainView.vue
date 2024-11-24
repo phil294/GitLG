@@ -561,7 +561,7 @@ details#log-config[open] {
 }
 #main-panel #quick-branch-tips > #history {
 	top: 52px;
-	right: 41px;
+	right: 40px;
 	z-index: 2;
 }
 #main-panel #quick-branch-tips > #history[open] {
