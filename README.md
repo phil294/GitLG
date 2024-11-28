@@ -1,10 +1,16 @@
 # GitLG: VSCode extension
 
-GitLG, previously known as "git-log--graph", is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Four_essential_freedoms_of_Free_Software), customizable Git UI.
+GitLG, previously known as **"git-log--graph"**, is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Four_essential_freedoms_of_Free_Software), customizable Git UI.
 
 ![demo](./img/demo6.png)
 
-Also available as a "view" with option `"git-log--graph.position": "view"`
+* Details panel can be moved to the bottom with option `"git-log--graph.details-panel-position": "bottom"`
+* You can also hide blue action buttons with option `"git-log--graph.hide-sidebar-buttons": "true"`
+  * Most are still available through right-click context menu on commits/branches
+
+![demo](./img/demo8.png)
+
+*  The whole graph view can moved inside a dedicated vscode "view" with option `"git-log--graph.position": "view"`
 
 ![demo](./img/demo7.png)
 
