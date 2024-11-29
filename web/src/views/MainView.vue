@@ -19,10 +19,8 @@
 							<button v-if="txt_filter" id="clear-filter" class="center" title="Clear" @click="txt_filter=''">
 								<i class="codicon codicon-close" />
 							</button>
-							<vscode-radio-group>
-								<vscode-radio :checked="txt_filter_type == 'filter'" label="Filter" value="filter" />
-								<vscode-radio :checked="txt_filter_type == 'jump'" label="Jump" value="jump" title="Jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3" />
-							</vscode-radio-group>
+							<vscode-radio :checked="txt_filter_type == 'filter'" label="Filter" value="filter" />
+							<vscode-radio :checked="txt_filter_type == 'jump'" label="Jump" value="jump" title="Jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3" />
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
