@@ -510,7 +510,7 @@
 			"title": "Delete (Remote)",
 			"description": "Delete a remote branch",
 			"icon": "trash",
-			"args": "push \"$1\" --delete \"$2\"",
+			"args": "push \"$1\" --delete \"$2\" || git branch --delete --remote \"$2\"",
 			"params": [
 				"{REMOTE_NAME}",
 				"{BRANCH_DISPLAY_NAME}"
