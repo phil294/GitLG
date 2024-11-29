@@ -110,7 +110,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
 import * as store from '../state/store.js'
-import { add_push_listener, git } from '../bridge.js'
+import { add_push_listener, exchange_message, git } from '../bridge.js'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -449,7 +449,13 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 		action() {
 			store.selected_git_action.value = action
 		},
-	}))
+	})).concat({
+		label: 'Copy hash',
+		icon: 'clippy',
+		action() {
+			exchange_message('clipboard-write-text', hash)
+		},
+	})
 })
 
 let config_show_quick_branch_tips = computed(() =>

@@ -163,6 +163,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 							let uri = vscode.Uri.file(path.join(workspace, data.filename))
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
+						case 'clipboard-write-text': return h(() =>
+							vscode.env.clipboard.writeText(data))
 					}
 			}
 		}))

@@ -23,6 +23,7 @@
         "**/.git/**"
     ],
     "cSpell.words": [
+        "clippy",
         "codicon",
         "codicons",
         "datetime",
