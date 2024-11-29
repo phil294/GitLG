@@ -147,7 +147,8 @@ let text_changed = computed(() =>
 
 let params_input_refs = /** @type {Readonly<Vue.ShallowRef<Array<HTMLInputElement>>>} */ (useTemplateRef('params_input_refs')) // eslint-disable-line @stylistic/no-extra-parens
 let command_input_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('command_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
-onMounted(() => {
+onMounted(async () => {
+	await nextTick()
 	if (params_input_refs.value?.length)
 		params_input_refs.value[0].focus()
 	else
