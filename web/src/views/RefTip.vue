@@ -1,5 +1,5 @@
 <template>
-	<div v-context-menu="context_menu_provider" v-drag="drag" v-drop="drop" class="ref-tip" v-bind="bind">
+	<div v-context-menu="context_menu_provider" v-drag="drag" v-drop="drop" class="ref-tip" v-bind="bind" @dblclick="dblclick">
 		{{ git_ref.display_name }}
 		<template v-if="branch?.remote_names_group">
 			<span v-for="remote_name of branch.remote_names_group" :key="remote_name" class="remote-name-group-entry"> + {{ remote_name }}</span>
@@ -84,6 +84,12 @@ let context_menu_provider = computed(() => () => {
 	else if (props.git_ref.type === 'tag')
 		return to_context_menu_entries(tag_actions(props.git_ref.name).value)
 })
+function dblclick() {
+	if (! branch.value)
+		return
+	// First action is currently always commit
+	selected_git_action.value = branch_actions(branch.value).value[0] || null
+}
 </script>
 <style scoped>
 .ref-tip {
