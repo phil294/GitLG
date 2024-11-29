@@ -191,21 +191,23 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 			// line later for connecting to the follow-up one.
 			/** @type {VisLine} */
 			let vis_line = { x0: 0, xn: char_i + 0.5, y0: -0.5, yn: 0.5 }
+			/** @type {Branch | undefined } */
+			let v_new_branch = undefined
 			switch (char) {
 				case '*':
 					if (branch_tip)
-						v_branch = branch_tip
-					else if (v_n?.branch)
+						v_new_branch = branch_tip
+					if (v_n?.branch)
 						v_branch = v_n?.branch
 					else if (v_nw?.char === '\\')
 						v_branch = v_nw?.branch
 					else if (v_ne?.char === '/')
 						v_branch = v_ne?.branch
 					else
-						// Stashes or no context because of --skip arg
-						v_branch = new_branch('', { inferred: true })
+						// Starts here, or: Stashes or no context because of --skip arg
+						v_branch = v_new_branch || new_branch('', { inferred: true })
 
-					commit_branch = v_branch || undefined
+					commit_branch = v_new_branch || v_branch || undefined
 					// if (! last_vis[i] || ! last_vis[i].char || last_vis[i].char === ' ')
 					// 	Branch or inferred branch starts here visually (ends here logically)
 					if (v_branch && v_nw?.char === '\\' && v_n?.char !== '|') {
@@ -297,16 +299,17 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 			}
 			vis[char_i] = {
 				char,
-				branch: v_branch || null,
+				branch: v_new_branch || v_branch || null,
 			}
-
 			if (v_branch)
 				if (densened_vis_line_by_branch_id[v_branch.id])
 					densened_vis_line_by_branch_id[v_branch.id].xn = vis_line.xn
 				else {
-					vis_line.branch = v_branch
+					vis_line.branch = v_new_branch || v_branch
 					densened_vis_line_by_branch_id[v_branch.id] = vis_line
 				}
+			if (v_new_branch && v_new_branch !== v_branch)
+				densened_vis_line_by_branch_id[v_new_branch.id] = vis_line
 		}
 		if (subject) {
 			// After 1-n parsed rows, we have now arrived at what will become one row
