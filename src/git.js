@@ -79,8 +79,19 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 
 	let selected_repo_index = 0
 	return {
+		/** Guaranteed to be unique, but if possible, just the folder name */
 		get_repo_names() {
-			return api.repositories.map((f) => basename(f.rootUri.path))
+			return Object.entries(api.repositories.reduce((/** @type {Record<string, Array<import('./vscode.git').Repository>>} */ all, repo) => {
+				let base = basename(repo.rootUri.path)
+				all[base] ||= []
+				all[base].push(repo)
+				return all
+			}, {}))
+				.map(([base, repos]) =>
+					repos.length === 1
+						? base : repos.map(repo =>
+							repo.rootUri.path))
+				.flat()
 		},
 		get_repo(/** @type {number|undefined} */ repo_index) {
 			if (repo_index == null)
