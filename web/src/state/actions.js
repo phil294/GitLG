@@ -25,7 +25,7 @@ function parse_config_actions(actions, replacements = []) {
 
 /** @type {Vue.Ref<ConfigGitAction[]>} */
 export let global_actions = computed(() =>
-	default_git_actions['actions.global'].concat(config.value.actions?.global || []))
+	parse_config_actions(default_git_actions['actions.global'].concat(config.value.actions?.global || [])))
 export let commit_actions = (/** @type {string} */ hash) => computed(() => {
 	let config_commit_actions = default_git_actions['actions.commit'].concat(config.value.actions?.commit || [])
 	return parse_config_actions(config_commit_actions, [
