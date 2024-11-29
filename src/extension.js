@@ -191,7 +191,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			: dev_server_url
 		let custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
 		if (custom_css)
-			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c) => c.css).maybe()
+			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c) => c.css).catch(() => 0)
 		let loading_prompt = is_production
 			? 'Loading (this should not take long)'
 			: 'Trying to connect to dev server... See CONTRIBUTING.md > "Building" for instructions'
@@ -336,7 +336,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				return hide_blame()
 
 			let blamed = await git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_index)
-				.then((b) => b.split('\n')).maybe()
+				.then((b) => b.split('\n')).catch(() => null)
 			if (! blamed)
 				return hide_blame()
 

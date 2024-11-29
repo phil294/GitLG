@@ -167,9 +167,18 @@ let txt_filter_regex = store.stateful_computed('filter-options-regex', false)
 let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref')) // eslint-disable-line @stylistic/no-extra-parens
 function txt_filter_filter(/** @type {Commit} */ commit) {
 	let search_for = txt_filter.value.toLowerCase()
+	/** @type {RegExp | undefined} */
+	let search_for_regex = undefined
+	if (txt_filter_regex.value)
+		try {
+			search_for_regex = new RegExp(search_for)
+		} catch (_) {
+			return false
+		}
+
 	for (let str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)].map((s) => s.toLowerCase()))
 		if (txt_filter_regex.value) {
-			if (str?.match.maybe(search_for))
+			if (str?.match(search_for_regex || '?'))
 				return true
 		} else if (str?.includes(search_for))
 			return true

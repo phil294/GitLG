@@ -118,7 +118,7 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 			throw error
 		}),
 		git('-c core.quotepath=false status'),
-		git('symbolic-ref HEAD', { ignore_errors: true }).maybe(),
+		git('symbolic-ref HEAD', { ignore_errors: true }).catch(() => null),
 	])
 	commits.value = parsed_log_data.commits
 	branches.value = parsed_log_data.branches

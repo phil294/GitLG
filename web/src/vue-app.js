@@ -27,9 +27,9 @@ function handle_error(/** @type {any[]} */ ...args) {
 			/* Proxied Vue render function. Accessing normal props results in more intermediate console errors, so this catches them and also provides the component name. This requires source maps to be disabled in production in order to work there. */
 			x.$?.type?.__name ||
 			/* standard props poking in the dark */
-			x.message || x.msg || x.data || x.body || x.stack || JSON.stringify.maybe(x, null, 4) || x.toString?.())?.toString?.() : '-')
+			x.message || x.msg || x.data || x.body || x.stack || (() => { try { return JSON.stringify(x, null, 4) } catch (_) { return 0 } })() || x.toString?.())?.toString?.() : '-')
 		.join('\n')
-	console_error(...args, new Error(), args[0]?.domChain ? `at element: ${JSON.stringify.maybe(args[0].domChain, null, 4)}` : '')
+	console_error(...args, new Error(), args[0]?.domChain ? ['at element', args[0].domChain] : '')
 	console.trace()
 	// debugger // eslint-disable-line no-debugger
 	show_error_message(prompt_error)
