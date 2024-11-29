@@ -191,7 +191,7 @@ Please consider opening an issue or PR if you think a certain action or option w
 		"default": ""
 	},
 	"git-log--graph.git-path": {
-		"description": "Absolute path to the git executable. If not set, it is expected to be on your $PATH.",
+		"description": "Absolute path to the git executable. If not set, the value of `git.path` is used or else it is expected to be on your $PATH.",
 		"type": "string",
 		"default": ""
 	},

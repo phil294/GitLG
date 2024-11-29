@@ -103,7 +103,8 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 		},
 		async run(/** @type {string} */ args, /** @type {number|undefined} */ repo_index) {
 			let cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
-			let cmd = vscode.workspace.getConfiguration(EXT_ID).get('git-path') || 'git'
+			let cmd = vscode.workspace.getConfiguration(EXT_ID).get('git-path') ||
+				vscode.workspace.getConfiguration('git').get('path') || 'git'
 			if (! cwd) {
 				let repo = this.get_repo(repo_index)
 				if (! repo)
