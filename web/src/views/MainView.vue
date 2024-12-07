@@ -607,10 +607,6 @@ details#log-config[open] {
 }
 #main-panel #log.scroller .commit :deep(.info:hover) {
 	z-index: 1;
-	background: #161616;
-}
-:deep(#main-panel #log.scroller .commit.selected_commit .info:hover) {
-	background: #292616;
 }
 #details-panel {
 	min-width: 400px;
@@ -647,13 +643,5 @@ details#log-config[open] {
 <style>
 .vue-recycle-scroller__item-view.hover > .commit {
 	background: var(--vscode-list-hoverBackground);
-}
-</style>
-
-<style>
-.info:hover,
-.info:hover,
-.vue-recycle-scroller__item-view.hover > .commit .info:hover {
-	background: var(--vscode-list-hoverBackground) !important;
 }
 </style>
