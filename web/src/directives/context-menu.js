@@ -1,4 +1,4 @@
-import { VscodeContextMenu } from '@vscode-elements/elements'
+/** @import { VscodeContextMenu } from '@vscode-elements/elements' */
 
 /** @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry */
 /**
@@ -18,7 +18,11 @@ function remove_all_context_menus() {
 }
 document.addEventListener('contextmenu', remove_all_context_menus, false)
 document.addEventListener('click', remove_all_context_menus, false)
-document.addEventListener('keyup', remove_all_context_menus, false)
+document.addEventListener('keyup', (event) => {
+	if (event.key === 'ArrowDown' || event.key === 'ArrowUp')
+		return
+	remove_all_context_menus()
+}, false)
 
 function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEvent)=>ContextMenuEntry[]} */ entries_provider) {
 	let existing_context_menu_data = context_menu_data_by_el.get(el)
@@ -41,9 +45,9 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		wrapper_el.style.setProperty('top', event.clientY + 'px')
 
 		// Unfortunately, using wrapper_el.data.push breaks hovering, so we have to create a new array
-		wrapper_el.data = entries.map((entry) => ({
+		wrapper_el.data = entries.map((entry, i) => ({
 			label: entry.label,
-			value: entries.indexOf(entry).toString(),
+			value: i.toString(),
 		}))
 		wrapper_el.addEventListener('vsc-context-menu-select', (selectEvent) => {
 			entries[parseInt(selectEvent.detail.value)]?.action()
@@ -63,20 +67,24 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 				if (! shadowRoot)
 					return
 
+				const anchor_el = shadowRoot.querySelector('a')
+				/** @type {HTMLElement | null} */
+				const label_el = shadowRoot.querySelector('.label')
+				if (! anchor_el || ! label_el)
+					return
 				// vscode-elements goes against vscode's cursor for context menu items
-				shadowRoot.querySelector('a').style.cursor = 'pointer'
+				anchor_el.style.cursor = 'pointer'
 
 				if (! entry.icon)
 					return
-
 				// I feel like the padding vscode-elements uses doesn't match the padding vscode uses
 				// So I tried to match it as best as I could
 				const icon = document.createElement('vscode-icon')
 				icon.name = entry.icon
 				icon.style.position = 'absolute'
 				icon.style.left = '4px'
-				shadowRoot.querySelector('.label').style.paddingLeft = '2em'
-				shadowRoot?.querySelector('a')?.prepend(icon)
+				label_el.style.paddingLeft = '2em'
+				anchor_el.prepend(icon)
 			})
 		})
 	}
