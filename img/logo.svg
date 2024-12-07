@@ -1,1 +1,22 @@
-<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 114 114" width="114" height="114"><style>.a{stroke:#f33;stroke-width:3}.b{stroke:#d78700;stroke-width:3}.c{fill:#fff;stroke:#f33;stroke-width:3}</style><path class="a" d="m35.7-19.5v167.7"/><path class="a" d="m33.7-19.5v167.7"/><path class="a" d="m37.7-19.5v167.7"/><path class="b" d="m78.5-9v94"/><path class="b" d="m77.5-9v94"/><path class="b" d="m75.5-9v94"/><path class="c" d="m35.7 52.1c-5.9 0-10.7-4.8-10.7-10.7 0-5.9 4.8-10.7 10.7-10.7 5.9 0 10.7 4.8 10.7 10.7 0 5.9-4.8 10.7-10.7 10.7z"/><path class="b" d="m77.2 72.3c-5.9 0-10.7-4.8-10.7-10.7 0-5.9 4.8-10.7 10.7-10.7 5.9 0 10.7 4.8 10.7 10.7 0 5.9-4.8 10.7-10.7 10.7z"/><path class="b" d="m77.2 28.4c-5.9 0-10.7-4.8-10.7-10.7 0-5.9 4.8-10.7 10.7-10.7 5.9 0 10.7 4.8 10.7 10.7 0 5.9-4.8 10.7-10.7 10.7z"/><path class="b" d="m78.2 83.5l-26.7 10.7"/><path class="b" d="m79.2 84.5l-26.7 10.7"/><path class="b" d="m78.2 81.5l-26.7 10.7"/><path class="c" d="m35.7 105.8c-5.9 0-10.7-4.8-10.7-10.7 0-6 4.8-10.7 10.7-10.7 5.9 0 10.7 4.7 10.7 10.7 0 5.9-4.8 10.7-10.7 10.7z"/></svg>
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 114 114" width="128" height="128">
+	<title>gitlg</title>
+	<style>
+		.s0 { fill: #000000;stroke: #b36b00;stroke-width: 8;stroke-dasharray: 0 } 
+		.s1 { fill: #000000;stroke: #d78700;stroke-width: 10;stroke-dasharray: 0 } 
+		.s2 { fill: #000000;stroke: #d78700;stroke-width: 13 } 
+		.s3 { fill: #000000;stroke: #d78700;stroke-width: 10 } 
+		.s4 { fill: #000000;stroke: #b32424;stroke-width: 15 } 
+		.s5 { fill: #000000;stroke: #ff3333;stroke-width: 14 } 
+		.s6 { fill: #ffffff;stroke: #ff3333;stroke-width: 11 } 
+	</style>
+	<g id="1.5">
+		<path id="Shape 4 copy" fill-rule="evenodd" class="s0" d="m86.4 68.3l-53.1 24.5z"/>
+		<path id="Shape 4" fill-rule="evenodd" class="s1" d="m88.3 75l-53.6 24.8z"/>
+		<path id="Shape 2" fill-rule="evenodd" class="s2" d="m83.8-14v93.1z"/>
+		<path id="Shape 3 copy 3" fill-rule="evenodd" class="s3" d="m84 66c-7.7 0-14-6.3-14-14 0-7.7 6.3-14 14-14 7.7 0 14 6.3 14 14 0 7.7-6.3 14-14 14z"/>
+		<path id="Shape 5" fill-rule="evenodd" class="s4" d="m36.3 98.8v-117.8z"/>
+		<path id="Shape 1" fill-rule="evenodd" class="s5" d="m30.8-19.3l-0.1 156.3z"/>
+		<path id="Shape 3" fill-rule="evenodd" class="s6" d="m31 43c-7.7 0-14-6.3-14-14 0-7.7 6.3-14 14-14 7.7 0 14 6.3 14 14 0 7.7-6.3 14-14 14z"/>
+		<path id="Shape 3 copy" fill-rule="evenodd" class="s6" d="m31 102c-7.7 0-14-6.3-14-14 0-7.7 6.3-14 14-14 7.7 0 14 6.3 14 14 0 7.7-6.3 14-14 14z"/>
+	</g>
+</svg>
