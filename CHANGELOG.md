@@ -4,6 +4,29 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.23 2024-12-07
+
+- [`6abeea9`](https://github.com/phil294/GitLG/commit/6abeea9) Thicker logo, prettier and more readable in editors (tabs). Thanks again to @dimateos! (#125)
+- [`81c0d37`](https://github.com/phil294/GitLG/commit/81c0d37) Fix gaps in lines when a new branch starts (#116)
+- [`6756115`](https://github.com/phil294/GitLG/commit/6756115) Fix search filter/jump radio buttons
+- [`0c356d2`](https://github.com/phil294/GitLG/commit/0c356d2) Fix search filter regex option
+- [`dce6bfe`](https://github.com/phil294/GitLG/commit/dce6bfe) Fix auto-focussing input fields on git action popup open
+- [`de6118f`](https://github.com/phil294/GitLG/commit/de6118f) Make the context menus feel and behave more like VSCode and actual context menus. Now you can also navigate between menu entries with up/down keys. Thanks to @samfundev! (#115)
+- [`6c20a4d`](https://github.com/phil294/GitLG/commit/6c20a4d) Fix selected commit info hover color. Thanks @samfundev (#115)
+- [`c450d9c`](https://github.com/phil294/GitLG/commit/c450d9c) Add commit action "Copy hash" to clipboard (#113, #76)
+- [`78d2c9d`](https://github.com/phil294/GitLG/commit/78d2c9d) Check out branch by double clicking it (#95)
+- [`ba6f03a`](https://github.com/phil294/GitLG/commit/ba6f03a) Fix deleting remote branch that does not exist on the remote anymore (#98)
+- [`eb9ebe5`](https://github.com/phil294/GitLG/commit/eb9ebe5) Respect git.path setting (#90)
+- [`38c8bff`](https://github.com/phil294/GitLG/commit/38c8bff) Ensure unique names in the repository dropdown
+- [`35aab9e`](https://github.com/phil294/GitLG/commit/35aab9e) Fix saving custom input action value for global actions (#98)
+- [`d8d016a`](https://github.com/phil294/GitLG/commit/d8d016a) Fix jumping UI when horizontal space is scarce (#114)
+- [`13095e2`](https://github.com/phil294/GitLG/commit/13095e2) Fix repo selection dropdown to always be single-line
+- [`1f396d9`](https://github.com/phil294/GitLG/commit/1f396d9) Fix "no commits found" position and padding
+- [`6c728d7`](https://github.com/phil294/GitLG/commit/6c728d7) Fix History button positioning, was one pixel 
+off
+- [`9889de1`](https://github.com/phil294/GitLG/commit/9889de1) Internal: Automatic QA checks for PRs. Thanks to @alexrecuenco!
+- [`85a72ec`](https://github.com/phil294/GitLG/commit/85a72ec) Fix dev errors in hot reload (HMR)
+
 ### v0.1.22 2024-11-19
 
 - [`f52512a`](https://github.com/phil294/GitLG/commit/f52512a) [`af8aa6d`](https://github.com/phil294/GitLG/commit/af8aa6d) Light mode support and misc improvements. Much more consistent UI now thanks to @samfundev! (#111)
