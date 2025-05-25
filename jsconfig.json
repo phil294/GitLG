@@ -9,6 +9,11 @@
     ".vscode",
     "docs"
   ],
+  "vueCompilerOptions": {
+    "strictTemplates": true,
+    // TODO: hard on performance
+    "fallthroughAttributes": true,
+  },
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

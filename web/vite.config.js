@@ -6,19 +6,27 @@ let vue_files = globSync('./src/**/*.vue').map(f => ({
 	name: f.split('/').pop()?.split('.')[0],
 	path: '.' + f.slice(3),
 }))
+let vscode_elements = globSync('./node_modules/@vscode-elements/elements/dist/vscode-*').map(f =>
+	f.split('/').pop()?.slice(6).replaceAll(/(-.)/g, x => 'Vscode' + x.slice(1).toUpperCase()) || '')
 writeFileSync('./src/components.d.ts', `
 	// DO NOT EDIT - AUTO GENERATED FROM vite.config.js
 
 	// This file solely exists to enable type support in Vue VSCode extension
 	// https://stackoverflow.com/a/70980761/3779853
 
+	import { HTMLAttributes } from 'vue'
 	import { RecycleScroller } from 'vue-virtual-scroller'
 	${vue_files.map(f => `import ${f.name} from '${f.path}'`).join('\n\t')}
+	import {${vscode_elements.join(', ')}} from '@vscode-elements/elements'
 
 	declare module '@vue/runtime-core' {
+		${''/* TODO: find correct typing here */}
+		${''/* https://github.com/vscode-elements/elements/issues/195#issuecomment-2907929991 */}
+		type ClassToComponent<C> = DefineComponent<{}, { $props: Partial<C> & { modelValue?: any } & HTMLAttributes }>
 		export interface GlobalComponents {
 			RecycleScroller: typeof RecycleScroller
 			${vue_files.map(f => `${f.name}: typeof ${f.name}`).join('\n\t\t\t')}
+			${vscode_elements.map(f => `${f}: ClassToComponent<${f}>`).join('\n\t\t\t')}
 		}
 	}`)
 
