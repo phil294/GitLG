@@ -54,6 +54,10 @@ pause
 # '
 
 pushd web
+run npx vite-bundle-visualizer
+pause
+
+pushd web
 run npm run build
 popd
 rm web-dist/index.html
