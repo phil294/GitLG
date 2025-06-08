@@ -79,8 +79,10 @@ export let log_action = {
 		{ value: '--topo-order', default_active: false, info: 'Show no parents before all of its children are shown, and avoid showing commits on multiple lines of history intermixed.' },
 		{ value: '--reflog', default_active: false, info: 'Pretend as if all objects mentioned by reflogs are listed on the command line as <commit>. / Reference logs, or "reflogs", record when the tips of branches and other references were updated in the local repository. Reflogs are useful in various Git commands, to specify the old value of a reference. For example, HEAD@{2} means "where HEAD used to be two moves ago", master@{one.week.ago} means "where master used to point to one week ago in this local repository", and so on. See gitrevisions(7) for more details.' },
 		{ value: '--simplify-by-decoration', default_active: false, info: 'Allows you to view only the big picture of the topology of the history, by omitting commits that are not referenced by some branch or tag. Can be useful for very large repositories.' }],
-	config_key: 'main-log',
+	storage_key: 'main-log',
 	immediate: true,
+	params: () => Promise.resolve([]),
+	title: '',
 }
 /** For when the extension needs to display something without the user being allowed to intervene. A default to be extended. */
 let log_args_override_base = 'log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} --color=never'
@@ -206,7 +208,7 @@ export let load_commit_hash = async (/** @type {string} */ hash) => {
 	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
 }
 
-export let web_phase = stateful_computed('web-phase', /** @type {'dead' | 'initializing' | 'ready' | 'refreshing'} */ ('initializing')) // eslint-disable-line @stylistic/no-extra-parens
+export let web_phase = stateful_computed('web-phase', /** @type {'dead' | 'initializing' | 'ready' | 'refreshing'} */ ('initializing'))
 
 export let init = () => {
 	refresh_config().then(() => {

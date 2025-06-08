@@ -1,4 +1,6 @@
 /**
+ * Something to be synchronized with the web view - initialization, storage,
+ * update and retrieval is supported in both directions.
  * @param options {{
  *   context: import('vscode').ExtensionContext,
  *   git: ReturnType<import('./git.js').get_git>,
@@ -51,7 +53,6 @@ module.exports.get_state = ({ context, git, on_broadcast }) => {
 				context.workspaceState.update('selected-repo-index', v)
 				git.set_selected_repo_index(Number(v) || 0)
 				// These will have changed now, so notify clients of updated value
-
 				for (let key of ['repo:action-history', 'repo:selected-commits-hashes'])
 					state(key).set(state(key).get())
 			},
@@ -65,10 +66,6 @@ module.exports.get_state = ({ context, git, on_broadcast }) => {
 		'web-phase': transient_memento(),
 	}
 	let default_memento = global_state_memento
-	/**
-	 * something to be synchronized with the web view - initialization, storage,
-	 * update and retrieval is supported in both directions
-	 */
 	function state(/** @type {string} */ key) {
 		let memento = special_states[key] || default_memento(key)
 		return {

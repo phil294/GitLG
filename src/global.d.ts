@@ -4,16 +4,6 @@ interface String {
 	hashCode(): number
 }
 
-interface Function {
-	/** Call *this* with *args* and silently return `undefined` on error. */
-	maybe<T>(this: (...fun_args: any[]) => T, ...call_args: any): T | undefined
-}
-
-interface Promise<T> {
-	/** Catch and ignore. Like `.catch(() => undefined)`. */
-	maybe(): Promise<T | undefined>
-}
-
 interface BridgeMessage {
 	type: 'response-to-web' | 'request-from-web' | 'push-to-web',
 	command?: string,
@@ -115,7 +105,8 @@ interface ConfigGitAction {
 }
 
 interface GitAction extends ConfigGitAction {
-	config_key: string
+	storage_key: string
+	params: () => Promise<string[]>
 }
 
 interface HistoryEntry {

@@ -1,46 +1,54 @@
 import { computed } from 'vue'
 import default_git_actions from './default-git-actions.json'
 import { combine_branches_from_branch_name, combine_branches_to_branch_name, config, default_origin } from './store'
+import { git } from '../bridge'
 
 /**
  * @param actions {ConfigGitAction[]}
- * @param replacements {[string,string][]}
+ * @param replacements {[string,string|(()=>Promise<string>)][]}
  * @returns {GitAction[]}
  */
-function parse_config_actions(actions, replacements = []) {
+function apply_action_replacements(actions, replacements = []) {
 	let namespace = replacements.map(([k]) => k).join('-') || 'global'
-	function do_replacements(/** @type {string} */ txt) {
-		for (let replacement of replacements)
-			txt = txt.replaceAll(replacement[0], replacement[1])
-		return txt
-	}
-	return actions.map((action) => ({
+	let replacements_by_type = replacements.reduce((all, replacement) =>
+		/** tsc doesn't understand of this */ ((/** @type {any} */ (all)[typeof replacement[1]] ??= []).push(replacement), all), /** @type {{string:[string,string][], function:[string,()=>Promise<string>][]}} */ ({ string: [], function: [] })) // eslint-disable-line jsdoc/valid-types
+	let apply_string_replacements = (/** @type {string} */ txt) =>
+		replacements_by_type.string.reduce((str, replacement) =>
+			str.replaceAll(replacement[0], replacement[1]), txt)
+	let apply_promise_replacements = async (/** @type {string} */ txt) =>
+		replacements_by_type.function.reduce(async (str_promise, replacement) =>
+			! txt.includes(replacement[0]) ? str_promise
+				: (await str_promise).replaceAll(replacement[0], await replacement[1]())
+		, Promise.resolve(txt))
+	return actions.map(action => ({
 		...action,
-		title: do_replacements(action.title),
-		description: action.description ? do_replacements(action.description) : undefined,
-		config_key: `action-${namespace}-${action.title}`,
-		params: action.params?.map(do_replacements),
+		title: apply_string_replacements(action.title),
+		description: apply_string_replacements(action.description || ''),
+		storage_key: `action-${namespace}-${action.title}`,
+		params: () => Promise.all((action.params || [])
+			.map(apply_string_replacements)
+			.map(apply_promise_replacements)),
 	}))
 }
 
-/** @type {Vue.Ref<ConfigGitAction[]>} */
+/** @type {Vue.Ref<GitAction[]>} */
 export let global_actions = computed(() =>
-	parse_config_actions(default_git_actions['actions.global'].concat(config.value.actions?.global || [])))
+	apply_action_replacements(default_git_actions['actions.global'].concat(config.value.actions?.global || [])))
 export let commit_actions = (/** @type {string} */ hash) => computed(() => {
 	let config_commit_actions = default_git_actions['actions.commit'].concat(config.value.actions?.commit || [])
-	return parse_config_actions(config_commit_actions, [
+	return apply_action_replacements(config_commit_actions, [
 		['{COMMIT_HASH}', hash],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let commits_actions = (/** @type {string[]} */ hashes) => computed(() => {
 	let config_commits_actions = default_git_actions['actions.commits'].concat(config.value.actions?.commits || [])
-	return parse_config_actions(config_commits_actions, [
+	return apply_action_replacements(config_commits_actions, [
 		['{COMMIT_HASHES}', hashes.join(' ')],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let branch_actions = (/** @type {Branch} */ branch) => computed(() => {
 	let config_branch_actions = default_git_actions['actions.branch'].concat(config.value.actions?.branch || [])
-	return parse_config_actions(config_branch_actions, [
+	return apply_action_replacements(config_branch_actions, [
 		['{BRANCH_ID}', branch.id],
 		['{BRANCH_DISPLAY_NAME}', branch.display_name],
 		['{BRANCH_NAME}', branch.name],
@@ -50,19 +58,19 @@ export let branch_actions = (/** @type {Branch} */ branch) => computed(() => {
 })
 export let tag_actions = (/** @type {string} */ tag_name) => computed(() => {
 	let config_tag_actions = default_git_actions['actions.tag'].concat(config.value.actions?.tag || [])
-	return parse_config_actions(config_tag_actions, [
+	return apply_action_replacements(config_tag_actions, [
 		['{TAG_NAME}', tag_name],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let stash_actions = (/** @type {string} */ stash_name) => computed(() => {
 	let config_stash_actions = default_git_actions['actions.stash'].concat(config.value.actions?.stash || [])
-	return parse_config_actions(config_stash_actions, [
+	return apply_action_replacements(config_stash_actions, [
 		['{STASH_NAME}', stash_name],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let combine_branches_actions = computed(() => {
 	let config_combine_branches_actions = default_git_actions['actions.branch-drop'].concat(config.value.actions?.['branch-drop'] || [])
-	return parse_config_actions(config_combine_branches_actions, [
+	return apply_action_replacements(config_combine_branches_actions, [
 		['{SOURCE_BRANCH_NAME}', combine_branches_from_branch_name.value],
 		['{TARGET_BRANCH_NAME}', combine_branches_to_branch_name.value],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])

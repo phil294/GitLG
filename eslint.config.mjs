@@ -23,6 +23,11 @@ export default [
 				debounce: 'readonly',
 			},
 		},
+		settings: {
+			jsdoc: {
+				mode: 'typescript',
+			},
+		},
 		rules: {
 			'prefer-const': 'off',
 			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly
@@ -50,7 +55,7 @@ export default [
 					'-': false,
 				},
 			}],
-			'@stylistic/no-extra-parens': ['error', 'all'],
+			'@stylistic/no-extra-parens': ['off'],
 			semi: ['error', 'never', { beforeStatementContinuationChars: 'never' }],
 			'@stylistic/no-extra-semi': 'error',
 			'init-declarations': ['error', 'always'],
@@ -83,6 +88,7 @@ export default [
 			'import/first': 'off', // breaks script setup + extra script for exports
 			'@stylistic/multiline-ternary': 'off',
 			'no-unused-vars': ['error', { varsIgnorePattern: '^_.*' }],
+			'no-sequences': 'off',
 		},
 	},
 ]

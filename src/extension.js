@@ -297,12 +297,12 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		}),
 	}, { webviewOptions: { retainContextWhenHidden: true } }))
 
-	let status_bar_item_command = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
-	status_bar_item_command.command = START_CMD
-	context.subscriptions.push(status_bar_item_command)
-	status_bar_item_command.text = '$(git-branch) GitLG'
-	status_bar_item_command.tooltip = 'Open up the main view of the GitLG extension'
-	status_bar_item_command.show()
+	let status_bar_item_start = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
+	status_bar_item_start.command = START_CMD
+	context.subscriptions.push(status_bar_item_start)
+	status_bar_item_start.text = '$(git-branch) GitLG'
+	status_bar_item_start.tooltip = 'Open up the main view of the GitLG extension'
+	status_bar_item_start.show()
 
 	let status_bar_item_blame = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 500)
 	status_bar_item_blame.command = BLAME_CMD
@@ -352,7 +352,6 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	vscode.window.onDidChangeActiveTextEditor(intercept_errors((text_editor) => {
 		if (! text_editor)
 			return hide_blame()
-
 		return show_blame(text_editor)
 	}))
 	vscode.window.onDidChangeTextEditorSelection(intercept_errors(({ textEditor: text_editor }) => {
