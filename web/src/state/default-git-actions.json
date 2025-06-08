@@ -130,7 +130,7 @@
 			"args": "branch \"$1\" \"$2\"",
 			"params": [
 				{ "value": "", "placeholder": "New branch name" },
-				"{COMMIT_HASH}"
+				{ "value": "{COMMIT_HASH}", "readonly": true }
 			]
 		},
 		{
@@ -141,8 +141,8 @@
 			"args": "tag \"$1\" \"$2\" --message \"$3\"",
 			"params": [
 				{ "value": "", "placeholder": "New tag name" },
-				"{COMMIT_HASH}",
-				""
+				{ "value": "{COMMIT_HASH}", "readonly": true },
+				{ "value": "", "placeholder": "Tag message" }
 			],
 			"options": [
 				{
@@ -260,7 +260,7 @@
 					"multiline": true,
 					"placeholder": "New commit body"
 				},
-				"{COMMIT_HASH}"
+				{ "value": "{COMMIT_HASH}", "readonly": true }
 			]
 		}, {
 			"title": "Delete",
@@ -350,7 +350,7 @@
 			"args": "stash branch \"$1\" \"$2\"",
 			"params": [
 				{ "value": "", "placeholder": "New branch name" },
-				"{STASH_NAME}"
+				{ "value": "{STASH_NAME}", "readonly": true }
 			]
 		}
 	],
@@ -363,7 +363,7 @@
 			"args": "push \"$1\" \"$2\"",
 			"params": [
 				{ "value": "{DEFAULT_REMOTE_NAME}", "placeholder": "Remote name" },
-				"{TAG_NAME}"
+				{ "value": "{TAG_NAME}", "readonly": true }
 			]
 		},
 		{
@@ -485,7 +485,7 @@
 			"icon": "edit",
 			"args": "branch -m \"$1\" \"$2\"",
 			"params": [
-				{ "value": "{LOCAL_BRANCH_NAME}", "placeholder": "Old branch name" },
+				{ "value": "{LOCAL_BRANCH_NAME}", "readonly": true },
 				{ "value": "", "placeholder": "New branch name" }
 			]
 		},

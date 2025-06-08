@@ -225,6 +225,9 @@
 										},
 										"placeholder": {
 											"type": "string"
+										},
+										"readonly": {
+											"type": "boolean"
 										}
 									}
 								}
@@ -294,6 +297,9 @@
 										},
 										"placeholder": {
 											"type": "string"
+										},
+										"readonly": {
+											"type": "boolean"
 										}
 									}
 								}
@@ -363,6 +369,9 @@
 										},
 										"placeholder": {
 											"type": "string"
+										},
+										"readonly": {
+											"type": "boolean"
 										}
 									}
 								}
@@ -432,6 +441,9 @@
 										},
 										"placeholder": {
 											"type": "string"
+										},
+										"readonly": {
+											"type": "boolean"
 										}
 									}
 								}
@@ -501,6 +513,9 @@
 										},
 										"placeholder": {
 											"type": "string"
+										},
+										"readonly": {
+											"type": "boolean"
 										}
 									}
 								}
@@ -570,6 +585,9 @@
 										},
 										"placeholder": {
 											"type": "string"
+										},
+										"readonly": {
+											"type": "boolean"
 										}
 									}
 								}
@@ -639,6 +657,9 @@
 										},
 										"placeholder": {
 											"type": "string"
+										},
+										"readonly": {
+											"type": "boolean"
 										}
 									}
 								}

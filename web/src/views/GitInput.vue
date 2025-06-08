@@ -28,7 +28,7 @@
 				<label class="row align-center gap-5">
 					Param ${{ i+1 }}
 					<!-- vscode-textarea has its positioning all messed up beyond repair -->
-					<Component :is="param.multiline ? 'textarea' : 'vscode-textfield'" ref="params_input_refs" :value="params_model[i]" :placeholder="param.placeholder" class="flex-1" required rows="4" @input="params_model[i] = $event.target.value" /></label>
+					<Component :is="param.multiline ? 'textarea' : 'vscode-textfield'" ref="params_input_refs" :value="params_model[i]" :placeholder="param.placeholder" :readonly="param.readonly" :class="'flex-1 text-input '+(param.readonly ? 'readonly' : '')" required rows="4" @input="params_model[i] = $event.target.value" /></label>
 			</div>
 			<div class="execute">
 				<vscode-button icon="check" type="submit">
@@ -161,8 +161,9 @@ let command_input_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null
 onMounted(async () => {
 	await load_params_promise
 	await nextTick()
-	if (params_input_refs.value?.length)
-		params_input_refs.value[0].focus()
+	let writable_param_index = params.value?.findIndex(p => ! p.readonly) ?? -1
+	if (writable_param_index > -1)
+		params_input_refs.value[writable_param_index]?.focus()
 	else
 		command_input_ref.value?.focus();
 	[...(params_input_refs.value || []),
@@ -264,5 +265,10 @@ defineExpose({
 textarea {
 	border: 1px solid var(--vscode-settings-textInputBorder, var(--vscode-settings-textInputBackground));
 	border-radius: 2px;
+}
+.text-input.readonly {
+	cursor: not-allowed;
+	opacity: 0.4;
+	pointer-events: none;
 }
 </style>

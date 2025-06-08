@@ -96,6 +96,7 @@ interface GitActionParam {
 	value: string
 	multiline?: boolean
 	placeholder?: string
+	readonly?: boolean
 }
 
 interface ConfigGitAction {
