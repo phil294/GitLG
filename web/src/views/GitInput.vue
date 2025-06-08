@@ -1,6 +1,6 @@
 <template>
 	<div class="git-input col gap-10">
-		<promise-form ref="ref_form" :action="execute" class="col gap-5" :disabled="!params_loaded">
+		<promise-form ref="ref_form" :action="execute" class="col gap-5" :disabled="!params">
 			<div class="row align-center gap-10">
 				<code>git</code>
 				<vscode-textfield ref="command_input_ref" v-model="command" class="command flex-1" />
@@ -27,7 +27,8 @@
 			<div v-for="(param, i) in params" :key="i" class="param">
 				<label class="row align-center gap-5">
 					Param ${{ i+1 }}
-					<vscode-textfield ref="params_input_refs" v-model="params[i]" class="flex-1" required /></label>
+					<!-- vscode-textarea has its positioning all messed up beyond repair -->
+					<Component :is="param.multiline ? 'textarea' : 'vscode-textfield'" ref="params_input_refs" :value="params_model[i]" class="flex-1" required rows="4" @input="params_model[i] = $event.target.value" /></label>
 			</div>
 			<div class="execute">
 				<vscode-button icon="check" type="submit">
@@ -91,13 +92,14 @@ let options = reactive((props.git_action.options || []).map((option) => ({
 	active: option.default_active,
 })))
 /** @type {Vue.Ref<string[]>} */
-let params = ref([])
-let params_loaded = ref(false)
+let params_model = ref([])
+/** @type {Vue.Ref<GitActionParam[] | null>} */
+let params = ref(null)
 let load_params_promise = props.git_action.params()
 	.then(loaded => {
 		params.value = loaded
+		params_model.value = params.value.map(p => p.value)
 		console.warn(loaded)
-		params_loaded.value = true
 	})
 function compute_command(/** @type {GitOption[]} */ opts = []) {
 	return (props.git_action.args + ' ' + opts.map(({ value, active }) =>
@@ -162,7 +164,15 @@ onMounted(async () => {
 	if (params_input_refs.value?.length)
 		params_input_refs.value[0].focus()
 	else
-		command_input_ref.value?.focus()
+		command_input_ref.value?.focus();
+	[...(params_input_refs.value || []),
+		command_input_ref.value]
+		.map(r => r?.shadowRoot?.querySelector('input'))
+		.filter(is_truthy)
+		.forEach(input => {
+			input.style.fontFamily = 'var(--vscode-editor-font-family, monospace)'
+			input.style.fontSize = 'small'
+		})
 })
 
 let result_data = ref('')
@@ -170,7 +180,7 @@ let result_error = ref('')
 /** @param args {{before_execute?: ((cmd: string) => string) | undefined}} */
 async function execute({ before_execute } = {}) {
 	result_error.value = ''
-	let _params = params.value.map((p) => p.replaceAll('\\n', '\n'))
+	let _params = params_model.value.map((p) => p.replaceAll('\\n', '\n'))
 	if (_params.some((p) => p.match(/"|(\\([^n]|$))/)))
 		// FIXME: subject with quotes
 		result_error.value = 'Params cannot contain quotes or backslashes.'
@@ -250,5 +260,9 @@ defineExpose({
 }
 .error-response {
 	color: #e53c3c;
+}
+textarea {
+	border: 1px solid var(--vscode-settings-textInputBorder, var(--vscode-settings-textInputBackground));
+	border-radius: 2px;
 }
 </style>

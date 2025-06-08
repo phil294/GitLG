@@ -212,7 +212,18 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": "string"
+									"type": ["string", "object"],
+									"required": [
+										"value"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"multiline": {
+											"type": "boolean"
+										}
+									}
 								}
 							},
 							"options": {
@@ -267,7 +278,18 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": "string"
+									"type": ["string", "object"],
+									"required": [
+										"value"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"multiline": {
+											"type": "boolean"
+										}
+									}
 								}
 							},
 							"options": {
@@ -322,7 +344,18 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": "string"
+									"type": ["string", "object"],
+									"required": [
+										"value"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"multiline": {
+											"type": "boolean"
+										}
+									}
 								}
 							},
 							"options": {
@@ -377,7 +410,18 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": "string"
+									"type": ["string", "object"],
+									"required": [
+										"value"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"multiline": {
+											"type": "boolean"
+										}
+									}
 								}
 							},
 							"options": {
@@ -432,7 +476,18 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": "string"
+									"type": ["string", "object"],
+									"required": [
+										"value"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"multiline": {
+											"type": "boolean"
+										}
+									}
 								}
 							},
 							"options": {
@@ -487,7 +542,18 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": "string"
+									"type": ["string", "object"],
+									"required": [
+										"value"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"multiline": {
+											"type": "boolean"
+										}
+									}
 								}
 							},
 							"options": {
@@ -542,7 +608,18 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": "string"
+									"type": ["string", "object"],
+									"required": [
+										"value"
+									],
+									"properties": {
+										"value": {
+											"type": "string"
+										},
+										"multiline": {
+											"type": "boolean"
+										}
+									}
 								}
 							},
 							"options": {

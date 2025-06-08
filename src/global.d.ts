@@ -92,6 +92,11 @@ interface GitOption {
 	info?: string
 }
 
+interface GitActionParam {
+	value: string
+	multiline?: boolean
+}
+
 interface ConfigGitAction {
 	title: string
 	description?: string
@@ -99,14 +104,14 @@ interface ConfigGitAction {
 	immediate?: boolean
 	ignore_errors?: boolean
 	args: string
-	params?: string[]
+	params?: Array<string | GitActionParam>
 	options?: GitOption[]
 	icon?: string
 }
 
 interface GitAction extends ConfigGitAction {
 	storage_key: string
-	params: () => Promise<string[]>
+	params: () => Promise<GitActionParam[]>
 }
 
 interface HistoryEntry {

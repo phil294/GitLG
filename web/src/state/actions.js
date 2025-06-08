@@ -26,8 +26,9 @@ function apply_action_replacements(actions, replacements = []) {
 		description: apply_string_replacements(action.description || ''),
 		storage_key: `action-${namespace}-${action.title}`,
 		params: () => Promise.all((action.params || [])
-			.map(apply_string_replacements)
-			.map(apply_promise_replacements)),
+			.map(p => typeof p === 'string' ? { value: p } : p)
+			.map(p => ({ ...p, value: apply_string_replacements(p.value) }))
+			.map(p => apply_promise_replacements(p.value).then(value => ({ ...p, value })))),
 	}))
 }
 
