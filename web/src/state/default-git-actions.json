@@ -255,7 +255,11 @@
 			"icon": "edit",
 			"args": "diff-index --quiet HEAD && git merge-base --is-ancestor \"$2\" HEAD && git commit --allow-empty --only -m \"amend! $2\n\n$1\" && git -c sequence.editor=: rebase -i --autosquash \"$2^\"",
 			"params": [
-				"Subject...\\n\\nBody...", "{COMMIT_HASH}"
+				{
+					"value": "{COMMIT_BODY}",
+					"multiline": true
+				},
+				"{COMMIT_HASH}"
 			]
 		}, {
 			"title": "Delete",

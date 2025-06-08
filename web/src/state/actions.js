@@ -39,6 +39,8 @@ export let commit_actions = (/** @type {string} */ hash) => computed(() => {
 	let config_commit_actions = default_git_actions['actions.commit'].concat(config.value.actions?.commit || [])
 	return apply_action_replacements(config_commit_actions, [
 		['{COMMIT_HASH}', hash],
+		['{COMMIT_BODY}', () =>
+			git(`show -s --format="%B" ${hash}`)],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let commits_actions = (/** @type {string[]} */ hashes) => computed(() => {
