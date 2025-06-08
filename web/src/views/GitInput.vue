@@ -183,7 +183,7 @@ async function execute({ before_execute } = {}) {
 	let _params = params_model.value.map((p) => p.replaceAll('\\n', '\n'))
 	if (_params.some((p) => p.match(/"|(\\([^n]|$))/)))
 		// FIXME: subject with quotes
-		result_error.value = 'Params cannot contain quotes or backslashes.'
+		return result_error.value = 'Params cannot contain quotes or backslashes.'
 	let cmd = command.value
 	let pos = null
 	for (let i = 1; i <= _params.length; i++)
