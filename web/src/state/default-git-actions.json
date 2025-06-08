@@ -55,8 +55,8 @@
 			"icon": "git-merge",
 			"args": "checkout \"$2\" && git merge \"$1\"",
 			"params": [
-				"{SOURCE_BRANCH_NAME}",
-				"{TARGET_BRANCH_NAME}"
+				{ "value": "{SOURCE_BRANCH_NAME}", "placeholder": "Source branch name" },
+				{ "value": "{TARGET_BRANCH_NAME}", "placeholder": "Target branch name" }
 			],
 			"options": [
 				{
@@ -83,8 +83,8 @@
 			"icon": "references",
 			"args": "checkout \"$2\" && git rebase \"$1\"",
 			"params": [
-				"{SOURCE_BRANCH_NAME}",
-				"{TARGET_BRANCH_NAME}"
+				{ "value": "{SOURCE_BRANCH_NAME}", "placeholder": "Source branch name" },
+				{ "value": "{TARGET_BRANCH_NAME}", "placeholder": "Target branch name" }
 			]
 		},
 		{
@@ -93,8 +93,8 @@
 			"icon": "reply",
 			"args": "checkout \"$1\" && git reset \"$2\"",
 			"params": [
-				"{SOURCE_BRANCH_NAME}",
-				"{TARGET_BRANCH_NAME}"
+				{ "value": "{SOURCE_BRANCH_NAME}", "placeholder": "Source branch name" },
+				{ "value": "{TARGET_BRANCH_NAME}", "placeholder": "Target branch name" }
 			],
 			"options": [
 				{
@@ -129,7 +129,7 @@
 			"icon": "add",
 			"args": "branch \"$1\" \"$2\"",
 			"params": [
-				"new_branch_name",
+				{ "value": "", "placeholder": "New branch name" },
 				"{COMMIT_HASH}"
 			]
 		},
@@ -140,7 +140,7 @@
 			"icon": "tag",
 			"args": "tag \"$1\" \"$2\" --message \"$3\"",
 			"params": [
-				"new_tag_name",
+				{ "value": "", "placeholder": "New tag name" },
 				"{COMMIT_HASH}",
 				""
 			],
@@ -257,7 +257,8 @@
 			"params": [
 				{
 					"value": "{COMMIT_BODY}",
-					"multiline": true
+					"multiline": true,
+					"placeholder": "New commit body"
 				},
 				"{COMMIT_HASH}"
 			]
@@ -348,7 +349,7 @@
 			"icon": "add",
 			"args": "stash branch \"$1\" \"$2\"",
 			"params": [
-				"new_branch_name",
+				{ "value": "", "placeholder": "New branch name" },
 				"{STASH_NAME}"
 			]
 		}
@@ -361,7 +362,7 @@
 			"icon": "repo-push",
 			"args": "push \"$1\" \"$2\"",
 			"params": [
-				"{DEFAULT_REMOTE_NAME}",
+				{ "value": "{DEFAULT_REMOTE_NAME}", "placeholder": "Remote name" },
 				"{TAG_NAME}"
 			]
 		},
@@ -380,7 +381,7 @@
 			"icon": "trash",
 			"args": "push \"$1\" --delete \"$2\"",
 			"params": [
-				"{DEFAULT_REMOTE_NAME}",
+				{ "value": "{DEFAULT_REMOTE_NAME}", "placeholder": "Remote name" },
 				"{TAG_NAME}"
 			]
 		}
@@ -431,8 +432,8 @@
 			"icon": "repo-pull",
 			"args": "pull \"$1\" \"$2\"",
 			"params": [
-				"{REMOTE_NAME}",
-				"{BRANCH_NAME}"
+				{ "value": "{REMOTE_NAME}", "placeholder": "Remote name" },
+				{ "value": "{BRANCH_NAME}", "placeholder": "Branch name" }
 			],
 			"options": [
 				{
@@ -459,8 +460,8 @@
 			"icon": "repo-push",
 			"args": "push \"$1\" \"$2\"",
 			"params": [
-				"{REMOTE_NAME}",
-				"{BRANCH_NAME}"
+				{ "value": "{REMOTE_NAME}", "placeholder": "Remote name" },
+				{ "value": "{BRANCH_NAME}", "placeholder": "Branch name" }
 			],
 			"options": [
 				{
@@ -484,8 +485,8 @@
 			"icon": "edit",
 			"args": "branch -m \"$1\" \"$2\"",
 			"params": [
-				"{LOCAL_BRANCH_NAME}",
-				"new_branch_name"
+				{ "value": "{LOCAL_BRANCH_NAME}", "placeholder": "Old branch name" },
+				{ "value": "", "placeholder": "New branch name" }
 			]
 		},
 		{
@@ -521,8 +522,8 @@
 			"icon": "trash",
 			"args": "push \"$1\" --delete \"$2\" || git branch --delete --remote \"$2\"",
 			"params": [
-				"{REMOTE_NAME}",
-				"{BRANCH_DISPLAY_NAME}"
+				{ "value": "{REMOTE_NAME}", "placeholder": "Remote name" },
+				{ "value": "{BRANCH_DISPLAY_NAME}", "placeholder": "Branch name" }
 			]
 		}
 	]

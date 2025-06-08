@@ -28,7 +28,7 @@
 				<label class="row align-center gap-5">
 					Param ${{ i+1 }}
 					<!-- vscode-textarea has its positioning all messed up beyond repair -->
-					<Component :is="param.multiline ? 'textarea' : 'vscode-textfield'" ref="params_input_refs" :value="params_model[i]" class="flex-1" required rows="4" @input="params_model[i] = $event.target.value" /></label>
+					<Component :is="param.multiline ? 'textarea' : 'vscode-textfield'" ref="params_input_refs" :value="params_model[i]" :placeholder="param.placeholder" class="flex-1" required rows="4" @input="params_model[i] = $event.target.value" /></label>
 			</div>
 			<div class="execute">
 				<vscode-button icon="check" type="submit">
