@@ -14,6 +14,7 @@ import '@vscode-elements/elements/dist/vscode-textfield/index.js'
 import '@vscode-elements/elements/dist/vscode-icon/index.js'
 import '@vscode-elements/elements/dist/vscode-checkbox/index.js'
 import '@vscode-elements/elements/dist/vscode-single-select/index.js'
+import '@vscode-elements/elements/dist/vscode-context-menu/index.js'
 
 // Necessary because the ID tag must be set on the stylesheet in order to be retrievable from @vscode-elements
 // https://github.com/vscode-elements/elements/blob/1d2b32cf8/src/vscode-icon/vscode-icon.ts#L81
