@@ -24,7 +24,11 @@ function apply_action_replacements(actions, replacements = []) {
 		...action,
 		title: apply_string_replacements(action.title),
 		description: apply_string_replacements(action.description || ''),
-		storage_key: `action-${namespace}-${action.title}`,
+		// This should better also include the action placement (global, branch, stash, ...),
+		// also 'global' vs. replacements doesn't make any sense in namespace.
+		// But changing this would now break existing configs, so a migration or change logic
+		// based on installation date would be required...
+		storage_key: `action-${namespace}-${action.title || action.icon}`,
 		params: () => Promise.all((action.params || [])
 			.map(p => typeof p === 'string' ? { value: p } : p)
 			.map(p => ({ ...p, value: apply_string_replacements(p.value) }))

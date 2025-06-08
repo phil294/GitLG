@@ -61,8 +61,8 @@ Notable features:
 All blue buttons are completely customizable; you can add as many actions as you like. You don't *have* to customize it though, the defaults should be fine for most use cases.
 
 Let's say you wanted to add a `git switch` action button, with convenience checkboxes for `--detach` and / or `--force`.
-There are five kinds of actions:
- 1. `global`: top icons
+There are seven different positions where you can add actions:
+ 1. `global`: icons at the top right
  1. `commit`: right box or context menu of single commit
  1. `commits`: right box for multiple selected commits
  1. `branch`: right box if branch present or context menu
@@ -79,14 +79,14 @@ The only required parameters per action are `title` and `args`.
 "git-log--graph.actions.branch": [
 	// You'll be extending the default actions here with your custom additions:
 	{
-		"title": "Switch", // Whatever you want to appear on the button itself. Title is also used as a cache key (see `Save` above).
+		"title": "Switch", // Whatever you want to appear on the button itself. Title+icon is used as the key for storage upon editing (see `Save` above).
 		"icon": "arrow-swap", // An icon to display next to the title. Choose one from https://microsoft.github.io/vscode-codicons/dist/codicon.html
 		"description": "git switch - Switch branches", // An extended title that will be shown as tooltip on button mouse hover and as a subtitle in the action popup. For the defaults, this is the first NAME line of `git help [the-command]`.
 		// More detailed help to understand what this command is about: Will help more inexperienced users. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the DESCRIPTION section of `git help [the-command]`:
 		"info": "Switch to a specified branch. The working tree and the index are updated to match the branch. All new commits will be added to the tip of this branch.\n\nOptionally a new branch could be created with either -c, -C, automatically from a remote branch of bla bla etc",
-		"args": "switch \"$1\"", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`.
-		"params": [{ "value": "{LOCAL_BRANCH_NAME}", "multiline": false, "placeholder": "Branch name" }], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: {BRANCH_DISPLAY_NAME}, {BRANCH_NAME}, {LOCAL_BRANCH_NAME}, {BRANCH_ID}, {REMOTE_NAME}, {COMMIT_HASH}, {COMMIT_BODY}, {COMMIT_HASHES}, {STASH_NAME}, {TAG_NAME}, {SOURCE_BRANCH_NAME}, {TARGET_BRANCH_NAME} and {DEFAULT_REMOTE_NAME} (where it makes sense, respectively).
-		// `options` are just an easy and quick way to toggle common trailing options. You can also specify them manually in `args` of course, given that `args` is also editable yet again at runtime.
+		"args": "switch \"$1\"", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`. Double quotes " " are safe around param placeholders as params can never hold double quotes themselves.
+		"params": [{ "value": "{LOCAL_BRANCH_NAME}", "multiline": false, "placeholder": "Branch name", "readonly": false }], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: {BRANCH_DISPLAY_NAME}, {BRANCH_NAME}, {LOCAL_BRANCH_NAME}, {BRANCH_ID}, {REMOTE_NAME}, {COMMIT_HASH}, {COMMIT_BODY}, {COMMIT_HASHES}, {STASH_NAME}, {TAG_NAME}, {SOURCE_BRANCH_NAME}, {TARGET_BRANCH_NAME} and {DEFAULT_REMOTE_NAME} (where it makes sense, respectively).
+		// `options` are just an easy and quick way to toggle common trailing options. You can also specify them manually in `args` of course, given that `args` is also editable yet again at runtime. All params are automatically marked required.
 		"options": [
 			{
 				"value": "--detach", // what is to be appended to the input field if toggled
