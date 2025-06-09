@@ -1,5 +1,3 @@
-/** @import { VscodeContextMenu } from '@vscode-elements/elements' */
-
 /** @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry */
 /**
 @typedef {{
@@ -31,7 +29,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		return
 	}
 
-	/** @type {VscodeContextMenu | null} */
+	/** @type {HTMLElement | null} */
 	let wrapper_el = null
 
 	// The element(s) created by this is quite similar to the template of <git-action-button>
@@ -39,54 +37,29 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		let entries = entries_provider(event)
 		if (! entries || wrapper_el)
 			return
-		wrapper_el = document.createElement('vscode-context-menu')
+		wrapper_el = document.createElement('ul')
 		wrapper_el.setAttribute('aria-label', 'Context menu')
+		wrapper_el.classList.add('context-menu-wrapper')
 		wrapper_el.style.setProperty('left', event.clientX + 'px')
 		wrapper_el.style.setProperty('top', event.clientY + 'px')
-
-		// Unfortunately, using wrapper_el.data.push breaks hovering, so we have to create a new array
-		wrapper_el.data = entries.map((entry, i) => ({
-			label: entry.label,
-			value: i.toString(),
-		}))
-		wrapper_el.addEventListener('vsc-context-menu-select', (selectEvent) => {
-			entries[parseInt(selectEvent.detail.value)]?.action()
+		entries.forEach((entry) => {
+			let entry_el = document.createElement('li')
+			entry_el.setAttribute('role', 'button')
+			entry_el.classList.add('row', 'gap-5')
+			let icon_el = document.createElement('i')
+			if (entry.icon)
+				icon_el.classList.add('codicon', `codicon-${entry.icon}`)
+			let label_el = document.createElement('span')
+			label_el.textContent = entry.label
+			entry_el.appendChild(icon_el)
+			entry_el.appendChild(label_el)
+			entry_el.onmouseup = (e) => {
+				if (e.button === 0)
+					entry.action()
+			}
+			wrapper_el?.appendChild(entry_el)
 		})
-		wrapper_el.show = true
 		document.body.appendChild(wrapper_el)
-
-		// Hack some icons in
-		// We'll need to wait for the context menu items to be available
-		requestAnimationFrame(() => {
-			if (! wrapper_el || ! wrapper_el.shadowRoot)
-				return
-
-			const items = wrapper_el.shadowRoot.querySelectorAll('vscode-context-menu-item')
-			entries.forEach((entry, index) => {
-				const shadowRoot = items[index]?.shadowRoot
-				if (! shadowRoot)
-					return
-
-				const anchor_el = shadowRoot.querySelector('a')
-				/** @type {HTMLElement | null} */
-				const label_el = shadowRoot.querySelector('.label')
-				if (! anchor_el || ! label_el)
-					return
-				// vscode-elements goes against vscode's cursor for context menu items
-				anchor_el.style.cursor = 'pointer'
-
-				if (! entry.icon)
-					return
-				// I feel like the padding vscode-elements uses doesn't match the padding vscode uses
-				// So I tried to match it as best as I could
-				const icon = document.createElement('vscode-icon')
-				icon.name = entry.icon
-				icon.style.position = 'absolute'
-				icon.style.left = '4px'
-				label_el.style.paddingLeft = '2em'
-				anchor_el.prepend(icon)
-			})
-		})
 	}
 
 	/** @type {ContextMenuData} */
