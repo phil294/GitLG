@@ -30,7 +30,7 @@ module.exports.log = logger
  * @returns {Fun}
  */
 function intercept_errors(fun) {
-	return /** @type {Fun} */ (async (...args) => { // eslint-disable-line @stylistic/no-extra-parens
+	return /** @type {Fun} */ (async (...args) => {
 		try {
 			return await fun(...args)
 		} catch (e) {
@@ -186,7 +186,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				(is_production ? '' : dev_server_url) + '; ' +
 			'connect-src ' +
 				(is_production ? '' : '*') + '; ' +
-			`img-src ${view.cspSource} ` +
+			`img-src ${view.cspSource} data: ` +
 				(is_production ? '' : dev_server_url) + '; '
 		let base_url = is_production
 			? view.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'web-dist')) + '/'
@@ -234,7 +234,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor') {
 			if (webview_container)
 				// Repeated editor panel show
-				return /** @type {vscode.WebviewPanel} */ (webview_container).reveal() // eslint-disable-line @stylistic/no-extra-parens
+				return /** @type {vscode.WebviewPanel} */ (webview_container).reveal()
 			// First editor panel creation + show
 			logger.info('create new webview panel')
 			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn || 1, { retainContextWhenHidden: true })
@@ -248,7 +248,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		} else {
 			// Repeated side nav view show
 			logger.info('show view');
-			/** @type {vscode.WebviewView | null} */ (webview_container)?.show() // eslint-disable-line @stylistic/no-extra-parens
+			/** @type {vscode.WebviewView | null} */ (webview_container)?.show()
 		}
 	})))
 
@@ -259,7 +259,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		if (! webview_container)
 			return vscode.window.showInformationMessage('GitLG editor tab is not running.')
 		logger.info('close command');
-		/** @type {vscode.WebviewPanel} */ (webview_container).dispose() // eslint-disable-line @stylistic/no-extra-parens
+		/** @type {vscode.WebviewPanel} */ (webview_container).dispose()
 	})))
 
 	// Toggle the editor(tab)
@@ -268,7 +268,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		logger.info('toggle command')
 		if (webview_container)
-			/** @type {vscode.WebviewPanel} */ (webview_container).dispose() // eslint-disable-line @stylistic/no-extra-parens
+			/** @type {vscode.WebviewPanel} */ (webview_container).dispose()
 		return vscode.commands.executeCommand(START_CMD)
 	})))
 

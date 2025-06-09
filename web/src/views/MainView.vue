@@ -469,7 +469,6 @@ details#log-config {
 	min-width: 65px;
 }
 details#log-config[open] {
-	color: unset;
 	padding: 10px;
 	flex: 100% 1 0;
 }
@@ -524,7 +523,7 @@ details#log-config[open] {
 }
 #main-panel > nav > aside > section#actions :deep(button.btn) {
 	font-size: 21px;
-	padding: 0 2px;
+	padding: 1px 5px;
 }
 @keyframes spin {
 	0% { transform: rotate(0deg); }

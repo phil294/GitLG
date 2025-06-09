@@ -50,11 +50,11 @@
 			</div>
 			<ul>
 				<li v-for="option of options" :key="option.value" :class="{changed: option.active !== option.default_active}" class="option row gap-10">
-					<label class="row align-center flex-1">
+					<label class="row align-center">
 						<input v-model="option.active" :disabled="text_changed" type="checkbox">
 						{{ option.value }}
 					</label>
-					<details v-if="option.info" class="flex-1">
+					<details v-if="option.info">
 						<summary>
 							{{ option.info }}
 						</summary>
@@ -247,10 +247,14 @@ defineExpose({
 }
 .options .option label {
 	white-space: pre;
-	display: contents;
+	flex-grow: 1;
+	flex-shrink: 1;
+	flex-basis: 0%;
+	min-width: auto;
 }
 .options .option details {
 	white-space: pre-line;
+	flex: 2;
 }
 .options .option details > summary {
 	overflow: hidden;

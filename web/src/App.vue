@@ -18,7 +18,10 @@ store.init()
 	--input-margin-horizontal: 0;
 	--text-secondary: rgb(from var(--vscode-editor-foreground) r g b / 0.7);
 }
-body {
+body,
+input,
+textarea,
+select {
 	font-size: var(--vscode-font-size);
 	font-weight: var(--vscode-font-weight);
 	font-family: var(--vscode-font-family);
@@ -42,6 +45,7 @@ a:active {
 }
 code {
 	font-family: var(--vscode-editor-font-family);
+	padding: 2px 6px;
 }
 details {
 	overflow: auto;
@@ -50,6 +54,9 @@ details > summary {
 	cursor: pointer;
 	list-style-type: none;
 	height: 100%;
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
 }
 details > summary::before {
 	font: 16px/1 codicon;
@@ -65,25 +72,30 @@ details[open] > summary {
 details[open] > summary::before {
 	content: '\eab4';
 }
-input:not([type='checkbox']):not([type='radio']),
+input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='range']),
 textarea {
 	display: block;
 	border: none;
-	font-family: monospace;
-	font-size: 11.5px;
 	padding: var(--input-padding-vertical) var(--input-padding-horizontal);
 	color: var(--vscode-input-foreground);
 	outline-color: var(--vscode-input-border);
 	background-color: var(--vscode-input-background);
+	border-radius: 2px;
+	border: 1px solid var(--vscode-settings-textInputBorder, var(--vscode-input-background));
+    line-height: 18px;
+    padding: 3px 4px;
 }
 input::placeholder,
 textarea::placeholder {
 	color: var(--vscode-input-placeholderForeground);
 }
 select {
-	color: #ccc;
-	background: #161616;
-	border-color: #333;
+    background-color: var(--vscode-settings-dropdownBackground);
+    border: 1px solid var(--vscode-settings-dropdownBorder);
+    border-radius: 2px;
+    color: var(--vscode-settings-dropdownForeground);
+    line-height: 18px;
+	padding: 3px 4px;
 }
 body,
 html {
@@ -193,14 +205,41 @@ input[type="reset"],
 input[type="button"] {
 	display: inline-flex;
 	align-items: center;
-	white-space: pre;
-	height: 24px;
-	line-height: 24px;
-	padding: 3px 5px;
+	white-space: pre-line;
+	line-height: 22px;
+	padding: 1px 13px;
 	text-decoration: none;
 	color: var(--vscode-button-foreground);
 	background: var(--vscode-button-background);
-	border: 1px solid var(--vscode-button-background);
+	border: 1px solid var(--vscode-button-border, var(--vscode-button-background));
+    border-radius: 2px;
+}
+input[type="checkbox"] {
+	height: 26px;
+	width: 0px;
+	margin: 0 27px 0 0;
+	position: relative;
+	&:after {
+		content: '';
+		position: absolute;
+		height: 18px;
+		width: 18px;
+		top: 4px;
+		border-radius: 3px;
+		box-sizing: border-box;
+		background-color: var(--vscode-settings-checkboxBackground);
+		border: 1px solid var(--vscode-settings-checkboxBorder);
+	}
+	&:checked:after {
+		/* fill=currentColor doesn't work here... */
+		background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="white"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.431 3.323l-8.47 10-.79-.036-3.35-4.77.818-.574 2.978 4.24 8.051-9.506.764.646z"></path></svg>');
+	}
+	/* ...so apparently the only solution is to make a second one with fixed color too which should look fine for most themes */
+	.vscode-light &, .vscode-high-contrast-light & {
+		&:checked:after {
+			background-image: url('data:image/svg+xml;utf8,<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="black"><path fill-rule="evenodd" clip-rule="evenodd" d="M14.431 3.323l-8.47 10-.79-.036-3.35-4.77.818-.574 2.978 4.24 8.051-9.506.764.646z"></path></svg>');
+		}
+	}
 }
 .btn:enabled:hover,
 input[type="submit"]:enabled:hover,
@@ -244,34 +283,32 @@ progress.diff::-webkit-progress-bar {
 progress.diff::-webkit-progress-value {
 	background-color: #090;
 }
-details > summary {
-	white-space: nowrap;
-}
-input:not([type='checkbox']):not([type='radio']).filter {
-	font-family: monospace;
-	padding: 0 0 0 5px;
-	background: #000;
-	color: #d5983d;
-}
 ul.context-menu-wrapper {
 	position: absolute;
 	background: var(--vscode-menu-background);
-	min-width: 150px;
+	color: var(--vscode-menu-foreground);
+	font-size: 12px;
+	border-radius: 4px;
+	border: 1px solid var(--vscode-menu-border);
 	cursor: pointer;
-	box-shadow: 0 2px 3px 2px rgba(17,17,17,0.867);
+	box-shadow: 0 2px 8px var(--vscode-widget-shadow);
+	padding: 4px 0;
 	user-select: none;
 	z-index: 10;
 }
 ul.context-menu-wrapper > li {
-	padding: 4px 8px;
-}
-ul.context-menu-wrapper > li:not(:last-child) {
-	border-bottom: 1px solid #424242;
+	line-height: 1.4em;
+	height: 2em;
+	margin: 0 4px;
+	padding: 0 22px 0 4px;
+	border-radius: 3px;
+	user-select: none;
+	white-space: nowrap;
 }
 ul.context-menu-wrapper > li:hover {
-	background: #000;
 	background-color: var(--vscode-menu-selectionBackground, var(--vscode-menu-background));
 	color: var(--vscode-menu-selectionForeground, var(--vscode-menu-foreground));
+	outline: 1px solid var(--vscode-menu-selectionBorder, var(--vscode-menu-selectionBackground));
 }
 </style>
 

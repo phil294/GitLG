@@ -45,7 +45,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		entries.forEach((entry) => {
 			let entry_el = document.createElement('li')
 			entry_el.setAttribute('role', 'button')
-			entry_el.classList.add('row', 'gap-5')
+			entry_el.classList.add('row', 'gap-5', 'align-center')
 			let icon_el = document.createElement('i')
 			if (entry.icon)
 				icon_el.classList.add('codicon', `codicon-${entry.icon}`)
