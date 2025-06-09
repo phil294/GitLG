@@ -15,7 +15,7 @@
 		<git-input :git_action="selected_git_action" @executed="refresh_main_view()" @success="success()" />
 		<br>
 		<label class="row align-center gap-5">
-			<vscode-checkbox @change="keep_open = $event.target.checked" />
+			<input v-model="keep_open" type="checkbox">
 			Keep window open after success
 		</label>
 	</div>

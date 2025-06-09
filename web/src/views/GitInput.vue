@@ -3,7 +3,7 @@
 		<promise-form ref="ref_form" :action="execute" class="col gap-5" :disabled="!params">
 			<div class="row align-center gap-10">
 				<code>git</code>
-				<vscode-textfield ref="command_input_ref" v-model="command" class="command flex-1" />
+				<input ref="command_input_ref" v-model="command" class="command flex-1">
 			</div>
 			<div class="input-controls justify-flex-end align-center gap-10">
 				<div v-if="text_changed" class="warn">
@@ -14,26 +14,28 @@
 						Editing this field can be dangerous, as it is executed without escaping. If you do not know what you are doing, please click Reset.
 					</details>
 				</div>
-				<vscode-button v-if="text_changed" class="reset" secondary type="button" icon="discard" @click="reset_command()">
+				<button v-if="text_changed" class="reset btn btn-2 gap-3" type="button" @click="reset_command()">
+					<i class="codicon codicon-discard" />
 					Reset
-				</vscode-button>
+				</button>
 				<div v-if="is_saved && ! has_unsaved_changes" class="saved">
 					Saved
 				</div>
-				<vscode-button v-if="has_unsaved_changes" class="save" secondary icon="save" type="button" @click="save()">
+				<button v-if="has_unsaved_changes" class="save btn btn-2 gap-3" type="button" @click="save()">
+					<i class="codicon codicon-save" />
 					Save
-				</vscode-button>
+				</button>
 			</div>
 			<div v-for="(param, i) in params" :key="i" class="param">
 				<label class="row align-center gap-5">
 					Param ${{ i+1 }}
-					<!-- vscode-textarea has its positioning all messed up beyond repair -->
-					<Component :is="param.multiline ? 'textarea' : 'vscode-textfield'" ref="params_input_refs" :value="params_model[i]" :placeholder="param.placeholder" :readonly="param.readonly" :class="'flex-1 text-input '+(param.readonly ? 'readonly' : '')" required rows="4" @input="params_model[i] = $event.target.value" /></label>
+					<Component :is="param.multiline ? 'textarea' : 'input'" ref="params_input_refs" :value="params_model[i]" :placeholder="param.placeholder" :readonly="param.readonly" class="flex-1" required rows="4" onfocus="select()" @input="params_model[i] = $event.target.value" /></label>
 			</div>
 			<div class="execute">
-				<vscode-button icon="check" type="submit">
+				<button class="btn gap-3">
+					<i class="codicon codicon-check" />
 					Execute
-				</vscode-button>
+				</button>
 			</div>
 		</promise-form>
 		<div v-if="result_error" class="error-response padding-l">
@@ -48,9 +50,12 @@
 			</div>
 			<ul>
 				<li v-for="option of options" :key="option.value" :class="{changed: option.active !== option.default_active}" class="option row gap-10">
-					<vscode-checkbox :disabled="text_changed" :label="option.value" :checked="option.active" @change="option.active = $event.target.checked" />
+					<label class="row align-center flex-1">
+						<input v-model="option.active" :disabled="text_changed" type="checkbox">
+						{{ option.value }}
+					</label>
 					<details v-if="option.info" class="flex-1">
-						<summary class="align-center">
+						<summary>
 							{{ option.info }}
 						</summary>
 						{{ option.info }}
@@ -265,10 +270,5 @@ defineExpose({
 textarea {
 	border: 1px solid var(--vscode-settings-textInputBorder, var(--vscode-settings-textInputBackground));
 	border-radius: 2px;
-}
-.text-input.readonly {
-	cursor: not-allowed;
-	opacity: 0.4;
-	pointer-events: none;
 }
 </style>

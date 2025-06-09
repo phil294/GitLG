@@ -1,13 +1,13 @@
 <!-- visual representation of a GitAction, resolving to a Button and onclick a Popup with GitInput inside -->
 <template>
-	<vscode-button :title="git_action.description" class="git-action-button btn-icon" @click="selected_git_action=git_action">
-		<div class="align-center gap-5">
-			<vscode-icon v-if="git_action.icon" :name="git_action.icon" />
-			<div v-if="git_action.title" class="title">
-				{{ git_action.title }}
-			</div>
+	<button :title="git_action.description" class="git-action-button btn gap-5" @click="selected_git_action=git_action">
+		<div v-if="git_action.icon" class="icon center">
+			<i :class="'codicon-'+git_action.icon" class="codicon" />
 		</div>
-	</vscode-button>
+		<div v-if="git_action.title" class="title">
+			{{ git_action.title }}
+		</div>
+	</button>
 </template>
 <script setup>
 import { selected_git_action } from '../state/store.js'

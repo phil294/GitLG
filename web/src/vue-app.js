@@ -8,22 +8,7 @@ import drop from './directives/drop'
 import context_menu from './directives/context-menu'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
-import codeiconUrl from '@vscode/codicons/dist/codicon.css?url'
-import '@vscode-elements/elements/dist/vscode-button/index.js'
-import '@vscode-elements/elements/dist/vscode-textfield/index.js'
-import '@vscode-elements/elements/dist/vscode-icon/index.js'
-import '@vscode-elements/elements/dist/vscode-checkbox/index.js'
-import '@vscode-elements/elements/dist/vscode-single-select/index.js'
-import '@vscode-elements/elements/dist/vscode-context-menu/index.js'
-
-// Necessary because the ID tag must be set on the stylesheet in order to be retrievable from @vscode-elements
-// https://github.com/vscode-elements/elements/blob/1d2b32cf8/src/vscode-icon/vscode-icon.ts#L81
-// Which is apparently not possible to control in Vite https://github.com/vitejs/vite/issues/18324
-const codiconElement = document.createElement('link')
-codiconElement.rel = 'stylesheet'
-codiconElement.href = codeiconUrl
-codiconElement.id = 'vscode-codicon-stylesheet'
-document.head.append(codiconElement)
+import '@vscode/codicons/dist/codicon.css'
 
 let console_error = console.error
 function handle_error(/** @type {any[]} */ ...args) {

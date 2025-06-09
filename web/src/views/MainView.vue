@@ -12,7 +12,7 @@
 					<repo-selection />
 					<aside class="center gap-20">
 						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
-							<vscode-textfield id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)" />
+							<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
 							<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 								<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 							</button>
@@ -30,11 +30,9 @@
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<vscode-button id="refresh" class="btn-icon" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'" @click="refresh_main_view()">
-								<div class="icon-wrapper center">
-									<vscode-icon name="refresh" />
-								</div>
-							</vscode-button>
+							<button id="refresh" class="btn center" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'" @click="refresh_main_view()">
+								<i class="codicon codicon-refresh" />
+							</button>
 						</section>
 					</aside>
 				</nav>
@@ -164,7 +162,7 @@ let txt_filter = ref('')
 /** @type {Vue.Ref<'filter' | 'jump'>} */
 let txt_filter_type = ref('filter')
 let txt_filter_regex = store.stateful_computed('filter-options-regex', false)
-let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref')) // eslint-disable-line @stylistic/no-extra-parens
+let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref'))
 function txt_filter_filter(/** @type {Commit} */ commit) {
 	let search_for = txt_filter.value.toLowerCase()
 	/** @type {RegExp | undefined} */
@@ -297,7 +295,7 @@ add_push_listener('show-selected-commit', async () => {
 	show_commit_hash(hash)
 })
 
-let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref')) // eslint-disable-line @stylistic/no-extra-parens
+let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref'))
 store.main_view_git_input_ref.value = git_input_ref
 /* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
     	This function exists so we can modify the args before sending to git, otherwise
@@ -321,7 +319,7 @@ async function run_log(/** @type {string} */ log_args) {
 	}
 }
 
-let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref')) // eslint-disable-line @stylistic/no-extra-parens
+let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref'))
 /** @type {Vue.Ref<Commit[]>} */
 let visible_commits = ref([])
 let scroll_item_offset = 0
@@ -491,7 +489,7 @@ details#log-config[open] {
 	border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
 }
 #main-panel > nav #repo-selection {
-	/* overflow: hidden; */
+	overflow: hidden;
 	min-width: 50x;
 	flex-shrink: 1;
 }

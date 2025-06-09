@@ -231,15 +231,6 @@ input[type="button"]:disabled {
 .btn.btn-2:hover {
 	background: var(--vscode-button-secondaryHoverBackground);
 }
-.btn-icon {
-	padding-inline: 5px;
-}
-.btn-icon > vscode-icon {
-	display: inline;
-}
-vscode-button vscode-icon {
-	color: inherit !important;
-}
 progress.diff {
 	width: 30px;
 	height: 3px;

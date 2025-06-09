@@ -5,7 +5,7 @@
 				All branches...
 			</summary>
 			<div class="dv">
-				<vscode-textfield v-model="txt_filter" class="filter" placeholder="Filter branch name" />
+				<input v-model="txt_filter" class="filter" placeholder="Filter branch name">
 				<div class="branches">
 					<button v-for="branch of filtered_branches" :key="branch.id" title="Jump to branch tip" @click="$emit('branch_selected',branch);show_all_branches=false">
 						<ref-tip :git_ref="branch" />
@@ -21,7 +21,7 @@ import { branches } from '../state/store.js'
 
 defineEmits(['branch_selected'])
 
-let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line @stylistic/no-extra-parens
+let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref'))
 let txt_filter = ref('')
 let filtered_branches = computed(() => {
 	if (! txt_filter.value)
@@ -58,7 +58,7 @@ details#show-all-branches > summary {
 	margin: 2px;
 	padding: 1px 6px;
 }
-vscode-textfield.filter {
+input.filter {
 	margin: 5px;
 	float: right;
 	width: unset !important;
