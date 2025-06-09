@@ -44,7 +44,7 @@ pause
 run npx ncu -u -x '@types/vscode'
 run npm i
 pushd web
-run npx ncu -u -x '@vscode-elements/elements'
+run npx ncu -u
 run npm i
 popd
 run git add package.json package-lock.json web/package.json web/package-lock.json

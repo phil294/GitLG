@@ -23,12 +23,8 @@
 	import SelectedGitAction from './views/SelectedGitAction.vue'
 	import Popup from './components/Popup.vue'
 	import PromiseForm from './components/PromiseForm.vue'
-	import {VscodeBadge, VscodeButton, VscodeCheckbox, VscodeCheckboxVscodeGroup, VscodeCollapsible, VscodeContextVscodeMenu, VscodeContextVscodeMenuVscodeItem, VscodeDivider, VscodeFormVscodeContainer, VscodeFormVscodeGroup, VscodeFormVscodeHelper, VscodeIcon, VscodeLabel, VscodeMultiVscodeSelect, VscodeOption, VscodeProgressVscodeRing, VscodeRadio, VscodeRadioVscodeGroup, VscodeScrollable, VscodeSingleVscodeSelect, VscodeSplitVscodeLayout, VscodeTabVscodeHeader, VscodeTabVscodePanel, VscodeTable, VscodeTableVscodeBody, VscodeTableVscodeCell, VscodeTableVscodeHeader, VscodeTableVscodeHeaderVscodeCell, VscodeTableVscodeRow, VscodeTabs, VscodeTextarea, VscodeTextfield, VscodeTree} from '@vscode-elements/elements'
 
 	declare module '@vue/runtime-core' {
-		
-		
-		type ClassToComponent<C> = DefineComponent<{}, { $props: Partial<C> & { modelValue?: any } & HTMLAttributes }>
 		export interface GlobalComponents {
 			RecycleScroller: typeof RecycleScroller
 			App: typeof App
@@ -48,38 +44,5 @@
 			SelectedGitAction: typeof SelectedGitAction
 			Popup: typeof Popup
 			PromiseForm: typeof PromiseForm
-			VscodeBadge: ClassToComponent<VscodeBadge>
-			VscodeButton: ClassToComponent<VscodeButton>
-			VscodeCheckbox: ClassToComponent<VscodeCheckbox>
-			VscodeCheckboxVscodeGroup: ClassToComponent<VscodeCheckboxVscodeGroup>
-			VscodeCollapsible: ClassToComponent<VscodeCollapsible>
-			VscodeContextVscodeMenu: ClassToComponent<VscodeContextVscodeMenu>
-			VscodeContextVscodeMenuVscodeItem: ClassToComponent<VscodeContextVscodeMenuVscodeItem>
-			VscodeDivider: ClassToComponent<VscodeDivider>
-			VscodeFormVscodeContainer: ClassToComponent<VscodeFormVscodeContainer>
-			VscodeFormVscodeGroup: ClassToComponent<VscodeFormVscodeGroup>
-			VscodeFormVscodeHelper: ClassToComponent<VscodeFormVscodeHelper>
-			VscodeIcon: ClassToComponent<VscodeIcon>
-			VscodeLabel: ClassToComponent<VscodeLabel>
-			VscodeMultiVscodeSelect: ClassToComponent<VscodeMultiVscodeSelect>
-			VscodeOption: ClassToComponent<VscodeOption>
-			VscodeProgressVscodeRing: ClassToComponent<VscodeProgressVscodeRing>
-			VscodeRadio: ClassToComponent<VscodeRadio>
-			VscodeRadioVscodeGroup: ClassToComponent<VscodeRadioVscodeGroup>
-			VscodeScrollable: ClassToComponent<VscodeScrollable>
-			VscodeSingleVscodeSelect: ClassToComponent<VscodeSingleVscodeSelect>
-			VscodeSplitVscodeLayout: ClassToComponent<VscodeSplitVscodeLayout>
-			VscodeTabVscodeHeader: ClassToComponent<VscodeTabVscodeHeader>
-			VscodeTabVscodePanel: ClassToComponent<VscodeTabVscodePanel>
-			VscodeTable: ClassToComponent<VscodeTable>
-			VscodeTableVscodeBody: ClassToComponent<VscodeTableVscodeBody>
-			VscodeTableVscodeCell: ClassToComponent<VscodeTableVscodeCell>
-			VscodeTableVscodeHeader: ClassToComponent<VscodeTableVscodeHeader>
-			VscodeTableVscodeHeaderVscodeCell: ClassToComponent<VscodeTableVscodeHeaderVscodeCell>
-			VscodeTableVscodeRow: ClassToComponent<VscodeTableVscodeRow>
-			VscodeTabs: ClassToComponent<VscodeTabs>
-			VscodeTextarea: ClassToComponent<VscodeTextarea>
-			VscodeTextfield: ClassToComponent<VscodeTextfield>
-			VscodeTree: ClassToComponent<VscodeTree>
 		}
 	}
