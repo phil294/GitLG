@@ -14,7 +14,7 @@ function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
 	// prefer branch over tag/stash
 	// prefer tag over stash
 	// prefer local branch over remote branch
-	return Number(a_is_tag || ! a.id.startsWith('refs/stash')) - Number(b_is_tag || ! b.id.startsWith('refs/stash')) || Number(b_is_tag) - Number(a_is_tag) || Number(Boolean(/** @type {Branch} */ (a).remote_name)) - Number(Boolean(/** @type {Branch} */ (b).remote_name)) // eslint-disable-line @stylistic/no-extra-parens
+	return Number(a_is_tag || ! a.id.startsWith('refs/stash')) - Number(b_is_tag || ! b.id.startsWith('refs/stash')) || Number(b_is_tag) - Number(a_is_tag) || Number(Boolean(/** @type {Branch} */ (a).remote_name)) - Number(Boolean(/** @type {Branch} */ (b).remote_name))
 }
 
 /**
@@ -47,8 +47,12 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 		}
 		if (from_includes_remote) {
 			let split = from.split('/')
-			from = split.at(-1) || ''
-			remote_name = split.slice(0, split.length - 1).join('/')
+			// TODO: Even remote names can contain slashes. The only correct solution here is to
+			// have a list of correct remotes and find the longest match at front. This would
+			// also add another way of sanity checking if arg *remote_name* is perhaps nonsense.
+			// For now, remotes with slashes are simply not supported.
+			remote_name = split[0] || ''
+			from = split.slice(1).join('/')
 		}
 		let inferred_id = branches.length - 1
 		if (! from && inferred)
@@ -109,7 +113,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 	let graph_chars = ['*', '\\', '/', ' ', '_', '|', /* rare: */ '-', '.']
 	for (let row_no = 0; row_no < rows.length; row_no++) {
 		// Not using not_null() in this file as it slows down the parser by factor 3
-		let row = /** @type {string} */ (rows[row_no]) // eslint-disable-line @stylistic/no-extra-parens
+		let row = /** @type {string} */ (rows[row_no])
 		if (row === '... ')
 			continue // with `--follow -- pathname`, this can happen even though we're specifying a strict --format.
 		// Example row:
@@ -174,7 +178,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 		/** @type {Branch|undefined} */
 		let commit_branch = undefined
 		for (let char_i_ltr = 0; char_i_ltr < vis_chars.length; char_i_ltr++) {
-			let char = /** @type {string} */ (vis_chars[char_i_ltr]) // eslint-disable-line @stylistic/no-extra-parens
+			let char = /** @type {string} */ (vis_chars[char_i_ltr])
 			// Significantly faster than iterating via for(;;i--)
 			let char_i = vis_chars.length - char_i_ltr - 1
 			/** @type {Branch | null | undefined } */
@@ -315,7 +319,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 			// After 1-n parsed rows, we have now arrived at what will become one row
 			// in *our* application too.
 			for (let branch_id in densened_vis_line_by_branch_id) {
-				let vis_line = /** @type {VisLine} */ (densened_vis_line_by_branch_id[branch_id]) // eslint-disable-line @stylistic/no-extra-parens
+				let vis_line = /** @type {VisLine} */ (densened_vis_line_by_branch_id[branch_id])
 				vis_line.xce = vis_line.xn
 				vis_line.yce = vis_line.yn
 				vis_line.xcs = vis_line.x0
@@ -356,7 +360,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 			let vis_lines = []
 			for (let branch_id in densened_vis_line_by_branch_id)
 				// This is 4x faster than Object.values()
-				vis_lines.push(/** @type {VisLine} */ (densened_vis_line_by_branch_id[branch_id])) // eslint-disable-line @stylistic/no-extra-parens
+				vis_lines.push(/** @type {VisLine} */ (densened_vis_line_by_branch_id[branch_id]))
 			// Leftmost branches should appear later so they are on top of the rest
 			vis_lines.sort((a, b) => (b.xcs || 0) + (b.xce || 0) - (a.xcs || 0) - (a.xce || 0))
 			commits.push({
@@ -387,12 +391,12 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 		last_vis = vis
 	}
 	for (let i = 1; i < commits.length; i++)
-		for (let vis_line of /** @type {Commit} */ (commits[i]).vis_lines) { // eslint-disable-line @stylistic/no-extra-parens
+		for (let vis_line of /** @type {Commit} */ (commits[i]).vis_lines) {
 			if (vis_line.y0 === vis_line.yn)
 				continue
 			// Duplicate the line into the previous commit's lines because both rows
 			// need to display it (each being only half-visible vertically)
-			/** @type {Commit} */ (commits[i - 1]).vis_lines.push({ // eslint-disable-line @stylistic/no-extra-parens
+			/** @type {Commit} */ (commits[i - 1]).vis_lines.push({
 				...vis_line,
 				y0: (vis_line.y0 || 0) + 1,
 				yn: (vis_line.yn || 0) + 1,

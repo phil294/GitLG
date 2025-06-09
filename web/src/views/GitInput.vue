@@ -165,8 +165,8 @@ onMounted(async () => {
 	if (writable_param_index > -1)
 		params_input_refs.value[writable_param_index]?.focus()
 	else
-		command_input_ref.value?.focus();
-	[...(params_input_refs.value || []),
+		command_input_ref.value?.focus()
+	;[...(params_input_refs.value || []),
 		command_input_ref.value]
 		.map(r => r?.shadowRoot?.querySelector('input'))
 		.filter(is_truthy)
