@@ -87,8 +87,9 @@ export default [
 			'no-undef-init': 'off',
 			'import/first': 'off', // breaks script setup + extra script for exports
 			'@stylistic/multiline-ternary': 'off',
-			'no-unused-vars': ['warn', { varsIgnorePattern: '^_.*' }],
+			'no-unused-vars': ['warn', { varsIgnorePattern: '^_.*', argsIgnorePattern: '^_.*', caughtErrorsIgnorePattern: '^_.*' }],
 			'no-sequences': 'off',
+			'@stylistic/object-property-newline': 'off',
 		},
 	},
 ]

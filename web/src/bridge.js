@@ -1,3 +1,4 @@
+// @ts-ignore TODO
 let vscode = acquireVsCodeApi()
 
 /** @type {Record<string, (r: BridgeMessage) => void>} */

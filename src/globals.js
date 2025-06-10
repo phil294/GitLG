@@ -45,3 +45,5 @@ globalThis.debounce = (/** @type {()=>any} */ fun, /** @type {number} */ time) =
 	clearTimeout(debounce_timeout_map[hash])
 	debounce_timeout_map[hash] = setTimeout(fun, time)
 }
+
+module.exports = {}

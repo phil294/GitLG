@@ -33,7 +33,7 @@ function set_drop(/** @type {HTMLElement} */ el, /** @type {(payload: DropCallba
 			if (e.dataTransfer)
 				e.dataTransfer.dropEffect = 'move'
 		},
-		ondragenter(e) {
+		ondragenter(_e) {
 			counter++
 			if (counter === 1)
 				// This check should be done but doesn't work as Chrome does not include

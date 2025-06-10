@@ -14,7 +14,7 @@
 				<ol class="entries">
 					<li v-for="(entry, entry_i) of history_mapped" :key="entry.datetime" class="flex">
 						<div :title="entry.datetime" class="entry flex-1">
-							<commit-row v-if="entry.type == 'commit_hash' && entry.ref" :commit="entry.ref" role="button" @click="$emit('commit_clicked', entry.ref.hash)" />
+							<commit-row v-if="entry.type == 'commit_hash' && entry.ref" :commit="entry.ref" @click="$emit('commit_clicked', entry.ref.hash)" />
 							<button v-else-if="entry.type == 'commit_hash'" class="btn" @click="$emit('commit_clicked', entry.value)">
 								Commit '{{ entry.value }}'
 							</button>
@@ -72,7 +72,7 @@ function remove_history_entry(/** @type {number} */ entry_i) {
 	history.value.splice(history.value.length - entry_i - 1, 1)
 	history.value = history.value.slice()
 }
-let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref')) // eslint-disable-line @stylistic/no-extra-parens
+let details_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDetailsElement|null>>} */ (useTemplateRef('details_ref'))
 function on_mouse_up(/** @type {MouseEvent} */ event) {
 	let target = event.target
 	while (target instanceof Element && target.getAttribute('id') !== 'history' && target.parentElement)

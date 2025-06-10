@@ -110,7 +110,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 	/** @type {Record<string, VisLine>} */
 	let last_densened_vis_line_by_branch_id = {}
 
-	let graph_chars = ['*', '\\', '/', ' ', '_', '|', /* rare: */ '-', '.']
+	let _graph_chars = ['*', '\\', '/', ' ', '_', '|', /* rare: */ '-', '.']
 	for (let row_no = 0; row_no < rows.length; row_no++) {
 		// Not using not_null() in this file as it slows down the parser by factor 3
 		let row = /** @type {string} */ (rows[row_no])
@@ -159,7 +159,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 			.filter(is_branch)
 		let branch_tip = branch_tips[0]
 
-		/** @type {typeof graph_chars} */
+		/** @type {typeof _graph_chars} */
 		let vis_chars = vis_str.trimEnd().split('').reverse()
 		// This check makes sense but slows down the parsing noticably:
 		//   if (vis_chars.some((v) => ! graph_chars.includes(v)))
@@ -222,7 +222,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 						if (wrong_branch?.inferred && ! v_branch.inferred) {
 							let k = commits.length - 1
 							let wrong_branch_matches = []
-							while ((wrong_branch_matches = commits[k]?.vis_lines.filter((v) => v.branch === wrong_branch))?.length) {
+							while ((wrong_branch_matches = commits[k]?.vis_lines.filter((v) => v.branch === wrong_branch) || [])?.length) {
 								for (let wrong_branch_match of wrong_branch_matches || [])
 									wrong_branch_match.branch = v_branch
 								k--
@@ -294,9 +294,9 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 						let w_char_match = null
 						while ((w_char_match = last_vis[k])?.char === '-')
 							k--
-						v_branch = w_char_match.branch
-					} else if (v_nw?.char === '.' && last_vis[char_i - 2].char === '-')
-						v_branch = last_vis[char_i - 3].branch
+						v_branch = w_char_match?.branch
+					} else if (v_nw?.char === '.' && last_vis[char_i - 2]?.char === '-')
+						v_branch = last_vis[char_i - 3]?.branch
 					break
 				case ' ': case '.': case '-':
 					v_branch = null
@@ -305,13 +305,15 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 				char,
 				branch: v_new_branch || v_branch || null,
 			}
-			if (v_branch)
-				if (densened_vis_line_by_branch_id[v_branch.id])
-					densened_vis_line_by_branch_id[v_branch.id].xn = vis_line.xn
+			if (v_branch) {
+				let densened_branch = densened_vis_line_by_branch_id[v_branch.id]
+				if (densened_branch)
+					densened_branch.xn = vis_line.xn
 				else {
 					vis_line.branch = v_new_branch || v_branch
 					densened_vis_line_by_branch_id[v_branch.id] = vis_line
 				}
+			}
 			if (v_new_branch && v_new_branch !== v_branch)
 				densened_vis_line_by_branch_id[v_new_branch.id] = vis_line
 		}

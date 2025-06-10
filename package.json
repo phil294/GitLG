@@ -212,7 +212,10 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": ["string", "object"],
+									"type": [
+										"string",
+										"object"
+									],
 									"required": [
 										"value"
 									],
@@ -284,7 +287,10 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": ["string", "object"],
+									"type": [
+										"string",
+										"object"
+									],
 									"required": [
 										"value"
 									],
@@ -356,7 +362,10 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": ["string", "object"],
+									"type": [
+										"string",
+										"object"
+									],
 									"required": [
 										"value"
 									],
@@ -428,7 +437,10 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": ["string", "object"],
+									"type": [
+										"string",
+										"object"
+									],
 									"required": [
 										"value"
 									],
@@ -500,7 +512,10 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": ["string", "object"],
+									"type": [
+										"string",
+										"object"
+									],
 									"required": [
 										"value"
 									],
@@ -572,7 +587,10 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": ["string", "object"],
+									"type": [
+										"string",
+										"object"
+									],
 									"required": [
 										"value"
 									],
@@ -644,7 +662,10 @@
 							"params": {
 								"type": "array",
 								"items": {
-									"type": ["string", "object"],
+									"type": [
+										"string",
+										"object"
+									],
 									"required": [
 										"value"
 									],
@@ -708,6 +729,7 @@
 		"neostandard": "^0.11.9",
 		"npm-check-updates": "^17.1.11",
 		"ovsx": "^0.10.1",
+		"vite": "^6.3.5",
 		"vsce": "^2.15.0"
 	},
 	"dependencies": {

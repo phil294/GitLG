@@ -9,6 +9,7 @@ let queued_commits_for_update_stats = []
 export let update_commit_stats = async (/** @type {Commit[]} */ commits_, level = 0) => {
 	for (let commit of commits_)
 		commit.stats = stats_cache[commit.hash]
+
 	commits_ = commits_.filter(c => ! c.stats)
 	if (! commits_.length || level === 0 && /* probably heavily overloaded */queued_commits_for_update_stats.length > 120)
 		return
@@ -72,11 +73,11 @@ async function update_commit_stats_full(/** @type {Commit[]} */ commits_) {
 		//  3 files changed, 87 insertions(+), 70 deletions(-)
 		for (let stmt of line.trim().split(', ')) {
 			let words = stmt.split(' ')
-			if (words[1].startsWith('file'))
+			if (words[1]?.startsWith('file'))
 				stat.files_changed = Number(words[0])
-			else if (words[1].startsWith('insertion'))
+			else if (words[1]?.startsWith('insertion'))
 				stat.insertions = Number(words[0])
-			else if (words[1].startsWith('deletion'))
+			else if (words[1]?.startsWith('deletion'))
 				stat.deletions = Number(words[0])
 		}
 		let commit = commits_[commits_.findIndex((cp) => cp.hash === hash)]

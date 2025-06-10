@@ -1,11 +1,8 @@
 import { show_error_message, show_information_message } from './bridge.js'
 import { createApp } from 'vue'
 import '../../src/globals'
+// @ts-ignore TODO: idk
 import App from './App.vue'
-import moveable from './directives/moveable'
-import drag from './directives/drag'
-import drop from './directives/drop'
-import context_menu from './directives/context-menu'
 import { RecycleScroller } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import '@vscode/codicons/dist/codicon.css'
@@ -41,12 +38,6 @@ app.config.warnHandler = handle_error
 app.component('RecycleScroller', RecycleScroller)
 let sfcs = import.meta.glob('./**/*.vue', { eager: true })
 for (let path in sfcs)
-	app.component(path.split('/').pop().split('.')[0], sfcs[path].default)
-
-// TODO
-app.directive('moveable', moveable)
-app.directive('drag', drag)
-app.directive('drop', drop)
-app.directive('context-menu', context_menu)
+	app.component(path.split('/').pop()?.split('.')[0] || '???', /** @type {any} */ (sfcs)[path].default)
 
 app.mount('#app')

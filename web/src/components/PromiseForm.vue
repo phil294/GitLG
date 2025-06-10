@@ -15,11 +15,15 @@
 	</form>
 </template>
 <script>
+// @ts-nocheck
+/* eslint-disable */
+// TODO: ancient imported file
 export default {
 	props: {
 		/**
 		 * The callback for a successful form submit. If it returns a Promise,
 		 * it will be visually awaited before the form gets editable again.
+		 * jsdoc/valid-types
 		 * @type {({
 		 * 	form_data: FormData,
 		 * 	event: Event,
@@ -68,7 +72,7 @@ export default {
 				this.$emit('success')
 			} catch (e) {
 				if (! (e instanceof Error))
-					// eslint-disable-next-line no-ex-assign
+
 					e = new Error(e)
 				e.domChain = []
 				let p = this.$el

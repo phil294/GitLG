@@ -1,5 +1,5 @@
 <template>
-	<div :class="{merge:commit.merge}" class="commit-row commit row">
+	<div :class="{merge:commit.merge}" class="commit-row commit row" role="button">
 		<SVGVisualization :commit="commit" :height="calculated_height" :style="vis_style" class="vis" />
 		<div v-if="commit.hash" class="info flex-1 row gap-20">
 			<div class="subject-wrapper flex-1 row align-center">
@@ -17,13 +17,13 @@
 			<div class="stats flex-noshrink row align-center justify-flex-end gap-5">
 				<template v-if="commit.stats?.files_changed">
 					<div class="changes" title="Changed lines in amount of files">
-						<span v-if="commit.stats.insertions != null">
+						<span v-if="commit.stats.insertions != null && commit.stats.deletions != null">
 							<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
 						</span>
 						<span class="grey"> in </span>
 						<span class="grey">{{ commit.stats.files_changed }}</span>
 					</div>
-					<progress :value="(commit.stats.insertions / (commit.stats.insertions + commit.stats.deletions)) || 0" class="diff" title="Ratio insertions / deletions" />
+					<progress :value="((commit.stats.insertions || 0) / ((commit.stats.insertions || 0) + (commit.stats.deletions || 0))) || 0" class="diff" title="Ratio insertions / deletions" />
 				</template>
 			</div>
 			<div class="datetime flex-noshrink align-center">

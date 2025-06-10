@@ -226,7 +226,7 @@ async function execute({ before_execute } = {}) {
 	emit('success', result)
 }
 
-let ref_form = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('../components/PromiseForm.vue')>|null>>} */ (useTemplateRef('ref_form'))
+let ref_form = useTemplateRef('ref_form')
 onMounted(async () => {
 	await load_stored_promise
 	await load_params_promise

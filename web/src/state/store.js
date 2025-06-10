@@ -92,6 +92,7 @@ let log_args_override_base = 'log --graph --author-date-order --date=iso-local -
  * allows the user to edit the arg, shows loading animation, prints errors accordingly etc.
  */
 async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true, fetch_branches = true } = {}) {
+	// TODO: \0
 	let sep = '^%^%^%^%^'
 	log_args = log_args.replace(' --pretty={EXT_FORMAT}', ` --pretty=format:"${sep}%H${sep}%h${sep}%aN${sep}%aE${sep}%ad${sep}%D${sep}%s" --decorate=full `)
 	let stash_refs = ''
@@ -130,11 +131,13 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 	default_origin.value = likely_default_branch?.remote_name || likely_default_branch?.tracking_remote_name || null
 	web_phase.value = 'ready'
 }
-/** @type {Vue.Ref<Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>|null>} */
+/** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../views/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
 /** @param args {{before_execute?: ((cmd: string) => string) | undefined}} */
 export let refresh_main_view = ({ before_execute } = {}) => {
 	console.warn('refreshing main view')
+	// @ts-ignore TODO: types seem correct like hinted by docs https://vuejs.org/guide/typescript/composition-api.html#typing-component-template-refs
+	// but volar doesn't like it
 	return main_view_git_input_ref.value?.value?.execute({ before_execute })
 }
 
@@ -220,7 +223,7 @@ export let init = () => {
 		git_log(`${log_args_override_base} -n 100 --all`,
 			{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 			commits.value = parsed.commits
-				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', index_in_graph_output: -1, vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [] })
+				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [] })
 				.map(c => ({ ...c, stats: /* to prevent loading them */ {} })))
 	})
 

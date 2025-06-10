@@ -9,6 +9,9 @@
 <script setup>
 import { computed } from 'vue'
 import { head_branch, combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from '../state/store.js'
+import vDrag from '../directives/drag'
+import vDrop from '../directives/drop'
+import vContextMenu from '../directives/context-menu'
 
 let props = defineProps({
 	git_ref: {

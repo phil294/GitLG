@@ -1,7 +1,7 @@
 <template>
 	<div class="modal popup">
 		<Teleport to="body">
-			<div :bind="$attrs" :tabindex="-1" class="modal-body center fade-in" @keydown.esc="close">
+			<div v-bind="$attrs" :tabindex="-1" class="modal-body center fade-in" @keydown.esc="close">
 				<div class="modal-background fill" @click="close" />
 				<div ref="main_ref" class="modal-main col">
 					<header>
@@ -22,12 +22,13 @@
 </template>
 <script setup>
 import { onMounted, useTemplateRef } from 'vue'
+import vMoveable from '../directives/moveable'
 
 defineOptions({
 	inheritAttrs: false,
 })
 let emit = defineEmits(['close'])
-let main_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDivElement|null>>} */ (useTemplateRef('main_ref')) // eslint-disable-line @stylistic/no-extra-parens
+let main_ref = /** @type {Readonly<Vue.ShallowRef<HTMLDivElement|null>>} */ (useTemplateRef('main_ref'))
 onMounted(() => {
 	main_ref.value?.focus()
 })

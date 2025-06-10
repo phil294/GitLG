@@ -38,7 +38,7 @@
 				</nav>
 				<div id="quick-branch-tips">
 					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
-					<History @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
+					<history @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
 						<p v-if="web_phase === 'initializing'" class="loading">
 							Loading...
@@ -63,7 +63,7 @@
 					No commits found
 				</p>
 				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
-					<commit-row :class="{selected_commit:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" role="button" @click="commit_clicked(commit,$event)" />
+					<commit-row :class="{selected_commit:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
 			</div>
 			<div v-if="selected_commit || selected_commits.length" id="details-panel" class="col flex-1">
@@ -109,6 +109,7 @@
 import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
 import * as store from '../state/store.js'
 import { add_push_listener, exchange_message, git } from '../bridge.js'
+import vContextMenu from '../directives/context-menu'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -295,7 +296,8 @@ add_push_listener('show-selected-commit', async () => {
 	show_commit_hash(hash)
 })
 
-let git_input_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('./GitInput.vue')>|null>>} */ (useTemplateRef('git_input_ref'))
+let git_input_ref = useTemplateRef('git_input_ref')
+// @ts-ignore TODO
 store.main_view_git_input_ref.value = git_input_ref
 /* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
     	This function exists so we can modify the args before sending to git, otherwise
@@ -381,7 +383,7 @@ let connection_fake_commit = computed(() => {
 	if (! commit)
 		return null
 	return {
-		refs: [],
+		refs: [], hash: '', hash_long: '', author_name: '', author_email: '', subject: '',
 		vis_lines: commit.vis_lines
 			.filter((line) => line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch))
 			.filter((line, i, all) => all.findIndex(l => l.branch === line.branch) === i) // rm duplicates
