@@ -79,19 +79,30 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 
 	let selected_repo_index = 0
 	return {
-		/** Guaranteed to be unique, but if possible, just the folder name */
+		/** Guaranteed to be unique, yet as short of a path as possible */
 		get_repo_names() {
-			return Object.entries(api.repositories.reduce((/** @type {Record<string, Array<import('./vscode.git').Repository>>} */ all, repo) => {
-				let base = basename(repo.rootUri.path)
-				all[base] ||= []
-				all[base].push(repo)
-				return all
-			}, {}))
-				.map(([base, repos]) =>
-					repos.length === 1
-						? base : repos.map(repo =>
-							repo.rootUri.path))
-				.flat()
+			let arr = api.repositories.map(r => {
+				let segments = r.rootUri.path.split('/')
+				let name = segments.pop() || '???'
+				return { segments, name }
+			})
+			for (let i = 0; i < arr.length; i++) {
+				let el = not_null(arr[i])
+				let dupes = arr.slice(i + 1).filter(el2 =>
+					el2.name === el.name)
+				if (! dupes.length)
+					continue
+				dupes.unshift(el)
+				for (let segment_i = 0; segment_i < el.segments.length; segment_i++) {
+					dupes.forEach(d =>
+						d.name = d.segments.pop() + '/' + d.name)
+					let still_dupes = dupes.some((d, di) =>
+						dupes.findIndex(d2 => d.name === d2.name) !== di)
+					if (! still_dupes)
+						break
+				}
+			}
+			return arr.map(el => el.name)
 		},
 		get_repo(/** @type {number|undefined} */ repo_index) {
 			if (repo_index == null)
@@ -148,8 +159,8 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				// There can be multiple matches with git submodules, in which case the longest
 				// path will be the right one
 			}).sort((a, b) =>
-				b.repo_path.length - a.repo_path.length)
-				.at(0)?.index ?? -1
+				b.repo_path.length - a.repo_path.length,
+			).at(0)?.index ?? -1
 		},
 	}
 }
