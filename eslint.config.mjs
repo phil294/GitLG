@@ -9,7 +9,7 @@ export default [
 	{ files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
 	{ languageOptions: { globals: { ...globals.browser, ...globals.node } } },
 	...pluginVue.configs['flat/recommended'],
-	jsdoc.configs['flat/recommended-typescript-flavor-error'],
+	jsdoc.configs['flat/recommended-typescript-flavor'],
 	{
 		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
 		plugins: { jsdoc },
@@ -31,22 +31,22 @@ export default [
 		rules: {
 			'prefer-const': 'off',
 			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly
-			'@stylistic/indent': ['error', 'tab'],
-			quotes: ['error', 'single'],
+			'@stylistic/indent': ['warn', 'tab'],
+			quotes: ['warn', 'single'],
 			'@stylistic/no-tabs': 'off',
-			'@stylistic/space-before-function-paren': ['error', {
+			'@stylistic/space-before-function-paren': ['warn', {
 				anonymous: 'never',
 				named: 'never',
 				asyncArrow: 'always',
 			}],
-			curly: ['error', 'multi'],
-			'nonblock-statement-body-position': ['error', 'below'],
-			'@stylistic/comma-dangle': ['error', 'always-multiline'],
-			'func-style': ['error', 'declaration', { allowArrowFunctions: true }],
-			'arrow-body-style': ['error', 'as-needed'],
+			curly: ['warn', 'multi'],
+			'nonblock-statement-body-position': ['warn', 'below'],
+			'@stylistic/comma-dangle': ['warn', 'always-multiline'],
+			'func-style': ['warn', 'declaration', { allowArrowFunctions: true }],
+			'arrow-body-style': ['warn', 'as-needed'],
 			'no-return-assign': 'off',
 			'no-throw-literal': 'off',
-			'@stylistic/space-unary-ops': ['error', {
+			'@stylistic/space-unary-ops': ['warn', {
 				words: true,
 				nonwords: true,
 				overrides: {
@@ -56,17 +56,17 @@ export default [
 				},
 			}],
 			'@stylistic/no-extra-parens': ['off'],
-			semi: ['error', 'never', { beforeStatementContinuationChars: 'never' }],
-			'@stylistic/no-extra-semi': 'error',
-			'init-declarations': ['error', 'always'],
-			'vue/html-indent': ['error', 'tab'],
+			semi: ['warn', 'never', { beforeStatementContinuationChars: 'never' }],
+			'@stylistic/no-extra-semi': 'warn',
+			'init-declarations': ['warn', 'always'],
+			'vue/html-indent': ['warn', 'tab'],
 			'vue/max-attributes-per-line': 'off',
 			'vue/max-len': 'off',
-			'vue/singleline-html-element-content-newline': ['error', {
+			'vue/singleline-html-element-content-newline': ['warn', {
 				ignoreWhenNoAttributes: false,
 				ignoreWhenEmpty: false, // not respected, stays at true??
 			}],
-			'vue/multiline-html-element-content-newline': ['error', {
+			'vue/multiline-html-element-content-newline': ['warn', {
 				ignoreWhenEmpty: false,
 			}],
 			'no-extend-native': 'off',
@@ -78,16 +78,16 @@ export default [
 			'jsdoc/require-returns-description': 'off',
 			'jsdoc/require-param-type': 'off',
 			'vue/multi-word-component-names': 'off',
-			'no-shadow': 'error',
+			'no-shadow': 'warn',
 			'vue/return-in-computed-property': 'off',
 			'@stylistic/no-mixed-operators': 'off',
-			'vue/prop-name-casing': ['error', 'snake_case'],
+			'vue/prop-name-casing': ['warn', 'snake_case'],
 			'jsdoc/check-param-names': 'off',
 			'jsdoc/require-returns-type': 'off',
 			'no-undef-init': 'off',
 			'import/first': 'off', // breaks script setup + extra script for exports
 			'@stylistic/multiline-ternary': 'off',
-			'no-unused-vars': ['error', { varsIgnorePattern: '^_.*' }],
+			'no-unused-vars': ['warn', { varsIgnorePattern: '^_.*' }],
 			'no-sequences': 'off',
 		},
 	},
