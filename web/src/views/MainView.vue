@@ -522,7 +522,6 @@ details#log-config[open] {
 	flex-shrink: 0;
 }
 #main-panel > nav > aside > section#actions :deep(button.btn) {
-	font-size: 21px;
 	padding: 1px 5px;
 }
 @keyframes spin {
