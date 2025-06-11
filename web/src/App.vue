@@ -214,6 +214,9 @@ input[type="button"] {
 	border: 1px solid var(--vscode-button-border, var(--vscode-button-background));
     border-radius: 2px;
 }
+button:not(.btn) i.codicon {
+	color: var(--vscode-icon-foreground);
+}
 input[type="checkbox"] {
 	height: 26px;
 	width: 0px;
