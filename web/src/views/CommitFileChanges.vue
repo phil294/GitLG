@@ -229,13 +229,9 @@ ul.list > li .dir {
 	position: relative;
 }
 .commit-file-changes > aside.actions {
-	opacity: 0;
 	position: absolute;
 	top: 10px;
 	right: 10px;
-}
-.commit-file-changes:hover aside.actions {
-	opacity: 1;
 }
 .file-actions {
 	display: none;
