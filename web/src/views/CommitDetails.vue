@@ -53,7 +53,12 @@
 					</div>
 				</div>
 
-				<commit-file-changes v-if="details_panel_position !== 'bottom'" :files="changed_files" @show_diff="show_diff" @show_multi_diff="show_multi_diff" @view_rev="view_rev" />
+				<template v-if="details_panel_position !== 'bottom'">
+					<commit-file-changes v-if="changed_files" :files="changed_files" @show_diff="show_diff" @show_multi_diff="show_multi_diff" @view_rev="view_rev" />
+					<div v-else class="loading padding">
+						Loading files...
+					</div>
+				</template>
 
 				<h3>
 					Parent commits
@@ -84,8 +89,14 @@
 					<slot name="details_text" />
 				</p>
 			</div>
+			<!-- TODO: fix this duplication with css -->
 			<div :class="details_panel_position === 'bottom' ? 'flex-1' : ''" class="right">
-				<commit-file-changes v-if="details_panel_position === 'bottom'" :files="changed_files" @show_diff="show_diff" @show_multi_diff="show_multi_diff" @view_rev="view_rev" />
+				<template v-if="details_panel_position === 'bottom'">
+					<commit-file-changes v-if="changed_files" :files="changed_files" @show_diff="show_diff" @show_multi_diff="show_multi_diff" @view_rev="view_rev" />
+					<div v-else class="loading padding">
+						Loading files...
+					</div>
+				</template>
 			</div>
 		</div>
 	</div>
@@ -143,17 +154,13 @@ let tag_details = ref([])
 let stash = computed(() => props.commit.refs.find((ref_) =>
 	ref_.type === 'stash'))
 
-/** @type {Vue.Ref<import('./CommitFileChanges.vue').FileDiff[]>} */
-let changed_files = ref([])
+/** @type {Vue.Ref<import('./CommitFileChanges.vue').FileDiff[] | null>} */
+let changed_files = ref(null)
 let body = ref('')
 /** @type {Vue.Ref<string[]>} */
 let parent_hashes = ref([])
 watchEffect(async () => {
-	// so we can see untracked as well
-	let get_files_command = stash.value
-		? `-c core.quotepath=false stash show --include-untracked --numstat --summary --format="" ${props.commit.hash}`
-		: `-c core.quotepath=false show --numstat --summary --format="" ${props.commit.hash}`
-	changed_files.value = git_numstat_summary_to_changes_array(await git(get_files_command))
+	changed_files.value = null
 
 	body.value = await git(`show -s --format="%b" ${props.commit.hash}`)
 
@@ -164,6 +171,12 @@ watchEffect(async () => {
 	}
 
 	parent_hashes.value = ((await git(`log --pretty=%p -n 1 ${props.commit.hash}`))).split(' ')
+
+	// so we can see untracked as well
+	let get_files_command = stash.value
+		? `-c core.quotepath=false stash show --include-untracked --numstat --summary --format="" ${props.commit.hash}`
+		: `-c core.quotepath=false show --numstat --summary --format="" ${props.commit.hash}`
+	changed_files.value = git_numstat_summary_to_changes_array(await git(get_files_command))
 })
 
 function show_diff(/** @type {string} */ filepath) {
@@ -175,7 +188,7 @@ function show_diff(/** @type {string} */ filepath) {
 function show_multi_diff() {
 	return exchange_message('open-multi-diff', {
 		hashes: [props.commit.hash + '~1', props.commit.hash],
-		filenames: changed_files.value.map(f => f.path),
+		filenames: (changed_files.value || []).map(f => f.path),
 	})
 }
 function view_rev(/** @type {string} */ filepath) {

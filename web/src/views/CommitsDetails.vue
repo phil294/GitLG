@@ -14,7 +14,10 @@
 				Comparison of two commits
 			</h3>
 
-			<commit-file-changes :files="comparison_files" @show_diff="show_compare_diff" @show_multi_diff="show_multi_compare_diff" @view_rev="view_rev" />
+			<commit-file-changes v-if="comparison_files" :files="comparison_files" @show_diff="show_compare_diff" @show_multi_diff="show_multi_compare_diff" @view_rev="view_rev" />
+			<div v-else class="loading padding">
+				Loading files...
+			</div>
 		</template>
 	</div>
 </template>
@@ -33,11 +36,12 @@ let props = defineProps({
 })
 
 // todo use interface from other file
-/** @type {Vue.Ref<{path:string,insertions:number,deletions:number}[]>} */
-let comparison_files = ref([])
+/** @type {Vue.Ref<{path:string,insertions:number,deletions:number}[] | null>} */
+let comparison_files = ref(null)
 watchEffect(async () => {
 	if (props.commits.length !== 2)
 		return
+	comparison_files.value = null
 	let get_files_command = `-c core.quotepath=false diff --numstat --summary --format="" ${not_null(props.commits[0]).hash} ${not_null(props.commits[1]).hash}`
 	comparison_files.value = git_numstat_summary_to_changes_array(await git(get_files_command))
 })
@@ -51,7 +55,7 @@ function show_compare_diff(/** @type {string} */ filepath) {
 function show_multi_compare_diff() {
 	return exchange_message('open-multi-diff', {
 		hashes: [not_null(props.commits[0]).hash, not_null(props.commits[1]).hash],
-		filenames: comparison_files.value.map(f => f.path),
+		filenames: (comparison_files.value || []).map(f => f.path),
 	})
 }
 function view_rev(/** @type {string} */ filepath) {
