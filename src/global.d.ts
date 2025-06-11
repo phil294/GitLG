@@ -112,6 +112,7 @@ interface ConfigGitAction {
 }
 
 interface GitAction extends ConfigGitAction {
+	/** Set empty string to disable */
 	storage_key: string
 	params: () => Promise<GitActionParam[]>
 }

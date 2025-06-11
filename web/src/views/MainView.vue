@@ -321,6 +321,7 @@ async function run_log(/** @type {string} */ log_args) {
 	}
 }
 
+// @ts-ignore TODO: idk
 let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref'))
 /** @type {Vue.Ref<Commit[]>} */
 let visible_commits = ref([])

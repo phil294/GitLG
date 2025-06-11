@@ -12,7 +12,7 @@
 			</summary>
 			{{ selected_git_action.info }}
 		</details>
-		<git-input :git_action="selected_git_action" @executed="refresh_main_view()" @success="success()" />
+		<git-input v-if="selected_git_action" :git_action="selected_git_action" @executed="refresh_main_view()" @success="success()" />
 		<br>
 		<label class="row align-center gap-5">
 			<input v-model="keep_open" type="checkbox">

@@ -7,7 +7,7 @@
 			<div class="dv">
 				<input v-model="txt_filter" class="filter" placeholder="Filter branch name">
 				<div class="branches">
-					<button v-for="branch of filtered_branches" :key="branch.id" title="Jump to branch tip" @click="$emit('branch_selected',branch);show_all_branches=false">
+					<button v-for="branch of filtered_branches" :key="branch.id" title="Jump to branch tip" @click="$emit('branch_selected',branch);">
 						<ref-tip :git_ref="branch" />
 					</button>
 				</div>

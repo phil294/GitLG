@@ -14,11 +14,11 @@
 				<ol class="entries">
 					<li v-for="(entry, entry_i) of history_mapped" :key="entry.datetime" class="flex">
 						<div :title="entry.datetime" class="entry flex-1">
-							<commit-row v-if="entry.type == 'commit_hash' && entry.ref" :commit="entry.ref" @click="$emit('commit_clicked', entry.ref.hash)" />
+							<commit-row v-if="entry.type == 'commit_hash' && entry.commit" :commit="entry.commit" @click="$emit('commit_clicked', entry.commit.hash)" />
 							<button v-else-if="entry.type == 'commit_hash'" class="btn" @click="$emit('commit_clicked', entry.value)">
 								Commit '{{ entry.value }}'
 							</button>
-							<git-action-button v-else-if="entry.type == 'git'" :git_action="entry.ref" />
+							<git-action-button v-else-if="entry.type == 'git' && entry.git_action" :git_action="entry.git_action" />
 							<button v-else-if="entry.type == 'txt_filter'" class="btn" @click="$emit('apply_txt_filter', entry.value)">
 								<i class="codicon codicon-search" />
 								Search: <code>{{ entry.value }}</code>
@@ -48,23 +48,20 @@ import { history, commits } from '../state/store.js'
 defineEmits(['commit_clicked', 'apply_txt_filter'])
 
 let history_mapped = computed(() =>
-	(history.value || []).slice().reverse().map((entry) => {
-		let ref = null
-		if (entry.type === 'commit_hash')
-			ref = commits.value?.find((commit) =>
-				commit.hash === entry.value)
-		else if (entry.type === 'git')
-			ref = {
-				title: 'git ' + entry.value,
-				args: entry.value,
-				description: 'History entry',
-				icon: 'history',
-			}
-		return {
-			...entry,
-			ref,
-		}
-	}))
+	(history.value || []).slice().reverse().map((entry) => ({
+		...entry,
+		commit: entry.type === 'commit_hash'
+			? commits.value?.find((commit) =>
+				commit.hash === entry.value) : undefined,
+		git_action: entry.type === 'git' ? {
+			title: 'git ' + entry.value,
+			args: entry.value,
+			description: 'History entry',
+			icon: 'history',
+			storage_key: '', // disable
+			params: () => Promise.resolve([]),
+		} : undefined,
+	})))
 function clear_history() {
 	history.value = []
 }

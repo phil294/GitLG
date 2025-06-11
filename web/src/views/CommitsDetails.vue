@@ -57,7 +57,7 @@ function show_multi_compare_diff() {
 function view_rev(/** @type {string} */ filepath) {
 	exchange_message('view-rev', {
 		// TODO: ?
-		hash: props.commits[1].hash,
+		hash: props.commits[1]?.hash,
 		filename: filepath,
 	})
 }
