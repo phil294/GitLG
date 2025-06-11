@@ -127,9 +127,12 @@ let files = computed(() =>
 	props.files.map((file) => {
 		// Even on Windows, the delimiter of git paths output is forward slash
 		let path_arr = file.path.split('/')
+		let ext = path_arr.at(-1)?.split('.').at(-1) || ''
 		// Icons have to be hardcoded because actual theme integration is more or less impossible:
 		// https://github.com/microsoft/vscode/issues/183893
-		let icon = file_extension_icon_path_mapping[/** @type {keyof file_extension_icon_path_mapping} */(file.path.split('.').at(-1) || '')] || 'default_file.svg' // eslint-disable-line @stylistic/no-extra-parens
+		let icon = Object.hasOwn(file_extension_icon_path_mapping, ext)
+			? file_extension_icon_path_mapping[/** @type {keyof file_extension_icon_path_mapping} */ (ext)]
+			: 'default_file.svg'
 		return {
 			...file,
 			filename: path_arr.at(-1) || '?',
