@@ -195,6 +195,11 @@ Please consider opening an issue or PR if you think a certain action or option w
 		"type": "string",
 		"default": ""
 	},
+	"git-log--graph.status-bar-blame-text": {
+		"description": "What to show in the bottom status bar when a commit could be associated with the current line. Two special keywords are available: {AUTHOR} and {TIME_AGO}. You can use any icon from https://microsoft.github.io/vscode-codicons/dist/codicon.html in $(icon-name) notation (see default value).",
+		"type": "string",
+		"default": "$(git-commit) {AUTHOR}, {TIME_AGO}"
+	},
 }
 ```
 

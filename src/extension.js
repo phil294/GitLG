@@ -345,8 +345,11 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			// apparently impossible to get the short form right away in easy machine readable format?
 			current_line_long_hash = blamed[0]?.slice(0, 40) || ''
 			let author = blamed[1]?.slice(7)
-			let time = relative_time.from(new Date(Number(blamed[3]?.slice(12)) * 1000))
-			status_bar_item_blame.text = `$(git-commit) ${author}, ${time}`
+			let time_ago = relative_time.from(new Date(Number(blamed[3]?.slice(12)) * 1000))
+			let status_bar_text = (vscode.workspace.getConfiguration(EXT_ID).get('status-bar-blame-text') || '')
+				.replaceAll('{AUTHOR}', author)
+				.replaceAll('{TIME_AGO}', time_ago)
+			status_bar_item_blame.text = status_bar_text
 		}), 150)
 	}
 	vscode.window.onDidChangeActiveTextEditor(intercept_errors((text_editor) => {
