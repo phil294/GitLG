@@ -8,59 +8,50 @@
 				<p class="body">
 					{{ body }}
 				</p>
-				<template v-if="config_show_buttons">
-					<div v-if="stash" class="stash">
-						<h3>
-							Stash:
-						</h3>
-						<div class="row gap-5 wrap">
-							<git-action-button v-for="action, i of stash_actions" :key="i" :git_action="action" />
-						</div>
+				<div v-if="stash && config_show_buttons" class="stash">
+					<h3>
+						Stash:
+					</h3>
+					<div class="row gap-5 wrap">
+						<git-action-button v-for="action, i of stash_actions" :key="i" :git_action="action" />
 					</div>
-					<div v-if="branch_tips.length" class="branch-tips">
-						<ul>
-							<li v-for="branch_tip of branch_tips" :key="branch_tip.id">
-								<ref-tip :commit="commit" :git_ref="branch_tip" />
-								<div class="row gap-5 wrap">
-									<git-action-button v-for="action, i of branch_actions(branch_tip)" :key="i" :git_action="action" />
-									<button class="show-branch btn gap-5" title="Show the log for this branch only. Revert with a simple click on the main refresh button." @click="show_branch(branch_tip)">
-										<i class="codicon codicon-eye" />Show
-									</button>
-								</div>
-							</li>
-						</ul>
+				</div>
+				<div v-if="branch_tips.length" class="branch-tips">
+					<ul v-if="config_show_buttons">
+						<li v-for="branch_tip of branch_tips" :key="branch_tip.id">
+							<ref-tip :commit="commit" :git_ref="branch_tip" />
+							<div class="row gap-5 wrap">
+								<git-action-button v-for="action, i of branch_actions(branch_tip)" :key="i" :git_action="action" />
+								<button class="show-branch btn gap-5" title="Show the log for this branch only. Revert with a simple click on the main refresh button." @click="show_branch(branch_tip)">
+									<i class="codicon codicon-eye" />Show
+								</button>
+							</div>
+						</li>
+					</ul>
+					<commit-ref-tips v-else class="wrap gap-5" :commit="commit" />
+				</div>
+				<div v-if="tags.length" class="tags">
+					<ul v-for="tag, tag_i of tags" :key="tag.id">
+						<li>
+							<ref-tip :commit="commit" :git_ref="tag" />
+							<pre>{{ tag_details[tag_i] }}</pre>
+							<div v-if="config_show_buttons" class="row gap-5 wrap">
+								<git-action-button v-for="action, i of tag_actions(tag.name)" :key="i" :git_action="action" />
+							</div>
+						</li>
+					</ul>
+				</div>
+				<div v-if="config_show_buttons" class="commit">
+					<h3>
+						Commit {{ commit.hash }}
+						<button title="Jump to commit" @click="$emit('hash_clicked',commit.hash)">
+							<i class="codicon codicon-link" />
+						</button>
+					</h3>
+					<div class="row gap-5 wrap">
+						<git-action-button v-for="action, i of commit_actions" :key="i" :git_action="action" />
 					</div>
-					<div v-if="tags.length" class="tags">
-						<ul v-for="tag, tag_i of tags" :key="tag.id">
-							<li>
-								<ref-tip :commit="commit" :git_ref="tag" />
-								<pre>{{ tag_details[tag_i] }}</pre>
-								<div class="row gap-5 wrap">
-									<git-action-button v-for="action, i of tag_actions(tag.name)" :key="i" :git_action="action" />
-								</div>
-							</li>
-						</ul>
-					</div>
-					<div class="commit">
-						<h3>
-							This commit {{ commit.hash }}<button title="Jump to commit" @click="$emit('hash_clicked',commit.hash)">
-								<i class="codicon codicon-link" />
-							</button>:
-						</h3>
-						<div class="row gap-5 wrap">
-							<git-action-button v-for="action, i of commit_actions" :key="i" :git_action="action" />
-						</div>
-					</div>
-				</template>
-				<template v-else>
-					<div v-if="tags.length" class="tags">
-						<ul v-for="tag, tag_i of tags" :key="tag.id">
-							<li>
-								<pre>{{ tag_details[tag_i] }}</pre>
-							</li>
-						</ul>
-					</div>
-				</template>
+				</div>
 
 				<commit-file-changes v-if="details_panel_position !== 'bottom'" :files="changed_files" @show_diff="show_diff" @show_multi_diff="show_multi_diff" @view_rev="view_rev" />
 
@@ -85,7 +76,11 @@
 					Details
 				</h3>
 				<p>
-					Full hash: {{ commit.hash_long }}<br>
+					Full hash: {{ commit.hash_long }}
+					<button title="Jump to commit" @click="$emit('hash_clicked',commit.hash)">
+						<i class="codicon codicon-link" />
+					</button>
+					<br>
 					<slot name="details_text" />
 				</p>
 			</div>
