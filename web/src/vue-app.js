@@ -16,7 +16,8 @@ function handle_error(/** @type {any[]} */ ...args) {
 			/* standard props poking in the dark */
 			x.message || x.msg || x.data || x.body || x.stack || (() => { try { return JSON.stringify(x, null, 4) } catch (_) { return 0 } })() || x.toString?.())?.toString?.() : '-')
 		.join('\n')
-	console_error(...args, new Error(), args[0]?.domChain ? ['at element', args[0].domChain] : '')
+	let $el = args[0]?.domChain || args[1]?.$el
+	console_error(...args, new Error(), $el ? ['at element', $el] : '')
 	console.trace()
 	// debugger // eslint-disable-line no-debugger
 	show_error_message(prompt_error)
