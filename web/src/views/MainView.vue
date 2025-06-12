@@ -2,7 +2,7 @@
 	<div id="main-view" class="fill col">
 		<div :class="details_panel_position === 'bottom' ? 'col' : 'row'" class="flex-1">
 			<div id="main-panel" class="col">
-				<nav class="row align-center justify-space-between gap-10">
+				<nav :inert="web_phase==='initializing_repo'" class="row align-center justify-space-between gap-10">
 					<details id="log-config" class="flex-1">
 						<summary class="align-center">
 							Configure...
