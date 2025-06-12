@@ -214,6 +214,10 @@ input[type="button"] {
 	border: 1px solid var(--vscode-button-border, var(--vscode-button-background));
     border-radius: 2px;
 }
+.btn.btn-highlighted {
+	background: var(--vscode-activityWarningBadge-background, darkred);
+	color: var(--vscode-activityWarningBadge-foreground);
+}
 button:not(.btn) i.codicon {
 	color: var(--vscode-icon-foreground);
 }

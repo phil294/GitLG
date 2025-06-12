@@ -134,9 +134,11 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 }
 /** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../views/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
+export let main_view_highlight_refresh_button = ref(false)
 /** @param args {{before_execute?: ((cmd: string) => string) | undefined}} */
 export let refresh_main_view = ({ before_execute } = {}) => {
 	console.warn('refreshing main view')
+	main_view_highlight_refresh_button.value = !! before_execute
 	// @ts-ignore TODO: types seem correct like hinted by docs https://vuejs.org/guide/typescript/composition-api.html#typing-component-template-refs
 	// but volar doesn't like it
 	return main_view_git_input_ref.value?.value?.execute({ before_execute })
