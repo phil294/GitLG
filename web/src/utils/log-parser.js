@@ -1,5 +1,3 @@
-import colors from './colors.js'
-
 /**
  * @typedef {{
  *	char: string
@@ -27,8 +25,11 @@ function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
  * @param stash_data {string}
  * @param separator {string}
  * @param curve_radius {number}
+ * @param branch_colors {string[]}
+ * @param name_based_branch_colors {boolean}
+ * @param branch_colors_custom_mapping {Record<string,string>}
  */
-async function parse(log_data, branch_data, stash_data, separator, curve_radius) {
+async function parse(log_data, branch_data, stash_data, separator, curve_radius, branch_colors, name_based_branch_colors, branch_colors_custom_mapping) {
 	console.time('GitLG: parsing log')
 	let rows = log_data.split('\n')
 
@@ -407,18 +408,15 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius)
 			})
 		}
 
+	let branch_i = -1
 	// cannot do this at creation because branches list is not fixed before this (see "inferred substitute")
 	for (let branch of branches)
-		branch.color = (() => {
-			switch (branch.name) {
-				case 'master': case 'main': return '#ff3333'
-				case 'development': case 'develop': case 'dev': return '#009000'
-				case 'stage': case 'staging': case 'production': return '#d7d700'
-				case 'HEAD': return '#ffffff'
-				default:
-					return colors[Math.abs(branch.name.hashCode() % colors.length)]
-			}
-		})()
+		branch.color =
+			branch_colors_custom_mapping[branch.name] ||
+			branch_colors[
+				name_based_branch_colors
+					? Math.abs(branch.name.hashCode() % branch_colors.length)
+					: (++branch_i % branch_colors.length)]
 
 	branches = branches.filter((branch) =>
 		// these now reside linked inside vis objects (with colors), but don't mention them in the listing

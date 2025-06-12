@@ -102,13 +102,13 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 	log_args = log_args.replace('{STASH_REFS}', stash_refs.replaceAll('\n', ' '))
 	let [log_data, branch_data, stash_data] = await Promise.all([
 		git(log_args),
-		fetch_branches ? git(`branch --list --all --format="%(upstream:remotename)${sep}%(refname)"`) : '',
+		fetch_branches ? git(`branch --list --all --sort=-committerdate --format="%(upstream:remotename)${sep}%(refname)"`) : '',
 		fetch_stash_refs ? git('stash list --format="%h %gd"', { ignore_errors: true }).catch(() => '') : '',
 	])
 	/** @type {Awaited<ReturnType<parse>>} */
 	let parsed = { commits: [], branches: [] }
 	if (log_data)
-		parsed = await parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'])
+		parsed = await parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'], config.value['branch-colors'], config.value['branch-color-strategy'] === 'name-based', config.value['branch-color-custom-mapping'])
 	return parsed
 }
 

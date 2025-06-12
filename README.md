@@ -210,6 +210,42 @@ Please consider opening an issue or PR if you think a certain action or option w
 		"type": "string",
 		"default": "$(git-commit) {AUTHOR}, {TIME_AGO}"
 	},
+	"git-log--graph.branch-color-strategy": {
+		"description": "Determines how branch tips colors are picked from the list of colors (setting 'branch-color-list').",
+		"type": "string",
+		"default": "name-based",
+		"enum": [
+			"name-based",
+			"index-based"
+		],
+		"enumDescriptions": [
+			"The color is picked based on the hash of the local branch name, meaning they will consistently be colored the same way.",
+			"The color is picked one by one: The first branch to appear gets the first color, the second one the second and so on. Thus, branch colors might change over time."
+		]
+	},
+	"git-log--graph.branch-colors": {
+		"description": "The list of colors to use for branch tips. See 'branch-color-strategy' setting for how the colors are picked from this list. Please consider submitting your changes here to the GitLG issue tracker as the current list isn't very great.",
+		"type": "array",
+		"items": {
+			"type": "string"
+		},
+		"default": ["#d78700", "#00afff", "#d7af5f", "#5fd7af", "#ff5f87", "#afafff", "#ffaf5f", "#87d700", "#d7af00", "#875f00", "#875f87", "#afaf00", "#005f00", "#005fd7", "#87af5f", "#d75f00", "#5f5fd7", "#d75faf", "#875faf", "#5fafff", "#afff00", "#5faf5f", "#00875f", "#af87d7", "#875f5f", "#d787d7", "#87d7d7", "#00d787", "#87d7af", "#ff875f", "#d7afd7", "#ff8787", "#0087ff", "#ff5fff", "#00af87", "#af5f87", "#ffaf00", "#d7d7d7", "#d700af", "#878700", "#ff8700", "#ffd787", "#d7d787", "#af87af", "#00d7ff", "#5faf00", "#ff0087", "#5fff87", "#5f00ff", "#00af5f", "#FF4136", "#2ECC40", "#0074D9", "#FF851B", "#7FDBFF", "#F012BE", "#39CCCC", "#FFDC00", "#85144B", "#3D9970", "#FF6347", "#2E8B57", "#B10DC9", "#FFA07A", "#48D1CC", "#FFD700", "#8B008B", "#FF7F50", "#20B2AA", "#FF69B4", "#228B22", "#DDA0DD", "#FF4500", "#32CD32", "#9932CC", "#FF8C00", "#66CDAA", "#9400D3", "#00FF00", "#8A2BE2", "#ADFF2F", "#00FFFF", "#8B4513", "#00FA9A", "#800080", "#DA70D6", "#7FFF00", "#7CFC00", "#98FB98", "#FF1493", "#00CED1", "#8A2BE2"]
+	},
+	"git-log--graph.branch-color-custom-mapping": {
+		"description": "A mapping of special branch names that will always receive a fixed color.",
+		"type": "object",
+		"default": {
+			"master": "#ff3333",
+			"main": "#ff3333",
+			"development": "#009000",
+			"develop": "#009000",
+			"dev": "#009000",
+			"stage": "#d7d700",
+			"staging": "#d7d700",
+			"production": "#d7d700",
+			"HEAD": "#ffffff"
+		}
+	},
 }
 ```
 
