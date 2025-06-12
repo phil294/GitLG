@@ -156,9 +156,10 @@ Please consider opening an issue or PR if you think a certain action or option w
 		"default": "auto"
 	},
 	"git-log--graph.hide-sidebar-buttons": {
-		"description": "If active, the buttons for commit, branches, stashes and tags will not be shown anymore in the side bar for a selected commit. The actions are then only available via context menu (right click) in the main view itself.",
+		// "title": "Hide
+		"description": "Set to false to show action buttons for commit, branches, stashes and tags in the detail panel for a selected commit, additionally to being accessible from context menu. This can help with accessibility or when context menu isn't available for other reasons.",
 		"type": "boolean",
-		"default": false
+		"default": true
 	},
 	"git-log--graph.folder": {
 		"description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",
