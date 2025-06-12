@@ -379,7 +379,7 @@ let connection_fake_commit = computed(() => {
 	if (! commit)
 		return null
 	return {
-		refs: [], hash: '', hash_long: '', author_name: '', author_email: '', subject: '',
+		refs: [], hash: '', hash_long: '', author_name: '', author_email: '', subject: '', index_in_graph_output: -1,
 		vis_lines: commit.vis_lines
 			.filter((line) => line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch))
 			.filter((line, i, all) => all.findIndex(l => l.branch === line.branch) === i) // rm duplicates

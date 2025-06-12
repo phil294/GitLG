@@ -64,7 +64,7 @@ interface VisLine {
 }
 
 interface Commit {
-	index_in_graph_output?: number
+	index_in_graph_output: number
 	vis_lines: VisLine[]
 	branch?: Branch
 	hash: string

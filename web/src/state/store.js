@@ -123,10 +123,19 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 export let main_view_action = async (/** @type {string} */ log_args) => {
 	if (web_phase.value === 'initializing')
 		web_phase.value = 'initializing_repo'
-	else if (web_phase.value === 'initializing_repo')
-		unset_main_data()
-	else
+	else if (web_phase.value !== 'initializing_repo')
 		web_phase.value = 'refreshing'
+	if (web_phase.value === 'initializing_repo') {
+		unset_main_data()
+		if (! config.value['disable-preliminary-loading'])
+			// The "main" main log happens below, but because of the large default_log_action_n, this can take several seconds for large repos.
+			// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
+			git_log(`${log_args_override_base} -n 100 --all`,
+				{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
+				commits.value = parsed.commits
+					.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [], index_in_graph_output: -1 })
+					.map(c => ({ ...c, stats: /* to prevent loading them */ {} })))
+	}
 	// errors will be handled by GitInput
 	let [parsed_log_data, status_data, head_data] = await Promise.all([
 		git_log(log_args).catch(error => {
@@ -231,18 +240,7 @@ export let web_phase = stateful_computed('web-phase', /** @type {'dead' | 'initi
 export let init = () => {
 	unset_main_data()
 
-	refresh_config().then(() => {
-		if (config.value['disable-preliminary-loading'])
-			return
-		// The "main" main log happens via the `immediate` flag of log_action which is rendered in a git-input in MainView.
-		// But because of the large default_log_action_n, this can take several seconds for large repos.
-		// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
-		git_log(`${log_args_override_base} -n 100 --all`,
-			{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
-			commits.value = parsed.commits
-				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [] })
-				.map(c => ({ ...c, stats: /* to prevent loading them */ {} })))
-	})
+	refresh_config()
 
 	add_push_listener('config-change', async () => {
 		web_phase.value = 'initializing_repo'
