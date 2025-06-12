@@ -31,7 +31,9 @@
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
 							<button id="refresh" class="btn center" :class="{'btn-highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'" @click="refresh()">
-								<i class="codicon codicon-refresh" />
+								<div class="icon-wrapper center">
+									<i class="codicon codicon-refresh" />
+								</div>
 							</button>
 						</section>
 					</aside>
