@@ -20,6 +20,7 @@ add_push_listener('state-update', ({ data: { key, value } }) => {
  * This utility returns a `WritableComputed` that will persist its state or react to changes on the
  * backend somehow. The caller doesn't know where it's stored though, this is up to extension.js
  * to decide based on the *key*.
+ * TODO: what if default_value omitted?
  */
 export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load = () => {}) => {
 	/** @type {Vue.WritableComputedRef<T>|undefined} */

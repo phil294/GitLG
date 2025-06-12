@@ -183,7 +183,7 @@ html {
 	color: #ffa500;
 }
 .grey {
-	color: var(--text-secondary);
+	color: var(--text-secondary) !important;
 }
 button {
 	appearance: none;

@@ -103,23 +103,41 @@
 </template>
 
 <script>
+/** @import { FileDiff } from './CommitFileChanges.vue' */
 export const git_numstat_summary_to_changes_array = (/** @type {string} */ out) =>
 	Object.values(out.split('\n').filter(Boolean)
-		.reduce((/** @type {Record<string, { path: string, insertions: number, deletions: number, is_deletion?: boolean, is_creation?: boolean }>} */ all, line) => {
+		.reduce((/** @type {Record<string, FileDiff>} */ all, line) => {
 			if (line.startsWith(' ')) {
 				let split = line.split(' ')
-				let path = split.slice(4).join(' ')
-				if (all[path])
-					if (split[1] === 'delete')
-						all[path].is_deletion = true
-					else if (split[1] === 'create')
-						all[path].is_creation = true
+				if (split[1] === 'delete' || split[1] === 'create') {
+					let path = split.slice(4).join(' ')
+					if (all[path])
+						if (split[1] === 'delete')
+							all[path].is_deletion = true
+						else if (split[1] === 'create')
+							all[path].is_creation = true
+				} else if (split[1] === 'rename') {
+					// TODO: this is very hacky, --summary output is obviously not meant to be parsed
+					// rename Theme/Chicago95/{index.theme => index1.theme} (100%)
+					let match = line.match(/^ rename ((.+) => .+) \(\d+%\)$/)
+					let change = all[(match?.[2] || '').replaceAll('{', '')]
+					if (change)
+						change.rename_path = match?.[1]
+				}
 			} else {
 				let split = line.split('\t')
-				all[split[2] || ''] = {
-					path: split[2] || '',
+				let path = split[2] || ''
+				/** @type {string | undefined} */
+				let rename_description = undefined
+				if (path.includes(' => ')) {
+					rename_description = path
+					path = path.split(' => ')[0]?.replaceAll('{', '') || ''
+				}
+				all[path] = {
+					path,
 					insertions: Number(split[0]),
 					deletions: Number(split[1]),
+					rename_path: rename_description,
 				}
 			}
 			return all

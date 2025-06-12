@@ -26,6 +26,7 @@ import { ref, computed, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { commits_actions as commits_actions_ } from '../state/store.js'
 import { git_numstat_summary_to_changes_array } from './CommitDetails.vue'
+/** @import { FileDiff } from './CommitFileChanges.vue' */
 
 let props = defineProps({
 	commits: {
@@ -35,8 +36,7 @@ let props = defineProps({
 	},
 })
 
-// todo use interface from other file
-/** @type {Vue.Ref<{path:string,insertions:number,deletions:number}[] | null>} */
+/** @type {Vue.Ref<FileDiff[] | null>} */
 let comparison_files = ref(null)
 watchEffect(async () => {
 	if (props.commits.length !== 2)

@@ -17,11 +17,14 @@
 
 		<template-file-change-define v-slot="{ file }">
 			<button :title="file.insertions+' insertions, '+file.deletions+' deletions'" class="change center gap-10">
-				<div v-if="file.is_creation" class="align-center grey" title="This file was added">
-					<i class="codicon codicon-add" />
+				<div v-if="file.is_creation" class="align-center" title="This file was added">
+					<i class="codicon codicon-add grey" />
 				</div>
-				<div v-if="file.is_deletion" class="align-center grey" title="This file was deleted">
-					<i class="codicon codicon-trash" />
+				<div v-if="file.is_deletion" class="align-center" title="This file was deleted">
+					<i class="codicon codicon-trash grey" />
+				</div>
+				<div v-if="file.rename_path" class="align-center" title="This file was renamed">
+					<i class="codicon codicon-diff-renamed grey" />
 				</div>
 				<progress :value="(file.insertions / (file.insertions + file.deletions)) || 0" class="diff" />
 				<div class="count">
@@ -91,12 +94,14 @@ import { stateful_computed, refresh_main_view } from '../state/store.js'
 import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from '../state/file-extension-icon-path-mapping.json'
 
-// TODO: share/extend type and component with commit.stats?
 /**
  * @typedef {{
  *	path: string
  *	insertions: number
  *	deletions: number
+ *  is_deletion?: boolean
+ *  is_creation?: boolean
+ *  rename_path?: string
  * }} FileDiff
  */
 /**
@@ -126,7 +131,7 @@ defineEmits(['show_diff', 'view_rev', 'show_multi_diff'])
 let files = computed(() =>
 	props.files.map((file) => {
 		// Even on Windows, the delimiter of git paths output is forward slash
-		let path_arr = file.path.split('/')
+		let path_arr = (file.rename_path || file.path).split('/')
 		let ext = path_arr.at(-1)?.split('.').at(-1) || ''
 		// Icons have to be hardcoded because actual theme integration is more or less impossible:
 		// https://github.com/microsoft/vscode/issues/183893
