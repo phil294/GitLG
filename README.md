@@ -132,6 +132,15 @@ Please consider opening an issue or PR if you think a certain action or option w
 		"type": "boolean",
 		"default": true
 	},
+	"git-log--graph.details-panel-position": {
+		"description": "Decide where the commit details should appear when you click a row in the main view.",
+		"type": "string",
+		"default": "right",
+		"enum": [
+			"right",
+			"bottom"
+		]
+	},
 	"git-log--graph.hide-quick-branch-tips": {
 		"description": "If active, the area at the top with the dotted branch lines and git status will not be shown anymore.",
 		"type": "boolean",
