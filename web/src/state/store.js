@@ -65,6 +65,14 @@ export let git_status = ref('')
 /** @type {Vue.Ref<string|null>} */
 export let default_origin = ref('')
 
+let unset_main_data = () => {
+	commits.value = null
+	branches.value = []
+	head_branch.value = ''
+	git_status.value = ''
+	default_origin.value = ''
+}
+
 export let log_action = {
 	// regarding the -greps: Under normal circumstances, when showing stashes in
 	// git log, each of the stashes 2 or 3 parents are being shown. That because of
@@ -113,7 +121,11 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 }
 
 export let main_view_action = async (/** @type {string} */ log_args) => {
-	if (web_phase.value !== 'initializing')
+	if (web_phase.value === 'initializing')
+		web_phase.value = 'initializing_repo'
+	else if (web_phase.value === 'initializing_repo')
+		unset_main_data()
+	else
 		web_phase.value = 'refreshing'
 	// errors will be handled by GitInput
 	let [parsed_log_data, status_data, head_data] = await Promise.all([
@@ -135,7 +147,7 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 /** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../views/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
 export let main_view_highlight_refresh_button = ref(false)
-/** @param args {{before_execute?: ((cmd: string) => string) | undefined}} */
+/** @param args {{before_execute?: ((cmd: string) => string) | undefined}} @returns {Promise<void>}} */
 export let refresh_main_view = ({ before_execute } = {}) => {
 	console.warn('refreshing main view')
 	main_view_highlight_refresh_button.value = !! before_execute
@@ -214,9 +226,11 @@ export let load_commit_hash = async (/** @type {string} */ hash) => {
 	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
 }
 
-export let web_phase = stateful_computed('web-phase', /** @type {'dead' | 'initializing' | 'ready' | 'refreshing'} */ ('initializing'))
+export let web_phase = stateful_computed('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing'))
 
 export let init = () => {
+	unset_main_data()
+
 	refresh_config().then(() => {
 		if (config.value['disable-preliminary-loading'])
 			return
@@ -231,6 +245,7 @@ export let init = () => {
 	})
 
 	add_push_listener('config-change', async () => {
+		web_phase.value = 'initializing_repo'
 		await refresh_config()
 		refresh_main_view()
 	})

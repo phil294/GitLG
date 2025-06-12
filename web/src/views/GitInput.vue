@@ -104,7 +104,6 @@ let load_params_promise = props.git_action.params()
 	.then(loaded => {
 		params.value = loaded
 		params_model.value = params.value.map(p => p.value)
-		console.warn(loaded)
 	})
 function compute_command(/** @type {GitOption[]} */ opts = []) {
 	return (props.git_action.args + ' ' + opts.map(({ value, active }) =>

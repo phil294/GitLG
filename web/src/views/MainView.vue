@@ -30,7 +30,7 @@
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<button id="refresh" class="btn center" :class="{'btn-highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'" @click="refresh()">
+							<button id="refresh" class="btn center" :class="{'btn-highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
 								<div class="icon-wrapper center">
 									<i class="codicon codicon-refresh" />
 								</div>
@@ -42,7 +42,7 @@
 					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
 					<history @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
-						<p v-if="web_phase === 'initializing'" class="loading">
+						<p v-if="web_phase === 'initializing_repo'" class="loading">
 							Loading...
 						</p>
 						<p v-else>
@@ -61,7 +61,7 @@
 				<div v-if="config_show_quick_branch_tips" id="branches-connection">
 					<commit-row v-if="connection_fake_commit" :commit="connection_fake_commit" :height="110" class="vis" />
 				</div>
-				<p v-if="web_phase !== 'initializing' && !filtered_commits.length" id="no-commits-found">
+				<p v-if="commits && !commits.length" id="no-commits-found">
 					No commits found
 				</p>
 				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
@@ -161,6 +161,7 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 		}
 }
 
+// TODO: externalize
 let txt_filter = ref('')
 /** @type {Vue.Ref<'filter' | 'jump'>} */
 let txt_filter_type = ref('filter')
@@ -213,7 +214,7 @@ function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 		else
 			next_match_index = 0
 	}
-	scroll_to_item_centered(next_match_index)
+	scroll_to_index_centered(next_match_index)
 	txt_filter_last_i = next_match_index
 	debounce(() => {
 		let commit = filtered_commits.value[txt_filter_last_i]
@@ -245,7 +246,7 @@ async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 		await store.load_commit_hash(hash)
 		commit_i = 0
 	}
-	scroll_to_item_centered(commit_i)
+	scroll_to_index_centered(commit_i)
 	let commit = not_null(filtered_commits.value[commit_i])
 	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 	// a branch name in a commit's ref list.
@@ -264,8 +265,8 @@ function scroll_to_commit_hash(/** @type {string} */ hash) {
 		console.warn(new Error().stack)
 		console.warn(`No commit found for hash ${hash}`)
 	}
-	scroll_to_item_centered(commit_i)
-	selected_commits.value = [not_null(filtered_commits.value[commit_i])]
+	scroll_to_index_centered(commit_i)
+	// selected_commits.value = [not_null(filtered_commits.value[commit_i])]
 }
 /** Like `scroll_to_commit_hash`, but if the hash isn't available, load it at all costs, and select */
 async function show_commit_hash(/** @type {string} */ hash) {
@@ -280,13 +281,13 @@ async function show_commit_hash(/** @type {string} */ hash) {
 	if (commit_i === -1)
 		throw new Error(`No commit found for hash '${hash}'`)
 
-	scroll_to_item_centered(commit_i)
+	scroll_to_index_centered(commit_i)
 	selected_commits_hashes.value = [hash]
 	store.push_history({ type: 'commit_hash', value: hash })
 }
 function scroll_to_commit(/** @type {Commit} */ commit) {
 	let commit_i = filtered_commits.value.findIndex((c) => c === commit)
-	scroll_to_item_centered(commit_i)
+	scroll_to_index_centered(commit_i)
 }
 function scroll_to_top() {
 	commits_scroller_ref.value?.scrollToItem(0)
@@ -305,21 +306,13 @@ store.main_view_git_input_ref.value = git_input_ref
     	This function exists so we can modify the args before sending to git, otherwise
     	GitInput would have done the git call  */
 async function run_log(/** @type {string} */ log_args) {
-	let is_initializing = store.web_phase.value === 'initializing'
+	let is_initializing_repo = store.web_phase.value === 'initializing_repo'
 	await store.main_view_action(log_args)
 	await sleep(0)
-	if (is_initializing) {
+	if (is_initializing_repo) {
 		let first_selected_hash = selected_commits.value[0]?.hash
 		if (first_selected_hash)
 			scroll_to_commit_hash(first_selected_hash)
-	} else {
-		if (selected_commit.value) {
-			let new_commit = filtered_commits.value.find((commit) =>
-				commit.hash === selected_commit.value?.hash)
-			if (new_commit)
-				selected_commits.value = [new_commit]
-		}
-		commits_scroller_ref.value?.scrollToItem(scroll_item_offset)
 	}
 }
 
@@ -327,10 +320,10 @@ async function run_log(/** @type {string} */ log_args) {
 let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref'))
 /** @type {Vue.Ref<Commit[]>} */
 let visible_commits = ref([])
-let scroll_item_offset = 0
+let scroller_start_index = 0
 function commits_scroller_updated(/** @type {number} */ start_index, /** @type {number} */ end_index) {
-	scroll_item_offset = start_index
-	let commits_start_index = scroll_item_offset < 3 ? 0 : scroll_item_offset
+	scroller_start_index = start_index
+	let commits_start_index = scroller_start_index < 3 ? 0 : scroller_start_index
 	debounce(() =>
 		visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index), 50)
 }
@@ -338,20 +331,20 @@ function scroller_on_wheel(/** @type {WheelEvent} */ event) {
 	if (store.config.value['disable-scroll-snapping'])
 		return
 	event.preventDefault()
-	commits_scroller_ref.value?.scrollToItem(scroll_item_offset + Math.round(event.deltaY / 20))
+	commits_scroller_ref.value?.scrollToItem(scroller_start_index + Math.round(event.deltaY / 20))
 }
 function scroller_on_keydown(/** @type {KeyboardEvent} */ event) {
 	if (store.config.value['disable-scroll-snapping'])
 		return
 	if (event.key === 'ArrowDown') {
 		event.preventDefault()
-		commits_scroller_ref.value?.scrollToItem(scroll_item_offset + 2)
+		commits_scroller_ref.value?.scrollToItem(scroller_start_index + 2)
 	} else if (event.key === 'ArrowUp') {
 		event.preventDefault()
-		commits_scroller_ref.value?.scrollToItem(scroll_item_offset - 2)
+		commits_scroller_ref.value?.scrollToItem(scroller_start_index - 2)
 	}
 }
-function scroll_to_item_centered(/** @type {number} */ index) {
+function scroll_to_index_centered(/** @type {number} */ index) {
 	commits_scroller_ref.value?.scrollToItem(index - Math.floor(visible_commits.value.length / 2))
 }
 let scroll_item_height = computed(() =>

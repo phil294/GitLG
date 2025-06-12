@@ -97,6 +97,9 @@ select {
     line-height: 18px;
 	padding: 3px 4px;
 }
+[inert] {
+	filter: grayscale() opacity(0.6)
+}
 body,
 html {
 	margin: 0;
