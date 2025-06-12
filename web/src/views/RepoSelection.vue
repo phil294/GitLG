@@ -1,6 +1,6 @@
 <template>
 	<div id="repo-selection">
-		<select v-if="repo_names.length > 1" v-model="selection">
+		<select v-if="repo_names?.length > 1" v-model="selection">
 			<option v-for="repo_name, i of repo_names" :key="repo_name" :value="i">
 				{{ repo_name }}
 			</option>
