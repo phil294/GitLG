@@ -63,8 +63,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		on_repo_external_state_change() {
 			return push_message_id('repo-external-state-change')
 		},
-		on_repo_names_change() {
-			return state('repo-names').set(git.get_repo_names())
+		on_repo_infos_change() {
+			return state('repo-infos').set(git.get_repo_infos())
 		},
 	})
 
@@ -93,7 +93,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		})
 	}
 
-	git.set_selected_repo_index(state('selected-repo-index').get() || 0)
+	git.set_selected_repo_path(state('selected-repo-path').get() || 0)
 
 	async function populate_webview() {
 		if (! webview_container)
@@ -159,7 +159,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 						})
 						case 'open-file': return h(() => {
 							// vscode.workspace.workspaceFolders is NOT necessarily in the same order as git-api.repositories
-							let workspace = git.get_repo()?.rootUri.fsPath || ''
+							let workspace = state('selected-repo-path').get() || ''
 							let uri = vscode.Uri.file(path.join(workspace, data.filename))
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
@@ -230,7 +230,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	context.subscriptions.push(vscode.commands.registerCommand(START_CMD, intercept_errors(async (args) => {
 		logger.info('start command')
 		if (args?.rootUri) // invoked via menu scm/title
-			state('selected-repo-index').set(await git.get_repo_index_for_uri(args.rootUri))
+			state('selected-repo-path').set(await git.get_repo_path_for_uri(args.rootUri))
 		if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor') {
 			if (webview_container)
 				// Repeated editor panel show
@@ -312,7 +312,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	status_bar_item_blame.show()
 
 	let current_line = -1
-	let current_line_repo_index = -1
+	/** @type {string | null} */
+	let current_line_repo_path = null
 	let current_line_long_hash = ''
 	/** @type {NodeJS.Timeout|null} */
 	let line_change_debouncer = null
@@ -333,11 +334,11 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		if (line_change_debouncer)
 			clearTimeout(line_change_debouncer)
 		line_change_debouncer = setTimeout(intercept_errors(async () => {
-			current_line_repo_index = await git.get_repo_index_for_uri(uri)
-			if (current_line_repo_index < 0)
+			current_line_repo_path = await git.get_repo_path_for_uri(uri)
+			if (! current_line_repo_path)
 				return hide_blame()
 
-			let blamed = await git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_index)
+			let blamed = await git.run(`blame -L${current_line + 1},${current_line + 1} --porcelain -- ${uri.fsPath}`, current_line_repo_path)
 				.then((b) => b.split('\n')).catch(() => null)
 			if (! blamed)
 				return hide_blame()
@@ -364,7 +365,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		logger.info('blame cmd')
 		if (! current_line_long_hash)
 			return
-		state('selected-repo-index').set(current_line_repo_index)
+		state('selected-repo-path').set(current_line_repo_path)
 		let focus_commit_hash = ((await git.run(`rev-parse --short ${current_line_long_hash}`))).trim()
 		current_line_long_hash = ''
 		state('repo:selected-commits-hashes').set([focus_commit_hash])

@@ -1,4 +1,4 @@
-import { ref, computed, shallowRef, nextTick } from 'vue'
+import { ref, computed, shallowRef, nextTick, watch } from 'vue'
 import { parse } from '../utils/log-parser.js'
 import { git, exchange_message, add_push_listener, show_information_message } from '../bridge.js'
 export { update_commit_stats } from './commit-stats'
@@ -23,7 +23,7 @@ add_push_listener('state-update', ({ data: { key, value } }) => {
  * TODO: what if default_value omitted? / make arg required
  */
 export let state = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load = () => {}) => {
-	/** @type {State<T>|undefined} */
+	/** @type {State<T>|undefined} */ // TODO: type-safe
 	let ret = _states[key]
 	if (ret) {
 		nextTick()
@@ -57,6 +57,8 @@ export let state = (/** @type {string} */ key, /** @type {T} */ default_value, /
 	return ret
 }
 
+export let web_phase = state('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing')).ref
+
 /** @type {Vue.Ref<Commit[]|null>} */
 export let commits = ref(null)
 
@@ -69,12 +71,19 @@ export let git_status = ref('')
 /** @type {Vue.Ref<string|null>} */
 export let default_origin = ref('')
 
-let unset_main_data = () => {
+let unset_main_repo_data = () => {
 	commits.value = null
 	branches.value = []
 	head_branch.value = ''
 	git_status.value = ''
 	default_origin.value = ''
+	// TODO: is history unset after this? / merge with refresh_repo_states?
+}
+
+// TODO: make all state type-safe ext+web
+let refresh_repo_states = () => {
+	for (let key of ['repo:action-history', 'repo:selected-commits-hashes'])
+		_states[key]?.reload()
 }
 
 export let log_action = {
@@ -130,7 +139,10 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 	else if (web_phase.value !== 'initializing_repo')
 		web_phase.value = 'refreshing'
 	if (web_phase.value === 'initializing_repo') {
-		unset_main_data()
+		unset_main_repo_data()
+		if (! selected_repo_path_is_valid.value)
+			return web_phase.value = 'ready'
+		refresh_repo_states()
 		if (! config.value['disable-preliminary-loading'])
 			// The "main" main log happens below, but because of the large default_log_action_n, this can take several seconds for large repos.
 			// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
@@ -168,6 +180,21 @@ export let refresh_main_view = ({ before_execute } = {}) => {
 	// but volar doesn't like it
 	return main_view_git_input_ref.value?.value?.execute({ before_execute })
 }
+
+/** @type {Vue.WritableComputedRef<{path: string, name: string}[]>} */
+export let repo_infos = state('repo-infos').ref
+/** @type {Vue.WritableComputedRef<string>} */
+export let selected_repo_path = state('selected-repo-path', '', () => {
+	watch([selected_repo_path, selected_repo_path_is_valid], () => {
+		web_phase.value = 'initializing_repo'
+		refresh_main_view()
+		// TODO: eager?
+	})
+	if (! selected_repo_path.value && repo_infos.value.length) // first extension run
+		selected_repo_path.value = not_null(repo_infos.value[0]).path
+}).ref
+let selected_repo_path_is_valid = computed(() =>
+	repo_infos.value.some(i => i.path === selected_repo_path.value))
 
 /** @type {Vue.Ref<GitAction|null>} */
 export let selected_git_action = ref(null)
@@ -237,12 +264,11 @@ export let load_commit_hash = async (/** @type {string} */ hash) => {
 	let { commits: _commits } = await git_log(`${log_args_override_base} -n 500 ${hash}`, { fetch_stash_refs: false, fetch_branches: false })
 	commits.value = _commits
 	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
+	main_view_highlight_refresh_button.value = true
 }
 
-export let web_phase = state('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing')).ref
-
 export let init = () => {
-	unset_main_data()
+	unset_main_repo_data()
 
 	refresh_config()
 

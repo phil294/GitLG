@@ -8,8 +8,8 @@
  * }}
  */
 module.exports.get_state = ({ context, git, on_broadcast }) => {
-/** @typedef {(v: any) => Awaited<'stay-subscribed' | 'unsubscribe'>} StateChangeListener */
-/** @type {Record<string, Array<StateChangeListener>>} */
+	/** @typedef {(v: any) => Awaited<'stay-subscribed' | 'unsubscribe'>} StateChangeListener */
+	/** @type {Record<string, Array<StateChangeListener>>} */
 	let state_change_listeners = {}
 	/** @template T */
 	function global_state_memento(/** @type {string} */ key) {
@@ -28,7 +28,9 @@ module.exports.get_state = ({ context, git, on_broadcast }) => {
 	/** @template T */
 	function repo_state_memento(/** @type {string} */ local_key) {
 		function key() {
-			let repo_name = git.get_repo_names()[state('selected-repo-index').get()]
+			let repo_name = git.get_repo_infos().find(i => i.path === state('selected-repo-path').get())?.name
+			if (! repo_name)
+				console.warn(`Failed to get/set repo data for key ${local_key} because the current repo is not contained in the list of loaded repos for some reason`)
 			return `repo-${local_key}-${repo_name}`
 		}
 		return {
@@ -47,18 +49,15 @@ module.exports.get_state = ({ context, git, on_broadcast }) => {
 	}
 	/** @type {Record<string, {get:()=>any,set:(value:any)=>any}>} */
 	let special_states = { // "Normal" states instead are just default_memento
-		'selected-repo-index': {
-			get: () => context.workspaceState.get('selected-repo-index'),
+		'selected-repo-path': {
+			get: () => context.workspaceState.get('selected-repo-path'),
 			set(v) {
-				context.workspaceState.update('selected-repo-index', v)
-				git.set_selected_repo_index(Number(v) || 0)
-				// These will have changed now, so notify clients of updated value
-				for (let key of ['repo:action-history', 'repo:selected-commits-hashes'])
-					state(key).set(state(key).get())
+				context.workspaceState.update('selected-repo-path', v)
+				git.set_selected_repo_path(v)
 			},
 		},
-		'repo-names': {
-			get: () => git.get_repo_names(),
+		'repo-infos': {
+			get: () => git.get_repo_infos(),
 			set() {},
 		},
 		'repo:selected-commits-hashes': repo_state_memento('selected-commits-hashes'),

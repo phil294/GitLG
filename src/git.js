@@ -8,9 +8,9 @@ let exec = util.promisify(require('child_process').exec)
 /**
  * @param EXT_ID {string}
  * @param logger {ReturnType<import('./logger')>}
- * @param args {{on_repo_external_state_change:()=>any, on_repo_names_change:()=>any}}
+ * @param args {{on_repo_external_state_change:()=>any, on_repo_infos_change:()=>any}}
  */
-module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_change, on_repo_names_change }) {
+module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_change, on_repo_infos_change }) {
 	/** @type {import('./vscode.git').API} */
 	let api = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1) || (() => { throw 'VSCode official Git Extension not found, did you disable it?' })()
 	let last_git_execution = 0
@@ -51,7 +51,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				return
 			// We have to observe all repos even if they aren't the selected one because
 			// there is no apparent way to unsubscribe from repo state changes. So filter:
-			if (api.repositories.findIndex((r) => r.rootUri.path === repo.rootUri.path) !== selected_repo_index)
+			if (repo.rootUri.path !== selected_repo_path)
 				return
 			logger.info('repo watcher: external index/head change') // from external, e.g. cli or committed via vscode ui
 			return on_repo_external_state_change()
@@ -66,10 +66,12 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 			return
 		debounce(() => {
 			logger.info('workspace: repo(s) added/removed')
-			api.repositories.filter((repo) => ! repos_cache.includes(repo)).forEach((repo) =>
-				start_observing_repo(repo))
+			api.repositories
+				.filter((repo) => ! repos_cache.some(r => repo.rootUri.path === r.rootUri.path))
+				.forEach((repo) =>
+					start_observing_repo(repo))
 			repos_cache = api.repositories.slice()
-			return on_repo_names_change()
+			return on_repo_infos_change()
 		}, 200)
 	}
 	api.onDidOpenRepository(repos_changed)
@@ -77,14 +79,14 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 	api.onDidChangeState(repos_changed)
 	repos_changed()
 
-	let selected_repo_index = 0
+	let selected_repo_path = ''
 	return {
 		/** Guaranteed to be unique, yet as short of a path as possible */
-		get_repo_names() {
+		get_repo_infos() {
 			let arr = api.repositories.map(r => {
 				let segments = r.rootUri.path.split('/')
 				let name = segments.pop() || '???'
-				return { segments, name }
+				return { path: r.rootUri.path, segments, name }
 			})
 			for (let i = 0; i < arr.length; i++) {
 				let el = not_null(arr[i])
@@ -102,25 +104,19 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 						break
 				}
 			}
-			return arr.map(el => el.name)
+			return arr.map(el => ({ path: el.path, name: el.name }))
 		},
-		get_repo(/** @type {number|undefined} */ repo_index) {
-			if (repo_index == null)
-				repo_index = selected_repo_index
-			let repo = api.repositories.at(repo_index)
-			if (! repo && repo_index > 0)
-				repo = api.repositories.at(0)
-			return repo
-		},
-		async run(/** @type {string} */ args, /** @type {number|undefined} */ repo_index) {
+		async run(/** @type {string} */ args, /** @type {string | undefined} */ repo_path) {
 			let cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
 			let cmd = vscode.workspace.getConfiguration(EXT_ID).get('git-path') ||
 				vscode.workspace.getConfiguration('git').get('path') || 'git'
 			if (! cwd) {
-				let repo = this.get_repo(repo_index)
-				if (! repo)
-					throw 'No repository selected'
-				cwd = repo.rootUri.fsPath
+				cwd = repo_path || selected_repo_path
+				if (! cwd)
+					throw new Error('No repo selected!')
+				let has_matching_repo = api.repositories.some(r => r.rootUri.path === cwd)
+				if (! has_matching_repo)
+					throw new Error(`Tried to run 'git ${args.slice(0, 25)}' but repo not loaded (yet?): ${cwd}`)
 			}
 			try {
 				let { stdout } = await exec(
@@ -143,18 +139,17 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				throw error
 			}
 		},
-		set_selected_repo_index(/** @type {number} */ index) {
-			logger.info('set selected repo index ' + index)
-			selected_repo_index = index
+		set_selected_repo_path(/** @type {string} */ path) {
+			logger.info('set selected repo path ' + path)
+			selected_repo_path = path
 		},
-		get_selected_repo_index: () => selected_repo_index,
-		async get_repo_index_for_uri(/** @type {vscode.Uri} */ uri) {
+		async get_repo_path_for_uri(/** @type {vscode.Uri} */ uri) {
 			if (! existsSync(uri.fsPath))
-				return -1
+				return null
 			let uri_path = await realpath(uri.fsPath).catch(e => { throw new Error(e) /* https://github.com/nodejs/node/issues/30944 */ })
-			return ((await Promise.all(api.repositories.map(async (repo, index) => {
+			return ((await Promise.all(api.repositories.map(async (repo) => {
 				let repo_path = await realpath(repo.rootUri.fsPath).catch(e => { throw new Error(e) /* https://github.com/nodejs/node/issues/30944 */ })
-				return { repo_path, index }
+				return { repo_path, path: repo.rootUri.path }
 			})))).filter(({ repo_path }) => {
 				// if repo includes uri: stackoverflow.com/q/37521893
 				let rel = relative(repo_path, uri_path)
@@ -163,7 +158,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				// path will be the right one
 			}).sort((a, b) =>
 				b.repo_path.length - a.repo_path.length,
-			).at(0)?.index ?? -1
+			).at(0)?.path ?? null
 		},
 	}
 }
