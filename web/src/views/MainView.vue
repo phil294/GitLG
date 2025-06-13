@@ -118,7 +118,7 @@ let details_panel_position = computed(() =>
 
 /** @type {string[]} */
 let default_selected_commits_hashes = []
-let selected_commits_hashes = store.stateful_computed('repo:selected-commits-hashes', default_selected_commits_hashes)
+let selected_commits_hashes = store.state('repo:selected-commits-hashes', default_selected_commits_hashes).ref
 let selected_commits = computed({
 	get() {
 		return selected_commits_hashes.value
@@ -165,7 +165,7 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 let txt_filter = ref('')
 /** @type {Vue.Ref<'filter' | 'jump'>} */
 let txt_filter_type = ref('filter')
-let txt_filter_regex = store.stateful_computed('filter-options-regex', false)
+let txt_filter_regex = store.state('filter-options-regex', false).ref
 let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref'))
 function txt_filter_filter(/** @type {Commit} */ commit) {
 	let search_for = txt_filter.value.toLowerCase()

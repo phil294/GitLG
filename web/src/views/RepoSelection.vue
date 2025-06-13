@@ -9,13 +9,13 @@
 </template>
 <script setup>
 import { watch } from 'vue'
-import { stateful_computed, refresh_main_view, web_phase } from '../state/store.js'
+import { refresh_main_view, state, web_phase } from '../state/store.js'
 
-let repo_names = stateful_computed('repo-names')
+let repo_names = state('repo-names').ref
 /** @type {Vue.WritableComputedRef<number>} */
-let selection = stateful_computed('selected-repo-index', 0, () =>
+let selection = state('selected-repo-index', 0, () =>
 	watch(selection, () => {
 		web_phase.value = 'initializing_repo'
 		refresh_main_view()
-	}))
+	})).ref
 </script>

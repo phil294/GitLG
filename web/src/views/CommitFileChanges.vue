@@ -90,7 +90,7 @@
 <script setup>
 import { computed } from 'vue'
 import { exchange_message } from '../bridge.js'
-import { stateful_computed, refresh_main_view } from '../state/store.js'
+import { state, refresh_main_view } from '../state/store.js'
 import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from '../state/file-extension-icon-path-mapping.json'
 
@@ -112,8 +112,8 @@ import file_extension_icon_path_mapping from '../state/file-extension-icon-path-
  * }} TreeNode
  */
 
-/** @type {Vue.WritableComputedRef<'list'|'tree'>} */
-let render_style = stateful_computed('files-diffs-list-render-style', 'list')
+/** @type {Vue.WritableComputedRef<'list'|'tree'>} */ // TODO type-safe
+let render_style = state('files-diffs-list-render-style', /** @type {const} */ ('list')).ref
 
 let [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate()
 let [TemplateFileActionsDefine, TemplateFileActionsReuse] = createReusableTemplate()

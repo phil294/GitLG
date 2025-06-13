@@ -77,7 +77,7 @@ interface Commit {
 	merge?: boolean
 	/** undefined means not yet queried, an empty object signifies a loading state,
 	only files_changed present means it went through name stats already and
-	full properties come after full retrieval  */
+	full properties come after full retrieval */
 	stats?: {
 		files_changed?: number
 		insertions?: number
@@ -121,4 +121,10 @@ interface HistoryEntry {
 	type: 'txt_filter' | 'branch_id' | 'commit_hash' | 'git'
 	value: string
 	datetime?: string
+}
+
+// TODO: move to web-only global types file
+interface State<T> {
+	ref: Vue.WritableComputedRef<T>
+	reload: () => Promise<void>
 }

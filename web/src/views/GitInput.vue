@@ -74,7 +74,7 @@
  * `params` is never saved and user-edited only.
  */
 import { git } from '../bridge.js'
-import { stateful_computed, push_history } from '../state/store.js'
+import { push_history, state } from '../state/store.js'
 import { ref, computed, reactive, watchEffect, nextTick, onMounted, useTemplateRef } from 'vue'
 
 let props = defineProps({
@@ -123,7 +123,7 @@ let default_stored = { options: [], command: '' }
 let stored = null // TODO: assign stateful computed direcgtly here, why the async init?
 let load_stored_promise = new /** @type {typeof Promise<void>} */(Promise)((loaded) => {
 	if (storage_key)
-		stored = stateful_computed(storage_key, default_stored, loaded)
+		stored = state(storage_key, default_stored, loaded).ref
 	else
 		loaded()
 })

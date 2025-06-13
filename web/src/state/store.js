@@ -9,22 +9,22 @@ export { global_actions, commit_actions, commits_actions, branch_actions, tag_ac
 // It encompasses state, actions and getters (computed values).
 // ########################
 
-/** @type {Record<string, Vue.WritableComputedRef<any>>} */
-let _stateful_computeds = {}
+/** @type {Record<string, State<any>>} */ // TODO: type-safe
+let _states = {}
 add_push_listener('state-update', ({ data: { key, value } }) => {
-	if (_stateful_computeds[key])
-		_stateful_computeds[key].value = value
+	if (_states[key])
+		_states[key].ref.value = value
 })
 /**
  * @template T
  * This utility returns a `WritableComputed` that will persist its state or react to changes on the
  * backend somehow. The caller doesn't know where it's stored though, this is up to extension.js
  * to decide based on the *key*.
- * TODO: what if default_value omitted?
+ * TODO: what if default_value omitted? / make arg required
  */
-export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load = () => {}) => {
-	/** @type {Vue.WritableComputedRef<T>|undefined} */
-	let ret = _stateful_computeds[key]
+export let state = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load = () => {}) => {
+	/** @type {State<T>|undefined} */
+	let ret = _states[key]
 	if (ret) {
 		nextTick()
 			.then(on_load)
@@ -32,21 +32,25 @@ export let stateful_computed = (/** @type {string} */ key, /** @type {T} */ defa
 	}
 	// shallow because type error https://github.com/vuejs/composition-api/issues/483
 	let internal = shallowRef(default_value)
-	ret = computed({
-		get: () => internal.value,
-		set(/** @type {T} */ value) {
-			if (internal.value !== value)
-				exchange_message('set-state', { key, value })
-			internal.value = value
+	ret = {
+		ref: computed({
+			get: () => internal.value,
+			set(/** @type {T} */ value) {
+				if (internal.value !== value)
+					exchange_message('set-state', { key, value })
+				internal.value = value
+			},
+		}),
+		reload: async () => {
+			internal.value = default_value
+			let stored = await exchange_message('get-state', key)
+			if (stored != null)
+				internal.value = stored
 		},
-	})
-	_stateful_computeds[key] = ret;
+	}
+	_states[key] = ret;
 	(async () => {
-		let stored = await exchange_message('get-state', key)
-		if (stored != null) {
-			internal.value = stored // to skip the unnecessary roundtrip to backend
-			ret.value = stored
-		}
+		await ret.reload()
 		await nextTick()
 		on_load?.()
 	})()
@@ -191,11 +195,11 @@ export let show_branch = (/** @type {Branch} */ branch_tip) =>
 
 export let vis_v_width = computed(() =>
 	Number(config.value['branch-width']) || 10)
-export let vis_width = stateful_computed('vis-width', 130)
+export let vis_width = state('vis-width', 130).ref
 
 /** @type {HistoryEntry[]} */
 let default_history = []
-export let history = stateful_computed('repo:action-history', default_history)
+export let history = state('repo:action-history', default_history).ref
 export let push_history = (/** @type {HistoryEntry} */ entry) => {
 	entry.datetime = new Date().toISOString()
 	let _history = history.value?.slice() || []
@@ -235,7 +239,7 @@ export let load_commit_hash = async (/** @type {string} */ hash) => {
 	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
 }
 
-export let web_phase = stateful_computed('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing'))
+export let web_phase = state('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing')).ref
 
 export let init = () => {
 	unset_main_data()
