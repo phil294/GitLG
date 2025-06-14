@@ -11,9 +11,9 @@
 					</details>
 					<repo-selection />
 					<aside class="center gap-20">
-						<section id="search" aria-roledescription="Search" class="center gap-10 justify-flex-end">
+						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
 							<div class="center">
-								<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
+								<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" :class="{highlighted:txt_filter}" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
 								<button id="regex-filter" :class="{visible:txt_filter,active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 									<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 								</button>
@@ -491,12 +491,14 @@ details#log-config[open] {
 	overflow: hidden;
 }
 #main-panel > nav > aside > section#search input#txt-filter {
-	width: 425px;
 	overflow: hidden;
+	&.highlighted {
+		border-color: var(--vscode-activityWarningBadge-background, darkred);
+	}
 }
 #main-panel > nav > aside > section#search #regex-filter {
 	min-width: 20px;
-	margin-left: -23px;
+	margin: 0 7px 0 -23px;
 	opacity: 0;
 	visibility: hidden;
 	transition: all 0.2s ease-in;
@@ -506,7 +508,9 @@ details#log-config[open] {
 		visibility: visible;
 	}
 	&.active {
-		color: var(--vscode-inputOption-activeForeground);
+		i.codicon {
+			color: var(--vscode-inputOption-activeForeground);
+		}
 		border: 1px solid var(--vscode-inputOption-activeBorder);
 		background-color: var(--vscode-inputOption-activeBackground);
 		border-radius: 3px;
