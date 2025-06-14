@@ -16,9 +16,6 @@
 							<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 								<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 							</button>
-							<button v-if="txt_filter" id="clear-filter" class="center" title="Clear" @click="txt_filter=''">
-								<i class="codicon codicon-close" />
-							</button>
 							<label id="filter-type-filter" class="row align-center">
 								<input v-model="txt_filter_type" type="radio" value="filter">
 								Filter
@@ -500,20 +497,15 @@ details#log-config[open] {
 	width: 425px;
 	overflow: hidden;
 }
-#main-panel > nav > aside > section#search #regex-filter,
-#main-panel > nav > aside > section#search #clear-filter {
-	position: relative;
-	width: 0;
-}
-#main-panel > nav > aside > section#search #clear-filter,
-#main-panel > nav > aside > section#search #regex-filter:not(.active) {
-	color: #808080;
+#main-panel > nav > aside > section#search #regex-filter.active {
+    color: var(--vscode-inputOption-activeForeground);
+    border: 1px solid var(--vscode-inputOption-activeBorder);
+    background-color: var(--vscode-inputOption-activeBackground);
+	border-radius: 3px;
 }
 #main-panel > nav > aside > section#search #regex-filter {
-	right: 32px;
-}
-#main-panel > nav > aside > section#search #clear-filter {
-	right: 20px;
+	min-width: 20px;
+	margin-left: -29px;
 }
 #main-panel > nav > aside > section#actions {
 	overflow: hidden;
