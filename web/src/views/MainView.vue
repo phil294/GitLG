@@ -14,7 +14,7 @@
 						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
 							<div class="center">
 								<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" :class="{highlighted:txt_filter}" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
-								<button id="regex-filter" :class="{visible:txt_filter,active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
+								<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
 									<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 								</button>
 							</div>
@@ -159,6 +159,8 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 // TODO: externalize
 let txt_filter = ref('')
 let txt_filter_is_type_filter = store.state('filter-options-is-filter', false).ref
+let txt_filter_type = computed(() =>
+	txt_filter_is_type_filter.value ? 'filter' : 'jump')
 let txt_filter_regex = store.state('filter-options-regex', false).ref
 let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref'))
 function txt_filter_filter(/** @type {Commit} */ commit) {
@@ -180,7 +182,7 @@ function txt_filter_filter(/** @type {Commit} */ commit) {
 			return true
 }
 let filtered_commits = computed(() => {
-	if (! txt_filter.value || ! txt_filter_is_type_filter.value)
+	if (! txt_filter.value || txt_filter_type.value === 'jump')
 		return store.commits.value || []
 	return (store.commits.value || []).filter(txt_filter_filter)
 })
@@ -192,7 +194,7 @@ document.addEventListener('keyup', (e) => {
 		txt_filter_regex.value = ! txt_filter_regex.value
 })
 function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
-	if (txt_filter_is_type_filter.value)
+	if (txt_filter_type.value === 'filter')
 		return
 	let next_match_index = 0
 	if (event.shiftKey) {
@@ -219,7 +221,7 @@ function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 watch(txt_filter, () => {
 	if (txt_filter.value)
 		store.push_history({ type: 'txt_filter', value: txt_filter.value })
-	if (! txt_filter_is_type_filter.value)
+	if (txt_filter_type.value === 'jump')
 		return
 	debounce(() => {
 		if (selected_commit.value)
@@ -499,14 +501,6 @@ details#log-config[open] {
 #main-panel > nav > aside > section#search #regex-filter {
 	min-width: 20px;
 	margin: 0 7px 0 -23px;
-	opacity: 0;
-	visibility: hidden;
-	transition: all 0.2s ease-in;
-	transition-property: opacity, visibility;
-	&.visible {
-		opacity: 1;
-		visibility: visible;
-	}
 	&.active {
 		i.codicon {
 			color: var(--vscode-inputOption-activeForeground);
