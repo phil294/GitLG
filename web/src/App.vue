@@ -217,9 +217,13 @@ input[type="button"] {
 	border: 1px solid var(--vscode-button-border, var(--vscode-button-background));
     border-radius: 2px;
 }
-.btn.btn-highlighted {
-	background: var(--vscode-activityWarningBadge-background, darkred);
-	color: var(--vscode-activityWarningBadge-foreground);
+.highlighted, .highlighted i.codicon {
+	color: var(--vscode-inputOption-activeForeground) !important;
+}
+.highlighted {
+	border: 1px solid var(--vscode-inputOption-activeBorder) !important;
+	background-color: var(--vscode-inputOption-activeBackground) !important;
+	border-radius: 3px !important;
 }
 button:not(.btn) i.codicon {
 	color: var(--vscode-icon-foreground);

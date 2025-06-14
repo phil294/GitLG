@@ -25,7 +25,7 @@
 						</section>
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<button id="refresh" class="btn center" :class="{'btn-highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
+							<button id="refresh" class="btn center" :class="{'highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
 								<div class="icon-wrapper center">
 									<i class="codicon codicon-refresh" />
 								</div>
@@ -495,20 +495,11 @@ details#log-config[open] {
 #main-panel > nav > aside > section#search input#txt-filter {
 	overflow: hidden;
 	&.highlighted {
-		border-color: var(--vscode-activityWarningBadge-background, darkred);
 	}
 }
 #main-panel > nav > aside > section#search #regex-filter {
 	min-width: 20px;
 	margin: 0 7px 0 -23px;
-	&.active {
-		i.codicon {
-			color: var(--vscode-inputOption-activeForeground);
-		}
-		border: 1px solid var(--vscode-inputOption-activeBorder);
-		background-color: var(--vscode-inputOption-activeBackground);
-		border-radius: 3px;
-	}
 }
 #main-panel > nav > aside > section#actions {
 	overflow: hidden;
