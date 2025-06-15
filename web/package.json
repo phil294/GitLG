@@ -4,8 +4,8 @@
   "private": false,
   "license": "MIT",
   "scripts": {
-    "serve": "vite serve",
-    "build": "vite build"
+    "serve": "vite --force serve",
+    "build": "vite --force build"
   },
   "dependencies": {
     "@vscode/codicons": "^0.0.36",
