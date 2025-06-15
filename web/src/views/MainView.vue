@@ -60,7 +60,7 @@
 					No commits found
 				</p>
 				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :update-interval="scroller_update_interval" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
-					<commit-row :class="{selected_commit:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" @click="commit_clicked(commit,$event)" />
+					<commit-row :class="{['selected-commit']:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
 			</div>
 			<div v-if="selected_commit || selected_commits.length" id="details-panel" class="col flex-1">
@@ -599,7 +599,7 @@ details#log-config[open] {
 	padding-left: var(--container-padding);
 	cursor: pointer;
 }
-#main-panel #log.scroller .commit.selected_commit {
+#main-panel #log.scroller .commit.selected-commit {
 	background: var(--vscode-list-activeSelectionBackground);
 	.vscode-high-contrast &, .vscode-high-contrast-light & {
 		border: 1px solid var(--vscode-sideBarSectionHeader-border);
