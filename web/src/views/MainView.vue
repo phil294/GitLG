@@ -14,7 +14,7 @@
 						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
 							<div class="center">
 								<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" :class="{highlighted:txt_filter}" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
-								<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_is_regex}" class="center" @click="txt_filter_is_regex=!txt_filter_is_regex">
+								<button v-if="txt_filter" id="regex-filter" :class="{highlighted:txt_filter_is_regex}" class="center" @click="txt_filter_is_regex=!txt_filter_is_regex">
 									<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 								</button>
 							</div>
