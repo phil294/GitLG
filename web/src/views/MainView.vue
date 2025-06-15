@@ -14,7 +14,7 @@
 						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
 							<div class="center">
 								<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" :class="{highlighted:txt_filter}" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
-								<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_regex}" class="center" @click="txt_filter_regex=!txt_filter_regex">
+								<button v-if="txt_filter" id="regex-filter" :class="{active:txt_filter_is_regex}" class="center" @click="txt_filter_is_regex=!txt_filter_is_regex">
 									<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 								</button>
 							</div>
@@ -59,7 +59,7 @@
 				<p v-if="commits && !commits.length" id="no-commits-found">
 					No commits found
 				</p>
-				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
+				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :update-interval="scroller_update_interval" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
 					<commit-row :class="{selected_commit:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
 			</div>
@@ -156,55 +156,55 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 		}
 }
 
-// TODO: externalize
+// TODO: externalize / split file up in chunks
 let txt_filter = ref('')
 let txt_filter_is_type_filter = store.state('filter-options-is-filter', false).ref
 let txt_filter_type = computed(() =>
 	txt_filter_is_type_filter.value ? 'filter' : 'jump')
-let txt_filter_regex = store.state('filter-options-regex', false).ref
+let txt_filter_is_regex = store.state('filter-options-regex', false).ref
+let txt_filter_regex = computed(() =>
+	txt_filter.value && txt_filter_is_regex.value
+		? (() => { try { return new RegExp(txt_filter.value, 'i') } catch (_) { return null } })()
+		: null,
+)
 let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref'))
-function txt_filter_filter(/** @type {Commit} */ commit) {
-	let search_for = txt_filter.value.toLowerCase()
-	/** @type {RegExp | undefined} */
-	let search_for_regex = undefined
-	if (txt_filter_regex.value)
-		try {
-			search_for_regex = new RegExp(search_for)
-		} catch (_) {
-			return false
-		}
-
-	for (let str of [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)].map((s) => s.toLowerCase()))
-		if (txt_filter_regex.value) {
-			if (str?.match(search_for_regex || '?'))
-				return true
-		} else if (str?.includes(search_for))
-			return true
+// TODO: naming
+function txt_filter_str_filter_txt_index(/** @type {string} */ str) {
+	return txt_filter_regex.value
+		? str.toLowerCase().match(txt_filter_regex.value)?.index ?? -1
+		: str.toLowerCase().indexOf(txt_filter.value.toLowerCase())
+}
+function txt_filter_commit_matches_filter(/** @type {Commit} */ commit) {
+	if (txt_filter_is_regex && ! txt_filter_regex.value)
+		return false
+	return [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)]
+		.some(str => txt_filter_str_filter_txt_index(str) > -1)
 }
 let filtered_commits = computed(() => {
 	if (! txt_filter.value || txt_filter_type.value === 'jump')
 		return store.commits.value || []
-	return (store.commits.value || []).filter(txt_filter_filter)
+	return (store.commits.value || []).filter(txt_filter_commit_matches_filter)
 })
 let txt_filter_last_i = -1
 document.addEventListener('keyup', (e) => {
 	if (e.key === 'F3' || e.ctrlKey && e.key === 'f')
 		txt_filter_ref.value?.focus()
+
 	if (txt_filter.value && e.key === 'r' && e.altKey)
-		txt_filter_regex.value = ! txt_filter_regex.value
+		txt_filter_is_regex.value = ! txt_filter_is_regex.value
 })
 function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 	if (txt_filter_type.value === 'filter')
 		return
 	let next_match_index = 0
 	if (event.shiftKey) {
-		let next = [...filtered_commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_filter)
+		let next = [...filtered_commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_commit_matches_filter)
 		if (next > -1)
 			next_match_index = txt_filter_last_i - 1 - next
 		else
 			next_match_index = filtered_commits.value.length - 1
 	} else {
-		let next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_filter)
+		let next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_commit_matches_filter)
 		if (next > -1)
 			next_match_index = txt_filter_last_i + 1 + next
 		else
@@ -314,6 +314,7 @@ async function run_log(/** @type {string} */ log_args) {
 
 // @ts-ignore TODO: idk
 let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref'))
+let scroller_update_interval = 0 // = default value
 /** @type {Vue.Ref<Commit[]>} */
 let visible_commits = ref([])
 let scroller_start_index = 0
@@ -406,6 +407,26 @@ let invisible_branch_tips_of_visible_branches_elems = computed(() => {
 				},
 			}
 		}).filter(is_truthy) || []
+})
+
+function update_highlights() {
+	CSS.highlights.delete('txt_filter')
+	if (! txt_filter.value)
+		return
+	// This also queries hidden rows regardless of current filter, depending on viewport height.
+	// Not great on performance but this one-liner is by far the easiest way of getting highlights:
+	let highlight_ranges = [...commits_scroller_ref.value.$el.querySelectorAll('.ref-tip, .subject, .author, .hash')]
+		.map(node => ({ node, index: txt_filter_str_filter_txt_index(node.textContent) }))
+		.filter(n => n.index > -1)
+		.map(({ node, index }) => new StaticRange({ startContainer: node.childNodes[0], startOffset: index, endContainer: node.childNodes[0], endOffset: index + txt_filter.value.length }))
+	if (highlight_ranges.length > 0)
+		CSS.highlights.set('txt_filter', new Highlight(...highlight_ranges))
+}
+watch([txt_filter, visible_commits], () => {
+	update_highlights()
+	// In vue-virtual-scroller.esm.js in updateVisibleItems, _$_sortTimer will fire after 300ms and force reselection.
+	// You shouldn't alter a virtual scroller's items from outside anyway...
+	debounce(update_highlights, scroller_update_interval + 300 + 1)
 })
 
 let global_actions = computed(() =>

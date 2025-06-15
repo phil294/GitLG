@@ -115,6 +115,7 @@ import file_extension_icon_path_mapping from '../state/file-extension-icon-path-
 /** @type {Vue.WritableComputedRef<'list'|'tree'>} */ // TODO type-safe
 let render_style = state('files-diffs-list-render-style', /** @type {const} */ ('list')).ref
 
+// TODO render function instead
 let [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate()
 let [TemplateFileActionsDefine, TemplateFileActionsReuse] = createReusableTemplate()
 let [TemplateTreeNodeDefine, TemplateTreeNodeReuse] = createReusableTemplate()

@@ -30,7 +30,7 @@ export default [
 		},
 		rules: {
 			'prefer-const': 'off',
-			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly
+			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly. TODO: ? / alternatives
 			'@stylistic/indent': ['warn', 'tab'],
 			quotes: ['warn', 'single'],
 			'@stylistic/no-tabs': 'off',

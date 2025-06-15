@@ -220,10 +220,10 @@ input[type="button"] {
 .highlighted, .highlighted i.codicon {
 	color: var(--vscode-inputOption-activeForeground) !important;
 }
-.highlighted {
-	border: 1px solid var(--vscode-inputOption-activeBorder) !important;
+.highlighted, ::highlight(txt_filter) {
 	background-color: var(--vscode-inputOption-activeBackground) !important;
-	border-radius: 3px !important;
+	border: 1px solid var(--vscode-inputOption-activeBorder) !important; /* ignored by ::highlight */
+	border-radius: 3px !important; /* ignored by ::highlight */
 }
 button:not(.btn) i.codicon {
 	color: var(--vscode-icon-foreground);
