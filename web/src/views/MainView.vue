@@ -176,7 +176,7 @@ function txt_filter_str_filter_txt_index(/** @type {string} */ str) {
 		: str.toLowerCase().indexOf(txt_filter.value.toLowerCase())
 }
 function txt_filter_commit_matches_filter(/** @type {Commit} */ commit) {
-	if (txt_filter_is_regex && ! txt_filter_regex.value)
+	if (txt_filter_is_regex.value && ! txt_filter_regex.value)
 		return false
 	return [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)]
 		.some(str => txt_filter_str_filter_txt_index(str) > -1)
