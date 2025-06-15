@@ -217,6 +217,7 @@ input[type="button"] {
 	border: 1px solid var(--vscode-button-border, var(--vscode-button-background));
     border-radius: 2px;
 }
+/* TODO: ::highlight not supported on FF. exp flag in bin build? */
 .highlighted, .highlighted i.codicon, ::highlight(txt_filter) {
 	color: var(--vscode-inputOption-activeForeground) !important;
 }

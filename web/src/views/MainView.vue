@@ -423,7 +423,7 @@ function update_highlights() {
 	if (highlight_ranges.length > 0)
 		CSS.highlights.set('txt_filter', new Highlight(...highlight_ranges))
 }
-watch([txt_filter, visible_commits], () => {
+watch([txt_filter, visible_commits, txt_filter_is_regex], () => {
 	update_highlights()
 	// In vue-virtual-scroller.esm.js in updateVisibleItems, _$_sortTimer will fire after 300ms and force reselection.
 	// You shouldn't alter a virtual scroller's items from outside anyway...
