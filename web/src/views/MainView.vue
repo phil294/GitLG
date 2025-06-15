@@ -104,7 +104,7 @@
 </template>
 <script setup>
 import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
-import * as store from '../data/store.js'
+import * as store from '../data/store'
 import { add_push_listener, exchange_message, git } from '../bridge.js'
 import vContextMenu from '../directives/context-menu'
 import state from '../data/state.js'

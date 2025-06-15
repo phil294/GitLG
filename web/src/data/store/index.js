@@ -1,9 +1,9 @@
 import { computed, ref, watch } from 'vue'
-import { add_push_listener, exchange_message, git, show_information_message } from '../bridge.js'
-import { parse } from '../utils/log-parser.js'
-import state, { refresh_repo_states } from './state.js'
-export { branch_actions, combine_branches_actions, commit_actions, commits_actions, global_actions, stash_actions, tag_actions } from './actions.js'
-export { update_commit_stats } from './commit-stats'
+import { add_push_listener, exchange_message, git, show_information_message } from '../../bridge.js'
+import { parse } from '../../utils/log-parser.js'
+import state, { refresh_repo_states } from '../state.js'
+export { branch_actions, combine_branches_actions, commit_actions, commits_actions, global_actions, stash_actions, tag_actions } from '../actions.js'
+export { update_commit_stats } from '../commit-stats'
 
 // ########################
 // This file should be used for state that is of importance for more than just one component.
@@ -116,7 +116,7 @@ export let main_view_action = async (/** @type {string} */ log_args) => {
 	default_origin.value = likely_default_branch?.remote_name || likely_default_branch?.tracking_remote_name || null
 	web_phase.value = 'ready'
 }
-/** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../views/GitInput.vue')|null>>|null>} */
+/** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../../views/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
 export let main_view_highlight_refresh_button = ref(false)
 /** @param args {{before_execute?: ((cmd: string) => string) | undefined}} @returns {Promise<void>}} */

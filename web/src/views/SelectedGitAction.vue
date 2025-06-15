@@ -22,7 +22,7 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import { selected_git_action, refresh_main_view } from '../data/store.js'
+import { selected_git_action, refresh_main_view } from '../data/store'
 
 let keep_open = ref(false)
 

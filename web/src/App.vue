@@ -4,7 +4,7 @@
 	</div>
 </template>
 <script>
-import * as store from './data/store.js'
+import * as store from './data/store'
 
 store.init()
 </script>

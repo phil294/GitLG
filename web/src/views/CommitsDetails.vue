@@ -24,7 +24,7 @@
 <script setup>
 import { ref, computed, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
-import { commits_actions as commits_actions_ } from '../data/store.js'
+import { commits_actions as commits_actions_ } from '../data/store'
 import { git_numstat_summary_to_changes_array } from './CommitDetails.vue'
 /** @import { FileDiff } from './CommitFileChanges.vue' */
 

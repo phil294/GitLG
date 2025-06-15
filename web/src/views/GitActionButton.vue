@@ -10,7 +10,7 @@
 	</button>
 </template>
 <script setup>
-import { selected_git_action } from '../data/store.js'
+import { selected_git_action } from '../data/store'
 defineOptions({
 	inheritAttrs: false,
 })

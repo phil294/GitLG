@@ -8,7 +8,7 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { head_branch, vis_v_width } from '../data/store.js'
+import { head_branch, vis_v_width } from '../data/store'
 
 let props = defineProps({
 	commit: {
