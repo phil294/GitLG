@@ -107,13 +107,14 @@ import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
 import * as store from '../data/store.js'
 import { add_push_listener, exchange_message, git } from '../bridge.js'
 import vContextMenu from '../directives/context-menu'
+import state from '../data/state.js'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
 
 /** @type {string[]} */
 let default_selected_commits_hashes = []
-let selected_commits_hashes = store.state('repo:selected-commits-hashes', default_selected_commits_hashes).ref
+let selected_commits_hashes = state('repo:selected-commits-hashes', default_selected_commits_hashes).ref
 let selected_commits = computed({
 	get() {
 		return selected_commits_hashes.value
@@ -158,10 +159,10 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 
 // TODO: externalize / split file up in chunks
 let txt_filter = ref('')
-let txt_filter_is_type_filter = store.state('filter-options-is-filter', false).ref
+let txt_filter_is_type_filter = state('filter-options-is-filter', false).ref
 let txt_filter_type = computed(() =>
 	txt_filter_is_type_filter.value ? 'filter' : 'jump')
-let txt_filter_is_regex = store.state('filter-options-regex', false).ref
+let txt_filter_is_regex = state('filter-options-regex', false).ref
 let txt_filter_regex = computed(() =>
 	txt_filter.value && txt_filter_is_regex.value
 		? (() => { try { return new RegExp(txt_filter.value, 'i') } catch (_) { return null } })()

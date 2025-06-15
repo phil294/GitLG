@@ -1,61 +1,14 @@
-import { ref, computed, shallowRef, nextTick, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { add_push_listener, exchange_message, git, show_information_message } from '../bridge.js'
 import { parse } from '../utils/log-parser.js'
-import { git, exchange_message, add_push_listener, show_information_message } from '../bridge.js'
+import state, { refresh_repo_states } from './state.js'
+export { branch_actions, combine_branches_actions, commit_actions, commits_actions, global_actions, stash_actions, tag_actions } from './actions.js'
 export { update_commit_stats } from './commit-stats'
-export { global_actions, commit_actions, commits_actions, branch_actions, tag_actions, stash_actions, combine_branches_actions } from './actions.js'
 
 // ########################
 // This file should be used for state that is of importance for more than just one component.
 // It encompasses state, actions and getters (computed values).
 // ########################
-
-/** @type {Record<string, State<any>>} */ // TODO: type-safe
-let _states = {}
-add_push_listener('state-update', ({ data: { key, value } }) => {
-	if (_states[key])
-		_states[key].ref.value = value
-})
-/**
- * @template T
- * This utility returns a `WritableComputed` that will persist its state or react to changes on the
- * backend somehow. The caller doesn't know where it's stored though, this is up to extension.js
- * to decide based on the *key*.
- * TODO: what if default_value omitted? / make arg required
- */
-export let state = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load = () => {}) => {
-	/** @type {State<T>|undefined} */ // TODO: type-safe
-	let ret = _states[key]
-	if (ret) {
-		nextTick()
-			.then(on_load)
-		return ret
-	}
-	// shallow because type error https://github.com/vuejs/composition-api/issues/483
-	let internal = shallowRef(default_value)
-	ret = {
-		ref: computed({
-			get: () => internal.value,
-			set(/** @type {T} */ value) {
-				if (internal.value !== value)
-					exchange_message('set-state', { key, value })
-				internal.value = value
-			},
-		}),
-		reload: async () => {
-			internal.value = default_value
-			let stored = await exchange_message('get-state', key)
-			if (stored != null)
-				internal.value = stored
-		},
-	}
-	_states[key] = ret;
-	(async () => {
-		await ret.reload()
-		await nextTick()
-		on_load?.()
-	})()
-	return ret
-}
 
 export let web_phase = state('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing')).ref
 
@@ -78,12 +31,6 @@ let unset_main_repo_data = () => {
 	git_status.value = ''
 	default_origin.value = ''
 	// TODO: is history unset after this? / merge with refresh_repo_states?
-}
-
-// TODO: make all state type-safe ext+web
-let refresh_repo_states = () => {
-	for (let key of ['repo:action-history', 'repo:selected-commits-hashes'])
-		_states[key]?.reload()
 }
 
 export let log_action = {
