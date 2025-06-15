@@ -600,7 +600,10 @@ details#log-config[open] {
 	cursor: pointer;
 }
 #main-panel #log.scroller .commit.selected_commit {
-	background: var(--vscode-list-activeSelectionBackground)
+	background: var(--vscode-list-activeSelectionBackground);
+	.vscode-high-contrast &, .vscode-high-contrast-light & {
+		border: 1px solid var(--vscode-sideBarSectionHeader-border);
+	}
 }
 #main-panel #log.scroller .commit :deep(.info) {
 	border-top: 1px solid var(--vscode-sideBarSectionHeader-border);
