@@ -147,7 +147,7 @@ export const git_numstat_summary_to_changes_array = (/** @type {string} */ out) 
 <script setup>
 import { ref, computed, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
-import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_, config, show_branch } from '../state/store.js'
+import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_, config, show_branch } from '../data/store.js'
 
 let props = defineProps({
 	commit: {

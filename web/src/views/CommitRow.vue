@@ -39,7 +39,7 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { config, vis_width } from '../state/store.js'
+import { config, vis_width } from '../data/store.js'
 
 let props = defineProps({
 	commit: {

@@ -8,5 +8,5 @@
 	</div>
 </template>
 <script setup>
-import { repo_infos, selected_repo_path } from '../state/store.js'
+import { repo_infos, selected_repo_path } from '../data/store.js'
 </script>

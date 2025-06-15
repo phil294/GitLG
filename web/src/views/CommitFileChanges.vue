@@ -90,9 +90,9 @@
 <script setup>
 import { computed } from 'vue'
 import { exchange_message } from '../bridge.js'
-import { state, refresh_main_view } from '../state/store.js'
+import { state, refresh_main_view } from '../data/store.js'
 import { createReusableTemplate } from '@vueuse/core'
-import file_extension_icon_path_mapping from '../state/file-extension-icon-path-mapping.json'
+import file_extension_icon_path_mapping from '../data/file-extension-icon-path-mapping.json'
 
 /**
  * @typedef {{

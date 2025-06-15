@@ -5,7 +5,7 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { config } from '../state/store'
+import { config } from '../data/store'
 
 let props = defineProps({
 	commit: {
