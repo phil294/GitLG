@@ -60,10 +60,8 @@ let selected_repo_path_is_valid = computed(() =>
 /** @type {Vue.Ref<GitAction|null>} */
 export let selected_git_action = ref(null)
 
-/** @type {Vue.Ref<any>} */
-export let config = ref({})
-export let refresh_config = async () =>
-	config.value = await exchange_message('get-config')
+/** @type {Vue.Ref<any>} */ // TODO:
+export let config = state('config', {}).ref
 
 export let vis_v_width = computed(() =>
 	Number(config.value['branch-width']) || 10)
@@ -99,18 +97,11 @@ export let show_commit_hash = async (/** @type {string} */ hash) => {
 	main_view_highlight_refresh_button.value = true
 }
 
-export let init = () => {
-	repo_store._protected.unset()
+add_push_listener('repo-external-state-change', () => trigger_main_refresh())
 
-	refresh_config()
+add_push_listener('refresh-main-view', () => trigger_main_refresh())
 
-	add_push_listener('config-change', async () => {
-		web_phase.value = 'initializing_repo'
-		await refresh_config()
-		trigger_main_refresh()
-	})
-
-	add_push_listener('repo-external-state-change', () => trigger_main_refresh())
-
-	add_push_listener('refresh-main-view', () => trigger_main_refresh())
-}
+watch(config, async () => {
+	web_phase.value = 'initializing_repo'
+	trigger_main_refresh()
+})

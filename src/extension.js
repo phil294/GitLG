@@ -59,6 +59,9 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		})
 	}
 
+	let get_config = () =>
+		vscode.workspace.getConfiguration(EXT_ID)
+
 	let git = get_git(EXT_ID, logger, {
 		on_repo_external_state_change() {
 			return push_message_id('repo-external-state-change')
@@ -71,6 +74,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	let { state, add_state_change_listener } = get_state({
 		context,
 		git,
+		get_config,
 		on_broadcast: data => post_message({
 			type: 'push-to-web',
 			id: 'state-update',
@@ -134,8 +138,6 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 							logger.error(data))
 						case 'show-information-message': return h(() =>
 							vscode.window.showInformationMessage(data))
-						case 'get-config': return h(() =>
-							vscode.workspace.getConfiguration(EXT_ID))
 						case 'get-state': return h(() =>
 							state(data).get())
 						case 'set-state': return h(() =>
@@ -171,7 +173,9 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 
 		vscode.workspace.onDidChangeConfiguration(intercept_errors((event) => {
 			if (event.affectsConfiguration(EXT_ID))
-				debounce(intercept_errors(() => push_message_id('config-change')), 500)
+				debounce(intercept_errors(() =>
+					state('config').set(state('config').get()))
+				, 500)
 		}))
 
 		let is_production = context.extensionMode === vscode.ExtensionMode.Production || process.env.GIT_LOG__GRAPH_MODE === 'production'
@@ -191,7 +195,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		let base_url = is_production
 			? view.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'web-dist')) + '/'
 			: dev_server_url
-		let custom_css = vscode.workspace.getConfiguration(EXT_ID).get('custom-css')
+		let custom_css = get_config().get('custom-css')
 		if (custom_css)
 			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c) => c.css).catch(() => 0)
 		let loading_prompt = is_production
@@ -231,7 +235,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		logger.info('start command')
 		if (args?.rootUri) // invoked via menu scm/title
 			state('selected-repo-path').set(await git.get_repo_path_for_uri(args.rootUri))
-		if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor') {
+		if (get_config().get('position') === 'editor') {
 			if (webview_container)
 				// Repeated editor panel show
 				return /** @type {vscode.WebviewPanel} */ (webview_container).reveal()
@@ -254,7 +258,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 
 	// Close the editor(tab)
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.close', intercept_errors(() => {
-		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
+		if (get_config().get('position') !== 'editor')
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		if (! webview_container)
 			return vscode.window.showInformationMessage('GitLG editor tab is not running.')
@@ -264,7 +268,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 
 	// Toggle the editor(tab)
 	context.subscriptions.push(vscode.commands.registerCommand('git-log--graph.toggle', intercept_errors(() => {
-		if (vscode.workspace.getConfiguration(EXT_ID).get('position') !== 'editor')
+		if (get_config().get('position') !== 'editor')
 			return vscode.window.showInformationMessage('This command can only be used if GitLG isn\'t configured as a main editor (tab).')
 		logger.info('toggle command')
 		if (webview_container)
@@ -289,7 +293,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	context.subscriptions.push(vscode.window.registerWebviewViewProvider(EXT_ID, {
 		// Side nav view creation
 		resolveWebviewView: intercept_errors((view) => {
-			if (vscode.workspace.getConfiguration(EXT_ID).get('position') === 'editor')
+			if (get_config().get('position') === 'editor')
 				return
 			logger.info('provide view')
 			webview_container = view
@@ -347,7 +351,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			current_line_long_hash = blamed[0]?.slice(0, 40) || ''
 			let author = blamed[1]?.slice(7)
 			let time_ago = relative_time.from(new Date(Number(blamed[3]?.slice(12)) * 1000))
-			let status_bar_text = (vscode.workspace.getConfiguration(EXT_ID).get('status-bar-blame-text') || '')
+			let status_bar_text = (get_config().get('status-bar-blame-text') || '')
 				.replaceAll('{AUTHOR}', author)
 				.replaceAll('{TIME_AGO}', time_ago)
 			status_bar_item_blame.text = status_bar_text

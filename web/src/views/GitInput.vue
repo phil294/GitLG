@@ -173,6 +173,7 @@ onMounted(async () => {
 		command_input_ref.value?.focus()
 	;[...(params_input_refs.value || []),
 		command_input_ref.value]
+		// FIXME: outdated
 		.map(r => r?.shadowRoot?.querySelector('input'))
 		.filter(is_truthy)
 		.forEach(input => {
@@ -185,6 +186,9 @@ let result_data = ref('')
 let result_error = ref('')
 /** @param args {{before_execute?: ((cmd: string) => string) | undefined, fetch_stash_refs?: boolean, fetch_branches?: boolean}} */
 async function execute({ before_execute, fetch_stash_refs, fetch_branches } = {}) {
+	await load_stored_promise
+	await load_params_promise
+	await nextTick()
 	result_error.value = ''
 	let _params = params_model.value.map((p) => p.replaceAll('\\n', '\n'))
 	if (_params.some((p) => p.match(/"|(\\([^n]|$))/)))
@@ -228,9 +232,6 @@ async function execute({ before_execute, fetch_stash_refs, fetch_branches } = {}
 
 let ref_form = useTemplateRef('ref_form')
 onMounted(async () => {
-	await load_stored_promise
-	await load_params_promise
-	await nextTick()
 	if (props.git_action.immediate)
 		await ref_form.value?.request_submit()
 })

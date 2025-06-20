@@ -5,6 +5,7 @@ import { add_push_listener, exchange_message } from '../bridge'
 let _states = {}
 add_push_listener('state-update', ({ data: { key, value } }) => {
 	if (_states[key])
+		// FIXME: doesn't this unnecessarily trigger exchange_message set-state?
 		_states[key].ref.value = value
 })
 /**

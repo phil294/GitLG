@@ -5,9 +5,10 @@
  *   context: import('vscode').ExtensionContext,
  *   git: ReturnType<import('./git.js').get_git>,
  *   on_broadcast: (data: {key: string, value: string}) => any,
+ *   get_config: () => import('vscode').WorkspaceConfiguration
  * }}
  */
-module.exports.get_state = ({ context, git, on_broadcast }) => {
+module.exports.get_state = ({ context, git, on_broadcast, get_config }) => {
 	/** @typedef {(v: any) => Awaited<'stay-subscribed' | 'unsubscribe'>} StateChangeListener */
 	/** @type {Record<string, Array<StateChangeListener>>} */
 	let state_change_listeners = {}
@@ -49,6 +50,10 @@ module.exports.get_state = ({ context, git, on_broadcast }) => {
 	}
 	/** @type {Record<string, {get:()=>any,set:(value:any)=>any}>} */
 	let special_states = { // "Normal" states instead are just default_memento
+		config: {
+			get: () => get_config(),
+			set() {},
+		},
 		'selected-repo-path': {
 			get: () => context.workspaceState.get('selected-repo-path'),
 			set(v) {
