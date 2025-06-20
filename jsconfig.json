@@ -16,14 +16,6 @@
   },
   "compilerOptions": {
     "baseUrl": ".",
-    "paths": {
-      "@web/*": [
-        "web/src/*"
-      ],
-      "@extension/*": [
-        "src/*"
-      ]
-    },
     "types": ["vite/client"],
     "moduleResolution": "Node",
     "module": "ESNext",
