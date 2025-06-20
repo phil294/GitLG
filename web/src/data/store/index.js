@@ -65,6 +65,10 @@ export let config = ref({})
 export let refresh_config = async () =>
 	config.value = await exchange_message('get-config')
 
+export let vis_v_width = computed(() =>
+	Number(config.value['branch-width']) || 10)
+export let vis_width = state('vis-width', 130).ref
+
 export let combine_branches_to_branch_name = ref('')
 export let combine_branches_from_branch_name = ref('')
 // should be id not name (?)
@@ -83,15 +87,11 @@ export let show_branch = (/** @type {Branch} */ branch_tip) =>
 		fetch_stash_refs: false,
 	})
 
-export let vis_v_width = computed(() =>
-	Number(config.value['branch-width']) || 10)
-export let vis_width = state('vis-width', 130).ref
-
 /** Make sure *hash* is temporarily part of the loaded commits */
-export let load_commit_hash = async (/** @type {string} */ hash) => {
+export let show_commit_hash = async (/** @type {string} */ hash) => {
 	trigger_main_refresh({
-		custom_log_args: ({ default_log_args }) =>
-			`${default_log_args} -n 500 ${hash}`,
+		custom_log_args: ({ base_log_args }) =>
+			`${base_log_args} -n 500 ${hash}`,
 		fetch_stash_refs: false,
 		fetch_branches: false,
 	})

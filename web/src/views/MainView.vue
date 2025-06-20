@@ -244,7 +244,7 @@ async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	})
 	if (commit_i === -1) {
 		let hash = await git(`rev-parse --short "${branch.id}"`)
-		await store.load_commit_hash(hash)
+		await store.show_commit_hash(hash)
 		commit_i = 0
 	}
 	scroll_to_index_centered(commit_i)
@@ -275,7 +275,7 @@ async function show_commit_hash(/** @type {string} */ hash) {
 	let commit_i = filtered_commits.value.findIndex((commit) =>
 		commit.hash === hash)
 	if (commit_i === -1)
-		await store.load_commit_hash(hash)
+		await store.show_commit_hash(hash)
 
 	commit_i = filtered_commits.value.findIndex((commit) =>
 		commit.hash === hash)
