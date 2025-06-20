@@ -11,18 +11,7 @@
 					</details>
 					<repo-selection />
 					<aside class="center gap-20">
-						<section id="search" aria-roledescription="Search" class="center gap-5 justify-flex-end">
-							<div class="center">
-								<input id="txt-filter" ref="txt_filter_ref" v-model="txt_filter" class="filter" :class="{highlighted:txt_filter}" placeholder="Search subject, hash, author" @keyup.enter="txt_filter_enter($event)" @keyup.f3="txt_filter_enter($event)">
-								<button v-if="txt_filter" id="regex-filter" :class="{highlighted:txt_filter_is_regex}" class="center" @click="txt_filter_is_regex=!txt_filter_is_regex">
-									<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
-								</button>
-							</div>
-							<label v-if="txt_filter" id="filter-type-filter" class="row align-center" title="If active, the list will be filtered. If inactive, you can jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3.">
-								<input v-model="txt_filter_is_type_filter" type="checkbox">
-								Filter
-							</label>
-						</section>
+						<filter-input id="filter" @scroll_to_commit="scroll_to_commit" />
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
 							<button id="refresh" class="btn center" :class="{'highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
@@ -35,7 +24,7 @@
 				</nav>
 				<div id="quick-branch-tips">
 					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
-					<history @apply_txt_filter="$event=>txt_filter=$event" @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
+					<history @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
 						<p v-if="web_phase === 'initializing_repo'" class="loading">
 							Loading...
@@ -59,7 +48,7 @@
 				<p v-if="commits && !commits.length" id="no-commits-found">
 					No commits found
 				</p>
-				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :update-interval="scroller_update_interval" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="filtered_commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
+				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :update-interval="scroller_update_interval" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
 					<commit-row :class="{['selected-commit']:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
 			</div>
@@ -67,10 +56,10 @@
 				<template v-if="selected_commit">
 					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="show_commit_hash($event)">
 						<template #details_text>
-							<template v-if="filtered_commits.length !== commits?.length">
+							<template v-if="commits.length !== commits?.length">
 								Index in filtered commits: {{ selected_commit_index_in_filtered_commits }}<br>
 							</template>
-							Index in all loaded commits: {{ selected_commit_index_in_commits }}<br>
+							Index in all loaded commits: {{ selected_commit_index_in_loaded_commits }}<br>
 							Index in raw graph output: {{ selected_commit.index_in_graph_output }}
 						</template>
 					</commit-details>
@@ -104,14 +93,15 @@
 </template>
 <script setup>
 import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
-import * as store from '../data/store'
-import { commits, git_status, log_action } from '../data/store/repo'
 import { add_push_listener, exchange_message, git } from '../bridge.js'
 import vContextMenu from '../directives/context-menu'
 import state from '../data/state.js'
+import * as store from '../data/store'
+import { commits, git_status, loaded_commits, log_action } from '../data/store/repo'
 import { combine_branches_actions, commit_actions, global_actions } from '../data/store/actions'
 import { update_commit_stats } from '../data/store/commit-stats'
 import { push_history } from '../data/store/history'
+import { filter_str, is_regex as filter_is_regex, str_index_of_filter } from '../data/store/filter'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -122,7 +112,7 @@ let selected_commits_hashes = state('repo:selected-commits-hashes', default_sele
 let selected_commits = computed({
 	get() {
 		return selected_commits_hashes.value
-			?.map((hash) => filtered_commits.value.find((commit) => commit.hash === hash))
+			?.map((hash) => commits.value.find((commit) => commit.hash === hash))
 			.filter(is_truthy) || []
 	},
 	set(commits) {
@@ -134,9 +124,9 @@ let selected_commit = computed(() => {
 		return selected_commits.value[0]
 })
 let selected_commit_index_in_filtered_commits = computed(() =>
-	selected_commit.value ? filtered_commits.value.indexOf(selected_commit.value) : -1)
-let selected_commit_index_in_commits = computed(() =>
-	selected_commit.value ? commits.value?.indexOf(selected_commit.value) || -1 : -1)
+	selected_commit.value ? commits.value.indexOf(selected_commit.value) : -1)
+let selected_commit_index_in_loaded_commits = computed(() =>
+	selected_commit.value ? loaded_commits.value?.indexOf(selected_commit.value) || -1 : -1)
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 	if (! commit.hash)
 		return
@@ -147,10 +137,10 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 		else
 			selected_commits.value = [...selected_commits.value, commit]
 	else if (event?.shiftKey) {
-		let total_index = filtered_commits.value.indexOf(commit)
-		let last_total_index = filtered_commits.value.indexOf(not_null(selected_commits.value.at(-1)))
+		let total_index = commits.value.indexOf(commit)
+		let last_total_index = commits.value.indexOf(not_null(selected_commits.value.at(-1)))
 		if (total_index > last_total_index && total_index - last_total_index < 1000)
-			selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index + 1).filter((c) =>
+			selected_commits.value = selected_commits.value.concat(commits.value.slice(last_total_index, total_index + 1).filter((c) =>
 				! selected_commits.value.includes(c)))
 	} else
 		if (selected_index > -1)
@@ -161,82 +151,9 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 		}
 }
 
-// TODO: externalize / split file up in chunks
-let txt_filter = ref('')
-let txt_filter_is_type_filter = state('filter-options-is-filter', false).ref
-let txt_filter_type = computed(() =>
-	txt_filter_is_type_filter.value ? 'filter' : 'jump')
-let txt_filter_is_regex = state('filter-options-regex', false).ref
-let txt_filter_regex = computed(() =>
-	txt_filter.value && txt_filter_is_regex.value
-		? (() => { try { return new RegExp(txt_filter.value, 'i') } catch (_) { return null } })()
-		: null,
-)
-let txt_filter_ref = /** @type {Readonly<Vue.ShallowRef<HTMLInputElement|null>>} */ (useTemplateRef('txt_filter_ref'))
-// TODO: naming
-function txt_filter_str_filter_txt_index(/** @type {string} */ str) {
-	return txt_filter_regex.value
-		? str.toLowerCase().match(txt_filter_regex.value)?.index ?? -1
-		: str.toLowerCase().indexOf(txt_filter.value.toLowerCase())
-}
-function txt_filter_commit_matches_filter(/** @type {Commit} */ commit) {
-	if (txt_filter_is_regex.value && ! txt_filter_regex.value)
-		return false
-	return [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)]
-		.some(str => txt_filter_str_filter_txt_index(str) > -1)
-}
-let filtered_commits = computed(() => {
-	if (! txt_filter.value || txt_filter_type.value === 'jump')
-		return commits.value || []
-	return (commits.value || []).filter(txt_filter_commit_matches_filter)
-})
-let txt_filter_last_i = -1
-document.addEventListener('keyup', (e) => {
-	if (e.key === 'F3' || e.ctrlKey && e.key === 'f')
-		txt_filter_ref.value?.focus()
-
-	if (txt_filter.value && e.key === 'r' && e.altKey)
-		txt_filter_is_regex.value = ! txt_filter_is_regex.value
-})
-function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
-	if (txt_filter_type.value === 'filter')
-		return
-	let next_match_index = 0
-	if (event.shiftKey) {
-		let next = [...filtered_commits.value.slice(0, txt_filter_last_i)].reverse().findIndex(txt_filter_commit_matches_filter)
-		if (next > -1)
-			next_match_index = txt_filter_last_i - 1 - next
-		else
-			next_match_index = filtered_commits.value.length - 1
-	} else {
-		let next = filtered_commits.value.slice(txt_filter_last_i + 1).findIndex(txt_filter_commit_matches_filter)
-		if (next > -1)
-			next_match_index = txt_filter_last_i + 1 + next
-		else
-			next_match_index = 0
-	}
-	scroll_to_index_centered(next_match_index)
-	txt_filter_last_i = next_match_index
-	debounce(() => {
-		let commit = filtered_commits.value[txt_filter_last_i]
-		if (commit)
-			selected_commits.value = [commit]
-	}, 100)
-}
-watch(txt_filter, () => {
-	if (txt_filter.value)
-		push_history({ type: 'txt_filter', value: txt_filter.value })
-	if (txt_filter_type.value === 'jump')
-		return
-	debounce(() => {
-		if (selected_commit.value)
-			scroll_to_commit(selected_commit.value)
-	}, 250)
-})
-
 async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
-	txt_filter.value = ''
-	let commit_i = filtered_commits.value.findIndex((commit) => {
+	filter_str.value = ''
+	let commit_i = commits.value.findIndex((commit) => {
 		if (branch.inferred)
 			return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
 		else
@@ -248,7 +165,7 @@ async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 		commit_i = 0
 	}
 	scroll_to_index_centered(commit_i)
-	let commit = not_null(filtered_commits.value[commit_i])
+	let commit = not_null(commits.value[commit_i])
 	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 	// a branch name in a commit's ref list.
 	selected_commits.value = [commit]
@@ -260,24 +177,24 @@ async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	push_history({ type: 'commit_hash', value: commit.hash })
 }
 function scroll_to_commit_hash(/** @type {string} */ hash) {
-	let commit_i = filtered_commits.value.findIndex((commit) =>
+	let commit_i = commits.value.findIndex((commit) =>
 		commit.hash === hash)
 	if (commit_i === -1) {
 		console.warn(new Error().stack)
 		console.warn(`No commit found for hash ${hash}`)
 	}
 	scroll_to_index_centered(commit_i)
-	// selected_commits.value = [not_null(filtered_commits.value[commit_i])]
+	// selected_commits.value = [not_null(commits.value[commit_i])]
 }
 /** Like `scroll_to_commit_hash`, but if the hash isn't available, load it at all costs, and select */
 async function show_commit_hash(/** @type {string} */ hash) {
-	txt_filter.value = ''
-	let commit_i = filtered_commits.value.findIndex((commit) =>
+	filter_str.value = ''
+	let commit_i = commits.value.findIndex((commit) =>
 		commit.hash === hash)
 	if (commit_i === -1)
 		await store.show_commit_hash(hash)
 
-	commit_i = filtered_commits.value.findIndex((commit) =>
+	commit_i = commits.value.findIndex((commit) =>
 		commit.hash === hash)
 	if (commit_i === -1)
 		throw new Error(`No commit found for hash '${hash}'`)
@@ -287,7 +204,7 @@ async function show_commit_hash(/** @type {string} */ hash) {
 	push_history({ type: 'commit_hash', value: hash })
 }
 function scroll_to_commit(/** @type {Commit} */ commit) {
-	let commit_i = filtered_commits.value.findIndex((c) => c === commit)
+	let commit_i = commits.value.findIndex((c) => c === commit)
 	scroll_to_index_centered(commit_i)
 }
 function scroll_to_top() {
@@ -328,7 +245,7 @@ function commits_scroller_updated(/** @type {number} */ start_index, /** @type {
 	scroller_start_index = start_index
 	let commits_start_index = scroller_start_index < 3 ? 0 : scroller_start_index
 	debounce(() =>
-		visible_commits.value = filtered_commits.value.slice(commits_start_index, end_index), 50)
+		visible_commits.value = commits.value.slice(commits_start_index, end_index), 50)
 }
 function scroller_on_wheel(/** @type {WheelEvent} */ event) {
 	if (store.config.value['disable-scroll-snapping'])
@@ -348,6 +265,7 @@ function scroller_on_keydown(/** @type {KeyboardEvent} */ event) {
 	}
 }
 function scroll_to_index_centered(/** @type {number} */ index) {
+	// TODO: does this fail if vertical space is taken up by commit details?
 	commits_scroller_ref.value?.scrollToItem(index - Math.floor(visible_commits.value.length / 2))
 }
 let scroll_item_height = computed(() =>
@@ -416,19 +334,20 @@ let invisible_branch_tips_of_visible_branches_elems = computed(() => {
 })
 
 function update_highlights() {
-	CSS.highlights.delete('txt_filter')
-	if (! txt_filter.value)
+	CSS.highlights.delete('txt_filter') // TODO: rename
+	if (! filter_str.value)
 		return
 	// This also queries hidden rows regardless of current filter, depending on viewport height.
 	// Not great on performance but this one-liner is by far the easiest way of getting highlights:
 	let highlight_ranges = [...commits_scroller_ref.value.$el.querySelectorAll('.ref-tip, .subject, .author, .hash')]
-		.map(node => ({ node, index: txt_filter_str_filter_txt_index(node.textContent) }))
+		.map(node => ({ node, index: str_index_of_filter(node.textContent) }))
 		.filter(n => n.index > -1)
-		.map(({ node, index }) => new StaticRange({ startContainer: node.childNodes[0], startOffset: index, endContainer: node.childNodes[0], endOffset: index + txt_filter.value.length }))
+		.map(({ node, index }) => new StaticRange({ startContainer: node.childNodes[0], startOffset: index, endContainer: node.childNodes[0], endOffset: index + filter_str.value.length }))
 	if (highlight_ranges.length > 0)
 		CSS.highlights.set('txt_filter', new Highlight(...highlight_ranges))
 }
-watch([txt_filter, visible_commits, txt_filter_is_regex], () => {
+// TODO: use useEffect if possible
+watch([filter_str, visible_commits, filter_is_regex], () => {
 	update_highlights()
 	// In vue-virtual-scroller.esm.js in updateVisibleItems, _$_sortTimer will fire after 300ms and force reselection.
 	// You shouldn't alter a virtual scroller's items from outside anyway...
@@ -513,17 +432,8 @@ details#log-config[open] {
 #main-panel > nav > aside {
 	flex-shrink: 3;
 }
-#main-panel > nav > aside > section#search {
+#main-panel > nav > aside > section#filter {
 	overflow: hidden;
-}
-#main-panel > nav > aside > section#search input#txt-filter {
-	overflow: hidden;
-	&.highlighted {
-	}
-}
-#main-panel > nav > aside > section#search #regex-filter {
-	min-width: 20px;
-	margin: 0 7px 0 -23px;
 }
 #main-panel > nav > aside > section#actions {
 	overflow: hidden;

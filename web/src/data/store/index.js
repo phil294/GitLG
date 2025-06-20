@@ -1,5 +1,5 @@
 import { computed, nextTick, ref, watch } from 'vue'
-import { add_push_listener, exchange_message, show_information_message } from '../../bridge.js'
+import { add_push_listener, show_information_message } from '../../bridge.js'
 import state, { refresh_repo_states } from '../state.js'
 import * as repo_store from './repo.js'
 

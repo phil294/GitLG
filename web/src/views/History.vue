@@ -19,7 +19,7 @@
 								Commit '{{ entry.value }}'
 							</button>
 							<git-action-button v-else-if="entry.type == 'git' && entry.git_action" :git_action="entry.git_action" />
-							<button v-else-if="entry.type == 'txt_filter'" class="btn" @click="$emit('apply_txt_filter', entry.value)">
+							<button v-else-if="entry.type == 'txt_filter'" class="btn" @click="filter_str = entry.value">
 								<i class="codicon codicon-search" />
 								Search: <code>{{ entry.value }}</code>
 							</button>
@@ -45,8 +45,9 @@
 import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { history } from '../data/store/history'
 import { commits } from '../data/store/repo'
+import { filter_str } from '../data/store/filter'
 
-defineEmits(['commit_clicked', 'apply_txt_filter'])
+defineEmits(['commit_clicked'])
 
 let history_mapped = computed(() =>
 	(history.value || []).slice().reverse().map((entry) => ({

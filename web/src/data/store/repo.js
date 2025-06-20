@@ -2,9 +2,10 @@ import { ref } from 'vue'
 import { git, show_information_message } from '../../bridge.js'
 import { parse } from '../../utils/log-parser.js'
 import { config } from './index.js'
+import { _protected as filter_protected } from './filter'
 
 /** @type {Vue.Ref<Commit[]|null>} */
-export let commits = ref(null)
+export let loaded_commits = ref(null)
 
 /** @type {Vue.Ref<Branch[]>} */
 export let branches = ref([])
@@ -16,7 +17,7 @@ export let git_status = ref('')
 export let default_origin = ref('')
 
 let unset = () => {
-	commits.value = null
+	loaded_commits.value = null
 	branches.value = []
 	head_branch.value = ''
 	git_status.value = ''
@@ -73,7 +74,7 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
 		git_log(`${base_log_args} -n 100 --all`,
 			{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
-			commits.value = parsed.commits
+			loaded_commits.value = parsed.commits
 				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [], index_in_graph_output: -1 })
 				.map(c => ({ ...c, stats: /* to prevent loading them */ {} })))
 	// errors will be handled by GitInput
@@ -85,7 +86,7 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 		git('-c core.quotepath=false status'),
 		git('symbolic-ref HEAD', { ignore_errors: true }).catch(() => null),
 	])
-	commits.value = parsed_log_data.commits
+	loaded_commits.value = parsed_log_data.commits
 	branches.value = parsed_log_data.branches
 	head_branch.value = head_data || 'refs/heads/HEAD'
 	git_status.value = status_data
@@ -94,3 +95,6 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 }
 
 export let _protected = { unset, refresh }
+
+/** As filtered by the user */
+export let commits = filter_protected.filtered_commits
