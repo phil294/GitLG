@@ -12,7 +12,7 @@
 			</summary>
 			{{ selected_git_action.info }}
 		</details>
-		<git-input v-if="selected_git_action" :git_action="selected_git_action" @executed="refresh_main_view()" @success="success()" />
+		<git-input v-if="selected_git_action" :git_action="selected_git_action" @executed="trigger_main_refresh()" @success="success()" />
 		<br>
 		<label class="row align-center gap-5">
 			<input v-model="keep_open" type="checkbox">
@@ -22,7 +22,7 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import { selected_git_action, refresh_main_view } from '../data/store'
+import { selected_git_action, trigger_main_refresh } from '../data/store'
 
 let keep_open = ref(false)
 

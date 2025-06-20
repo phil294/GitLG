@@ -105,6 +105,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
 import * as store from '../data/store'
+import { commits, git_status, log_action } from '../data/store/repo'
 import { add_push_listener, exchange_message, git } from '../bridge.js'
 import vContextMenu from '../directives/context-menu'
 import state from '../data/state.js'
@@ -132,7 +133,7 @@ let selected_commit = computed(() => {
 let selected_commit_index_in_filtered_commits = computed(() =>
 	selected_commit.value ? filtered_commits.value.indexOf(selected_commit.value) : -1)
 let selected_commit_index_in_commits = computed(() =>
-	selected_commit.value ? store.commits.value?.indexOf(selected_commit.value) || -1 : -1)
+	selected_commit.value ? commits.value?.indexOf(selected_commit.value) || -1 : -1)
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 	if (! commit.hash)
 		return
@@ -183,8 +184,8 @@ function txt_filter_commit_matches_filter(/** @type {Commit} */ commit) {
 }
 let filtered_commits = computed(() => {
 	if (! txt_filter.value || txt_filter_type.value === 'jump')
-		return store.commits.value || []
-	return (store.commits.value || []).filter(txt_filter_commit_matches_filter)
+		return commits.value || []
+	return (commits.value || []).filter(txt_filter_commit_matches_filter)
 })
 let txt_filter_last_i = -1
 document.addEventListener('keyup', (e) => {
@@ -304,7 +305,7 @@ store.main_view_git_input_ref.value = git_input_ref
     	GitInput would have done the git call  */
 async function run_log(/** @type {string} */ log_args) {
 	let is_initializing_repo = store.web_phase.value === 'initializing_repo'
-	await store.main_view_action(log_args)
+	await store._run_main_refresh(log_args)
 	await sleep(0)
 	if (is_initializing_repo) {
 		let first_selected_hash = selected_commits.value[0]?.hash
@@ -475,7 +476,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 let config_show_quick_branch_tips = computed(() =>
 	! store.config.value['hide-quick-branch-tips'])
 
-let { combine_branches_from_branch_name, combine_branches_actions, refresh_main_view: refresh, main_view_highlight_refresh_button: highlight_refresh_button, web_phase, selected_git_action, git_status, commits, log_action } = store
+let { combine_branches_from_branch_name, combine_branches_actions, trigger_main_refresh: refresh, main_view_highlight_refresh_button: highlight_refresh_button, web_phase, selected_git_action } = store
 
 </script>
 <style scoped>

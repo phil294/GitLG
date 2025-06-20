@@ -90,7 +90,7 @@
 <script setup>
 import { computed } from 'vue'
 import { exchange_message } from '../bridge.js'
-import { refresh_main_view } from '../data/store'
+import { trigger_main_refresh } from '../data/store'
 import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from '../data/file-extension-icon-path-mapping.json'
 import state from '../data/state.js'
@@ -198,7 +198,7 @@ function open_file(/** @type {string} */ filepath) {
 }
 
 function show_file(/** @type {string} */ filepath) {
-	return refresh_main_view({
+	return trigger_main_refresh({
 		before_execute: (cmd) =>
 			`${cmd} --follow -- "${filepath}"`,
 	})

@@ -16,8 +16,8 @@
 	</div>
 </template>
 <script setup>
+import { branches } from '../data/store/repo'
 import { ref, computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
-import { branches } from '../data/store'
 
 defineEmits(['branch_selected'])
 
