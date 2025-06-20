@@ -109,6 +109,7 @@ import { commits, git_status, log_action } from '../data/store/repo'
 import { add_push_listener, exchange_message, git } from '../bridge.js'
 import vContextMenu from '../directives/context-menu'
 import state from '../data/state.js'
+import { combine_branches_actions, commit_actions, global_actions } from '../data/store/actions'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -431,9 +432,6 @@ watch([txt_filter, visible_commits, txt_filter_is_regex], () => {
 	debounce(update_highlights, scroller_update_interval + 300 + 1)
 })
 
-let global_actions = computed(() =>
-	store.global_actions.value)
-
 onMounted(() => {
 	// didn't work with @keyup.escape.native on the components root element
 	// when focus was in a sub component (??) so doing this instead:
@@ -458,7 +456,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 	let hash = el.parentElement.dataset.commitHash
 	if (! hash)
 		throw 'commit context menu element has no hash?'
-	return store.commit_actions(hash).value.map((action) => ({
+	return commit_actions(hash).value.map((action) => ({
 		label: action.title,
 		icon: action.icon,
 		action() {
@@ -476,7 +474,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 let config_show_quick_branch_tips = computed(() =>
 	! store.config.value['hide-quick-branch-tips'])
 
-let { combine_branches_from_branch_name, combine_branches_actions, trigger_main_refresh: refresh, main_view_highlight_refresh_button: highlight_refresh_button, web_phase, selected_git_action } = store
+let { combine_branches_from_branch_name, trigger_main_refresh: refresh, main_view_highlight_refresh_button: highlight_refresh_button, web_phase, selected_git_action } = store
 
 </script>
 <style scoped>

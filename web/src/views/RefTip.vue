@@ -8,8 +8,9 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { combine_branches, branch_actions, stash_actions, tag_actions, selected_git_action, show_branch } from '../data/store'
+import { combine_branches, selected_git_action, show_branch } from '../data/store'
 import { head_branch } from '../data/store/repo'
+import { branch_actions, stash_actions, tag_actions } from '../data/store/actions'
 import vDrag from '../directives/drag'
 import vDrop from '../directives/drop'
 import vContextMenu from '../directives/context-menu'

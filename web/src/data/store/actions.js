@@ -1,8 +1,8 @@
 import { computed } from 'vue'
-import default_git_actions from './default-git-actions.json'
-import { combine_branches_from_branch_name, combine_branches_to_branch_name, config } from './store'
-import { git } from '../bridge'
-import { default_origin } from './store/repo'
+import default_git_actions from '../default-git-actions.json'
+import { combine_branches_from_branch_name, combine_branches_to_branch_name, config } from '../store'
+import { git } from '../../bridge'
+import { default_origin } from '../store/repo'
 
 /**
  * @param actions {ConfigGitAction[]}
