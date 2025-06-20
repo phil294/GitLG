@@ -110,6 +110,7 @@ import { add_push_listener, exchange_message, git } from '../bridge.js'
 import vContextMenu from '../directives/context-menu'
 import state from '../data/state.js'
 import { combine_branches_actions, commit_actions, global_actions } from '../data/store/actions'
+import { update_commit_stats } from '../data/store/commit-stats'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -356,7 +357,7 @@ watch(visible_commits, async () => {
 	if (! visible_cp.length)
 		return
 	if (! store.config.value['disable-commit-stats'])
-		await store.update_commit_stats(visible_cp)
+		await update_commit_stats(visible_cp)
 })
 let visible_branches = computed(() => [
 	...new Set(visible_commits.value.flatMap((commit) =>

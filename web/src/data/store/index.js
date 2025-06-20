@@ -2,7 +2,6 @@ import { computed, ref, watch } from 'vue'
 import { add_push_listener, exchange_message, show_information_message } from '../../bridge.js'
 import state, { refresh_repo_states } from '../state.js'
 import * as repo_store from './repo.js'
-export { update_commit_stats } from '../commit-stats'
 
 /** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../../views/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)

@@ -1,4 +1,4 @@
-import { git } from '../bridge'
+import { git } from '../../bridge'
 
 /** @type {Record<string, Commit["stats"]>} */
 let stats_cache = {}
