@@ -216,16 +216,16 @@ input[type="button"] {
     border-radius: 2px;
 }
 /* TODO: ::highlight not supported on FF. exp flag in bin build? */
-.highlighted, .highlighted i.codicon, ::highlight(txt_filter) {
+.highlighted, .highlighted i.codicon, ::highlight(search) {
 	color: var(--vscode-inputOption-activeForeground) !important;
 }
-.highlighted, ::highlight(txt_filter) {
+.highlighted, ::highlight(search) {
 	background-color: var(--vscode-inputOption-activeBackground, orange) !important;
 	border: 1px solid var(--vscode-inputOption-activeBorder) !important; /* ignored by ::highlight */
 	border-radius: 3px !important; /* ignored by ::highlight */
 }
 .vscode-high-contrast, .vscode-high-contrast-light {
-	.highlighted, ::highlight(txt_filter) {
+	.highlighted, ::highlight(search) {
 		text-decoration: underline !important;
 	}
 }

@@ -101,7 +101,7 @@ import { commits, git_status, loaded_commits, log_action } from '../data/store/r
 import { combine_branches_actions, commit_actions, global_actions } from '../data/store/actions'
 import { update_commit_stats } from '../data/store/commit-stats'
 import { push_history } from '../data/store/history'
-import { search_str, is_regex as search_is_regex, str_index_of_search } from '../data/store/search'
+import { search_str, type as search_type, is_regex as search_is_regex, str_index_of_search } from '../data/store/search'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -151,6 +151,7 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 		}
 }
 
+// TODO: externalize all scroll* and rename to jump*
 async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	search_str.value = ''
 	let commit_i = commits.value.findIndex((commit) => {
@@ -206,6 +207,12 @@ async function show_commit_hash(/** @type {string} */ hash) {
 function scroll_to_commit(/** @type {Commit} */ commit) {
 	let commit_i = commits.value.findIndex((c) => c === commit)
 	scroll_to_index_centered(commit_i)
+	selected_commits.value = [commit]
+}
+function scroll_to_first_selected_commit() {
+	let first_selected_commit = selected_commits.value[0]
+	if (first_selected_commit)
+		scroll_to_commit(first_selected_commit)
 }
 function scroll_to_top() {
 	commits_scroller_ref.value?.scrollToItem(0)
@@ -228,11 +235,8 @@ async function run_log(/** @type {string} */ log_args, options) {
 	let is_initializing_repo = store.web_phase.value === 'initializing_repo'
 	await store._run_main_refresh(log_args, options)
 	await sleep(0)
-	if (is_initializing_repo) {
-		let first_selected_hash = selected_commits.value[0]?.hash
-		if (first_selected_hash)
-			scroll_to_commit_hash(first_selected_hash)
-	}
+	if (is_initializing_repo)
+		scroll_to_first_selected_commit()
 }
 
 // @ts-ignore TODO: idk
@@ -333,8 +337,14 @@ let invisible_branch_tips_of_visible_branches_elems = computed(() => {
 		}).filter(is_truthy) || []
 })
 
+watch([search_str, search_is_regex, search_type], () => {
+	if (search_type.value === 'jump')
+		return
+	debounce(scroll_to_first_selected_commit, 250)
+})
+
 function update_highlights() {
-	CSS.highlights.delete('txt_filter') // TODO: rename
+	CSS.highlights.delete('search')
 	if (! search_str.value)
 		return
 	// This also queries hidden rows regardless of current search, depending on viewport height.
@@ -344,7 +354,7 @@ function update_highlights() {
 		.filter(n => n.index > -1)
 		.map(({ node, index }) => new StaticRange({ startContainer: node.childNodes[0], startOffset: index, endContainer: node.childNodes[0], endOffset: index + search_str.value.length }))
 	if (highlight_ranges.length > 0)
-		CSS.highlights.set('txt_filter', new Highlight(...highlight_ranges))
+		CSS.highlights.set('search', new Highlight(...highlight_ranges))
 }
 // TODO: use useEffect if possible
 watch([search_str, visible_commits, search_is_regex], () => {

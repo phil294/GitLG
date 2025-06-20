@@ -46,25 +46,9 @@ function on_enter_jump(/** @type {KeyboardEvent} */ event) {
 		else
 			next_match_index = 0
 	}
-	alert(next_match_index)
 	emit('scroll_to_commit', commits.value[next_match_index])
 	last_jump_index = next_match_index
-	// FIXME:
-	// debounce(() => {
-	// 	let commit = commits.value[txt_filter_last_i]
-	// 	if (commit)
-	// 		selected_commits.value = [commit]
-	// }, 100)
 }
-watch(search_str, () => {
-	if (type.value === 'jump')
-		return
-	debounce(() => {
-		// FIXME
-		// if (selected_commit.value)
-		// 	scroll_to_commit(selected_commit.value)
-	}, 250)
-})
 
 let type_is_filter = computed({
 	get: () => type.value === 'filter',

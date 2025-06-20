@@ -77,6 +77,7 @@ export let combine_branches = (/** @type {string} */ from_branch_name, /** @type
 	combine_branches_from_branch_name.value = from_branch_name
 }
 
+// TODO: rename / distinguish from scroll_to_/jump_to_branch_tip. show_isolate_branch?. same below which is actually even called from a jump_to_*.
 export let show_branch = (/** @type {Branch} */ branch_tip) =>
 	trigger_main_refresh({
 		custom_log_args: ({ base_log_args }) =>
