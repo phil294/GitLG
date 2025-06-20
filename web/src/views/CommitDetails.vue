@@ -86,7 +86,11 @@
 						<i class="codicon codicon-link" />
 					</button>
 					<br>
-					<slot name="details_text" />
+					<template v-if="commits.length !== loaded_commits?.length">
+						Index in filtered commits: {{ index_in_searched_commits }}<br>
+					</template>
+					Index in all loaded commits: {{ index_in_loaded_commits }}<br>
+					Index in raw graph output: {{ commit.index_in_graph_output }}
 				</p>
 			</div>
 			<!-- TODO: fix this duplication with css -->
@@ -149,6 +153,7 @@ import { ref, computed, watchEffect } from 'vue'
 import { git, exchange_message } from '../bridge.js'
 import { config, show_branch } from '../data/store/index.js'
 import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_ } from '../data/store/actions.js'
+import { commits, loaded_commits } from '../data/store/repo.js'
 
 let props = defineProps({
 	commit: {
@@ -227,6 +232,11 @@ let tag_actions = computed(() => (/** @type {string} */ tag_name) =>
 
 let config_show_buttons = computed(() =>
 	! config.value['hide-sidebar-buttons'])
+
+let index_in_searched_commits = computed(() =>
+	props.commit ? commits.value.indexOf(props.commit) : -1)
+let index_in_loaded_commits = computed(() =>
+	props.commit ? loaded_commits.value?.indexOf(props.commit) || -1 : -1)
 
 </script>
 <style scoped>

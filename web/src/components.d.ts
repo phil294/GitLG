@@ -13,7 +13,6 @@
 	import CommitRefTips from './views/CommitRefTips.vue'
 	import CommitRow from './views/CommitRow.vue'
 	import CommitsDetails from './views/CommitsDetails.vue'
-	import SearchInput from './views/SearchInput.vue'
 	import GitActionButton from './views/GitActionButton.vue'
 	import GitInput from './views/GitInput.vue'
 	import History from './views/History.vue'
@@ -21,6 +20,7 @@
 	import RefTip from './views/RefTip.vue'
 	import RepoSelection from './views/RepoSelection.vue'
 	import SVGVisualization from './views/SVGVisualization.vue'
+	import SearchInput from './views/SearchInput.vue'
 	import SelectedGitAction from './views/SelectedGitAction.vue'
 	import Popup from './components/Popup.vue'
 	import PromiseForm from './components/PromiseForm.vue'
@@ -35,7 +35,6 @@
 			CommitRefTips: typeof CommitRefTips
 			CommitRow: typeof CommitRow
 			CommitsDetails: typeof CommitsDetails
-			SearchInput: typeof SearchInput
 			GitActionButton: typeof GitActionButton
 			GitInput: typeof GitInput
 			History: typeof History
@@ -43,6 +42,7 @@
 			RefTip: typeof RefTip
 			RepoSelection: typeof RepoSelection
 			SVGVisualization: typeof SVGVisualization
+			SearchInput: typeof SearchInput
 			SelectedGitAction: typeof SelectedGitAction
 			Popup: typeof Popup
 			PromiseForm: typeof PromiseForm

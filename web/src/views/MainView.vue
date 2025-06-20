@@ -11,7 +11,7 @@
 					</details>
 					<repo-selection />
 					<aside class="center gap-20">
-						<search-input id="search" @scroll_to_commit="scroll_to_commit" />
+						<search-input id="search" @scroll_to_commit="scroll_to_commit_and_select" />
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
 							<button id="refresh" class="btn center" :class="{'highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
@@ -52,32 +52,18 @@
 					<commit-row :class="{['selected-commit']:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" @click="commit_clicked(commit,$event)" />
 				</recycle-scroller>
 			</div>
-			<div v-if="selected_commit || selected_commits.length" id="details-panel" class="col flex-1">
-				<template v-if="selected_commit">
-					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="show_commit_hash($event)">
-						<template #details_text>
-							<template v-if="commits.length !== commits?.length">
-								Index in searched commits: {{ selected_commit_index_in_searched_commits }}<br>
-							</template>
-							Index in all loaded commits: {{ selected_commit_index_in_loaded_commits }}<br>
-							Index in raw graph output: {{ selected_commit.index_in_graph_output }}
-						</template>
-					</commit-details>
+			<div v-if="selected_commits.length" id="details-panel" class="col flex-1">
+				<template v-if="single_selected_commit">
+					<commit-details id="selected-commit" :commit="single_selected_commit" class="flex-1 fill-w padding" @hash_clicked="show_commit_hash($event)" />
 					<button id="close-selected-commit" class="center" title="Close" @click="selected_commits=[]">
 						<i class="codicon codicon-close" />
 					</button>
-					<div v-if="selected_commit" class="resize-hint">
-						← resize
-					</div>
 				</template>
 				<template v-else-if="selected_commits.length">
 					<commits-details id="selected-commits" :commits="selected_commits" class="flex-1 fill-w padding" />
 					<button id="close-selected-commits" class="center" title="Close" @click="selected_commits=[]">
 						<i class="codicon codicon-close" />
 					</button>
-					<div v-if="selected_commit" class="resize-hint">
-						← resize
-					</div>
 				</template>
 			</div>
 		</div>
@@ -95,60 +81,23 @@
 import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
 import { add_push_listener, exchange_message, git } from '../bridge.js'
 import vContextMenu from '../directives/context-menu'
-import state from '../data/state.js'
 import * as store from '../data/store'
-import { commits, git_status, loaded_commits, log_action } from '../data/store/repo'
+import { commits, git_status, log_action } from '../data/store/repo'
 import { combine_branches_actions, commit_actions, global_actions } from '../data/store/actions'
 import { update_commit_stats } from '../data/store/commit-stats'
 import { push_history } from '../data/store/history'
 import { search_str, type as search_type, is_regex as search_is_regex, str_index_of_search } from '../data/store/search'
+import { use_commit_selection } from './main-view/commit-selection.js'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
 
-/** @type {string[]} */
-let default_selected_commits_hashes = []
-let selected_commits_hashes = state('repo:selected-commits-hashes', default_selected_commits_hashes).ref
-let selected_commits = computed({
-	get() {
-		return selected_commits_hashes.value
-			?.map((hash) => commits.value.find((commit) => commit.hash === hash))
-			.filter(is_truthy) || []
-	},
-	set(commits) {
-		selected_commits_hashes.value = commits.map((commit) => commit.hash)
-	},
-})
-let selected_commit = computed(() => {
-	if (selected_commits.value.length === 1)
-		return selected_commits.value[0]
-})
-let selected_commit_index_in_searched_commits = computed(() =>
-	selected_commit.value ? commits.value.indexOf(selected_commit.value) : -1)
-let selected_commit_index_in_loaded_commits = computed(() =>
-	selected_commit.value ? loaded_commits.value?.indexOf(selected_commit.value) || -1 : -1)
+let { selected_commits, single_selected_commit, handle_user_commit_selection } = use_commit_selection()
+
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 	if (! commit.hash)
 		return
-	let selected_index = selected_commits.value.indexOf(commit)
-	if (event?.ctrlKey || event?.metaKey)
-		if (selected_index > -1)
-			selected_commits.value = selected_commits.value.filter((_, i) => i !== selected_index)
-		else
-			selected_commits.value = [...selected_commits.value, commit]
-	else if (event?.shiftKey) {
-		let total_index = commits.value.indexOf(commit)
-		let last_total_index = commits.value.indexOf(not_null(selected_commits.value.at(-1)))
-		if (total_index > last_total_index && total_index - last_total_index < 1000)
-			selected_commits.value = selected_commits.value.concat(commits.value.slice(last_total_index, total_index + 1).filter((c) =>
-				! selected_commits.value.includes(c)))
-	} else
-		if (selected_index > -1)
-			selected_commits.value = []
-		else {
-			selected_commits.value = [commit]
-			push_history({ type: 'commit_hash', value: commit.hash })
-		}
+	handle_user_commit_selection(commit, event)
 }
 
 // TODO: externalize all scroll* and rename to jump*
@@ -177,17 +126,7 @@ async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	// 	push_history type: 'branch_id', value: branch.id
 	push_history({ type: 'commit_hash', value: commit.hash })
 }
-function scroll_to_commit_hash(/** @type {string} */ hash) {
-	let commit_i = commits.value.findIndex((commit) =>
-		commit.hash === hash)
-	if (commit_i === -1) {
-		console.warn(new Error().stack)
-		console.warn(`No commit found for hash ${hash}`)
-	}
-	scroll_to_index_centered(commit_i)
-	// selected_commits.value = [not_null(commits.value[commit_i])]
-}
-/** Like `scroll_to_commit_hash`, but if the hash isn't available, load it at all costs, and select */
+/** Like `scroll_to_commit`, but if the hash isn't available, load it at all costs, and select */
 async function show_commit_hash(/** @type {string} */ hash) {
 	search_str.value = ''
 	let commit_i = commits.value.findIndex((commit) =>
@@ -201,12 +140,15 @@ async function show_commit_hash(/** @type {string} */ hash) {
 		throw new Error(`No commit found for hash '${hash}'`)
 
 	scroll_to_index_centered(commit_i)
-	selected_commits_hashes.value = [hash]
+	selected_commits.value = [not_null(commits.value[commit_i])]
 	push_history({ type: 'commit_hash', value: hash })
 }
 function scroll_to_commit(/** @type {Commit} */ commit) {
 	let commit_i = commits.value.findIndex((c) => c === commit)
 	scroll_to_index_centered(commit_i)
+}
+function scroll_to_commit_and_select(/** @type {Commit} */ commit) {
+	scroll_to_commit(commit)
 	selected_commits.value = [commit]
 }
 function scroll_to_first_selected_commit() {
@@ -218,7 +160,7 @@ function scroll_to_top() {
 	commits_scroller_ref.value?.scrollToItem(0)
 }
 add_push_listener('show-selected-commit', async () => {
-	let hash = selected_commits_hashes.value[0]
+	let hash = selected_commits.value[0]?.hash
 	if (! hash)
 		return
 	show_commit_hash(hash)
