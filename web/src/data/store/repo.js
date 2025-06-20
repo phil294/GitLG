@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { git, show_information_message } from '../../bridge.js'
 import { parse } from '../../utils/log-parser.js'
 import { config } from './index.js'
-import { _protected as filter_protected } from './filter'
+import { _protected as search_protected } from './search'
 
 /** @type {Vue.Ref<Commit[]|null>} */
 export let loaded_commits = ref(null)
@@ -96,5 +96,5 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 
 export let _protected = { unset, refresh }
 
-/** As filtered by the user */
-export let commits = filter_protected.filtered_commits
+/** As searched by the user */
+export let commits = search_protected.searched_commits

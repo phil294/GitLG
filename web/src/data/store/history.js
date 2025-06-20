@@ -14,7 +14,7 @@ export let push_history = (/** @type {HistoryEntry} */ entry) => {
 	}
 	if (last_entry?.type === entry.type)
 		switch (entry.type) {
-			case 'txt_filter':
+			case 'search':
 				if (last_entry?.value === entry.value)
 					return
 				if (last_entry)

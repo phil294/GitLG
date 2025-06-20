@@ -11,7 +11,7 @@
 					</details>
 					<repo-selection />
 					<aside class="center gap-20">
-						<filter-input id="filter" @scroll_to_commit="scroll_to_commit" />
+						<search-input id="search" @scroll_to_commit="scroll_to_commit" />
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
 							<button id="refresh" class="btn center" :class="{'highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
@@ -57,7 +57,7 @@
 					<commit-details id="selected-commit" :commit="selected_commit" class="flex-1 fill-w padding" @hash_clicked="show_commit_hash($event)">
 						<template #details_text>
 							<template v-if="commits.length !== commits?.length">
-								Index in filtered commits: {{ selected_commit_index_in_filtered_commits }}<br>
+								Index in searched commits: {{ selected_commit_index_in_searched_commits }}<br>
 							</template>
 							Index in all loaded commits: {{ selected_commit_index_in_loaded_commits }}<br>
 							Index in raw graph output: {{ selected_commit.index_in_graph_output }}
@@ -101,7 +101,7 @@ import { commits, git_status, loaded_commits, log_action } from '../data/store/r
 import { combine_branches_actions, commit_actions, global_actions } from '../data/store/actions'
 import { update_commit_stats } from '../data/store/commit-stats'
 import { push_history } from '../data/store/history'
-import { filter_str, is_regex as filter_is_regex, str_index_of_filter } from '../data/store/filter'
+import { search_str, is_regex as search_is_regex, str_index_of_search } from '../data/store/search'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -123,7 +123,7 @@ let selected_commit = computed(() => {
 	if (selected_commits.value.length === 1)
 		return selected_commits.value[0]
 })
-let selected_commit_index_in_filtered_commits = computed(() =>
+let selected_commit_index_in_searched_commits = computed(() =>
 	selected_commit.value ? commits.value.indexOf(selected_commit.value) : -1)
 let selected_commit_index_in_loaded_commits = computed(() =>
 	selected_commit.value ? loaded_commits.value?.indexOf(selected_commit.value) || -1 : -1)
@@ -152,7 +152,7 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 }
 
 async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
-	filter_str.value = ''
+	search_str.value = ''
 	let commit_i = commits.value.findIndex((commit) => {
 		if (branch.inferred)
 			return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
@@ -188,7 +188,7 @@ function scroll_to_commit_hash(/** @type {string} */ hash) {
 }
 /** Like `scroll_to_commit_hash`, but if the hash isn't available, load it at all costs, and select */
 async function show_commit_hash(/** @type {string} */ hash) {
-	filter_str.value = ''
+	search_str.value = ''
 	let commit_i = commits.value.findIndex((commit) =>
 		commit.hash === hash)
 	if (commit_i === -1)
@@ -335,19 +335,19 @@ let invisible_branch_tips_of_visible_branches_elems = computed(() => {
 
 function update_highlights() {
 	CSS.highlights.delete('txt_filter') // TODO: rename
-	if (! filter_str.value)
+	if (! search_str.value)
 		return
-	// This also queries hidden rows regardless of current filter, depending on viewport height.
+	// This also queries hidden rows regardless of current search, depending on viewport height.
 	// Not great on performance but this one-liner is by far the easiest way of getting highlights:
 	let highlight_ranges = [...commits_scroller_ref.value.$el.querySelectorAll('.ref-tip, .subject, .author, .hash')]
-		.map(node => ({ node, index: str_index_of_filter(node.textContent) }))
+		.map(node => ({ node, index: str_index_of_search(node.textContent) }))
 		.filter(n => n.index > -1)
-		.map(({ node, index }) => new StaticRange({ startContainer: node.childNodes[0], startOffset: index, endContainer: node.childNodes[0], endOffset: index + filter_str.value.length }))
+		.map(({ node, index }) => new StaticRange({ startContainer: node.childNodes[0], startOffset: index, endContainer: node.childNodes[0], endOffset: index + search_str.value.length }))
 	if (highlight_ranges.length > 0)
 		CSS.highlights.set('txt_filter', new Highlight(...highlight_ranges))
 }
 // TODO: use useEffect if possible
-watch([filter_str, visible_commits, filter_is_regex], () => {
+watch([search_str, visible_commits, search_is_regex], () => {
 	update_highlights()
 	// In vue-virtual-scroller.esm.js in updateVisibleItems, _$_sortTimer will fire after 300ms and force reselection.
 	// You shouldn't alter a virtual scroller's items from outside anyway...
@@ -432,7 +432,7 @@ details#log-config[open] {
 #main-panel > nav > aside {
 	flex-shrink: 3;
 }
-#main-panel > nav > aside > section#filter {
+#main-panel > nav > aside > section#search {
 	overflow: hidden;
 }
 #main-panel > nav > aside > section#actions {

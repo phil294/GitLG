@@ -118,7 +118,7 @@ interface GitAction extends ConfigGitAction {
 }
 
 interface HistoryEntry {
-	type: 'txt_filter' | 'branch_id' | 'commit_hash' | 'git'
+	type: 'search' | 'branch_id' | 'commit_hash' | 'git'
 	value: string
 	datetime?: string
 }

@@ -13,7 +13,7 @@
 	import CommitRefTips from './views/CommitRefTips.vue'
 	import CommitRow from './views/CommitRow.vue'
 	import CommitsDetails from './views/CommitsDetails.vue'
-	import FilterInput from './views/FilterInput.vue'
+	import SearchInput from './views/SearchInput.vue'
 	import GitActionButton from './views/GitActionButton.vue'
 	import GitInput from './views/GitInput.vue'
 	import History from './views/History.vue'
@@ -35,7 +35,7 @@
 			CommitRefTips: typeof CommitRefTips
 			CommitRow: typeof CommitRow
 			CommitsDetails: typeof CommitsDetails
-			FilterInput: typeof FilterInput
+			SearchInput: typeof SearchInput
 			GitActionButton: typeof GitActionButton
 			GitInput: typeof GitInput
 			History: typeof History

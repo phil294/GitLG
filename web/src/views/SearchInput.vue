@@ -1,12 +1,12 @@
 <template>
 	<section aria-roledescription="Search" class="center gap-5 justify-flex-end">
 		<div class="center">
-			<input id="txt-filter" ref="filter_str_ref" v-model="filter_str" class="filter" :class="{highlighted:filter_str}" placeholder="Filter subject, hash, author" @keyup.enter="on_enter_jump($event)" @keyup.f3="on_enter_jump($event)">
-			<button v-if="filter_str" id="regex-filter" :class="{highlighted:is_regex}" class="center" @click="is_regex=!is_regex">
+			<input ref="search_str_ref" v-model="search_str" type="text" class="search" :class="{highlighted:search_str}" placeholder="Search subject, hash, author" @keyup.enter="on_enter_jump($event)" @keyup.f3="on_enter_jump($event)">
+			<button v-if="search_str" id="regex-search" :class="{highlighted:is_regex}" class="center" @click="is_regex=!is_regex">
 				<i class="codicon codicon-regex" title="Use Regular Expression (Alt+R)" />
 			</button>
 		</div>
-		<label v-if="filter_str" id="filter-type-filter" class="row align-center" title="If active, the list will be filtered. If inactive, you can jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3.">
+		<label v-if="search_str" id="search-type-filter" class="row align-center" title="If active, the list will be searched. If inactive, you can jump between matches with ENTER / SHIFT+ENTER or with F3 / SHIFT+F3.">
 			<input v-model="type_is_filter" type="checkbox">
 			Filter
 		</label>
@@ -14,19 +14,19 @@
 </template>
 <script setup>
 import { computed, useTemplateRef, watch } from 'vue'
-import { commit_matches_filter, filter_str, is_regex, type } from '../data/store/filter'
+import { commit_matches_search, search_str, is_regex, type } from '../data/store/search'
 import { commits } from '../data/store/repo'
 
 let emit = defineEmits(['scroll_to_commit'])
 
-let filter_str_ref = useTemplateRef('filter_str_ref')
+let search_str_ref = useTemplateRef('search_str_ref')
 
 let last_jump_index = -1
 document.addEventListener('keyup', (e) => {
 	if (e.key === 'F3' || e.ctrlKey && e.key === 'f')
-		filter_str_ref.value?.focus()
+		search_str_ref.value?.focus()
 
-	if (filter_str.value && e.key === 'r' && e.altKey)
+	if (search_str.value && e.key === 'r' && e.altKey)
 		is_regex.value = ! is_regex.value
 })
 function on_enter_jump(/** @type {KeyboardEvent} */ event) {
@@ -34,13 +34,13 @@ function on_enter_jump(/** @type {KeyboardEvent} */ event) {
 		return
 	let next_match_index = 0
 	if (event.shiftKey) {
-		let next = [...commits.value.slice(0, last_jump_index)].reverse().findIndex(commit_matches_filter)
+		let next = [...commits.value.slice(0, last_jump_index)].reverse().findIndex(commit_matches_search)
 		if (next > -1)
 			next_match_index = last_jump_index - 1 - next
 		else
 			next_match_index = commits.value.length - 1
 	} else {
-		let next = commits.value.slice(last_jump_index + 1).findIndex(commit_matches_filter)
+		let next = commits.value.slice(last_jump_index + 1).findIndex(commit_matches_search)
 		if (next > -1)
 			next_match_index = last_jump_index + 1 + next
 		else
@@ -56,7 +56,7 @@ function on_enter_jump(/** @type {KeyboardEvent} */ event) {
 	// 		selected_commits.value = [commit]
 	// }, 100)
 }
-watch(filter_str, () => {
+watch(search_str, () => {
 	if (type.value === 'jump')
 		return
 	debounce(() => {
@@ -73,10 +73,10 @@ let type_is_filter = computed({
 
 </script>
 <style scoped>
-input#txt-filter {
+input[type="text"] {
 	overflow: hidden;
 }
-#regex-filter {
+#regex-search {
 	min-width: 20px;
 	margin: 0 7px 0 -23px;
 }
