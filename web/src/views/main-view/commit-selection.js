@@ -1,7 +1,7 @@
 import state from '../../data/state'
 import { push_history } from '../../data/store/history'
 import { commits } from '../../data/store/repo'
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 
 export let use_commit_selection = () => {
 	/** @type {string[]} */
@@ -43,6 +43,15 @@ export let use_commit_selection = () => {
 				push_history({ type: 'commit_hash', value: commit.hash })
 			}
 	}
+
+	onMounted(() => {
+		// didn't work with @keyup.escape.native on the components root element
+		// when focus was in a sub component (??) so doing this instead:
+		document.addEventListener('keyup', (e) => {
+			if (e.key === 'Escape')
+				selected_commits.value = []
+		})
+	})
 
 	return { selected_commits, single_selected_commit, handle_user_commit_selection }
 }

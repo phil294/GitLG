@@ -98,3 +98,6 @@ export let _protected = { unset, refresh }
 
 /** As searched by the user */
 export let commits = search_protected.searched_commits
+
+/** Managed by Scroller.vue only. @type {Vue.Ref<Commit[]>} */
+export let visible_commits = ref([])

@@ -22,6 +22,7 @@
 	import SVGVisualization from './views/SVGVisualization.vue'
 	import SearchInput from './views/SearchInput.vue'
 	import SelectedGitAction from './views/SelectedGitAction.vue'
+	import Scroller from './views/main-view/Scroller.vue'
 	import Popup from './components/Popup.vue'
 	import PromiseForm from './components/PromiseForm.vue'
 
@@ -44,6 +45,7 @@
 			SVGVisualization: typeof SVGVisualization
 			SearchInput: typeof SearchInput
 			SelectedGitAction: typeof SelectedGitAction
+			Scroller: typeof Scroller
 			Popup: typeof Popup
 			PromiseForm: typeof PromiseForm
 		}

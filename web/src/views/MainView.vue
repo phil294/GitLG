@@ -23,8 +23,8 @@
 					</aside>
 				</nav>
 				<div id="quick-branch-tips">
-					<all-branches @branch_selected="scroll_to_branch_tip($event)" />
-					<history @branch_selected="scroll_to_branch_tip($event)" @commit_clicked="$event=>show_commit_hash($event)" />
+					<all-branches @branch_selected="scroll_to_branch_tip_or_load($event)" />
+					<history @branch_selected="scroll_to_branch_tip_or_load($event)" @commit_clicked="$event=>scroll_to_commit_hash_or_load($event)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
 						<p v-if="web_phase === 'initializing_repo'" class="loading">
 							Loading...
@@ -34,7 +34,7 @@
 						</p>
 					</div>
 					<template v-if="config_show_quick_branch_tips">
-						<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" :key="branch_elem.branch.id" title="Jump to branch tip" v-bind="branch_elem.bind" @click="scroll_to_branch_tip(branch_elem.branch)">
+						<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" :key="branch_elem.branch.id" title="Jump to branch tip" v-bind="branch_elem.bind" @click="scroll_to_branch_tip_or_load(branch_elem.branch)">
 							<ref-tip :git_ref="branch_elem.branch" />
 						</button>
 					</template>
@@ -48,13 +48,11 @@
 				<p v-if="commits && !commits.length" id="no-commits-found">
 					No commits found
 				</p>
-				<recycle-scroller id="log" ref="commits_scroller_ref" v-slot="{ item: commit }" v-context-menu="commit_context_menu_provider" :update-interval="scroller_update_interval" :buffer="0" :emit-update="true" :item-size="scroll_item_height" :items="commits" class="scroller fill-w flex-1" key-field="index_in_graph_output" role="list" tabindex="-1" @keydown="scroller_on_keydown" @update="commits_scroller_updated" @wheel="scroller_on_wheel">
-					<commit-row :class="{['selected-commit']:selected_commits.includes(commit)}" :commit="commit" :data-commit-hash="commit.hash" @click="commit_clicked(commit,$event)" />
-				</recycle-scroller>
+				<scroller id="log" ref="scroller_ref" :selected_commits="selected_commits" @commit_clicked="commit_clicked" />
 			</div>
 			<div v-if="selected_commits.length" id="details-panel" class="col flex-1">
 				<template v-if="single_selected_commit">
-					<commit-details id="selected-commit" :commit="single_selected_commit" class="flex-1 fill-w padding" @hash_clicked="show_commit_hash($event)" />
+					<commit-details id="selected-commit" :commit="single_selected_commit" class="flex-1 fill-w padding" @hash_clicked="scroll_to_commit_hash_or_load($event)" />
 					<button id="close-selected-commit" class="center" title="Close" @click="selected_commits=[]">
 						<i class="codicon codicon-close" />
 					</button>
@@ -78,93 +76,28 @@
 	</div>
 </template>
 <script setup>
-import { ref, computed, watch, onMounted, useTemplateRef } from 'vue'
-import { add_push_listener, exchange_message, git } from '../bridge.js'
-import vContextMenu from '../directives/context-menu'
+import { computed, useTemplateRef, watch } from 'vue'
+// todo change this back again
 import * as store from '../data/store'
-import { commits, git_status, log_action } from '../data/store/repo'
-import { combine_branches_actions, commit_actions, global_actions } from '../data/store/actions'
+import { combine_branches_actions, global_actions } from '../data/store/actions'
 import { update_commit_stats } from '../data/store/commit-stats'
-import { push_history } from '../data/store/history'
-import { search_str, type as search_type, is_regex as search_is_regex, str_index_of_search } from '../data/store/search'
+import { commits, git_status, log_action, visible_commits } from '../data/store/repo'
 import { use_commit_selection } from './main-view/commit-selection.js'
+import { use_scroller } from './main-view/scroller.js'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
 
+// TODO: this should be in stores
 let { selected_commits, single_selected_commit, handle_user_commit_selection } = use_commit_selection()
+
+let { scroll_to_commit_and_select, scroll_to_first_selected_commit, scroll_to_top, scroll_to_branch_tip_or_load, scroll_to_commit_hash_or_load } = use_scroller({ selected_commits })
 
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
 	if (! commit.hash)
 		return
 	handle_user_commit_selection(commit, event)
 }
-
-// TODO: externalize all scroll* and rename to jump*
-async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
-	search_str.value = ''
-	let commit_i = commits.value.findIndex((commit) => {
-		if (branch.inferred)
-			return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
-		else
-			return commit.refs.some((ref_) => ref_ === branch)
-	})
-	if (commit_i === -1) {
-		let hash = await git(`rev-parse --short "${branch.id}"`)
-		await store.show_commit_hash(hash)
-		commit_i = 0
-	}
-	scroll_to_index_centered(commit_i)
-	let commit = not_null(commits.value[commit_i])
-	// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
-	// a branch name in a commit's ref list.
-	selected_commits.value = [commit]
-	// For now, set history always to commit_hash as this also shows the branches. Might revisit some day
-	// if branch.inferred
-	// 	push_history type: 'commit_hash', value: commit.hash
-	// else
-	// 	push_history type: 'branch_id', value: branch.id
-	push_history({ type: 'commit_hash', value: commit.hash })
-}
-/** Like `scroll_to_commit`, but if the hash isn't available, load it at all costs, and select */
-async function show_commit_hash(/** @type {string} */ hash) {
-	search_str.value = ''
-	let commit_i = commits.value.findIndex((commit) =>
-		commit.hash === hash)
-	if (commit_i === -1)
-		await store.show_commit_hash(hash)
-
-	commit_i = commits.value.findIndex((commit) =>
-		commit.hash === hash)
-	if (commit_i === -1)
-		throw new Error(`No commit found for hash '${hash}'`)
-
-	scroll_to_index_centered(commit_i)
-	selected_commits.value = [not_null(commits.value[commit_i])]
-	push_history({ type: 'commit_hash', value: hash })
-}
-function scroll_to_commit(/** @type {Commit} */ commit) {
-	let commit_i = commits.value.findIndex((c) => c === commit)
-	scroll_to_index_centered(commit_i)
-}
-function scroll_to_commit_and_select(/** @type {Commit} */ commit) {
-	scroll_to_commit(commit)
-	selected_commits.value = [commit]
-}
-function scroll_to_first_selected_commit() {
-	let first_selected_commit = selected_commits.value[0]
-	if (first_selected_commit)
-		scroll_to_commit(first_selected_commit)
-}
-function scroll_to_top() {
-	commits_scroller_ref.value?.scrollToItem(0)
-}
-add_push_listener('show-selected-commit', async () => {
-	let hash = selected_commits.value[0]?.hash
-	if (! hash)
-		return
-	show_commit_hash(hash)
-})
 
 let git_input_ref = useTemplateRef('git_input_ref')
 // @ts-ignore TODO
@@ -181,42 +114,7 @@ async function run_log(/** @type {string} */ log_args, options) {
 		scroll_to_first_selected_commit()
 }
 
-// @ts-ignore TODO: idk
-let commits_scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('commits_scroller_ref'))
-let scroller_update_interval = 0 // = default value
-/** @type {Vue.Ref<Commit[]>} */
-let visible_commits = ref([])
-let scroller_start_index = 0
-function commits_scroller_updated(/** @type {number} */ start_index, /** @type {number} */ end_index) {
-	scroller_start_index = start_index
-	let commits_start_index = scroller_start_index < 3 ? 0 : scroller_start_index
-	debounce(() =>
-		visible_commits.value = commits.value.slice(commits_start_index, end_index), 50)
-}
-function scroller_on_wheel(/** @type {WheelEvent} */ event) {
-	if (store.config.value['disable-scroll-snapping'])
-		return
-	event.preventDefault()
-	commits_scroller_ref.value?.scrollToItem(scroller_start_index + Math.round(event.deltaY / 20))
-}
-function scroller_on_keydown(/** @type {KeyboardEvent} */ event) {
-	if (store.config.value['disable-scroll-snapping'])
-		return
-	if (event.key === 'ArrowDown') {
-		event.preventDefault()
-		commits_scroller_ref.value?.scrollToItem(scroller_start_index + 2)
-	} else if (event.key === 'ArrowUp') {
-		event.preventDefault()
-		commits_scroller_ref.value?.scrollToItem(scroller_start_index - 2)
-	}
-}
-function scroll_to_index_centered(/** @type {number} */ index) {
-	// TODO: does this fail if vertical space is taken up by commit details?
-	commits_scroller_ref.value?.scrollToItem(index - Math.floor(visible_commits.value.length / 2))
-}
-let scroll_item_height = computed(() =>
-	store.config.value['row-height'])
-
+// FIXME: store
 watch(visible_commits, async () => {
 	let visible_cp = visible_commits.value.filter((commit) =>
 		commit.hash && ! commit.stats)
@@ -277,72 +175,6 @@ let invisible_branch_tips_of_visible_branches_elems = computed(() => {
 				},
 			}
 		}).filter(is_truthy) || []
-})
-
-watch([search_str, search_is_regex, search_type], () => {
-	if (search_type.value === 'jump')
-		return
-	debounce(scroll_to_first_selected_commit, 250)
-})
-
-function update_highlights() {
-	CSS.highlights.delete('search')
-	if (! search_str.value)
-		return
-	// This also queries hidden rows regardless of current search, depending on viewport height.
-	// Not great on performance but this one-liner is by far the easiest way of getting highlights:
-	let highlight_ranges = [...commits_scroller_ref.value.$el.querySelectorAll('.ref-tip, .subject, .author, .hash')]
-		.map(node => ({ node, index: str_index_of_search(node.textContent) }))
-		.filter(n => n.index > -1)
-		.map(({ node, index }) => new StaticRange({ startContainer: node.childNodes[0], startOffset: index, endContainer: node.childNodes[0], endOffset: index + search_str.value.length }))
-	if (highlight_ranges.length > 0)
-		CSS.highlights.set('search', new Highlight(...highlight_ranges))
-}
-// TODO: use useEffect if possible
-watch([search_str, visible_commits, search_is_regex], () => {
-	update_highlights()
-	// In vue-virtual-scroller.esm.js in updateVisibleItems, _$_sortTimer will fire after 300ms and force reselection.
-	// You shouldn't alter a virtual scroller's items from outside anyway...
-	debounce(update_highlights, scroller_update_interval + 300 + 1)
-})
-
-onMounted(() => {
-	// didn't work with @keyup.escape.native on the components root element
-	// when focus was in a sub component (??) so doing this instead:
-	document.addEventListener('keyup', (e) => {
-		if (e.key === 'Escape')
-			selected_commits.value = []
-	})
-	commits_scroller_ref.value.$el.focus()
-})
-
-// It didn't work with normal context binding to the scroller's commit elements, either a bug
-// of context-menu update or I misunderstood something about vue-virtual-scroller, but this
-// works around it reliably (albeit uglily)
-let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ event) => {
-	if (! (event.target instanceof HTMLElement) && ! (event.target instanceof SVGElement))
-		return
-	let el = event.target
-	while (el.parentElement && ! el.parentElement.classList.contains('commit'))
-		el = el.parentElement
-	if (! el.parentElement)
-		return
-	let hash = el.parentElement.dataset.commitHash
-	if (! hash)
-		throw 'commit context menu element has no hash?'
-	return commit_actions(hash).value.map((action) => ({
-		label: action.title,
-		icon: action.icon,
-		action() {
-			store.selected_git_action.value = action
-		},
-	})).concat({
-		label: 'Copy hash',
-		icon: 'clippy',
-		action() {
-			exchange_message('clipboard-write-text', hash)
-		},
-	})
 })
 
 let config_show_quick_branch_tips = computed(() =>
@@ -457,26 +289,6 @@ details#log-config[open] {
 	top: 96px;
 	color: #555;
 }
-#main-panel #log.scroller:focus {
-	outline: none;
-}
-#main-panel #log.scroller .commit {
-	padding-left: var(--container-padding);
-	cursor: pointer;
-}
-#main-panel #log.scroller .commit.selected-commit {
-	background: var(--vscode-list-activeSelectionBackground);
-	.vscode-high-contrast &, .vscode-high-contrast-light & {
-		border: 1px solid var(--vscode-sideBarSectionHeader-border);
-	}
-}
-#main-panel #log.scroller .commit :deep(.info) {
-	border-top: 1px solid var(--vscode-sideBarSectionHeader-border);
-	padding-right: var(--container-padding);
-}
-#main-panel #log.scroller .commit :deep(.info:hover) {
-	z-index: 1;
-}
 #details-panel {
 	min-width: 400px;
 	min-height: min(300px, 40vh);
@@ -506,11 +318,5 @@ details#log-config[open] {
 	right: 0;
 	z-index: 1;
 	background: var(--vscode-editorWidget-background);
-}
-</style>
-
-<style>
-.vue-recycle-scroller__item-view.hover > .commit {
-	background: var(--vscode-list-hoverBackground);
 }
 </style>
