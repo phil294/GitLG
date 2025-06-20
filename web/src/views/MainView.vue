@@ -45,10 +45,10 @@
 				<div v-if="config_show_quick_branch_tips" id="branches-connection">
 					<commit-row v-if="connection_fake_commit" :commit="connection_fake_commit" :height="110" class="vis" />
 				</div>
-				<p v-if="commits && !commits.length" id="no-commits-found">
+				<p v-if="filtered_commits && !filtered_commits.length" id="no-commits-found">
 					No commits found
 				</p>
-				<scroller id="log" ref="scroller_ref" :selected_commits="selected_commits" @commit_clicked="commit_clicked" />
+				<scroller id="log" ref="scroller_ref" />
 			</div>
 			<div v-if="selected_commits.length" id="details-panel" class="col flex-1">
 				<template v-if="single_selected_commit">
@@ -81,23 +81,13 @@ import { computed, useTemplateRef, watch } from 'vue'
 import * as store from '../data/store'
 import { combine_branches_actions, global_actions } from '../data/store/actions'
 import { update_commit_stats } from '../data/store/commit-stats'
-import { commits, git_status, log_action, visible_commits } from '../data/store/repo'
-import { use_commit_selection } from './main-view/commit-selection.js'
+import { git_status, log_action, selected_commits, single_selected_commit, visible_commits, filtered_commits } from '../data/store/repo'
 import { use_scroller } from './main-view/scroller.js'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
 
-// TODO: this should be in stores
-let { selected_commits, single_selected_commit, handle_user_commit_selection } = use_commit_selection()
-
-let { scroll_to_commit_and_select, scroll_to_first_selected_commit, scroll_to_top, scroll_to_branch_tip_or_load, scroll_to_commit_hash_or_load } = use_scroller({ selected_commits })
-
-function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
-	if (! commit.hash)
-		return
-	handle_user_commit_selection(commit, event)
-}
+let { scroll_to_commit_and_select, scroll_to_first_selected_commit, scroll_to_top, scroll_to_branch_tip_or_load, scroll_to_commit_hash_or_load } = use_scroller()
 
 let git_input_ref = useTemplateRef('git_input_ref')
 // @ts-ignore TODO

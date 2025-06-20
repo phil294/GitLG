@@ -44,7 +44,7 @@
 <script setup>
 import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { history } from '../data/store/history'
-import { commits } from '../data/store/repo'
+import { filtered_commits } from '../data/store/repo'
 import { search_str } from '../data/store/search'
 
 defineEmits(['commit_clicked'])
@@ -53,7 +53,7 @@ let history_mapped = computed(() =>
 	(history.value || []).slice().reverse().map((entry) => ({
 		...entry,
 		commit: entry.type === 'commit_hash'
-			? commits.value?.find((commit) =>
+			? filtered_commits.value?.find((commit) =>
 				commit.hash === entry.value) : undefined,
 		git_action: entry.type === 'git' ? {
 			title: 'git ' + entry.value,

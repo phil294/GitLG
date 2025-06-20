@@ -1,8 +1,9 @@
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { git, show_information_message } from '../../bridge.js'
 import { parse } from '../../utils/log-parser.js'
 import { config } from './index.js'
 import { _protected as search_protected } from './search'
+import state from '../state.js'
 
 /** @type {Vue.Ref<Commit[]|null>} */
 export let loaded_commits = ref(null)
@@ -18,6 +19,7 @@ export let default_origin = ref('')
 
 let unset = () => {
 	loaded_commits.value = null
+	visible_commits.value = []
 	branches.value = []
 	head_branch.value = ''
 	git_status.value = ''
@@ -96,8 +98,27 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 
 export let _protected = { unset, refresh }
 
-/** As searched by the user */
-export let commits = search_protected.searched_commits
+/** Subset of `loaded_commits` */
+export let filtered_commits = search_protected.filtered_commits
 
-/** Managed by Scroller.vue only. @type {Vue.Ref<Commit[]>} */
+/** Aka in current viewport. Subset of `commits`. Managed by Scroller.vue only. @type {Vue.Ref<Commit[]>} */
 export let visible_commits = ref([])
+
+/** @type {string[]} */
+let default_selected_commits_hashes = []
+let selected_commits_hashes = state('repo:selected-commits-hashes', default_selected_commits_hashes).ref
+/** Subset of `visible_commits` */
+export let selected_commits = computed({
+	get() {
+		return selected_commits_hashes.value
+			?.map((hash) => filtered_commits.value.find((commit) => commit.hash === hash))
+			.filter(is_truthy) || []
+	},
+	set(new_selection) {
+		selected_commits_hashes.value = new_selection.map((commit) => commit.hash)
+	},
+})
+export let single_selected_commit = computed(() => {
+	if (selected_commits.value.length === 1)
+		return selected_commits.value[0]
+})

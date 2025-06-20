@@ -2,11 +2,11 @@ import { useTemplateRef, watch } from 'vue'
 import { add_push_listener, git } from '../../bridge'
 import { show_commit_hash } from '../../data/store'
 import { push_history } from '../../data/store/history'
-import { commits, visible_commits } from '../../data/store/repo'
+import { filtered_commits, selected_commits, visible_commits } from '../../data/store/repo'
 import { is_regex as search_is_regex, search_str, type as search_type } from '../../data/store/search'
 
-/** @param opts {{selected_commits:Vue.Ref<Commit[]>}} */
-export let use_scroller = ({ selected_commits }) => {
+// TODO: rename/file scroller_jumpers
+export let use_scroller = () => {
 	// TODO:
 	// /** @type {Vue.ShallowRef<typeof import('./Scroller.vue')|null>} */
 	/** @type {any} */
@@ -14,7 +14,7 @@ export let use_scroller = ({ selected_commits }) => {
 
 	async function scroll_to_branch_tip_or_load(/** @type {Branch} */ branch) {
 		search_str.value = ''
-		let commit_i = commits.value.findIndex((commit) => {
+		let commit_i = filtered_commits.value.findIndex((commit) => {
 			if (branch.inferred)
 				return commit.vis_lines.some((vis_line) => vis_line.branch === branch)
 			else
@@ -26,7 +26,7 @@ export let use_scroller = ({ selected_commits }) => {
 			commit_i = 0
 		}
 		scroll_to_index_centered(commit_i)
-		let commit = not_null(commits.value[commit_i])
+		let commit = not_null(filtered_commits.value[commit_i])
 		// Not only scroll to tip, but also select it, so the behavior is equal to clicking on
 		// a branch name in a commit's ref list.
 		selected_commits.value = [commit]
@@ -41,22 +41,22 @@ export let use_scroller = ({ selected_commits }) => {
 	/** Like `scroll_to_commit`, but if the hash isn't available, load it at all costs, and select */
 	async function scroll_to_commit_hash_or_load(/** @type {string} */ hash) {
 		search_str.value = ''
-		let commit_i = commits.value.findIndex((commit) =>
+		let commit_i = filtered_commits.value.findIndex((commit) =>
 			commit.hash === hash)
 		if (commit_i === -1)
 			await show_commit_hash(hash)
 
-		commit_i = commits.value.findIndex((commit) =>
+		commit_i = filtered_commits.value.findIndex((commit) =>
 			commit.hash === hash)
 		if (commit_i === -1)
 			throw new Error(`No commit found for hash '${hash}'`)
 
 		scroll_to_index_centered(commit_i)
-		selected_commits.value = [not_null(commits.value[commit_i])]
+		selected_commits.value = [not_null(filtered_commits.value[commit_i])]
 		push_history({ type: 'commit_hash', value: hash })
 	}
 	function scroll_to_commit(/** @type {Commit} */ commit) {
-		let commit_i = commits.value.findIndex((c) => c === commit)
+		let commit_i = filtered_commits.value.findIndex((c) => c === commit)
 		scroll_to_index_centered(commit_i)
 	}
 	function scroll_to_commit_and_select(/** @type {Commit} */ commit) {

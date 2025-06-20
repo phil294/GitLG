@@ -15,7 +15,7 @@
 <script setup>
 import { computed, useTemplateRef, watch } from 'vue'
 import { commit_matches_search, search_str, is_regex, type } from '../data/store/search'
-import { commits } from '../data/store/repo'
+import { filtered_commits } from '../data/store/repo'
 
 let emit = defineEmits(['scroll_to_commit'])
 
@@ -34,19 +34,19 @@ function on_enter_jump(/** @type {KeyboardEvent} */ event) {
 		return
 	let next_match_index = 0
 	if (event.shiftKey) {
-		let next = [...commits.value.slice(0, last_jump_index)].reverse().findIndex(commit_matches_search)
+		let next = [...filtered_commits.value.slice(0, last_jump_index)].reverse().findIndex(commit_matches_search)
 		if (next > -1)
 			next_match_index = last_jump_index - 1 - next
 		else
-			next_match_index = commits.value.length - 1
+			next_match_index = filtered_commits.value.length - 1
 	} else {
-		let next = commits.value.slice(last_jump_index + 1).findIndex(commit_matches_search)
+		let next = filtered_commits.value.slice(last_jump_index + 1).findIndex(commit_matches_search)
 		if (next > -1)
 			next_match_index = last_jump_index + 1 + next
 		else
 			next_match_index = 0
 	}
-	emit('scroll_to_commit', commits.value[next_match_index])
+	emit('scroll_to_commit', filtered_commits.value[next_match_index])
 	last_jump_index = next_match_index
 }
 

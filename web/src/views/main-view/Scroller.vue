@@ -6,7 +6,7 @@
 		:buffer="0"
 		:emit-update="true"
 		:item-size="item_height"
-		:items="commits"
+		:items="filtered_commits"
 		class="scroller fill-w flex-1"
 		key-field="index_in_graph_output"
 		role="list"
@@ -19,28 +19,19 @@
 			:class="{['selected-commit']: selected_commits.includes(commit)}"
 			:commit="commit"
 			:data-commit-hash="commit.hash"
-			@click="emit('commit_clicked',commit,$event)"
+			@click="commit_clicked(commit,$event)"
 		/>
 	</recycle-scroller>
 </template>
 <script setup>
 import { computed, onMounted, useTemplateRef, watch } from 'vue'
 import { config, selected_git_action } from '../../data/store'
-import { commits, visible_commits } from '../../data/store/repo'
+import { filtered_commits, selected_commits, visible_commits } from '../../data/store/repo'
 import { commit_actions } from '../../data/store/actions'
 import { exchange_message } from '../../bridge'
 import vContextMenu from '../../directives/context-menu'
 import { is_regex as search_is_regex, search_str, str_index_of_search } from '../../data/store/search'
-
-let { selected_commits } = defineProps({
-	selected_commits: {
-		required: true,
-		/** @type {Vue.PropType<Commit[]>} */
-		type: Array,
-	},
-})
-
-let emit = defineEmits(['commit_clicked'])
+import { push_history } from '../../data/store/history'
 
 // @ts-ignore TODO: idk
 let scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('scroller_ref'))
@@ -56,7 +47,7 @@ function on_update(/** @type {number} */ from, /** @type {number} */ to) {
 	visible_start_index = from
 	let commits_start_index = visible_start_index < 3 ? 0 : visible_start_index
 	debounce(() =>
-		visible_commits.value = commits.value.slice(commits_start_index, to), 50)
+		visible_commits.value = filtered_commits.value.slice(commits_start_index, to), 50)
 }
 function on_wheel(/** @type {WheelEvent} */ event) {
 	if (config.value['disable-scroll-snapping'])
@@ -126,7 +117,42 @@ watch([search_str, visible_commits, search_is_regex], () => {
 	debounce(update_highlights, 300 + 1)
 })
 
+/** Manages commit selection similar to e.g. Windows file explorer */
+function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {
+	if (! commit.hash)
+		return
+	let selected_index = selected_commits.value.indexOf(commit)
+	if (event?.ctrlKey || event?.metaKey)
+		if (selected_index > -1)
+			selected_commits.value = selected_commits.value.filter((_, i) => i !== selected_index)
+		else
+			selected_commits.value = [...selected_commits.value, commit]
+	else if (event?.shiftKey) {
+		let total_index = filtered_commits.value.indexOf(commit)
+		let last_total_index = filtered_commits.value.indexOf(not_null(selected_commits.value.at(-1)))
+		if (total_index > last_total_index && total_index - last_total_index < 1000)
+			selected_commits.value = selected_commits.value.concat(filtered_commits.value.slice(last_total_index, total_index + 1).filter((c) =>
+				! selected_commits.value.includes(c)))
+	} else
+		if (selected_index > -1)
+			selected_commits.value = []
+		else {
+			selected_commits.value = [commit]
+			push_history({ type: 'commit_hash', value: commit.hash })
+		}
+}
+
+onMounted(() => {
+	// didn't work with @keyup.escape.native on the components root element
+	// when focus was in a sub component (??) so doing this instead:
+	document.addEventListener('keyup', (e) => {
+		if (e.key === 'Escape')
+			selected_commits.value = []
+	})
+})
+
 defineExpose({ scroll_to_item })
+
 </script>
 
 <style scoped>

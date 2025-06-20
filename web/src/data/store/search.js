@@ -27,11 +27,11 @@ export function commit_matches_search(/** @type {Commit} */ commit) {
 	return [commit.subject, commit.hash_long, commit.author_name, commit.author_email, ...commit.refs.map((r) => r.id)]
 		.some(str => str_index_of_search(str) > -1)
 }
-let searched_commits = computed(() => {
+let filtered_commits = computed(() => {
 	let all = repo_store.loaded_commits.value || []
 	if (! search_str.value || type.value === 'jump')
 		return all
 	return (all).filter(commit_matches_search)
 })
 
-export let _protected = { searched_commits }
+export let _protected = { filtered_commits }
