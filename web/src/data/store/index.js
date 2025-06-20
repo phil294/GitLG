@@ -3,21 +3,29 @@ import { add_push_listener, exchange_message, show_information_message } from '.
 import state, { refresh_repo_states } from '../state.js'
 import * as repo_store from './repo.js'
 
+export let web_phase = state('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing')).ref
+
 /** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../../views/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
 export let main_view_highlight_refresh_button = ref(false)
-/** @param args {{before_execute?: ((cmd: string) => string) | undefined}} @returns {Promise<void>}} */
-export let trigger_main_refresh = ({ before_execute } = {}) => {
+/** @param options {{custom_log_args?: ((log_args: { user_log_args: string, default_log_args: string, base_log_args: string}) => string) | undefined, fetch_stash_refs?: boolean, fetch_branches?: boolean}} @returns {Promise<void>}} */
+export let trigger_main_refresh = (options = {}) => {
 	console.warn('refreshing main view')
-	main_view_highlight_refresh_button.value = !! before_execute
+	main_view_highlight_refresh_button.value = !! options.custom_log_args
 	// @ts-ignore TODO: types seem correct like hinted by docs https://vuejs.org/guide/typescript/composition-api.html#typing-component-template-refs
 	// but volar doesn't like it
-	return main_view_git_input_ref.value?.value?.execute({ before_execute })
+	return main_view_git_input_ref.value?.value?.execute({
+		...options,
+		before_execute: (/** @type {string} */ cmd) => options.custom_log_args?.({
+			user_log_args: cmd,
+			default_log_args: repo_store.log_action.args,
+			base_log_args: repo_store.base_log_args,
+		}) || cmd,
+	})
 }
 
-export let web_phase = state('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing')).ref
-
-export let _run_main_refresh = async (/** @type {string} */ log_args) => {
+/** @param log_args {string} @param options {{ fetch_stash_refs?: boolean, fetch_branches?: boolean }} */
+export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branches } = {}) => {
 	let preliminary_loading = false
 	if (web_phase.value === 'initializing')
 		web_phase.value = 'initializing_repo'
@@ -30,7 +38,7 @@ export let _run_main_refresh = async (/** @type {string} */ log_args) => {
 		refresh_repo_states()
 		preliminary_loading = ! config.value['disable-preliminary-loading']
 	}
-	repo_store._protected.refresh(log_args, preliminary_loading)
+	repo_store._protected.refresh(log_args, { preliminary_loading, fetch_stash_refs, fetch_branches })
 	web_phase.value = 'ready'
 }
 
@@ -69,8 +77,10 @@ export let combine_branches = (/** @type {string} */ from_branch_name, /** @type
 
 export let show_branch = (/** @type {Branch} */ branch_tip) =>
 	trigger_main_refresh({
-		before_execute: (cmd) =>
-			`${cmd} ${branch_tip.id}`.replaceAll(' --all ', ' ').replaceAll(' {STASH_REFS} ', ' '),
+		custom_log_args: ({ base_log_args }) =>
+			`${base_log_args} -n 15000 ${branch_tip.id}`,
+		fetch_branches: false,
+		fetch_stash_refs: false,
 	})
 
 export let vis_v_width = computed(() =>
@@ -114,7 +124,12 @@ export let push_history = (/** @type {HistoryEntry} */ entry) => {
 
 /** Make sure *hash* is temporarily part of the loaded commits */
 export let load_commit_hash = async (/** @type {string} */ hash) => {
-	repo_store._protected.refresh_for_hash(hash)
+	trigger_main_refresh({
+		custom_log_args: ({ default_log_args }) =>
+			`${default_log_args} -n 500 ${hash}`,
+		fetch_stash_refs: false,
+		fetch_branches: false,
+	})
 	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
 	main_view_highlight_refresh_button.value = true
 }

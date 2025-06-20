@@ -302,12 +302,13 @@ add_push_listener('show-selected-commit', async () => {
 let git_input_ref = useTemplateRef('git_input_ref')
 // @ts-ignore TODO
 store.main_view_git_input_ref.value = git_input_ref
-/* Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
-    	This function exists so we can modify the args before sending to git, otherwise
-    	GitInput would have done the git call  */
-async function run_log(/** @type {string} */ log_args) {
+/**
+ * Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
+ * @param log_args {string} @param options {{fetch_stash_refs?: boolean, fetch_branches?: boolean}}
+ */
+async function run_log(/** @type {string} */ log_args, options) {
 	let is_initializing_repo = store.web_phase.value === 'initializing_repo'
-	await store._run_main_refresh(log_args)
+	await store._run_main_refresh(log_args, options)
 	await sleep(0)
 	if (is_initializing_repo) {
 		let first_selected_hash = selected_commits.value[0]?.hash

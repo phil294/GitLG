@@ -199,8 +199,10 @@ function open_file(/** @type {string} */ filepath) {
 
 function show_file(/** @type {string} */ filepath) {
 	return trigger_main_refresh({
-		before_execute: (cmd) =>
-			`${cmd} --follow -- "${filepath}"`,
+		custom_log_args: ({ base_log_args }) =>
+			`${base_log_args} --follow -- "${filepath}"`,
+		fetch_branches: false,
+		fetch_stash_refs: false,
 	})
 }
 

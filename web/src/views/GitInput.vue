@@ -183,8 +183,8 @@ onMounted(async () => {
 
 let result_data = ref('')
 let result_error = ref('')
-/** @param args {{before_execute?: ((cmd: string) => string) | undefined}} */
-async function execute({ before_execute } = {}) {
+/** @param args {{before_execute?: ((cmd: string) => string) | undefined, fetch_stash_refs?: boolean, fetch_branches?: boolean}} */
+async function execute({ before_execute, fetch_stash_refs, fetch_branches } = {}) {
 	result_error.value = ''
 	let _params = params_model.value.map((p) => p.replaceAll('\\n', '\n'))
 	if (_params.some((p) => p.match(/"|(\\([^n]|$))/)))
@@ -199,7 +199,7 @@ async function execute({ before_execute } = {}) {
 		cmd = before_execute(cmd)
 	let result = null
 	try {
-		result = await (props.action || git)(cmd)
+		result = await (props.action || git)(cmd, { fetch_stash_refs, fetch_branches })
 	} catch (action_error) {
 		let action_error_msg = action_error.message_error_response || action_error.message || action_error
 		if (action_error_msg.includes?.('CONFLICT'))

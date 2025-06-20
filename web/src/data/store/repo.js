@@ -24,13 +24,15 @@ let unset = () => {
 	// TODO: is history unset after this? / merge with refresh_repo_states?
 }
 
+export let base_log_args = 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on " --color=never'
+
 export let log_action = {
 	// regarding the -greps: Under normal circumstances, when showing stashes in
 	// git log, each of the stashes 2 or 3 parents are being shown. That because of
 	// git internals, but they are completely useless to the user.
 	// Could not find any easy way to skip those other than de-grepping them, TODO:.
 	// Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-	args: 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} -n 15000 --skip=0 --all {STASH_REFS} --color=never --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "',
+	args: `${base_log_args} --skip=0 -n 15000 --all {STASH_REFS}`,
 	options: [
 		{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' },
 		{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' },
@@ -44,13 +46,7 @@ export let log_action = {
 	params: () => Promise.resolve([]),
 	title: '',
 }
-/** For when the extension needs to display something without the user being allowed to intervene. A default to be extended. */
-let log_args_override_base = 'log --graph --author-date-order --date=iso-local --pretty={EXT_FORMAT} --color=never'
 
-/**
- * This function usually shouldn't be called in favor of `trigger_main_refresh()` because the latter
- * allows the user to edit the arg, shows loading animation, prints errors accordingly etc.
- */
 async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true, fetch_branches = true } = {}) {
 	// TODO: \0
 	let sep = '^%^%^%^%^'
@@ -70,19 +66,19 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 		parsed = await parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'], config.value['branch-colors'], config.value['branch-color-strategy'] === 'name-based', config.value['branch-color-custom-mapping'])
 	return parsed
 }
-
-let refresh = async (/** @type {string} */ log_args, /** @type {boolean} */ preliminary_loading) => {
+/** @param log_args {string} @param options {{ preliminary_loading?: boolean, fetch_stash_refs?: boolean, fetch_branches?: boolean }} */
+let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_branches }) => {
 	if (preliminary_loading)
 	// The "main" main log happens below, but because of the large default_log_action_n, this can take several seconds for large repos.
 	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
-		git_log(`${log_args_override_base} -n 100 --all`,
+		git_log(`${base_log_args} -n 100 --all`,
 			{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 			commits.value = parsed.commits
 				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [], index_in_graph_output: -1 })
 				.map(c => ({ ...c, stats: /* to prevent loading them */ {} })))
 	// errors will be handled by GitInput
 	let [parsed_log_data, status_data, head_data] = await Promise.all([
-		git_log(log_args).catch(error => {
+		git_log(log_args, { fetch_stash_refs, fetch_branches }).catch(error => {
 			show_information_message('Git LOG failed. Did you change the command by hand? In the main view at the top left, click "Configure", then at the top right click "Reset", then "Save" and try again. If this didn\'t help, it might be a bug! Please open up a GitHub issue.')
 			throw error
 		}),
@@ -97,9 +93,4 @@ let refresh = async (/** @type {string} */ log_args, /** @type {boolean} */ prel
 	default_origin.value = likely_default_branch?.remote_name || likely_default_branch?.tracking_remote_name || null
 }
 
-let refresh_for_hash = async (/** @type {string} */ hash) => {
-	let { commits: _commits } = await git_log(`${log_args_override_base} -n 500 ${hash}`, { fetch_stash_refs: false, fetch_branches: false })
-	commits.value = _commits
-}
-
-export let _protected = { unset, refresh, refresh_for_hash }
+export let _protected = { unset, refresh }
