@@ -1,4 +1,4 @@
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { add_push_listener, exchange_message, show_information_message } from '../../bridge.js'
 import state, { refresh_repo_states } from '../state.js'
 import * as repo_store from './repo.js'
@@ -38,7 +38,7 @@ export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branch
 		refresh_repo_states()
 		preliminary_loading = ! config.value['disable-preliminary-loading']
 	}
-	repo_store._protected.refresh(log_args, { preliminary_loading, fetch_stash_refs, fetch_branches })
+	await repo_store._protected.refresh(log_args, { preliminary_loading, fetch_stash_refs, fetch_branches })
 	web_phase.value = 'ready'
 }
 
@@ -69,7 +69,7 @@ export let vis_width = state('vis-width', 130).ref
 
 export let combine_branches_to_branch_name = ref('')
 export let combine_branches_from_branch_name = ref('')
-// should be id not name (?)
+// TODO: should be id not name (?)
 export let combine_branches = (/** @type {string} */ from_branch_name, /** @type {string} */ to_branch_name) => {
 	if (from_branch_name === to_branch_name)
 		return
@@ -87,7 +87,7 @@ export let show_branch = (/** @type {Branch} */ branch_tip) =>
 
 /** Make sure *hash* is temporarily part of the loaded commits */
 export let show_commit_hash = async (/** @type {string} */ hash) => {
-	trigger_main_refresh({
+	await trigger_main_refresh({
 		custom_log_args: ({ base_log_args }) =>
 			`${base_log_args} -n 500 ${hash}`,
 		fetch_stash_refs: false,
@@ -95,6 +95,7 @@ export let show_commit_hash = async (/** @type {string} */ hash) => {
 	})
 	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
 	main_view_highlight_refresh_button.value = true
+	await nextTick()
 }
 
 add_push_listener('repo-external-state-change', () => trigger_main_refresh())
