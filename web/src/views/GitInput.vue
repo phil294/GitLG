@@ -74,7 +74,7 @@
  * `params` is never saved and user-edited only.
  */
 import { git } from '../bridge.js'
-import { push_history } from '../data/store'
+import { push_history } from '../data/store/history'
 import state from '../data/state.js'
 import { ref, computed, reactive, watchEffect, nextTick, onMounted, useTemplateRef } from 'vue'
 

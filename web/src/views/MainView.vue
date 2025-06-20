@@ -111,6 +111,7 @@ import vContextMenu from '../directives/context-menu'
 import state from '../data/state.js'
 import { combine_branches_actions, commit_actions, global_actions } from '../data/store/actions'
 import { update_commit_stats } from '../data/store/commit-stats'
+import { push_history } from '../data/store/history'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
@@ -156,7 +157,7 @@ function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | un
 			selected_commits.value = []
 		else {
 			selected_commits.value = [commit]
-			store.push_history({ type: 'commit_hash', value: commit.hash })
+			push_history({ type: 'commit_hash', value: commit.hash })
 		}
 }
 
@@ -224,7 +225,7 @@ function txt_filter_enter(/** @type {KeyboardEvent} */ event) {
 }
 watch(txt_filter, () => {
 	if (txt_filter.value)
-		store.push_history({ type: 'txt_filter', value: txt_filter.value })
+		push_history({ type: 'txt_filter', value: txt_filter.value })
 	if (txt_filter_type.value === 'jump')
 		return
 	debounce(() => {
@@ -253,10 +254,10 @@ async function scroll_to_branch_tip(/** @type {Branch} */ branch) {
 	selected_commits.value = [commit]
 	// For now, set history always to commit_hash as this also shows the branches. Might revisit some day
 	// if branch.inferred
-	// 	store.push_history type: 'commit_hash', value: commit.hash
+	// 	push_history type: 'commit_hash', value: commit.hash
 	// else
-	// 	store.push_history type: 'branch_id', value: branch.id
-	store.push_history({ type: 'commit_hash', value: commit.hash })
+	// 	push_history type: 'branch_id', value: branch.id
+	push_history({ type: 'commit_hash', value: commit.hash })
 }
 function scroll_to_commit_hash(/** @type {string} */ hash) {
 	let commit_i = filtered_commits.value.findIndex((commit) =>
@@ -283,7 +284,7 @@ async function show_commit_hash(/** @type {string} */ hash) {
 
 	scroll_to_index_centered(commit_i)
 	selected_commits_hashes.value = [hash]
-	store.push_history({ type: 'commit_hash', value: hash })
+	push_history({ type: 'commit_hash', value: hash })
 }
 function scroll_to_commit(/** @type {Commit} */ commit) {
 	let commit_i = filtered_commits.value.findIndex((c) => c === commit)
