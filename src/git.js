@@ -1,6 +1,6 @@
 let vscode = require('vscode')
 let util = require('util')
-let { basename, relative, isAbsolute } = require('path')
+let { relative, isAbsolute } = require('path')
 const { existsSync } = require('fs')
 let { realpath } = require('fs').promises
 let exec = util.promisify(require('child_process').exec)

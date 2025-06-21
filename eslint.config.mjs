@@ -10,6 +10,7 @@ export default [
 	{ languageOptions: { globals: { ...globals.browser, ...globals.node } } },
 	...pluginVue.configs['flat/recommended'],
 	jsdoc.configs['flat/recommended-typescript-flavor'],
+	{ ignores: ['web-dist'] },
 	{
 		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
 		plugins: { jsdoc },
