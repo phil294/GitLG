@@ -1,9 +1,10 @@
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { git, show_information_message } from '../../bridge.js'
 import { parse } from '../../utils/log-parser.js'
 import { config } from './index.js'
 import { _protected as search_protected } from './search'
 import state from '../state.js'
+import { update_commit_stats } from './commit-stats.js'
 
 /** @type {Vue.Ref<Commit[]|null>} */
 export let loaded_commits = ref(null)
@@ -103,6 +104,15 @@ export let filtered_commits = search_protected.filtered_commits
 
 /** Aka in current viewport. Subset of `commits`. Managed by Scroller.vue only. @type {Vue.Ref<Commit[]>} */
 export let visible_commits = ref([])
+
+watch(visible_commits, async () => {
+	let visible_cp = visible_commits.value.filter((commit) =>
+		commit.hash && ! commit.stats)
+	if (! visible_cp.length)
+		return
+	if (! config.value['disable-commit-stats'])
+		await update_commit_stats(visible_cp)
+})
 
 /** @type {string[]} */
 let default_selected_commits_hashes = []

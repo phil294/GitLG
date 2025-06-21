@@ -25,7 +25,7 @@
 				<div id="quick-branch-tips">
 					<all-branches @branch_selected="jump_to_branch_tip_or_load($event)" />
 					<history @branch_selected="jump_to_branch_tip_or_load($event)" @commit_clicked="$event=>jump_to_commit_hash_or_load($event)" />
-					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
+					<div v-if="show_quick_branch_tips && !hidden_branch_tips_data.length" id="git-status">
 						<p v-if="web_phase === 'initializing_repo'" class="loading">
 							Loading...
 						</p>
@@ -33,17 +33,17 @@
 							Status: {{ git_status }}
 						</p>
 					</div>
-					<template v-if="config_show_quick_branch_tips">
-						<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" :key="branch_elem.branch.id" title="Jump to branch tip" v-bind="branch_elem.bind" @click="jump_to_branch_tip_or_load(branch_elem.branch)">
-							<ref-tip :git_ref="branch_elem.branch" />
+					<template v-if="show_quick_branch_tips">
+						<button v-for="tip_data of hidden_branch_tips_data" :key="tip_data.branch.id" title="Jump to branch tip" v-bind="tip_data.bind" @click="jump_to_branch_tip_or_load(tip_data.branch)">
+							<ref-tip :git_ref="tip_data.branch" />
 						</button>
 					</template>
 					<button id="jump-to-top" title="Scroll to top" @click="jump_to_top()">
 						<i class="codicon codicon-arrow-circle-up" />
 					</button>
 				</div>
-				<div v-if="config_show_quick_branch_tips" id="branches-connection">
-					<commit-row v-if="connection_fake_commit" :commit="connection_fake_commit" :height="110" class="vis" />
+				<div v-if="show_quick_branch_tips" id="branches-connection">
+					<commit-row v-if="hidden_branch_tips_fake_commit" :commit="hidden_branch_tips_fake_commit" :height="110" class="vis" />
 				</div>
 				<p v-if="filtered_commits && !filtered_commits.length" id="no-commits-found">
 					No commits found
@@ -76,101 +76,37 @@
 	</div>
 </template>
 <script setup>
-import { computed, useTemplateRef, watch } from 'vue'
-// todo change this back again
-import * as store from '../data/store'
+import { computed, useTemplateRef } from 'vue'
+import { _run_main_refresh, combine_branches_from_branch_name, config, main_view_highlight_refresh_button as highlight_refresh_button, main_view_git_input_ref, trigger_main_refresh as refresh, selected_git_action, web_phase } from '../data/store'
 import { combine_branches_actions, global_actions } from '../data/store/actions'
-import { update_commit_stats } from '../data/store/commit-stats'
-import { git_status, log_action, selected_commits, single_selected_commit, visible_commits, filtered_commits } from '../data/store/repo'
+import { filtered_commits, git_status, log_action, selected_commits, single_selected_commit } from '../data/store/repo'
+import { use_hidden_branch_tips } from './main-view/hidden-branch-tips'
 import { use_scroller_jumpers } from './main-view/scroller-jumpers'
 
 let details_panel_position = computed(() =>
-	store.config.value['details-panel-position'])
+	config.value['details-panel-position'])
 
 let { jump_to_commit_and_select, jump_to_first_selected_commit, jump_to_top, jump_to_branch_tip_or_load, jump_to_commit_hash_or_load } = use_scroller_jumpers()
 
+let { fake_commit: hidden_branch_tips_fake_commit, branch_tip_data: hidden_branch_tips_data } = use_hidden_branch_tips()
+
 let git_input_ref = useTemplateRef('git_input_ref')
 // @ts-ignore TODO
-store.main_view_git_input_ref.value = git_input_ref
+main_view_git_input_ref.value = git_input_ref
 /**
  * Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
  * @param log_args {string} @param options {{fetch_stash_refs?: boolean, fetch_branches?: boolean}}
  */
 async function run_log(/** @type {string} */ log_args, options) {
-	let is_initializing_repo = store.web_phase.value === 'initializing_repo'
-	await store._run_main_refresh(log_args, options)
+	let is_initializing_repo = web_phase.value === 'initializing_repo'
+	await _run_main_refresh(log_args, options)
 	await sleep(0)
 	if (is_initializing_repo)
 		jump_to_first_selected_commit()
 }
 
-// FIXME: store
-watch(visible_commits, async () => {
-	let visible_cp = visible_commits.value.filter((commit) =>
-		commit.hash && ! commit.stats)
-	if (! visible_cp.length)
-		return
-	if (! store.config.value['disable-commit-stats'])
-		await update_commit_stats(visible_cp)
-})
-let visible_branches = computed(() => [
-	...new Set(visible_commits.value.flatMap((commit) =>
-		(commit.vis_lines || [])
-			.map((v) => v.branch))),
-].filter(is_truthy))
-let visible_branch_tips = computed(() => [
-	...new Set(visible_commits.value.flatMap((commit) =>
-		commit.refs)),
-].filter((ref_) =>
-	ref_ && is_branch(ref_) && ! ref_.inferred))
-let invisible_branch_tips_of_visible_branches = computed(() =>
-// alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
-	visible_branches.value.filter((branch) =>
-		(! branch.inferred || store.config.value['show-inferred-quick-branch-tips']) && ! visible_branch_tips.value.includes(branch)))
-
-// To paint a nice gradient between branches at the top and the vis below:
-let connection_fake_commit = computed(() => {
-	let commit = visible_commits.value[0]
-	if (! commit)
-		return null
-	return {
-		refs: [], hash: '', hash_long: '', author_name: '', author_email: '', subject: '', index_in_graph_output: -1,
-		vis_lines: commit.vis_lines
-			.filter((line) => line.branch && invisible_branch_tips_of_visible_branches.value.includes(line.branch))
-			.filter((line, i, all) => all.findIndex(l => l.branch === line.branch) === i) // rm duplicates
-			.map((line) => {
-				// This approx only works properly with curve radius 0
-				let x = (line.x0 + line.xn) / 2
-				return { ...line, xn: x, x0: x, xcs: x, xce: x, y0: 0, yn: 1 }
-			}),
-	}
-})
-// To show branch tips on top of connection_fake_commit lines
-let invisible_branch_tips_of_visible_branches_elems = computed(() => {
-	let row = -1
-	return [...connection_fake_commit.value?.vis_lines || []].reverse()
-		.map((line) => {
-			if (! line.branch)
-				return null
-			row++
-			if (row > 5)
-				row = 0
-			return {
-				branch: line.branch,
-				bind: {
-					style: {
-						left: 0 + store.vis_v_width.value * line.x0 + 'px',
-						top: 0 + row * 19 + 'px',
-					},
-				},
-			}
-		}).filter(is_truthy) || []
-})
-
-let config_show_quick_branch_tips = computed(() =>
-	! store.config.value['hide-quick-branch-tips'])
-
-let { combine_branches_from_branch_name, trigger_main_refresh: refresh, main_view_highlight_refresh_button: highlight_refresh_button, web_phase, selected_git_action } = store
+let show_quick_branch_tips = computed(() =>
+	! config.value['hide-quick-branch-tips'])
 
 </script>
 <style scoped>

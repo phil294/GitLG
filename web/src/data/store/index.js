@@ -44,6 +44,8 @@ export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branch
 
 /** @type {Vue.WritableComputedRef<{path: string, name: string}[]>} */
 export let repo_infos = state('repo-infos').ref
+let selected_repo_path_is_valid = computed(() =>
+	repo_infos.value.some(i => i.path === selected_repo_path.value))
 /** @type {Vue.WritableComputedRef<string>} */
 export let selected_repo_path = state('selected-repo-path', '', () => {
 	watch([selected_repo_path, selected_repo_path_is_valid], () => {
@@ -54,8 +56,6 @@ export let selected_repo_path = state('selected-repo-path', '', () => {
 	if (! selected_repo_path.value && repo_infos.value.length) // first extension run
 		selected_repo_path.value = not_null(repo_infos.value[0]).path
 }).ref
-let selected_repo_path_is_valid = computed(() =>
-	repo_infos.value.some(i => i.path === selected_repo_path.value))
 
 /** @type {Vue.Ref<GitAction|null>} */
 export let selected_git_action = ref(null)

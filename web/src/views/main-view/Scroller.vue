@@ -165,7 +165,7 @@ defineExpose({ scroll_to_item })
 	cursor: pointer;
 }
 .commit.selected-commit {
-	background: var(--vscode-list-activeSelectionBackground);
+	background: var(--vscode-list-activeSelectionBackground) !important;
 	.vscode-high-contrast &, .vscode-high-contrast-light & {
 		border: 1px solid var(--vscode-sideBarSectionHeader-border);
 	}
