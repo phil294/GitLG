@@ -13,11 +13,11 @@
 	</section>
 </template>
 <script setup>
-import { computed, useTemplateRef, watch } from 'vue'
+import { computed, useTemplateRef } from 'vue'
 import { commit_matches_search, search_str, is_regex, type } from '../data/store/search'
 import { filtered_commits } from '../data/store/repo'
 
-let emit = defineEmits(['scroll_to_commit'])
+let emit = defineEmits(['jump_to_commit'])
 
 let search_str_ref = useTemplateRef('search_str_ref')
 
@@ -46,7 +46,7 @@ function on_enter_jump(/** @type {KeyboardEvent} */ event) {
 		else
 			next_match_index = 0
 	}
-	emit('scroll_to_commit', filtered_commits.value[next_match_index])
+	emit('jump_to_commit', filtered_commits.value[next_match_index])
 	last_jump_index = next_match_index
 }
 

@@ -11,7 +11,7 @@
 					</details>
 					<repo-selection />
 					<aside class="center gap-20">
-						<search-input id="search" @scroll_to_commit="scroll_to_commit_and_select" />
+						<search-input id="search" @jump_to_commit="jump_to_commit_and_select" />
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
 							<button id="refresh" class="btn center" :class="{'highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
@@ -23,8 +23,8 @@
 					</aside>
 				</nav>
 				<div id="quick-branch-tips">
-					<all-branches @branch_selected="scroll_to_branch_tip_or_load($event)" />
-					<history @branch_selected="scroll_to_branch_tip_or_load($event)" @commit_clicked="$event=>scroll_to_commit_hash_or_load($event)" />
+					<all-branches @branch_selected="jump_to_branch_tip_or_load($event)" />
+					<history @branch_selected="jump_to_branch_tip_or_load($event)" @commit_clicked="$event=>jump_to_commit_hash_or_load($event)" />
 					<div v-if="config_show_quick_branch_tips && !invisible_branch_tips_of_visible_branches_elems.length" id="git-status">
 						<p v-if="web_phase === 'initializing_repo'" class="loading">
 							Loading...
@@ -34,11 +34,11 @@
 						</p>
 					</div>
 					<template v-if="config_show_quick_branch_tips">
-						<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" :key="branch_elem.branch.id" title="Jump to branch tip" v-bind="branch_elem.bind" @click="scroll_to_branch_tip_or_load(branch_elem.branch)">
+						<button v-for="branch_elem of invisible_branch_tips_of_visible_branches_elems" :key="branch_elem.branch.id" title="Jump to branch tip" v-bind="branch_elem.bind" @click="jump_to_branch_tip_or_load(branch_elem.branch)">
 							<ref-tip :git_ref="branch_elem.branch" />
 						</button>
 					</template>
-					<button id="jump-to-top" title="Scroll to top" @click="scroll_to_top()">
+					<button id="jump-to-top" title="Scroll to top" @click="jump_to_top()">
 						<i class="codicon codicon-arrow-circle-up" />
 					</button>
 				</div>
@@ -52,7 +52,7 @@
 			</div>
 			<div v-if="selected_commits.length" id="details-panel" class="col flex-1">
 				<template v-if="single_selected_commit">
-					<commit-details id="selected-commit" :commit="single_selected_commit" class="flex-1 fill-w padding" @hash_clicked="scroll_to_commit_hash_or_load($event)" />
+					<commit-details id="selected-commit" :commit="single_selected_commit" class="flex-1 fill-w padding" @hash_clicked="jump_to_commit_hash_or_load($event)" />
 					<button id="close-selected-commit" class="center" title="Close" @click="selected_commits=[]">
 						<i class="codicon codicon-close" />
 					</button>
@@ -82,12 +82,12 @@ import * as store from '../data/store'
 import { combine_branches_actions, global_actions } from '../data/store/actions'
 import { update_commit_stats } from '../data/store/commit-stats'
 import { git_status, log_action, selected_commits, single_selected_commit, visible_commits, filtered_commits } from '../data/store/repo'
-import { use_scroller } from './main-view/scroller.js'
+import { use_scroller_jumpers } from './main-view/scroller-jumpers'
 
 let details_panel_position = computed(() =>
 	store.config.value['details-panel-position'])
 
-let { scroll_to_commit_and_select, scroll_to_first_selected_commit, scroll_to_top, scroll_to_branch_tip_or_load, scroll_to_commit_hash_or_load } = use_scroller()
+let { jump_to_commit_and_select, jump_to_first_selected_commit, jump_to_top, jump_to_branch_tip_or_load, jump_to_commit_hash_or_load } = use_scroller_jumpers()
 
 let git_input_ref = useTemplateRef('git_input_ref')
 // @ts-ignore TODO
@@ -101,7 +101,7 @@ async function run_log(/** @type {string} */ log_args, options) {
 	await store._run_main_refresh(log_args, options)
 	await sleep(0)
 	if (is_initializing_repo)
-		scroll_to_first_selected_commit()
+		jump_to_first_selected_commit()
 }
 
 // FIXME: store
