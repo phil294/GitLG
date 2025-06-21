@@ -54,7 +54,7 @@
 				</div>
 
 				<template v-if="details_panel_position !== 'bottom'">
-					<commit-file-changes :commit1="commit" />
+					<commit-diff :commit1="commit" />
 				</template>
 
 				<h3>
@@ -93,7 +93,7 @@
 			<!-- TODO: fix this duplication with css -->
 			<div :class="details_panel_position === 'bottom' ? 'flex-1' : ''" class="right">
 				<template v-if="details_panel_position === 'bottom'">
-					<commit-file-changes :commit1="commit" />
+					<commit-diff :commit1="commit" />
 				</template>
 			</div>
 		</div>
@@ -102,10 +102,10 @@
 
 <script setup>
 import { ref, computed, watchEffect } from 'vue'
-import { git } from '../bridge.js'
-import { config, show_branch } from '../data/store/index.js'
-import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_ } from '../data/store/actions.js'
-import { filtered_commits, loaded_commits } from '../data/store/repo.js'
+import { git } from '../../bridge.js'
+import { config, show_branch } from '../../data/store/index.js'
+import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_ } from '../../data/store/actions.js'
+import { filtered_commits, loaded_commits } from '../../data/store/repo.js'
 
 let props = defineProps({
 	commit: {

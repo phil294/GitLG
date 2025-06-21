@@ -8,5 +8,5 @@
 	</div>
 </template>
 <script setup>
-import { repo_infos, selected_repo_path } from '../data/store'
+import { repo_infos, selected_repo_path } from '../../data/store'
 </script>

@@ -43,9 +43,9 @@
 </template>
 <script setup>
 import { computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
-import { history } from '../data/store/history'
-import { filtered_commits } from '../data/store/repo'
-import { search_str } from '../data/store/search'
+import { history } from '../../data/store/history'
+import { filtered_commits } from '../../data/store/repo'
+import { search_str } from '../../data/store/search'
 
 defineEmits(['commit_clicked'])
 

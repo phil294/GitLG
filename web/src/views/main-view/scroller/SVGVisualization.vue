@@ -8,8 +8,8 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { vis_v_width } from '../data/store'
-import { head_branch } from '../data/store/repo'
+import { vis_v_width } from '../../../data/store'
+import { head_branch } from '../../../data/store/repo'
 
 let props = defineProps({
 	commit: {

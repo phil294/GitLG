@@ -1,5 +1,5 @@
 <template>
-	<div class="commit-file-changes">
+	<div class="commit-diff">
 		<h3>
 			Changes ({{ file_diffs?.length }})
 		</h3>
@@ -313,7 +313,7 @@ let files_tree = computed(() => {
 
 </script>
 <style scoped>
-.commit-file-changes {
+.commit-diff {
 	position: relative;
 }
 .change {
@@ -345,7 +345,7 @@ ul.list > li .dir {
 .tree-node {
 	position: relative;
 }
-.commit-file-changes > aside.actions {
+aside.actions {
 	position: absolute;
 	top: 10px;
 	right: 10px;

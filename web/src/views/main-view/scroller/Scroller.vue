@@ -25,13 +25,13 @@
 </template>
 <script setup>
 import { computed, onMounted, useTemplateRef, watch } from 'vue'
-import { config, selected_git_action } from '../../data/store'
-import { filtered_commits, selected_commits, visible_commits } from '../../data/store/repo'
-import { commit_actions } from '../../data/store/actions'
-import { exchange_message } from '../../bridge'
-import vContextMenu from '../../directives/context-menu'
-import { is_regex as search_is_regex, search_str, str_index_of_search } from '../../data/store/search'
-import { push_history } from '../../data/store/history'
+import { config, selected_git_action } from '../../../data/store'
+import { filtered_commits, selected_commits, visible_commits } from '../../../data/store/repo'
+import { commit_actions } from '../../../data/store/actions'
+import { exchange_message } from '../../../bridge'
+import vContextMenu from '../../../directives/context-menu'
+import { is_regex as search_is_regex, search_str, str_index_of_search } from '../../../data/store/search'
+import { push_history } from '../../../data/store/history'
 
 // @ts-ignore TODO: idk
 let scroller_ref = /** @type {Readonly<Vue.ShallowRef<InstanceType<typeof import('vue-virtual-scroller').RecycleScroller>|null>>} */ (useTemplateRef('scroller_ref'))

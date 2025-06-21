@@ -14,8 +14,8 @@
 </template>
 <script setup>
 import { computed, useTemplateRef } from 'vue'
-import { commit_matches_search, search_str, is_regex, type } from '../data/store/search'
-import { filtered_commits } from '../data/store/repo'
+import { commit_matches_search, search_str, is_regex, type } from '../../data/store/search'
+import { filtered_commits } from '../../data/store/repo'
 
 let emit = defineEmits(['jump_to_commit'])
 

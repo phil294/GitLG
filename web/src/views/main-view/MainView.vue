@@ -77,11 +77,11 @@
 </template>
 <script setup>
 import { computed, useTemplateRef } from 'vue'
-import { _run_main_refresh, combine_branches_from_branch_name, config, main_view_highlight_refresh_button as highlight_refresh_button, main_view_git_input_ref, trigger_main_refresh as refresh, selected_git_action, web_phase } from '../data/store'
-import { combine_branches_actions, global_actions } from '../data/store/actions'
-import { filtered_commits, git_status, log_action, selected_commits, single_selected_commit } from '../data/store/repo'
-import { use_hidden_branch_tips } from './main-view/hidden-branch-tips'
-import { use_scroller_jumpers } from './main-view/scroller-jumpers'
+import { _run_main_refresh, combine_branches_from_branch_name, config, main_view_highlight_refresh_button as highlight_refresh_button, main_view_git_input_ref, trigger_main_refresh as refresh, selected_git_action, web_phase } from '../../data/store'
+import { combine_branches_actions, global_actions } from '../../data/store/actions'
+import { filtered_commits, git_status, log_action, selected_commits, single_selected_commit } from '../../data/store/repo'
+import { use_hidden_branch_tips } from './hidden-branch-tips'
+import { use_scroller_jumpers } from './scroller-jumpers'
 
 let details_panel_position = computed(() =>
 	config.value['details-panel-position'])

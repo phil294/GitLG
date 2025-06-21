@@ -22,7 +22,7 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import { selected_git_action, trigger_main_refresh } from '../data/store'
+import { selected_git_action, trigger_main_refresh } from '../../data/store'
 
 let keep_open = ref(false)
 

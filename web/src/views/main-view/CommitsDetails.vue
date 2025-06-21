@@ -16,13 +16,13 @@
 			</h3>
 
 			<!-- TODO: [0] should yield unsafe array access type error..?? -->
-			<commit-file-changes :commit1="commits[0]" :commit2="commits[1]" />
+			<commit-diff :commit1="commits[0]" :commit2="commits[1]" />
 		</template>
 	</div>
 </template>
 <script setup>
 import { computed } from 'vue'
-import { commits_actions as commits_actions_ } from '../data/store/actions'
+import { commits_actions as commits_actions_ } from '../../data/store/actions'
 
 let props = defineProps({
 	commits: {
