@@ -42,7 +42,8 @@
         "reflog",
         "remotename",
         "scroller",
-        "shortstat"
+        "shortstat",
+        "vueuse"
     ],
     "files.trimTrailingWhitespace": true,
     "eslint.experimental.useFlatConfig": true,

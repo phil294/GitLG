@@ -1,10 +1,10 @@
 <template>
 	<div class="commit-file-changes">
 		<h3>
-			Changes ({{ files.length }})
+			Changes ({{ file_diffs?.length }})
 		</h3>
 		<aside class="actions center">
-			<button class="row" title="View Changes in Multi Diff" @click="$emit('show_multi_diff')">
+			<button class="row" title="View Changes in Multi Diff" @click="show_multi_diff()">
 				<i class="codicon codicon-diff-multiple" />
 			</button>
 			<button v-if="render_style==='tree'" class="row" title="View as list" @click="render_style='list'">
@@ -14,6 +14,10 @@
 				<i class="codicon codicon-list-flat" />
 			</button>
 		</aside>
+
+		<div v-if="!file_diffs" class="loading padding">
+			Loading files...
+		</div>
 
 		<template-file-change-define v-slot="{ file }">
 			<button :title="file.insertions+' insertions, '+file.deletions+' deletions'" class="change center gap-10">
@@ -37,7 +41,7 @@
 				<button class="row show-file" title="Show file history" @click.stop="show_file(file.path)">
 					<i class="codicon codicon-history" />
 				</button>
-				<button class="row view-rev" title="View File at this Revision" @click.stop="$emit('view_rev',file.path)">
+				<button class="row view-rev" title="View File at this Revision" @click.stop="view_rev(file.path)">
 					<i class="codicon codicon-git-commit" />
 				</button>
 				<button class="row open-file" title="Open file" @click.stop="open_file(file.path)">
@@ -47,7 +51,7 @@
 		</template-file-actions-define>
 
 		<ul v-if="files_list" class="list">
-			<li v-for="file of files_list" :key="file.path" class="list-row flex-1 row align-center gap-10" role="button" @click="$emit('show_diff',file.path)">
+			<li v-for="file of files_list" :key="file.path" class="list-row flex-1 row align-center gap-10" role="button" @click="show_diff(file.path)">
 				<div class="flex-1 fill-h row align-center gap-10">
 					<img :src="file.icon_path" aria-hidden="true">
 					<div :title="file.filename" class="filename">
@@ -70,7 +74,7 @@
 				<div class="body">
 					<template-tree-node-reuse v-for="child of node.children" :key="child.path" :node="child" />
 					<template v-for="file of node.files" :key="file.path">
-						<button class="fill-w row align-center gap-10" @click="$emit('show_diff',file.path)">
+						<button class="fill-w row align-center gap-10" @click="show_diff(file.path)">
 							<img :src="file.icon_path" aria-hidden="true">
 							<div :title="file.filename" class="filename flex-1">
 								{{ file.filename }}
@@ -88,8 +92,9 @@
 	</div>
 </template>
 <script setup>
-import { computed } from 'vue'
-import { exchange_message } from '../bridge.js'
+// FIXME: rename CommitDiff.vue
+import { computed, ref, watchEffect } from 'vue'
+import { exchange_message, git } from '../bridge.js'
 import { trigger_main_refresh } from '../data/store'
 import { createReusableTemplate } from '@vueuse/core'
 import file_extension_icon_path_mapping from '../data/file-extension-icon-path-mapping.json'
@@ -105,6 +110,128 @@ import state from '../data/state.js'
  *  rename_path?: string
  * }} FileDiff
  */
+
+let props = defineProps({
+	commit1: {
+		/** @type {Vue.PropType<Commit>} */
+		type: Object,
+		required: true,
+	},
+	commit2: {
+		/** @type {Vue.PropType<Commit | null>} */
+		type: Object,
+		required: false,
+		default: null,
+	},
+})
+
+/** @type {Vue.Ref<FileDiff[] | null>} */
+let file_diffs = ref(null)
+
+function git_numstat_summary_to_changes_array(/** @type {string} */ out) {
+	return Object.values(out.split('\n').filter(Boolean)
+		.reduce((/** @type {Record<string, FileDiff>} */ all, line) => {
+			if (line.startsWith(' ')) {
+				let split = line.split(' ')
+				if (split[1] === 'delete' || split[1] === 'create') {
+					let path = split.slice(4).join(' ')
+					if (all[path])
+						if (split[1] === 'delete')
+							all[path].is_deletion = true
+						else if (split[1] === 'create')
+							all[path].is_creation = true
+				} else if (split[1] === 'rename') {
+					// TODO: this is very hacky, --summary output is obviously not meant to be parsed
+					// rename Theme/Chicago95/{index.theme => index1.theme} (100%)
+					let match = line.match(/^ rename ((.+) => .+) \(\d+%\)$/)
+					let change = all[(match?.[2] || '').replaceAll('{', '')]
+					if (change)
+						change.rename_path = match?.[1]
+				}
+			} else {
+				let split = line.split('\t')
+				let path = split[2] || ''
+				/** @type {string | undefined} */
+				let rename_description = undefined
+				if (path.includes(' => ')) {
+					rename_description = path
+					path = path.split(' => ')[0]?.replaceAll('{', '') || ''
+				}
+				all[path] = {
+					path,
+					insertions: Number(split[0]),
+					deletions: Number(split[1]),
+					rename_path: rename_description,
+				}
+			}
+			return all
+		}, {}))
+}
+
+let hash1 = computed(() =>
+	props.commit2 ? props.commit1.hash : `${props.commit1.hash}~1`)
+let hash2 = (/** @type {string | undefined} */ filepath) => {
+	if (props.commit2)
+		return props.commit2.hash
+	if (! filepath)
+		return props.commit1.hash
+	if (props.commit1.stash) {
+		let is_creation = file_diffs.value?.find(f => f.path === filepath)?.is_creation
+		if (is_creation)
+			return `${props.commit1.hash}^3`
+	}
+	return props.commit1.hash
+}
+
+watchEffect(async () => {
+	file_diffs.value = null
+
+	// so we can see untracked as well
+	let get_files_command = props.commit2
+		? `-c core.quotepath=false diff --numstat --summary --format="" ${hash1.value} ${hash2()}`
+		: props.commit1.stash
+			? `-c core.quotepath=false stash show --include-untracked --numstat --summary --format="" ${props.commit1.hash}`
+			: `-c core.quotepath=false diff --numstat --summary --format="" ${hash1.value} ${hash2()}`
+	file_diffs.value = git_numstat_summary_to_changes_array(await git(get_files_command))
+})
+
+function show_diff(/** @type {string} */ filepath) {
+	return exchange_message('open-diff', {
+		title: `${filepath} ${hash1.value} - ${hash2(filepath)}`,
+		uris: [
+			`${hash1.value}:${filepath}`,
+			`${hash2(filepath)}:${filepath}`,
+		],
+	})
+}
+function show_multi_diff() {
+	return exchange_message('open-multi-diff', {
+		title: `${hash1.value} - ${hash2()}`,
+		uris: (file_diffs.value || []).map(file => [
+			`${hash1.value}:${file.path}`,
+			`${hash2(file.path)}:${file.path}`,
+		]),
+	})
+}
+function view_rev(/** @type {string} */ filepath) {
+	return exchange_message('view-rev', {
+		uri: `${hash2(filepath)}:${filepath}`,
+	})
+}
+
+function open_file(/** @type {string} */ filepath) {
+	return exchange_message('open-file', { uri: filepath })
+}
+
+function show_file(/** @type {string} */ filepath) {
+	return trigger_main_refresh({
+		custom_log_args: ({ base_log_args }) =>
+			`${base_log_args} --follow -- "${filepath}"`,
+		fetch_branches: false,
+		fetch_stash_refs: false,
+	})
+}
+
 /**
  * @typedef {{
  *	children: Record<string, TreeNode>
@@ -121,17 +248,8 @@ let [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate
 let [TemplateFileActionsDefine, TemplateFileActionsReuse] = createReusableTemplate()
 let [TemplateTreeNodeDefine, TemplateTreeNodeReuse] = createReusableTemplate()
 
-let props = defineProps({
-	files: {
-		/** @type {Vue.PropType<FileDiff[]>} */
-		type: Array,
-		required: true,
-	},
-})
-defineEmits(['show_diff', 'view_rev', 'show_multi_diff'])
-
-let files = computed(() =>
-	props.files.map((file) => {
+let files_as_list = computed(() =>
+	file_diffs.value?.map((file) => {
 		// Even on Windows, the delimiter of git paths output is forward slash
 		let path_arr = (file.rename_path || file.path).split('/')
 		let ext = path_arr.at(-1)?.split('.').at(-1) || ''
@@ -150,7 +268,7 @@ let files = computed(() =>
 	}))
 let files_list = computed(() => {
 	if (render_style?.value === 'list')
-		return files.value
+		return files_as_list.value
 })
 let files_tree = computed(() => {
 	if (render_style?.value !== 'tree')
@@ -161,7 +279,7 @@ let files_tree = computed(() => {
 		files: [],
 		path: 'Changes',
 	}
-	for (let file of files.value) {
+	for (let file of files_as_list.value || []) {
 		let curr = out
 		for (let dir_seg of file.dir_arr)
 			curr = curr.children[dir_seg] ||= {
@@ -192,19 +310,6 @@ let files_tree = computed(() => {
 	unify(out)
 	return out
 })
-
-function open_file(/** @type {string} */ filepath) {
-	return exchange_message('open-file', { filename: filepath })
-}
-
-function show_file(/** @type {string} */ filepath) {
-	return trigger_main_refresh({
-		custom_log_args: ({ base_log_args }) =>
-			`${base_log_args} --follow -- "${filepath}"`,
-		fetch_branches: false,
-		fetch_stash_refs: false,
-	})
-}
 
 </script>
 <style scoped>

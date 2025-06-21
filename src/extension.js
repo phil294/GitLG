@@ -143,26 +143,26 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 						case 'set-state': return h(() =>
 							state(data.key).set(data.value, { broadcast: false }))
 						case 'open-diff': return h(() => {
-							let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[0]}:${data.filename}`)
-							let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[1]}:${data.filename}`)
-							return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, `${data.filename} ${data.hashes[0]} vs. ${data.hashes[1]}`)
+							let uri_1 = vscode.Uri.parse(`${EXT_ID}-git-show:${data.uris[0]}`)
+							let uri_2 = vscode.Uri.parse(`${EXT_ID}-git-show:${data.uris[1]}`)
+							return vscode.commands.executeCommand('vscode.diff', uri_1, uri_2, data.title)
 						})
 						case 'open-multi-diff': return h(() =>
 							vscode.commands.executeCommand('vscode.changes',
-								`${data.hashes[0]} vs. ${data.hashes[1]}`,
-								data.filenames.map((/** @type {string} */ filename) => [
-									vscode.Uri.parse(filename),
-									vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[0]}:${filename}`),
-									vscode.Uri.parse(`${EXT_ID}-git-show:${data.hashes[1]}:${filename}`),
+								data.title,
+								data.uris.map((/** @type {[string,string]} */ _uris) => [
+									vscode.Uri.parse(''), // Unsure what VSCode expects here. Not documented either
+									vscode.Uri.parse(`${EXT_ID}-git-show:${_uris[0]}`),
+									vscode.Uri.parse(`${EXT_ID}-git-show:${_uris[1]}`),
 								])))
 						case 'view-rev': return h(() => {
-							let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${data.hash}:${data.filename}`)
+							let uri = vscode.Uri.parse(`${EXT_ID}-git-show:${data.uri}`)
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
 						case 'open-file': return h(() => {
 							// vscode.workspace.workspaceFolders is NOT necessarily in the same order as git-api.repositories
 							let workspace = state('selected-repo-path').get() || ''
-							let uri = vscode.Uri.file(path.join(workspace, data.filename))
+							let uri = vscode.Uri.file(path.join(workspace, data.uri))
 							return vscode.commands.executeCommand('vscode.open', uri)
 						})
 						case 'clipboard-write-text': return h(() =>

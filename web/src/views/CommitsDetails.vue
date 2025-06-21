@@ -1,6 +1,7 @@
 <template>
 	<div class="commits-details">
 		<h2 class="count">
+			<!-- TODO: styling -->
 			{{ commits.length }} COMMITS SELECTED
 		</h2>
 		<p class="hashes">
@@ -14,19 +15,14 @@
 				Comparison of two commits
 			</h3>
 
-			<commit-file-changes v-if="comparison_files" :files="comparison_files" @show_diff="show_compare_diff" @show_multi_diff="show_multi_compare_diff" @view_rev="view_rev" />
-			<div v-else class="loading padding">
-				Loading files...
-			</div>
+			<!-- TODO: [0] should yield unsafe array access type error..?? -->
+			<commit-file-changes :commit1="commits[0]" :commit2="commits[1]" />
 		</template>
 	</div>
 </template>
 <script setup>
-import { ref, computed, watchEffect } from 'vue'
-import { git, exchange_message } from '../bridge.js'
+import { computed } from 'vue'
 import { commits_actions as commits_actions_ } from '../data/store/actions'
-import { git_numstat_summary_to_changes_array } from './CommitDetails.vue'
-/** @import { FileDiff } from './CommitFileChanges.vue' */
 
 let props = defineProps({
 	commits: {
@@ -36,35 +32,6 @@ let props = defineProps({
 	},
 })
 
-/** @type {Vue.Ref<FileDiff[] | null>} */
-let comparison_files = ref(null)
-watchEffect(async () => {
-	if (props.commits.length !== 2)
-		return
-	comparison_files.value = null
-	let get_files_command = `-c core.quotepath=false diff --numstat --summary --format="" ${not_null(props.commits[0]).hash} ${not_null(props.commits[1]).hash}`
-	comparison_files.value = git_numstat_summary_to_changes_array(await git(get_files_command))
-})
-
-function show_compare_diff(/** @type {string} */ filepath) {
-	exchange_message('open-diff', {
-		hashes: [not_null(props.commits[0]).hash, not_null(props.commits[1]).hash],
-		filename: filepath,
-	})
-}
-function show_multi_compare_diff() {
-	return exchange_message('open-multi-diff', {
-		hashes: [not_null(props.commits[0]).hash, not_null(props.commits[1]).hash],
-		filenames: (comparison_files.value || []).map(f => f.path),
-	})
-}
-function view_rev(/** @type {string} */ filepath) {
-	exchange_message('view-rev', {
-		// TODO: ?
-		hash: props.commits[1]?.hash,
-		filename: filepath,
-	})
-}
 let commits_actions = computed(() => commits_actions_(props.commits.map((c) => c.hash)).value)
 </script>
 <style scoped>

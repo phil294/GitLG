@@ -73,6 +73,7 @@ interface Commit {
 	author_email: string
 	datetime?: string
 	refs: GitRef[]
+	stash?: GitRef
 	subject: string
 	merge?: boolean
 	/** undefined means not yet queried, an empty object signifies a loading state,

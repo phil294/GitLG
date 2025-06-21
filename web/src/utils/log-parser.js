@@ -429,14 +429,19 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius,
 		// 7c37db63 stash@{11}
 		let split = stash.split(' ')
 		let commit = commits.find((c) => c.hash === split[0])
-		let name = split.slice(1).join(' ')
-		commit?.refs.push({
-			name,
-			id: name,
-			display_name: name,
-			type: 'stash',
-			color: '#fff',
-		})
+		if (commit) {
+			let name = split.slice(1).join(' ')
+			/** @type {GitRef} */
+			let stash_ref = {
+				name,
+				id: name,
+				display_name: name,
+				type: 'stash',
+				color: '#fff',
+			}
+			commit.refs.push(stash_ref)
+			commit.stash = stash_ref
+		}
 	}
 
 	console.timeEnd('GitLG: parsing log')
