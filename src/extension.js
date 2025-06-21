@@ -12,8 +12,8 @@ const { get_state } = require('./state')
 
 let EXT_NAME = 'GitLG'
 let EXT_ID = 'git-log--graph'
-let START_CMD = EXT_ID + '.start'
-let BLAME_CMD = EXT_ID + '.blame-line'
+let START_CMD = 'start'
+let BLAME_CMD = 'blame-line'
 
 /** @type {vscode.WebviewPanel | vscode.WebviewView | null} */
 let webview_container = null
@@ -231,7 +231,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	}))
 
 	// General start, will choose from creating/show editor panel or showing side nav view depending on config
-	context.subscriptions.push(vscode.commands.registerCommand(START_CMD, intercept_errors(async (args) => {
+	context.subscriptions.push(vscode.commands.registerCommand(`${EXT_ID}.${START_CMD}`, intercept_errors(async (args) => {
 		logger.info('start command')
 		if (args?.rootUri) // invoked via menu scm/title
 			state('selected-repo-path').set(await git.get_repo_path_for_uri(args.rootUri))
@@ -273,7 +273,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		logger.info('toggle command')
 		if (webview_container)
 			/** @type {vscode.WebviewPanel} */ (webview_container).dispose()
-		return vscode.commands.executeCommand(START_CMD)
+		return vscode.commands.executeCommand(`${EXT_ID}.${START_CMD}`)
 	})))
 
 	// First editor panel creation + show, but automatically after restart / resume previous session.
@@ -301,15 +301,17 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		}),
 	}, { webviewOptions: { retainContextWhenHidden: true } }))
 
-	let status_bar_item_start = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left)
-	status_bar_item_start.command = START_CMD
+	let status_bar_item_start = vscode.window.createStatusBarItem(START_CMD, vscode.StatusBarAlignment.Left)
+	status_bar_item_start.command = `${EXT_ID}.${START_CMD}`
+	status_bar_item_start.name = `${EXT_NAME}: ${START_CMD}`
 	context.subscriptions.push(status_bar_item_start)
 	status_bar_item_start.text = '$(git-branch) GitLG'
 	status_bar_item_start.tooltip = 'Open up the main view of the GitLG extension'
 	status_bar_item_start.show()
 
-	let status_bar_item_blame = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 500)
-	status_bar_item_blame.command = BLAME_CMD
+	let status_bar_item_blame = vscode.window.createStatusBarItem(BLAME_CMD, vscode.StatusBarAlignment.Right, 500)
+	status_bar_item_blame.command = `${EXT_ID}.${BLAME_CMD}`
+	status_bar_item_blame.name = `${EXT_NAME}: ${BLAME_CMD}`
 	context.subscriptions.push(status_bar_item_blame)
 	status_bar_item_blame.text = ''
 	status_bar_item_blame.tooltip = 'Show and focus this commit in the main view of the GitLG extension'
@@ -365,7 +367,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	vscode.window.onDidChangeTextEditorSelection(intercept_errors(({ textEditor: text_editor }) => {
 		show_blame(text_editor)
 	}))
-	context.subscriptions.push(vscode.commands.registerCommand(BLAME_CMD, intercept_errors(async () => {
+	context.subscriptions.push(vscode.commands.registerCommand(`${EXT_ID}.${BLAME_CMD}`, intercept_errors(async () => {
 		logger.info('blame cmd')
 		if (! current_line_long_hash)
 			return
