@@ -178,7 +178,7 @@ let hash2 = (/** @type {string | undefined} */ filepath) => {
 	if (props.commit1.stash) {
 		let is_creation = file_diffs.value?.find(f => f.path === filepath)?.is_creation
 		if (is_creation)
-			return `${props.commit1.hash}^3`
+			return `${props.commit1.hash}^3` // stashes are internally represented by a 3way-merge
 	}
 	return props.commit1.hash
 }
@@ -190,8 +190,9 @@ watchEffect(async () => {
 	let get_files_command = props.commit2
 		? `-c core.quotepath=false diff --numstat --summary --format="" ${hash1.value} ${hash2()}`
 		: props.commit1.stash
+			// `diff` doesn't have an --include-untracked
 			? `-c core.quotepath=false stash show --include-untracked --numstat --summary --format="" ${props.commit1.hash}`
-			: `-c core.quotepath=false diff --numstat --summary --format="" ${hash1.value} ${hash2()}`
+			: `-c core.quotepath=false show --numstat --summary --format="" ${hash2()}`
 	file_diffs.value = git_numstat_summary_to_changes_array(await git(get_files_command))
 })
 
