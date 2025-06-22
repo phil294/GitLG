@@ -56,7 +56,9 @@ function on_wheel(/** @type {WheelEvent} */ event) {
 	event.preventDefault()
 	scroll_delta_acc += event.deltaY
 	if (Math.abs(scroll_delta_acc) > 40) {
-		scroll_to_item(visible_start_index + Math.round(event.deltaY / 20))
+		// might not be updated correctly by on_update so it needs to be set here either way
+		visible_start_index += Math.round(event.deltaY / 20)
+		scroll_to_item(visible_start_index)
 		scroll_delta_acc = 0
 	}
 }
@@ -65,10 +67,12 @@ function on_keydown(/** @type {KeyboardEvent} */ event) {
 		return
 	if (event.key === 'ArrowDown') {
 		event.preventDefault()
-		scroll_to_item(visible_start_index + 2)
+		visible_start_index += 2 // ^
+		scroll_to_item(visible_start_index)
 	} else if (event.key === 'ArrowUp') {
 		event.preventDefault()
-		scroll_to_item(visible_start_index - 2)
+		visible_start_index -= 2 // ^
+		scroll_to_item(visible_start_index)
 	}
 }
 
