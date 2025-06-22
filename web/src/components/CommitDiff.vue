@@ -92,7 +92,6 @@
 	</div>
 </template>
 <script setup>
-// FIXME: rename CommitDiff.vue
 import { computed, ref, watchEffect } from 'vue'
 import { exchange_message, git } from '../bridge.js'
 import { trigger_main_refresh } from '../data/store'

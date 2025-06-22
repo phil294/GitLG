@@ -171,15 +171,6 @@ onMounted(async () => {
 		params_input_refs.value[writable_param_index]?.focus()
 	else
 		command_input_ref.value?.focus()
-	;[...(params_input_refs.value || []),
-		command_input_ref.value]
-		// FIXME: outdated
-		.map(r => r?.shadowRoot?.querySelector('input'))
-		.filter(is_truthy)
-		.forEach(input => {
-			input.style.fontFamily = 'var(--vscode-editor-font-family, monospace)'
-			input.style.fontSize = 'small'
-		})
 })
 
 let result_data = ref('')
@@ -191,14 +182,11 @@ async function execute({ before_execute, fetch_stash_refs, fetch_branches } = {}
 	await nextTick()
 	result_error.value = ''
 	let _params = params_model.value.map((p) => p.replaceAll('\\n', '\n'))
-	if (_params.some((p) => p.match(/"|(\\([^n]|$))/)))
-		// FIXME: subject with quotes
-		return result_error.value = 'Params cannot contain quotes or backslashes.'
 	let cmd = command.value
 	let pos = null
 	for (let i = 1; i <= _params.length; i++)
 		while ((pos = cmd.indexOf('$' + i)) > -1)
-			cmd = cmd.slice(0, pos) + _params[i - 1] + cmd.slice(pos + 2)
+			cmd = cmd.slice(0, pos) + _params[i - 1]?.replaceAll('\\', '\\\\').replaceAll('"', '\\"') + cmd.slice(pos + 2)
 	if (before_execute)
 		cmd = before_execute(cmd)
 	let result = null
@@ -272,8 +260,10 @@ defineExpose({
 .error-response {
 	color: #e53c3c;
 }
-textarea {
+textarea, input {
 	border: 1px solid var(--vscode-settings-textInputBorder, var(--vscode-settings-textInputBackground));
 	border-radius: 2px;
+	font-family: var(--vscode-editor-font-family, monospace);
+	font-size: small;
 }
 </style>
