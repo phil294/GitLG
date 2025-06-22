@@ -11,8 +11,7 @@ export let use_scroller_jumpers = () => {
 	/** @type {any} */
 	let scroller_ref = useTemplateRef('scroller_ref')
 	function jump_to_index_centered(/** @type {number} */ index) {
-		// FIXME: this seems to fail if vertical space is taken up by commit details?
-		scroller_ref.value?.scroll_to_item(index - Math.floor(visible_commits.value.length / 2))
+		scroller_ref.value?.scroll_to_item(index - Math.floor(visible_commits.value.length / 4))
 	}
 	function jump_to_top() {
 		scroller_ref.value?.scroll_to_item(0)
