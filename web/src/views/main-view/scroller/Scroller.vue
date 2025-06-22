@@ -57,9 +57,9 @@ function on_wheel(/** @type {WheelEvent} */ event) {
 	scroll_delta_acc += event.deltaY
 	if (Math.abs(scroll_delta_acc) > 40) {
 		// might not be updated correctly by on_update so it needs to be set here either way
-		visible_start_index += Math.round(event.deltaY / 20)
-		scroll_to_item(visible_start_index)
+		visible_start_index += Math.round(scroll_delta_acc / 20)
 		scroll_delta_acc = 0
+		scroll_to_item(visible_start_index)
 	}
 }
 function on_keydown(/** @type {KeyboardEvent} */ event) {
