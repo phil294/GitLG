@@ -228,7 +228,7 @@ defineExpose({
 	execute,
 })
 </script>
-<style>
+<style scoped>
 .options .option.changed {
 	border-left: 2px solid #bc9550;
 	margin-left: -6px;

@@ -57,8 +57,9 @@ let type_is_filter = computed({
 
 </script>
 <style scoped>
-input[type="text"] {
+input.search {
 	overflow: hidden;
+	width: 210px;
 }
 #regex-search {
 	min-width: 20px;
