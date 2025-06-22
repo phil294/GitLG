@@ -49,11 +49,16 @@ function on_update(/** @type {number} */ from, /** @type {number} */ to) {
 	debounce(() =>
 		visible_commits.value = filtered_commits.value.slice(commits_start_index, to), 50)
 }
+let scroll_delta_acc = 0
 function on_wheel(/** @type {WheelEvent} */ event) {
 	if (config.value['disable-scroll-snapping'])
 		return
 	event.preventDefault()
-	scroll_to_item(visible_start_index + Math.round(event.deltaY / 20))
+	scroll_delta_acc += event.deltaY
+	if (Math.abs(scroll_delta_acc) > 40) {
+		scroll_to_item(visible_start_index + Math.round(event.deltaY / 20))
+		scroll_delta_acc = 0
+	}
 }
 function on_keydown(/** @type {KeyboardEvent} */ event) {
 	if (config.value['disable-scroll-snapping'])
