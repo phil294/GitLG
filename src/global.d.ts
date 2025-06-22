@@ -128,4 +128,5 @@ interface HistoryEntry {
 interface State<T> {
 	ref: Vue.WritableComputedRef<T>
 	reload: () => Promise<void>
+	_internal: Vue.ShallowRef<T>
 }

@@ -4,9 +4,10 @@ import { add_push_listener, exchange_message } from '../bridge'
 /** @type {Record<string, State<any>>} */ // TODO: type-safe
 let _states = {}
 add_push_listener('state-update', ({ data: { key, value } }) => {
-	if (_states[key])
-		// FIXME: doesn't this unnecessarily trigger exchange_message set-state?
+	if (_states[key]) {
+		_states[key]._internal.value = value // Skip the unnecessary roundtrip to backend
 		_states[key].ref.value = value
+	}
 })
 /**
  * @template T
@@ -24,22 +25,23 @@ let state = (/** @type {string} */ key, /** @type {T} */ default_value, /** @typ
 		return ret
 	}
 	// shallow because type error https://github.com/vuejs/composition-api/issues/483
-	let internal = shallowRef(default_value)
+	let _internal = shallowRef(default_value)
 	ret = {
 		ref: computed({
-			get: () => internal.value,
+			get: () => _internal.value,
 			set(/** @type {T} */ value) {
-				if (internal.value !== value)
+				if (_internal.value !== value)
 					exchange_message('set-state', { key, value })
-				internal.value = value
+				_internal.value = value
 			},
 		}),
 		reload: async () => {
-			internal.value = default_value
+			_internal.value = default_value
 			let stored = await exchange_message('get-state', key)
 			if (stored != null)
-				internal.value = stored
+				_internal.value = stored
 		},
+		_internal,
 	}
 	_states[key] = ret;
 	(async () => {
