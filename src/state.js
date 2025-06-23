@@ -33,15 +33,14 @@ let storage_providers = {
 			}
 		},
 	/** @template T */
-	memory: () =>
-		() => {
-			/** @type {T | undefined} */
-			let stored = undefined
-			return {
-				get: () => stored,
-				set: (/** @type {T | undefined} */ v) => stored = v,
-			}
-		},
+	memory: () => {
+		/** @type {T | undefined} */
+		let stored = undefined
+		return () => ({
+			get: () => stored,
+			set: (/** @type {T | undefined} */ v) => stored = v,
+		})
+	},
 }
 
 /**

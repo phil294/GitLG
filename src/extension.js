@@ -75,10 +75,10 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		context,
 		git,
 		get_config,
-		on_broadcast: data => post_message({
+		on_broadcast: (key, value) => post_message({
 			type: 'push-to-web',
 			id: 'state-update',
-			data,
+			data: { key, value },
 		}),
 	})
 
