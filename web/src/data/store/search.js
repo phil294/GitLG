@@ -9,7 +9,7 @@ watch(search_str, () => {
 		push_history({ type: 'search', value: search_str.value })
 })
 
-export let type = state('search-type', /** @type {'filter' | 'jump'} */ ('jump')).ref
+export let type = state('search-type', 'jump').ref
 export let is_regex = state('search-options-regex', false).ref
 let regex = computed(() =>
 	search_str.value && is_regex.value

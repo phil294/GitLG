@@ -20,7 +20,7 @@ let storage_providers = {
 	repo: (local_key) =>
 		(ctx) => {
 			function key() {
-				// let repo = states['selected-repo-path'].storage(ctx).get() // ts can't cope with this
+				// let repo = static_states['selected-repo-path'].storage(ctx).get() // ts can't cope with this
 				let repo = ctx.context.workspaceState.get('selected-repo-path')
 				let repo_name = ctx.git.get_repo_infos().find(i => i.path === repo)?.name
 				if (! repo_name)
@@ -44,8 +44,12 @@ let storage_providers = {
 		},
 }
 
-/** @satisfies {Record<string, {type: string, storage: StorageProvider<any>}>} */
-let states = {
+/**
+ * There can also be dynamic states, aka GitInput states.
+ * This object only bootstraps the static ones. `state()` eventually accepts both.
+ * @satisfies {Record<string, {type: string, storage: StorageProvider<any>}>}
+ */
+let static_states = {
 	config: {
 		type: 'special',
 		storage: (ctx) => ({
@@ -83,13 +87,30 @@ let states = {
 		type: 'memory',
 		storage: /** @type {typeof storage_providers.memory<'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'>} */ (storage_providers.memory)(),
 	},
-	// ...TODO:
+	'search-type': {
+		type: 'global',
+		storage: /** @type {typeof storage_providers.global<'filter' | 'jump'>} */ (storage_providers.global)('search-type'),
+	},
+	'search-options-regex': {
+		type: 'global',
+		storage: /** @type {typeof storage_providers.global<boolean>} */ (storage_providers.global)('search-options-regex'),
+	},
+	'vis-width': {
+		type: 'global',
+		storage: /** @type {typeof storage_providers.global<number>} */ (storage_providers.global)('vis-width'),
+	},
+	'files-diffs-list-render-style': {
+		type: 'global',
+		storage: /** @type {typeof storage_providers.global<'list' | 'tree'>} */ (storage_providers.global)('files-diffs-list-render-style'),
+	},
 }
 
-/** @typedef {keyof states} StateKey */
+/** @typedef {{ options: GitOption[], command: string }} GitInputState */
+/** @typedef {`git input config ${string}`} GitInputKey */ // TODO: maybe changes this + write migration for existing state
+/** @typedef {keyof typeof static_states | GitInputKey} StateKey */
 /**
  * @template {StateKey} K
- * @typedef {ReturnType<ReturnType<states[K]['storage']>['get']>} StateType
+ * @typedef {K extends (keyof typeof static_states) ? ReturnType<ReturnType<typeof static_states[K]['storage']>['get']> : GitInputState} StateType
  */
 
 /**
@@ -116,7 +137,9 @@ module.exports.get_state = ({ context, git, on_broadcast, get_config }) => {
 	 * }}
 	 */
 	function state(/** @type {K} */ key) {
-		let storage = states[key].storage({ context, git, get_config })
+		let storage = Object.hasOwn(static_states, key)
+			? static_states[/** @type {keyof typeof static_states} */(key)].storage({ context, git, get_config })
+			: /** @type {typeof storage_providers.global<GitInputState>} */ (storage_providers.global)(key)({ context, git, get_config })
 		return {
 			get: () => /** @type {StateType<K>} */ (storage.get()),
 			set(/** @type {StateType<K>} */ value, options = {}) {

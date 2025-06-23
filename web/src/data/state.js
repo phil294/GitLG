@@ -1,23 +1,37 @@
 import { computed, nextTick, shallowRef } from 'vue'
 import { add_push_listener, exchange_message } from '../bridge'
 
-/** @type {Record<string, State<any>>} */ // TODO: type-safe
+/** @typedef {import('.../../src/state').StateKey} StateKey */
+/** @template {StateKey} K @typedef {import('.../../src/state').StateType<K>} StateType */
+/**
+ * @template {StateKey} K
+ * @typedef {{
+ *	ref: Vue.WritableComputedRef<NonNullable<StateType<K>>>
+ *	reload: () => Promise<void>
+ *	_internal: Vue.ShallowRef<NonNullable<StateType<K>>>
+ * }} State
+ */
+
+/** @type {{[key in StateKey]?: State<key>}} */
 let _states = {}
-add_push_listener('state-update', ({ data: { key, value } }) => {
-	if (_states[key]) {
+add_push_listener('state-update', (/** @template {StateKey} K @type {{data?: {key: K, value: NonNullable<StateType<K>>}}} */ msg) => {
+	let { data: { key, value } = {} } = msg
+	if (key && value && _states[key]) {
 		_states[key]._internal.value = value // Skip the unnecessary roundtrip to backend
 		_states[key].ref.value = value
 	}
 })
 /**
- * @template T
  * This utility returns a `WritableComputed` that will persist its state or react to changes on the
  * backend somehow. The caller doesn't know where it's stored though, this is up to extension.js
  * to decide based on the *key*.
- * TODO: what if default_value omitted? / make arg required
+ * @template {StateKey} K
+ * @param {K} key
+ * @param {NonNullable<StateType<K>>} default_value
+ * @param {() => any} on_load=
  */
-let state = (/** @type {string} */ key, /** @type {T} */ default_value, /** @type {()=>any} */ on_load = () => {}) => {
-	/** @type {State<T>|undefined} */ // TODO: type-safe
+let state = (key, default_value, on_load = () => {}) => {
+	/** @type {State<K>|undefined} */
 	let ret = _states[key]
 	if (ret) {
 		nextTick()
@@ -25,11 +39,12 @@ let state = (/** @type {string} */ key, /** @type {T} */ default_value, /** @typ
 		return ret
 	}
 	// shallow because type error https://github.com/vuejs/composition-api/issues/483
-	let _internal = shallowRef(default_value)
+	// TODO: this type cast shouldn't be necessary
+	let _internal = /** @type {Vue.ShallowRef<NonNullable<StateType<K>>>} */ (shallowRef(default_value))
 	ret = {
 		ref: computed({
 			get: () => _internal.value,
-			set(/** @type {T} */ value) {
+			set(value) {
 				if (_internal.value !== value)
 					exchange_message('set-state', { key, value })
 				_internal.value = value
@@ -43,6 +58,7 @@ let state = (/** @type {string} */ key, /** @type {T} */ default_value, /** @typ
 		},
 		_internal,
 	}
+	// @ts-ignore // TODO:
 	_states[key] = ret;
 	(async () => {
 		await ret.reload()
@@ -56,6 +72,7 @@ export default state
 
 // TODO: make all state type-safe ext+web
 export let refresh_repo_states = () => {
-	for (let key of ['repo:action-history', 'repo:selected-commits-hashes'])
+	// TODO: import keys of static_states and iterate over type=='repo' here
++	for (let key of /** @type {const} */ (['repo:action-history', 'repo:selected-commits-hashes']))
 		_states[key]?.reload()
 }

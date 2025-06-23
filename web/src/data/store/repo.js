@@ -116,9 +116,7 @@ watch(visible_commits, async () => {
 		await update_commit_stats(visible_cp)
 })
 
-/** @type {string[]} */
-let default_selected_commits_hashes = []
-let selected_commits_hashes = state('repo:selected-commits-hashes', default_selected_commits_hashes).ref
+let selected_commits_hashes = state('repo:selected-commits-hashes', []).ref
 /** Subset of `visible_commits` */
 export let selected_commits = computed({
 	get() {

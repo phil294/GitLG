@@ -123,10 +123,3 @@ interface HistoryEntry {
 	value: string
 	datetime?: string
 }
-
-// TODO: move to web-only global types file
-interface State<T> {
-	ref: Vue.WritableComputedRef<T>
-	reload: () => Promise<void>
-	_internal: Vue.ShallowRef<T>
-}

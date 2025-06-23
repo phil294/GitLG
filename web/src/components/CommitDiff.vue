@@ -240,8 +240,7 @@ function show_file(/** @type {string} */ filepath) {
  * }} TreeNode
  */
 
-/** @type {Vue.WritableComputedRef<'list'|'tree'>} */ // TODO type-safe
-let render_style = state('files-diffs-list-render-style', /** @type {const} */ ('list')).ref
+let render_style = state('files-diffs-list-render-style', 'list').ref
 
 // TODO render function instead
 let [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate()

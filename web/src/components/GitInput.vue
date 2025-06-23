@@ -77,6 +77,7 @@ import { git } from '../bridge.js'
 import { push_history } from '../data/store/history'
 import state from '../data/state.js'
 import { ref, computed, reactive, watchEffect, nextTick, onMounted, useTemplateRef } from 'vue'
+/** @import { GitInputKey, GitInputState } from '../../../src/state.js' */
 
 let props = defineProps({
 	git_action: {
@@ -114,17 +115,18 @@ function compute_command(/** @type {GitOption[]} */ opts = []) {
 let computed_command = computed(() =>
 	compute_command(options))
 let command = ref('')
+/** @type {GitInputKey | null} */
 let storage_key = null
 if (props.git_action.storage_key)
 	storage_key = 'git input config ' + props.git_action.storage_key
 
-/** @type {{ options: GitOption[], command: string } | null} */
+/** @type {GitInputState | null} */
 let default_stored = { options: [], command: '' }
 /** @type {Vue.WritableComputedRef<typeof default_stored>|null} */
 let stored = null // TODO: assign stateful computed direcgtly here, why the async init?
 let load_stored_promise = new /** @type {typeof Promise<void>} */(Promise)((loaded) => {
 	if (storage_key)
-		stored = state(storage_key, default_stored, loaded).ref
+		stored = state(/** @type {GitInputKey} */ (storage_key), default_stored, loaded).ref
 	else
 		loaded()
 })

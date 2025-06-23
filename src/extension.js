@@ -375,7 +375,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		let focus_commit_hash = ((await git.run(`rev-parse --short ${current_line_long_hash}`))).trim()
 		current_line_long_hash = ''
 		state('repo:selected-commits-hashes').set([focus_commit_hash])
-		vscode.commands.executeCommand(START_CMD)
+		vscode.commands.executeCommand(`${EXT_ID}.${START_CMD}`)
 		await wait_until_web_ready()
 		return push_message_id('show-selected-commit')
 	})))

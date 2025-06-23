@@ -1,8 +1,6 @@
 import state from '../state.js'
 
-/** @type {HistoryEntry[]} */
-let default_history = []
-export let history = state('repo:action-history', default_history).ref
+export let history = state('repo:action-history', []).ref
 export let push_history = (/** @type {HistoryEntry} */ entry) => {
 	entry.datetime = new Date().toISOString()
 	let _history = history.value?.slice() || []

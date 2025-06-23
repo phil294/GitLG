@@ -3,9 +3,9 @@ import { add_push_listener, show_information_message } from '../../bridge.js'
 import state, { refresh_repo_states } from '../state.js'
 import * as repo_store from './repo.js'
 
-export let web_phase = state('web-phase', /** @type {'dead' | 'initializing' | 'initializing_repo' | 'ready' | 'refreshing'} */ ('initializing')).ref
+export let web_phase = state('web-phase', 'initializing').ref
 
-/** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../../views/GitInput.vue')|null>>|null>} */
+/** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../../components/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
 export let main_view_highlight_refresh_button = ref(false)
 /** @param options {{custom_log_args?: ((log_args: { user_log_args: string, default_log_args: string, base_log_args: string}) => string) | undefined, fetch_stash_refs?: boolean, fetch_branches?: boolean}} @returns {Promise<void>}} */
@@ -42,8 +42,7 @@ export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branch
 	web_phase.value = 'ready'
 }
 
-/** @type {Vue.WritableComputedRef<{path: string, name: string}[]>} */
-export let repo_infos = state('repo-infos').ref
+export let repo_infos = state('repo-infos', []).ref
 let selected_repo_path_is_valid = computed(() =>
 	repo_infos.value.some(i => i.path === selected_repo_path.value))
 /** @type {Vue.WritableComputedRef<string>} */
@@ -60,7 +59,6 @@ export let selected_repo_path = state('selected-repo-path', '', () => {
 /** @type {Vue.Ref<GitAction|null>} */
 export let selected_git_action = ref(null)
 
-/** @type {Vue.Ref<any>} */ // TODO:
 export let config = state('config', {}).ref
 
 export let vis_v_width = computed(() =>
