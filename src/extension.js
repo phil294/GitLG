@@ -97,7 +97,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		})
 	}
 
-	git.set_selected_repo_path(state('selected-repo-path').get() || 0)
+	git.set_selected_repo_path(state('selected-repo-path').get() || '')
 
 	async function populate_webview() {
 		if (! webview_container)
@@ -234,7 +234,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	context.subscriptions.push(vscode.commands.registerCommand(`${EXT_ID}.${START_CMD}`, intercept_errors(async (args) => {
 		logger.info('start command')
 		if (args?.rootUri) // invoked via menu scm/title
-			state('selected-repo-path').set(await git.get_repo_path_for_uri(args.rootUri))
+			state('selected-repo-path').set(await git.get_repo_path_for_uri(args.rootUri) || '')
 		if (get_config().get('position') === 'editor') {
 			if (webview_container)
 				// Repeated editor panel show
@@ -244,7 +244,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			webview_container = vscode.window.createWebviewPanel(EXT_ID, EXT_NAME, vscode.window.activeTextEditor?.viewColumn || 1, { retainContextWhenHidden: true })
 			webview_container.iconPath = vscode.Uri.joinPath(context.extensionUri, 'img', 'logo.png')
 			webview_container.onDidDispose(() => {
-				state('web-phase').set(null, { broadcast: false })
+				state('web-phase').set('dead', { broadcast: false })
 				webview_container = null
 			})
 			context.subscriptions.push(webview_container)
@@ -369,7 +369,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	}))
 	context.subscriptions.push(vscode.commands.registerCommand(`${EXT_ID}.${BLAME_CMD}`, intercept_errors(async () => {
 		logger.info('blame cmd')
-		if (! current_line_long_hash)
+		if (! current_line_long_hash || ! current_line_repo_path)
 			return
 		state('selected-repo-path').set(current_line_repo_path)
 		let focus_commit_hash = ((await git.run(`rev-parse --short ${current_line_long_hash}`))).trim()

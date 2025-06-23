@@ -154,9 +154,9 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				// if repo includes uri: stackoverflow.com/q/37521893
 				let rel = relative(repo_path, uri_path)
 				return rel != null && ! rel.startsWith('..') && ! isAbsolute(rel)
+			}).sort((a, b) =>
 				// There can be multiple matches with git submodules, in which case the longest
 				// path will be the right one
-			}).sort((a, b) =>
 				b.repo_path.length - a.repo_path.length,
 			).at(0)?.path ?? null
 		},
