@@ -4,6 +4,44 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.24 2025-06-24
+
+- [`7a2b7f6`](https://github.com/phil294/GitLG/commit/7a2b7f6) Fix checking out and deleting branches that contain slashes like `feature/xyz`. Minor downside: Remotes containing slashes aren't supported anymore, such as if your origin(!) is called `my/remote` (#37). Fixes #130, #140.
+- [`9328848`](https://github.com/phil294/GitLG/commit/9328848) [`90447fd`](https://github.com/phil294/GitLG/commit/90447fd) Fix scrolling on MacOS
+- [`0244ef7`](https://github.com/phil294/GitLG/commit/0244ef7) Fix various errors at startup in workspaces with multiple repositories by changing internal repo selection logic from index-based to path-based, and don't load data before the currently selected repo is made available by Git. (#93, #71)
+- [`78fff49`](https://github.com/phil294/GitLG/commit/78fff49) Set `hide-sidebar-buttons` config option default TRUE. Barely anyone seems to actually needs the big ugly buttons there. Use right click context menu or reactivate in settings.
+- [`6d17b7b`](https://github.com/phil294/GitLG/commit/6d17b7b) Always show commit details changes buttons (multi-diff, tree/list toggle), not just on hover (#139)
+- [`adb10f8`](https://github.com/phil294/GitLG/commit/adb10f8) Make status bar blame text configurable (#137)
+- [`015d17d`](https://github.com/phil294/GitLG/commit/015d17d) Fix clicking on renamed files in commit diff view, and improve styling for renamed files (#131)
+- [`9f83a4f`](https://github.com/phil294/GitLG/commit/9f83a4f) Fix clicking on files in stash commit
+- [`9f3c7c7`](https://github.com/phil294/GitLG/commit/9f3c7c7) Highlight current search text in commit subject, author, hash and refs. Not perfect as hidden text will not be highlighted and there's no indicator but pretty useful nevertheless. (#120)
+- [`e3ca67d`](https://github.com/phil294/GitLG/commit/e3ca67d) Change default value of `disable-scroll-snapping` to `true`. Snapping barely provides any benefit anymore and hijacking user scroll events should really be avoided
+- [`6b6bc65`](https://github.com/phil294/GitLG/commit/6b6bc65) Added -x to cherry pick (#145). Thanks @notPlancha!
+- [`e71450a`](https://github.com/phil294/GitLG/commit/e71450a) Fix wrong order of repos in selection if multiple projects with same folder name are present. Also now sets shortest possible paths for dupe repo names, not the full path if avoidable.
+- [`dba3344`](https://github.com/phil294/GitLG/commit/dba3344) Hide repo selection dropdown when there's only one (#132)
+- [`d62a09b`](https://github.com/phil294/GitLG/commit/d62a09b) [`8667ebb`](https://github.com/phil294/GitLG/commit/8667ebb) [`72b2c68`](https://github.com/phil294/GitLG/commit/72b2c68) Edit Commit message: Pre-fill textarea with current message instead of "Subject / Body" placeholder text (#126)
+- [`c9eb7aa`](https://github.com/phil294/GitLG/commit/c9eb7aa) Add new optional  actionparam option `readonly`, for places where multiple inputs can be confusing otherwise or can provoke accidental param deletion. For example, to create a new branch, you don't have to delete the old one from the input field anymore.
+- [`f13b967`](https://github.com/phil294/GitLG/commit/f13b967) Add new `placeholder` field to action params
+- [`c94d256`](https://github.com/phil294/GitLG/commit/c94d256) Keep branch tips visible in commit details even if hide-sidebar-buttons is true (#136)
+- [`c502845`](https://github.com/phil294/GitLG/commit/c502845) Escape spaces in `git-path` folder setting (#135)
+- [`9bf25b1`](https://github.com/phil294/GitLG/commit/9bf25b1) Loading state when starting or switching repos by opacity and disabling mouse events, and clear list of commits when switching repos (#121)
+- [`a4ef3f2`](https://github.com/phil294/GitLG/commit/a4ef3f2) Show loading indicator while commit details files list is loading (#133)
+- [`d647cf8`](https://github.com/phil294/GitLG/commit/d647cf8) Make graph colors configurable. New settings: `branch-colors`, `branch-color-strategy` and `branch-color-custom-mapping`. (#123)
+- [`163d71f`](https://github.com/phil294/GitLG/commit/163d71f) Run preliminary log for quick view preload not just on startup but also on repo change. This makes the switching between repos almost instantaneous, regardless of how big they each might be
+- [`042760e`](https://github.com/phil294/GitLG/commit/042760e) Disable switching repos while a repo is still loading
+- [`37039da`](https://github.com/phil294/GitLG/commit/37039da) [`a770e46`](https://github.com/phil294/GitLG/commit/a770e46) [`36a9a61`](https://github.com/phil294/GitLG/commit/36a9a61) Make filter jump/filter toggle a checkbox, not radio, and save the value between restarts (#120)
+- [`a99f959`](https://github.com/phil294/GitLG/commit/a99f959) Allow `\` and `"` in git action param values
+- [`bf49b49`](https://github.com/phil294/GitLG/commit/bf49b49) Make it possible to individually hide the two status bar entries, start and blame info by giving them unique ID/names. Hide by right clicking.
+- [`949ef7e`](https://github.com/phil294/GitLG/commit/949ef7e) [`4c435de`](https://github.com/phil294/GitLG/commit/4c435de) Fix some high contrast theme styles
+- [`c69808c`](https://github.com/phil294/GitLG/commit/c69808c) Highlight refresh button after clicking "Show branch" or "File history" to better hint at the need to click refresh now.
+- [`8411fc4`](https://github.com/phil294/GitLG/commit/8411fc4) Fix error when clicking the init commit
+- [`a548329`](https://github.com/phil294/GitLG/commit/a548329) Change color of pure-icon-buttons from text-color to icon-color. Noticeable only in very few themes.
+- [`8049e7d`](https://github.com/phil294/GitLG/commit/8049e7d) Fix commit selection positioning on auto scroll if `"details-panel-position": "right"`
+- [`b21efac`](https://github.com/phil294/GitLG/commit/b21efac) Fix different cache keys for multiple configured actions with no title but icon. They overwrote each other before. This was most likely only noticeable if you had at least two non-immediate global actions with icon only configured
+- [`0844649`](https://github.com/phil294/GitLG/commit/0844649) Prevent preliminary loading result to hide "normal" log result in case the repo is very small
+- [`563b5c5`](https://github.com/phil294/GitLG/commit/563b5c5) Reduce bundle size by 100 KB
+- Lots and lots of internal code clean up, type-safe, linting
+
 ### v0.1.23 2024-12-07
 
 - [`6abeea9`](https://github.com/phil294/GitLG/commit/6abeea9) Thicker logo, prettier and more readable in editors (tabs). Thanks again to @dimateos! (#125)
