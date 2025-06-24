@@ -59,6 +59,8 @@ export let selected_repo_path = state('selected-repo-path', '', () => {
 /** @type {Vue.Ref<GitAction|null>} */
 export let selected_git_action = ref(null)
 
+// TODO: actual settings but with everything set to optional
+// TODO :test extension with all set to null
 export let config = state('config', {}).ref
 
 export let vis_v_width = computed(() =>

@@ -45,7 +45,7 @@
 				<div v-if="show_quick_branch_tips" id="branches-connection">
 					<commit-row v-if="hidden_branch_tips_fake_commit" :commit="hidden_branch_tips_fake_commit" :height="110" class="vis" />
 				</div>
-				<p v-if="filtered_commits && !filtered_commits.length" id="no-commits-found">
+				<p v-if="filtered_commits && !filtered_commits.length && web_phase !== 'initializing_repo'" id="no-commits-found">
 					No commits found
 				</p>
 				<scroller id="log" ref="scroller_ref" />
