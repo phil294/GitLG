@@ -29,7 +29,7 @@ function git_ref_sort(/** @type {GitRef} */ a, /** @type {GitRef} */ b) {
  * @param name_based_branch_colors {boolean}
  * @param branch_colors_custom_mapping {Record<string,string>}
  */
-async function parse(log_data, branch_data, stash_data, separator, curve_radius, branch_colors, name_based_branch_colors, branch_colors_custom_mapping = {}) {
+async function parse(log_data, branch_data, stash_data, separator, curve_radius, branch_colors = [], name_based_branch_colors, branch_colors_custom_mapping = {}) {
 	console.time('GitLG: parsing log')
 	let rows = log_data.split('\n')
 
