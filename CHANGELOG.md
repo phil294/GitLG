@@ -4,6 +4,11 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.25 2025-06-24
+
+Fix broken release
+Will update this text later
+
 ### v0.1.24 2025-06-24
 
 - [`7a2b7f6`](https://github.com/phil294/GitLG/commit/7a2b7f6) Fix checking out and deleting branches that contain slashes like `feature/xyz`. Minor downside: Remotes containing slashes aren't supported anymore, such as if your origin(!) is called `my/remote` (#37). Fixes #130, #140.
