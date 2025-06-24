@@ -4,6 +4,10 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.26 2025-06-24
+
+see below
+
 ### v0.1.25 2025-06-24
 
 Fix broken release
