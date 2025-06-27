@@ -849,27 +849,27 @@
 		"lint": "eslint . --report-unused-disable-directives --max-warnings 0"
 	},
 	"devDependencies": {
-		"@eslint/eslintrc": "^3.2.0",
-		"@eslint/js": "^9.16.0",
-		"@types/node": "^22.10.1",
+		"@eslint/eslintrc": "^3.3.1",
+		"@eslint/js": "^9.29.0",
+		"@types/node": "^24.0.4",
 		"@types/vscode": "^1.47.0",
 		"@types/vscode-webview": "^1.57.5",
-		"esbuild": "^0.24.0",
-		"eslint": "^9.16.0",
-		"eslint-plugin-jsdoc": "^50.6.0",
-		"eslint-plugin-n": "^17.14.0",
+		"esbuild": "^0.25.5",
+		"eslint": "^9.29.0",
+		"eslint-plugin-jsdoc": "^51.2.3",
+		"eslint-plugin-n": "^17.20.0",
 		"eslint-plugin-promise": "^7.2.1",
-		"eslint-plugin-vue": "^9.32.0",
-		"globals": "^15.13.0",
-		"neostandard": "^0.11.9",
-		"npm-check-updates": "^17.1.11",
-		"ovsx": "^0.10.1",
-		"vite": "^6.3.5",
+		"eslint-plugin-vue": "^10.2.0",
+		"globals": "^16.2.0",
+		"neostandard": "^0.12.1",
+		"npm-check-updates": "^18.0.1",
+		"ovsx": "^0.10.4",
+		"vite": "^7.0.0",
 		"vsce": "^2.15.0"
 	},
 	"dependencies": {
 		"@yaireo/relative-time": "1.0.5",
-		"postcss": "^8.4.49",
+		"postcss": "^8.5.6",
 		"postcss-sanitize": "^0.0.9"
 	}
 }
