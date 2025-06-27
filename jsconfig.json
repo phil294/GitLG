@@ -1,12 +1,12 @@
 {
   "exclude": [
-    "node_modules",
-    ".vscode-test",
-    "dist",
-    "dists",
-    "web-dist",
+    "**/node_modules",
+    "**/.vscode-test",
+    "**/dist",
+    "**/dists",
+    "**/web-dist",
     "todo*",
-    ".vscode",
+    "**/.vscode",
     "docs"
   ],
   "vueCompilerOptions": {
