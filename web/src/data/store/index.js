@@ -19,7 +19,7 @@ export let trigger_main_refresh = (options = {}) => {
 		before_execute: (/** @type {string} */ cmd) => options.custom_log_args?.({
 			user_log_args: cmd,
 			default_log_args: repo_store.log_action.args,
-			base_log_args: repo_store.base_log_args,
+			base_log_args: repo_store.base_log_args + ' --author-date-order',
 		}) || cmd,
 	})
 }

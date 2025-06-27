@@ -76,7 +76,7 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 	if (preliminary_loading)
 	// The "main" main log happens below, but because of the large default_log_action_n, this can take several seconds for large repos.
 	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
-		preliminary_loading_promise = git_log(`${base_log_args} -n 100 --all`,
+		preliminary_loading_promise = git_log(`${base_log_args} --author-date-order -n 100 --all`,
 			{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 			loaded_commits.value = parsed.commits
 				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [], index_in_graph_output: -1 })
