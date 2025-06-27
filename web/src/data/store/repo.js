@@ -91,7 +91,7 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 			show_information_message('Git LOG failed. Did you change the command by hand? In the main view at the top left, click "Configure", then at the top right click "Reset", then "Save" and try again. If this didn\'t help, it might be a bug! Please open up a GitHub issue.')
 			throw error
 		}),
-		git('-c core.quotepath=false status'),
+		git('-c core.quotepath=false status').catch(e => e.message_error_response || '????'),
 		git('symbolic-ref HEAD', { ignore_errors: true }).catch(() => null),
 	])
 	await preliminary_loading_promise // In case the main log finished faster (very small repo)
