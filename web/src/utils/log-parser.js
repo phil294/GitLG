@@ -152,7 +152,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius,
 					else
 						// Can happen with grafted branches or at first fast prefetch
 						// console.warn(`Could not find ref '${id}' in list of branches for commit '${hash}'`)
-						return new_branch(id, { from_includes_remote: true })
+						return new_branch(id)
 				}
 			}).filter(is_truthy)
 			.sort(git_ref_sort)
