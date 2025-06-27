@@ -77,7 +77,9 @@ export default [
 			'jsdoc/require-param': 'off',
 			'jsdoc/no-undefined-types': 'off', // can't detect global types, and type errors are reported by strict jsconfig anyway
 			'jsdoc/require-returns-description': 'off',
+			'jsdoc/require-param-description': 'off',
 			'jsdoc/require-param-type': 'off',
+			'jsdoc/valid-types': 'off', // not reliable enough and TS itself 9/10 times catches the errors
 			'vue/multi-word-component-names': 'off',
 			'no-shadow': 'warn',
 			'vue/return-in-computed-property': 'off',
