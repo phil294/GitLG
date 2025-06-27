@@ -16,9 +16,33 @@ function remove_all_context_menus() {
 }
 document.addEventListener('contextmenu', remove_all_context_menus, false)
 document.addEventListener('click', remove_all_context_menus, false)
-document.addEventListener('keyup', (event) => {
-	if (event.key === 'ArrowDown' || event.key === 'ArrowUp')
-		return
+document.addEventListener('keydown', (event) => {
+	if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+		let entries = document.querySelector('ul.context-menu-wrapper')?.children
+		if (entries) {
+			event.preventDefault()
+			let i = [...entries].findIndex(e => e.classList.contains('selected'))
+			if (i > -1)
+				entries[i]?.classList.remove('selected')
+			i += event.key === 'ArrowDown' ? 1 : -1
+			if (i < 0)
+				i = entries.length - 1
+			else if (i >= entries.length)
+				i = 0
+			entries[i]?.classList.add('selected')
+			return
+		}
+	}
+	if (event.key === 'Enter' || event.key === ' ') {
+		let entry = document.querySelector('ul.context-menu-wrapper > .selected')
+		if (entry) {
+			event.preventDefault()
+			// @ts-ignore
+			entry.focus()
+			return
+		}
+	}
+
 	remove_all_context_menus()
 }, false)
 
@@ -45,6 +69,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		entries.forEach((entry) => {
 			let entry_el = document.createElement('li')
 			entry_el.setAttribute('role', 'button')
+			entry_el.setAttribute('tabindex', '-1')
 			entry_el.classList.add('row', 'gap-5', 'align-center')
 			let icon_el = document.createElement('i')
 			if (entry.icon)
@@ -53,9 +78,9 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 			label_el.textContent = entry.label
 			entry_el.appendChild(icon_el)
 			entry_el.appendChild(label_el)
-			entry_el.onmouseup = (e) => {
-				if (e.button === 0)
-					entry.action()
+			entry_el.onfocus = () => {
+				entry.action()
+				remove_all_context_menus()
 			}
 			wrapper_el?.appendChild(entry_el)
 		})
@@ -67,7 +92,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		oncontextmenu(e) {
 			e.preventDefault()
 			e.stopPropagation()
-			remove_all_context_menus()
+			remove_all_context_menus() // including its own destroy() below
 			build_context_menu(e)
 		},
 		destroy() {

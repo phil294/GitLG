@@ -326,7 +326,7 @@ ul.context-menu-wrapper > li {
 	user-select: none;
 	white-space: nowrap;
 }
-ul.context-menu-wrapper > li:hover {
+ul.context-menu-wrapper > li:hover, ul.context-menu-wrapper > li.selected {
 	background-color: var(--vscode-menu-selectionBackground, var(--vscode-menu-background));
 	color: var(--vscode-menu-selectionForeground, var(--vscode-menu-foreground));
 	outline: 1px solid var(--vscode-menu-selectionBorder, var(--vscode-menu-selectionBackground));
