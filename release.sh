@@ -18,6 +18,7 @@ run() {
 }
 
 on_close() {
+    popd 2>/dev/null ||:; popd 2>/dev/null ||:; popd 2>/dev/null ||:
     echo "module.exports = require('./src/extension')" > main.js # revert
 }
 trap on_close EXIT
@@ -42,7 +43,7 @@ pause
 
 : ''
 run npx ncu -u -x '@types/vscode'
-run npm i
+run npm i # if this fails, delete node_modules and package-lock.json beforehand
 pushd web
 run npx ncu -u
 run npm i

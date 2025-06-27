@@ -53,7 +53,9 @@ export default defineConfig({
 				assetFileNames: '[name].[ext]',
 			},
 		},
-		polyfillModulePreload: false,
+		modulePreload: {
+			polyfill: false,
+		},
 	},
 	server: {
 		cors: true,
