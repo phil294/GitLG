@@ -1,8 +1,9 @@
 import { computed } from 'vue'
 import default_git_actions from '../default-git-actions.json'
-import { combine_branches_from_branch_name, combine_branches_to_branch_name, config } from '../store'
+import { combine_branches_from_branch_name, combine_branches_to_branch_name } from '../store'
 import { git } from '../../bridge'
 import { default_origin } from '../store/repo'
+import config from '../store/config'
 
 /**
  * @param actions {ConfigGitAction[]}
@@ -12,7 +13,7 @@ import { default_origin } from '../store/repo'
 function apply_action_replacements(actions, replacements = []) {
 	let namespace = replacements.map(([k]) => k).join('-') || 'global'
 	let replacements_by_type = replacements.reduce((all, replacement) =>
-		/** tsc doesn't understand of this */ ((/** @type {any} */ (all)[typeof replacement[1]] ??= []).push(replacement), all), /** @type {{string:[string,string][], function:[string,()=>Promise<string>][]}} */ ({ string: [], function: [] })) // eslint-disable-line jsdoc/valid-types
+		/** tsc doesn't understand of this */ ((/** @type {any} */ (all)[typeof replacement[1]] ??= []).push(replacement), all), /** @type {{string:[string,string][], function:[string,()=>Promise<string>][]}} */ ({ string: [], function: [] }))
 	let apply_string_replacements = (/** @type {string} */ txt) =>
 		replacements_by_type.string.reduce((str, replacement) =>
 			str.replaceAll(replacement[0], replacement[1]), txt)
@@ -39,9 +40,11 @@ function apply_action_replacements(actions, replacements = []) {
 
 /** @type {Vue.Ref<GitAction[]>} */
 export let global_actions = computed(() =>
-	apply_action_replacements(default_git_actions['actions.global'].concat(config.value.actions?.global || [])))
+	apply_action_replacements(/** @type {ConfigGitAction[]} */ (default_git_actions['actions.global'])
+		.concat(config.get_git_actions('actions.global'))))
 export let commit_actions = (/** @type {string} */ hash) => computed(() => {
-	let config_commit_actions = default_git_actions['actions.commit'].concat(config.value.actions?.commit || [])
+	let config_commit_actions = /** @type {ConfigGitAction[]} */ (default_git_actions['actions.commit'])
+		.concat(config.get_git_actions('actions.commit'))
 	return apply_action_replacements(config_commit_actions, [
 		['{COMMIT_HASH}', hash],
 		['{COMMIT_BODY}', () =>
@@ -49,13 +52,15 @@ export let commit_actions = (/** @type {string} */ hash) => computed(() => {
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let commits_actions = (/** @type {string[]} */ hashes) => computed(() => {
-	let config_commits_actions = default_git_actions['actions.commits'].concat(config.value.actions?.commits || [])
+	let config_commits_actions = /** @type {ConfigGitAction[]} */ (default_git_actions['actions.commits'])
+		.concat(config.get_git_actions('actions.commits'))
 	return apply_action_replacements(config_commits_actions, [
 		['{COMMIT_HASHES}', hashes.join(' ')],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let branch_actions = (/** @type {Branch} */ branch) => computed(() => {
-	let config_branch_actions = default_git_actions['actions.branch'].concat(config.value.actions?.branch || [])
+	let config_branch_actions = /** @type {ConfigGitAction[]} */ (default_git_actions['actions.branch'])
+		.concat(config.get_git_actions('actions.branch'))
 	return apply_action_replacements(config_branch_actions, [
 		['{BRANCH_ID}', branch.id],
 		['{BRANCH_DISPLAY_NAME}', branch.display_name],
@@ -65,19 +70,22 @@ export let branch_actions = (/** @type {Branch} */ branch) => computed(() => {
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let tag_actions = (/** @type {string} */ tag_name) => computed(() => {
-	let config_tag_actions = default_git_actions['actions.tag'].concat(config.value.actions?.tag || [])
+	let config_tag_actions = /** @type {ConfigGitAction[]} */ (default_git_actions['actions.tag'])
+		.concat(config.get_git_actions('actions.tag'))
 	return apply_action_replacements(config_tag_actions, [
 		['{TAG_NAME}', tag_name],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let stash_actions = (/** @type {string} */ stash_name) => computed(() => {
-	let config_stash_actions = default_git_actions['actions.stash'].concat(config.value.actions?.stash || [])
+	let config_stash_actions = /** @type {ConfigGitAction[]} */ (default_git_actions['actions.stash'])
+		.concat(config.get_git_actions('actions.stash'))
 	return apply_action_replacements(config_stash_actions, [
 		['{STASH_NAME}', stash_name],
 		['{DEFAULT_REMOTE_NAME}', default_origin.value || 'MISSING_REMOTE_NAME']])
 })
 export let combine_branches_actions = computed(() => {
-	let config_combine_branches_actions = default_git_actions['actions.branch-drop'].concat(config.value.actions?.['branch-drop'] || [])
+	let config_combine_branches_actions = /** @type {ConfigGitAction[]} */ (default_git_actions['actions.branch-drop'])
+		.concat(config.get_git_actions('actions.branch-drop'))
 	return apply_action_replacements(config_combine_branches_actions, [
 		['{SOURCE_BRANCH_NAME}', combine_branches_from_branch_name.value],
 		['{TARGET_BRANCH_NAME}', combine_branches_to_branch_name.value],

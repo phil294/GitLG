@@ -4,6 +4,8 @@ interface String {
 	hashCode(): number
 }
 
+type Json = null | string | number | boolean | Json[] | { [key: string]: Json };
+
 interface BridgeMessage {
 	type: 'response-to-web' | 'request-from-web' | 'push-to-web',
 	command?: string,

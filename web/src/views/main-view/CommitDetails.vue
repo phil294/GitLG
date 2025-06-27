@@ -103,9 +103,10 @@
 <script setup>
 import { ref, computed, watchEffect } from 'vue'
 import { git } from '../../bridge.js'
-import { config, show_branch } from '../../data/store/index.js'
+import { show_branch } from '../../data/store/index.js'
 import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_ } from '../../data/store/actions.js'
 import { filtered_commits, loaded_commits } from '../../data/store/repo.js'
+import config from '../../data/store/config.js'
 
 let props = defineProps({
 	commit: {
@@ -117,7 +118,7 @@ let props = defineProps({
 defineEmits(['hash_clicked'])
 
 let details_panel_position = computed(() =>
-	config.value['details-panel-position'])
+	config.get_string('details-panel-position'))
 
 let branch_tips = computed(() =>
 	props.commit.refs.filter(is_branch))
@@ -152,7 +153,7 @@ let tag_actions = computed(() => (/** @type {string} */ tag_name) =>
 	tag_actions_(tag_name).value)
 
 let config_show_buttons = computed(() =>
-	! config.value['hide-sidebar-buttons'])
+	! config.get_boolean_or_undefined('hide-sidebar-buttons'))
 
 let index_in_filtered_commits = computed(() =>
 	props.commit ? filtered_commits.value.indexOf(props.commit) : -1)

@@ -25,9 +25,10 @@
 </template>
 <script setup>
 import { computed, onMounted, useTemplateRef, watch } from 'vue'
-import { config, selected_git_action } from '../../../data/store'
+import { selected_git_action } from '../../../data/store'
 import { filtered_commits, selected_commits, visible_commits } from '../../../data/store/repo'
 import { commit_actions } from '../../../data/store/actions'
+import config from '../../../data/store/config'
 import { exchange_message } from '../../../bridge'
 import vContextMenu from '../../../directives/context-menu'
 import { is_regex as search_is_regex, search_str, str_index_of_search } from '../../../data/store/search'
@@ -41,7 +42,7 @@ onMounted(() => {
 let scroll_to_item = (/** @type {number} */ item) =>
 	scroller_ref.value?.scrollToItem(item)
 let item_height = computed(() =>
-	config.value['row-height'])
+	config.get_number('row-height'))
 let visible_start_index = 0
 function on_update(/** @type {number} */ from, /** @type {number} */ to) {
 	visible_start_index = from
@@ -51,7 +52,7 @@ function on_update(/** @type {number} */ from, /** @type {number} */ to) {
 }
 let scroll_delta_acc = 0
 function on_wheel(/** @type {WheelEvent} */ event) {
-	if (config.value['disable-scroll-snapping'])
+	if (config.get_boolean_or_undefined('disable-scroll-snapping'))
 		return
 	event.preventDefault()
 	scroll_delta_acc += event.deltaY
@@ -63,7 +64,7 @@ function on_wheel(/** @type {WheelEvent} */ event) {
 	}
 }
 function on_keydown(/** @type {KeyboardEvent} */ event) {
-	if (config.value['disable-scroll-snapping'])
+	if (config.get_boolean_or_undefined('disable-scroll-snapping'))
 		return
 	if (event.key === 'ArrowDown') {
 		event.preventDefault()

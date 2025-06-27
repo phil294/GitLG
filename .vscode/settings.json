@@ -43,7 +43,8 @@
         "remotename",
         "scroller",
         "shortstat",
-        "vueuse"
+        "vueuse",
+        "yaireo"
     ],
     "files.trimTrailingWhitespace": true,
     "eslint.experimental.useFlatConfig": true,

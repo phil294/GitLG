@@ -1,6 +1,7 @@
 import { computed } from 'vue'
-import { config, vis_v_width } from '../../data/store'
+import { vis_v_width } from '../../data/store'
 import { visible_commits } from '../../data/store/repo'
+import config from '../../data/store/config'
 
 export let use_hidden_branch_tips = () => {
 	let visible_branches = computed(() => [
@@ -16,7 +17,7 @@ export let use_hidden_branch_tips = () => {
 	let hidden_branch_tips_of_visible_branches = computed(() =>
 	// alternative: (visible_commits.value[0]?.refs.filter (ref) => ref.type == 'branch' and not ref.inferred and not visible_branch_tips.value.includes(ref)) or []
 		visible_branches.value.filter((branch) =>
-			(! branch.inferred || config.value['show-inferred-quick-branch-tips']) && ! visible_branch_tips.value.includes(branch)))
+			(! branch.inferred || config.get_boolean_or_undefined('show-inferred-quick-branch-tips')) && ! visible_branch_tips.value.includes(branch)))
 
 	/** To paint a nice gradient between branches at the top and the vis below: */
 	let fake_commit = computed(() => {

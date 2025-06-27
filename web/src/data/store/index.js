@@ -2,8 +2,9 @@ import { computed, nextTick, ref, watch } from 'vue'
 import { add_push_listener, show_information_message } from '../../bridge.js'
 import state, { refresh_repo_states } from '../state.js'
 import * as repo_store from './repo.js'
+import config from './config.js'
 
-export let web_phase = state('web-phase', 'initializing').ref
+export let web_phase = state('web-phase', 'initializing', undefined, { write_only: true }).ref
 
 /** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../../components/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
@@ -29,6 +30,8 @@ export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branch
 	let preliminary_loading = false
 	if (web_phase.value === 'initializing')
 		web_phase.value = 'initializing_repo'
+	else if (web_phase.value === 'dead')
+		throw new Error('tried refreshing when webview is dead')
 	else if (web_phase.value !== 'initializing_repo')
 		web_phase.value = 'refreshing'
 	if (web_phase.value === 'initializing_repo') {
@@ -36,7 +39,7 @@ export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branch
 		if (! selected_repo_path_is_valid.value)
 			return web_phase.value = 'ready'
 		refresh_repo_states()
-		preliminary_loading = ! config.value['disable-preliminary-loading']
+		preliminary_loading = ! config.get_boolean_or_undefined('disable-preliminary-loading')
 	}
 	await repo_store._protected.refresh(log_args, { preliminary_loading, fetch_stash_refs, fetch_branches })
 	web_phase.value = 'ready'
@@ -59,12 +62,8 @@ export let selected_repo_path = state('selected-repo-path', '', () => {
 /** @type {Vue.Ref<GitAction|null>} */
 export let selected_git_action = ref(null)
 
-// TODO: actual settings but with everything set to optional
-// TODO :test extension with all set to null
-export let config = state('config', {}).ref
-
 export let vis_v_width = computed(() =>
-	Number(config.value['branch-width']) || 10)
+	config.get_number('branch-width') || 10)
 export let vis_width = state('vis-width', 130).ref
 
 export let combine_branches_to_branch_name = ref('')
@@ -103,7 +102,7 @@ add_push_listener('repo-external-state-change', () => trigger_main_refresh())
 
 add_push_listener('refresh-main-view', () => trigger_main_refresh())
 
-watch(config, async () => {
+watch(config._protected.ref, async () => {
 	web_phase.value = 'initializing_repo'
 	trigger_main_refresh()
 })

@@ -77,14 +77,15 @@
 </template>
 <script setup>
 import { computed, useTemplateRef } from 'vue'
-import { _run_main_refresh, combine_branches_from_branch_name, config, main_view_highlight_refresh_button as highlight_refresh_button, main_view_git_input_ref, trigger_main_refresh as refresh, selected_git_action, web_phase } from '../../data/store'
+import config from '../../data/store/config'
+import { _run_main_refresh, combine_branches_from_branch_name, main_view_highlight_refresh_button as highlight_refresh_button, main_view_git_input_ref, trigger_main_refresh as refresh, selected_git_action, web_phase } from '../../data/store'
 import { combine_branches_actions, global_actions } from '../../data/store/actions'
 import { filtered_commits, git_status, log_action, selected_commits, single_selected_commit } from '../../data/store/repo'
 import { use_hidden_branch_tips } from './hidden-branch-tips'
 import { use_scroller_jumpers } from './scroller-jumpers'
 
 let details_panel_position = computed(() =>
-	config.value['details-panel-position'])
+	config.get_string('details-panel-position'))
 
 let { jump_to_commit_and_select, jump_to_first_selected_commit, jump_to_top, jump_to_branch_tip_or_load, jump_to_commit_hash_or_load } = use_scroller_jumpers()
 
@@ -106,7 +107,7 @@ async function run_log(/** @type {string} */ log_args, options) {
 }
 
 let show_quick_branch_tips = computed(() =>
-	! config.value['hide-quick-branch-tips'])
+	! config.get_boolean_or_undefined('hide-quick-branch-tips'))
 
 </script>
 <style scoped>

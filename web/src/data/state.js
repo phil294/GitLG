@@ -29,8 +29,9 @@ add_push_listener('state-update', (/** @template {StateKey} K @type {{data?: {ke
  * @param {K} key
  * @param {NonNullable<StateType<K>>} default_value
  * @param {() => any} on_load=
+ * @param {{ write_only?: boolean }} opt
  */
-let state = (key, default_value, on_load = () => {}) => {
+let state = (key, default_value, on_load = () => {}, { write_only } = {}) => {
 	/** @type {State<K>|undefined} */
 	let ret = _states[key]
 	if (ret) {
@@ -61,8 +62,10 @@ let state = (key, default_value, on_load = () => {}) => {
 	// @ts-ignore // TODO:
 	_states[key] = ret;
 	(async () => {
-		await ret.reload()
-		await nextTick()
+		if (! write_only) {
+			await ret.reload()
+			await nextTick()
+		}
 		on_load?.()
 	})()
 	return ret

@@ -1,10 +1,10 @@
 import { computed, ref, watch } from 'vue'
 import { git, show_information_message } from '../../bridge.js'
 import { parse } from '../../utils/log-parser.js'
-import { config } from './index.js'
 import { _protected as search_protected } from './search'
 import state from '../state.js'
 import { update_commit_stats } from './commit-stats.js'
+import config from './config.js'
 
 /** @type {Vue.Ref<Commit[]|null>} */
 export let loaded_commits = ref(null)
@@ -67,15 +67,19 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 	/** @type {Awaited<ReturnType<parse>>} */
 	let parsed = { commits: [], branches: [] }
 	if (log_data)
-		parsed = await parse(log_data, branch_data, stash_data, sep, config.value['curve-radius'], config.value['branch-colors'], config.value['branch-color-strategy'] === 'name-based', config.value['branch-color-custom-mapping'])
+		parsed = await parse(log_data, branch_data, stash_data, sep,
+			config.get_number('curve-radius'),
+			config.get_string_array('branch-colors'),
+			config.get_string('branch-color-strategy') === 'name-based',
+			config.get_string_map('branch-color-custom-mapping'))
 	return parsed
 }
 /** @param log_args {string} @param options {{ preliminary_loading?: boolean, fetch_stash_refs?: boolean, fetch_branches?: boolean }} */
 let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_branches }) => {
 	let preliminary_loading_promise = null
 	if (preliminary_loading)
-	// The "main" main log happens below, but because of the large default_log_action_n, this can take several seconds for large repos.
-	// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
+		// The "main" main log happens below, but because of the large default_log_action_n, this can take several seconds for large repos.
+		// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
 		preliminary_loading_promise = git_log(`${base_log_args} --author-date-order -n 100 --all`,
 			{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 			loaded_commits.value = parsed.commits
@@ -112,7 +116,7 @@ watch(visible_commits, async () => {
 		commit.hash && ! commit.stats)
 	if (! visible_cp.length)
 		return
-	if (! config.value['disable-commit-stats'])
+	if (! config.get_boolean_or_undefined('disable-commit-stats'))
 		await update_commit_stats(visible_cp)
 })
 

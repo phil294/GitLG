@@ -5,7 +5,7 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { config } from '../data/store'
+import config from '../data/store/config'
 
 let props = defineProps({
 	commit: {
@@ -27,7 +27,7 @@ function group_same_name_branches_into_one(/** @type {Branch[]} */ branches) {
 }
 
 let grouped_git_refs = computed(() => {
-	if (config.value['group-branch-remotes'] === false)
+	if (config.get_boolean_or_undefined('group-branch-remotes') === false)
 		return props.commit.refs
 	return Object.values(props.commit.refs.reduce((/** @type {Record<string, GitRef[]>} */ all, ref) => {
 		all[ref.name] = [...all[ref.name] || [], ref]

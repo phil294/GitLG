@@ -43,6 +43,8 @@ let storage_providers = {
 	},
 }
 
+/** @typedef {Record<string, Json>} ActualConfig Necessary as config schema isn't enforced by VSCode */
+
 /**
  * There can also be dynamic states, aka GitInput states.
  * This object only bootstraps the static ones. `state()` eventually accepts both.
@@ -52,7 +54,7 @@ let static_states = {
 	config: {
 		type: 'special',
 		storage: (ctx) => ({
-			get: () => ctx.get_config(),
+			get: () => /** @type {ActualConfig} */ (ctx.get_config()),
 			set() {},
 		}),
 	},

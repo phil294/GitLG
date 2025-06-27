@@ -39,7 +39,8 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { config, vis_width } from '../../../data/store'
+import { vis_width } from '../../../data/store'
+import config from '../../../data/store/config'
 
 let props = defineProps({
 	commit: {
@@ -73,7 +74,7 @@ function vis_resize_handle_mousedown(/** @type {MouseEvent} */ mousedown_event) 
 	}, { capture: true, once: true })
 }
 let calculated_height = computed(() =>
-	props.height || config.value['row-height'])
+	props.height || config.get_number('row-height'))
 </script>
 <style scoped>
 .commit-row {
