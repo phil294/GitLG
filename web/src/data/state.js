@@ -54,8 +54,13 @@ let state = (key, default_value, on_load = () => {}, { write_only } = {}) => {
 		reload: async () => {
 			_internal.value = default_value
 			let stored = await exchange_message('get-state', key)
-			if (stored != null)
+			if (stored != null) {
+				if (typeof stored !== 'string' && typeof default_value === 'string') {
+					console.warn(`backend value for state '${key}' should be string but is ${typeof stored}. resetting to default value.`, stored)
+					stored = default_value
+				}
 				_internal.value = stored
+			}
 		},
 		_internal,
 	}
