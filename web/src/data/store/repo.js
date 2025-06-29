@@ -28,7 +28,7 @@ let unset = () => {
 	// TODO: is history unset after this? / merge with refresh_repo_states?
 }
 
-export let base_log_args = 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on " --color=never'
+export let base_log_args = 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} --color=never'
 
 export let log_action = {
 	// regarding the -greps: Under normal circumstances, when showing stashes in
@@ -36,7 +36,7 @@ export let log_action = {
 	// git internals, but they are completely useless to the user.
 	// Could not find any easy way to skip those other than de-grepping them, TODO:.
 	// Something like `--exclude-commit=stash@{...}^2+` doesn't exist.
-	args: `${base_log_args} --skip=0 -n 15000 --all {STASH_REFS}`,
+	args: `${base_log_args} --skip=0 -n 15000 --all {STASH_REFS} --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "`,
 	options: [
 		{ value: '--decorate-refs-exclude=refs/remotes', default_active: false, info: 'Hide remote branches' },
 		{ value: '--grep="^Merge (remote[ -]tracking )?(branch \'|pull request #)"', default_active: false, info: 'Hide merge commits' },
@@ -80,7 +80,7 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 	if (preliminary_loading)
 		// The "main" main log happens below, but because of the large default_log_action_n, this can take several seconds for large repos.
 		// This below is a bit of a pre-flight request optimized for speed to show the first few commits while the rest keeps loading in the background.
-		preliminary_loading_promise = git_log(`${base_log_args} --author-date-order -n 100 --all`,
+		preliminary_loading_promise = git_log(`${base_log_args} --author-date-order -n 100 --all --invert-grep --extended-regexp --grep="^untracked files on " --grep="^index on "`,
 			{ fetch_stash_refs: false, fetch_branches: false }).then((parsed) =>
 			loaded_commits.value = parsed.commits
 				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [], index_in_graph_output: -1 })

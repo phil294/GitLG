@@ -31,7 +31,7 @@ import { commit_actions } from '../../../data/store/actions'
 import config from '../../../data/store/config'
 import { exchange_message } from '../../../bridge'
 import vContextMenu from '../../../directives/context-menu'
-import { is_regex as search_is_regex, search_str, str_index_of_search } from '../../../data/store/search'
+import { is_regex as search_is_regex, search_str, str_index_of_search, where as search_where } from '../../../data/store/search'
 import { push_history } from '../../../data/store/history'
 
 // @ts-ignore TODO: idk
@@ -108,7 +108,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 
 function update_highlights() {
 	CSS.highlights.delete('search')
-	if (! search_str.value)
+	if (! search_str.value || search_where.value !== 'immediate')
 		return
 	// This also queries hidden rows regardless of current search, depending on viewport height.
 	// Not great on performance but this one-liner is by far the easiest way of getting highlights:
@@ -126,6 +126,8 @@ watch([search_str, visible_commits, search_is_regex], () => {
 	// You shouldn't alter a virtual scroller's items from outside anyway...
 	debounce(update_highlights, 300 + 1)
 })
+
+// TODO: clean up file
 
 /** Manages commit selection similar to e.g. Windows file explorer */
 function commit_clicked(/** @type {Commit} */ commit, /** @type {MouseEvent | undefined} */ event) {

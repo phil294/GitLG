@@ -96,6 +96,10 @@ let static_states = {
 		type: 'global',
 		storage: /** @type {typeof storage_providers.global<boolean>} */ (storage_providers.global)('search-options-regex'),
 	},
+	'search-options-where': {
+		type: 'global',
+		storage: /** @type {typeof storage_providers.global<'immediate' | 'body' | 'file_names' | 'file_contents'>} */ (storage_providers.global)('search-options-regex'),
+	},
 	'vis-width': {
 		type: 'global',
 		storage: /** @type {typeof storage_providers.global<number>} */ (storage_providers.global)('vis-width'),

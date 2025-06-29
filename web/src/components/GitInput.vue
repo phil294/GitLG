@@ -77,6 +77,7 @@ import { git } from '../bridge.js'
 import { push_history } from '../data/store/history'
 import state from '../data/state.js'
 import { ref, computed, reactive, watchEffect, nextTick, onMounted, useTemplateRef } from 'vue'
+import quote_escape from '../utils/quote-escape.js'
 /** @import { GitInputKey, GitInputState } from '../../../src/state.js' */
 
 let props = defineProps({
@@ -188,7 +189,7 @@ async function execute({ before_execute, fetch_stash_refs, fetch_branches } = {}
 	let pos = null
 	for (let i = 1; i <= _params.length; i++)
 		while ((pos = cmd.indexOf('$' + i)) > -1)
-			cmd = cmd.slice(0, pos) + _params[i - 1]?.replaceAll('\\', '\\\\').replaceAll('"', '\\"') + cmd.slice(pos + 2)
+			cmd = cmd.slice(0, pos) + quote_escape(_params[i - 1] || '') + cmd.slice(pos + 2)
 	if (before_execute)
 		cmd = before_execute(cmd)
 	let result = null

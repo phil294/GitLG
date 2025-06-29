@@ -197,6 +197,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			: dev_server_url
 		let custom_css = get_config().get('custom-css')
 		if (custom_css)
+			// @ts-ignore
 			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c) => c.css).catch(() => 0)
 		let loading_prompt = is_production
 			? 'Loading (this should not take long)'
