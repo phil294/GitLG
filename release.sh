@@ -54,18 +54,17 @@ echo 'deps upgraded'
 pause
 # '
 
+run npm run type-check
+
+run npm run lint
+
 pushd web
 run npx vite-bundle-visualizer
+popd
 pause
 
-pushd web
 run npm run build
 popd
-rm web-dist/index.html
-
-echo -e '\nBuilding main bundle:'
-run npx esbuild src/extension.js --bundle --platform=node --outfile=main.js --external:vscode
-
 echo built. manual tests:
 pause
 

@@ -846,7 +846,9 @@
 	},
 	"scripts": {
 		"postinstall": "cd web && npm install",
-		"lint": "eslint . --report-unused-disable-directives --max-warnings 0"
+		"type-check": "vue-tsc --noEmit",
+		"lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+		"build": "cd web && npm run build && cd .. && rm web-dist/index.html && npx esbuild src/extension.js --bundle --platform=node --outfile=main.js --external:vscode"
 	},
 	"devDependencies": {
 		"@eslint/eslintrc": "^3.3.1",
@@ -865,7 +867,8 @@
 		"npm-check-updates": "^18.0.1",
 		"ovsx": "^0.10.4",
 		"vite": "^7.0.0",
-		"vsce": "^2.15.0"
+		"vsce": "^2.15.0",
+		"vue-tsc": "^2.2.10"
 	},
 	"dependencies": {
 		"@yaireo/relative-time": "1.0.5",

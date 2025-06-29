@@ -11,7 +11,7 @@ String.prototype.hashCode = function() {
 }
 
 /**
- * To use in place of TypeScript's `!` operator
+ * To use in place of TypeScript's `!` suffix operator
  * @template T
  * @param value {T | undefined | null}
  */
@@ -22,8 +22,8 @@ globalThis.not_null = (value) => {
 }
 
 globalThis.sleep = (/** @type {number} */ ms) =>
-	new Promise(bingbong =>
-		setTimeout(bingbong, ms))
+	new Promise(bing_bing_bong =>
+		setTimeout(bing_bing_bong, ms))
 
 /**
  * To use in place of `.filter(Boolean)` for type safety with strict null checks.
@@ -46,5 +46,5 @@ globalThis.debounce = (/** @type {()=>any} */ fun, /** @type {number} */ time) =
 	debounce_timeout_map[hash] = setTimeout(fun, time)
 }
 
-// TODO:+
-// export {}
+if (globalThis.module)
+	module.exports = {}

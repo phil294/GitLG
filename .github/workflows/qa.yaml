@@ -27,11 +27,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
       - run: npm ci
-      # TODO: global tsc
       - run: npm run type-check
       - run: npm run lint
-      - run: cd web
-      - run: npm ci
-      # TODO: vue-tsc. also checks js files? combine with above?
-      - run: npm run type-check
       - run: npm run build

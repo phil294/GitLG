@@ -1,12 +1,12 @@
 ## Contributing
 
-This extension is written in JavaScript with full strict static typing using [Typescript's flavor of JSDoc](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html).
+This extension is written in JavaScript with very strict static type checking using [Typescript's flavor of JSDoc](https://www.typescriptlang.org/docs/handbook/jsdoc-supported-types.html).
 
 Before you submit a PR, please make sure to
 - create an issue so we can prevent wasted efforts
 - have no JS/TS errors in your code: Install Vue language tools VSCode extension when working in the web/ `.vue` files
-- *not* include any `@ts-ignore`s in your code. There's almost always a better solution.
-- have no ESLint errors/warnings etc. in your code: Install the ESLint VSCode extension to see them. This helps enforcing standard camel_case variable naming style, tabs indentation and so on.
+- *not* include any `@ts-ignore`s or type casts (`/** @type {...} */ (value)` in JSDoc) in your code. There's almost always a better solution.
+- have no ESLint errors/warnings etc. in your code: Install the ESLint VSCode extension to see them. This helps enforcing standard camel_case variable naming style, tabs indentation and so on. You might need to set the node version to a higher value than the default v18 shipped by VSCode, using something a setting along the lines of `"eslint.runtime": "/path/to/.nvm/versions/node/v22.17.0/bin/node"` and restart VSCode.
 - have your code be high quality, i.e.
   1. the JS reads as close to common English as possible and uses no abbreviations, yet:
   1. [the less, the better](https://blog.codinghorror.com/the-best-code-is-no-code-at-all/) until there is [nothing left to take away](http://prettyprint.me/prettyprint.me/2009/10/02/the-joy-of-deleting-code/index.html)
