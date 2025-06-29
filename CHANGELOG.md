@@ -4,6 +4,16 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.27 2025-06-30
+
+- [`9618cf6`](https://github.com/phil294/GitLG/commit/9618cf6) All full-text search for file contents, file names, commit bodies
+- [`3a93d57`](https://github.com/phil294/GitLG/commit/3a93d57) Fix inconsistent branch tip colors while preliminary loading, and fix bad branch names in view after clicking "Show branch"
+- [`ac8a4e0`](https://github.com/phil294/GitLG/commit/ac8a4e0) Make context menu entries selectable by keyboard, once the menu has been revealed by right click
+- [`488b043`](https://github.com/phil294/GitLG/commit/488b043) Prevent errors when user-set config values are in the wrong format
+- [`596d4fa`](https://github.com/phil294/GitLG/commit/596d4fa) Use `--author-date-order` in preliminary loading so the initial loading state doesn't look very different from the final loaded state, provided you didn't change its args much
+- [`a0cc4f8`](https://github.com/phil294/GitLG/commit/a0cc4f8) Show proper error message if git status fails
+- [`5c83a3e`](https://github.com/phil294/GitLG/commit/5c83a3e) Internal: Add typechecking to build process. Thanks to @alexrecuenco
+
 ### v0.1.26 2025-06-24
 
 see below
