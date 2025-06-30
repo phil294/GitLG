@@ -4,6 +4,12 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.28 2025-06-30
+
+- [`026f687`](https://github.com/phil294/GitLG/commit/026f687) Fix Windows build (#147)
+- [`026f687`](https://github.com/phil294/GitLG/commit/026f687) Revert `Escape spaces in 'git-path' folder setting` (#147, #135). This means that the edge case of having spaces in a custom git path name is now temporarily broken again.
+- [`65c9893`](https://github.com/phil294/GitLG/commit/65c9893) Open `Configure...` section automatically when an error occurs in there, and prevent disabling that section once main git log fails due to an internal error, so you can retry and/or click `Reset` (#147)
+
 ### v0.1.27 2025-06-30
 
 - [`9618cf6`](https://github.com/phil294/GitLG/commit/9618cf6) All full-text search for file contents, file names, commit bodies
