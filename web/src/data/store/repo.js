@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue'
-import { git, show_information_message } from '../../bridge.js'
+import { git } from '../../bridge.js'
 import { parse } from '../../utils/log-parser.js'
 import { _protected as search_protected } from './search'
 import state from '../state.js'
