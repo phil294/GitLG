@@ -130,7 +130,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 					switch (message.command) {
 						case 'git': return h(() =>
 							git.run(data.args).catch(e => {
-								if (data.ignore_errors)
+								if (data.ignore_errors) // /TODO: rename this so it differs from the unrelated action[].ignore_errors
 									return
 								throw e
 							}))

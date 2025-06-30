@@ -87,10 +87,7 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 				.map(c => ({ ...c, stats: /* to prevent loading them */ {} })))
 	// errors will be handled by GitInput
 	let [parsed_log_data, status_data, head_data] = await Promise.all([
-		git_log(log_args, { fetch_stash_refs, fetch_branches }).catch(error => {
-			show_information_message('Git LOG failed. Did you change the command by hand? In the main view at the top left, click "Configure", then at the top right click "Reset", then "Save" and try again. If this didn\'t help, it might be a bug! Please open up a GitHub issue.')
-			throw error
-		}),
+		git_log(log_args, { fetch_stash_refs, fetch_branches }),
 		git('-c core.quotepath=false status').catch(e => e.message_error_response || '????'),
 		git('symbolic-ref HEAD', { ignore_errors: true }).catch(() => null),
 	])

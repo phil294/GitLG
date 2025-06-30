@@ -3,7 +3,7 @@
 		<div :class="details_panel_position === 'bottom' ? 'col' : 'row'" class="flex-1">
 			<div id="main-panel" class="col">
 				<nav :inert="web_phase==='initializing_repo'" class="row align-center justify-space-between gap-10">
-					<details id="log-config" class="flex-1">
+					<details id="log-config" class="flex-1" :open="log_config_open" @toggle="log_config_open = $event.target.open">
 						<summary class="align-center">
 							Configure...
 						</summary>
@@ -76,7 +76,7 @@
 	</div>
 </template>
 <script setup>
-import { computed, useTemplateRef } from 'vue'
+import { computed, useTemplateRef, ref } from 'vue'
 import config from '../../data/store/config'
 import { _run_main_refresh, combine_branches_from_branch_name, main_view_highlight_refresh_button as highlight_refresh_button, main_view_git_input_ref, trigger_main_refresh as refresh, selected_git_action, web_phase } from '../../data/store'
 import { combine_branches_actions, global_actions } from '../../data/store/actions'
@@ -94,13 +94,20 @@ let { fake_commit: hidden_branch_tips_fake_commit, branch_tip_data: hidden_branc
 let git_input_ref = useTemplateRef('git_input_ref')
 // @ts-ignore TODO
 main_view_git_input_ref.value = git_input_ref
+let log_config_open = ref(false)
 /**
  * Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
  * @param log_args {string} @param options {{fetch_stash_refs?: boolean, fetch_branches?: boolean}}
  */
 async function run_log(/** @type {string} */ log_args, options) {
 	let is_initializing_repo = web_phase.value === 'initializing_repo'
-	await _run_main_refresh(log_args, options)
+	try {
+		await _run_main_refresh(log_args, options)
+	} catch (error) {
+		log_config_open.value = true
+		web_phase.value = 'ready' // TODO: maybe new phase for this
+		throw error
+	}
 	await sleep(0)
 	if (is_initializing_repo)
 		jump_to_first_selected_commit()

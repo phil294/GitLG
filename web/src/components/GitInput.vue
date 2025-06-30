@@ -201,13 +201,10 @@ async function execute({ before_execute, fetch_stash_refs, fetch_branches } = {}
 			result_error.value = 'Command finished with CONFLICT. You can now close this window and resolve the conflicts manually.\n\n' + action_error_msg
 		else {
 			if (text_changed.value)
-				result_error.value = `git command failed. Try clicking RESET and try again!\n\nError message:\n${action_error_msg}`
+				result_error.value = `git command failed. Try clicking RESET and try again!\nIf that didn't help, it might be a bug! Please open up a GitHub issue.\n\nError message:\n${action_error_msg}`
 			else
 				result_error.value = action_error_msg
-			if (props.action)
-				throw action_error
-			else
-				console.warn(action_error)
+			console.warn(action_error)
 		}
 		if (props.git_action.ignore_errors)
 			emit('success')
