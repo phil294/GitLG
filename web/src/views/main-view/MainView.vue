@@ -3,7 +3,8 @@
 		<div :class="details_panel_position === 'bottom' ? 'col' : 'row'" class="flex-1">
 			<div id="main-panel" class="col">
 				<nav :inert="web_phase==='initializing_repo'" class="row align-center justify-space-between gap-10">
-					<details id="log-config" class="flex-1" :open="log_config_open" @toggle="log_config_open = $event.target.open">
+					<!-- TODO: . -->
+					<details id="log-config" class="flex-1" :open="log_config_open" @toggle="log_config_open = /** @type {any} */($event.target).open">
 						<summary class="align-center">
 							Configure...
 						</summary>

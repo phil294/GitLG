@@ -40,7 +40,7 @@ Notable features:
  - List of branches at the top; click on any branch to jump to its tip. It always shows all known branches visible in the current viewport. This means that the list of branches updates when you scroll, but you can also display all at once.
  - Drag/drop branch tips on top of each other to merge etc.
  - Right click context menus
- - Quick jump search and filtering 🔍 (also via Ctrl+f)
+ - Quick jump search and filtering 🔍 (also via Ctrl+f), including body, author, email etc. and even file names and file contents
  - Changed files can be clicked and open up diff view in new tab
  - Multi-diff changes
  - By default, 15,000 commits are loaded and displayed at once (see log cmd) and rendered efficiently inside a virtual scroller. Because of this, you can quickly scroll over thousands of commits without slowing down or performance issues.
