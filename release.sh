@@ -38,8 +38,9 @@ if grep -R -n -E '\s$' src web/src; then
     exit 1
 fi
 
-run npx vsce verify-pat
-pause
+# broken since somewhere between vsce 2.2.0 and 2.15.0
+# run npx vsce verify-pat
+# pause
 
 : ''
 run npx ncu -u -x '@types/vscode'
@@ -64,7 +65,6 @@ popd
 pause
 
 run npm run build
-popd
 echo built. manual tests:
 pause
 
