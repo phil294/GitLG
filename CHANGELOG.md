@@ -4,6 +4,12 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.29 2025-07-03
+
+- [`e599297`](https://github.com/phil294/GitLG/commit/e599297) Fix Windows repo path logic, broken since last week, fixes #147
+- [`96f3692`](https://github.com/phil294/GitLG/commit/96f3692) Prevent duplicate log load at start if last search type was non-immediate (file content etc.)
+- [`3744984`](https://github.com/phil294/GitLG/commit/3744984) Reapply "Escape spaces in `git-path` folder setting" (#135)
+
 ### v0.1.28 2025-06-30
 
 - [`026f687`](https://github.com/phil294/GitLG/commit/026f687) Fix Windows build (#147)
