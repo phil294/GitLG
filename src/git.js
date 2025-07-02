@@ -119,12 +119,15 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 					throw new Error(`Tried to run 'git ${args.slice(0, 25)}' but repo not loaded (yet?): ${cwd}`)
 			}
 			try {
-				let { stdout } = await exec(cmd + ' ' + args, {
-					cwd,
-					// 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
-					// is 538 MB or 7.4 MB for the first 15k commits
-					maxBuffer: 1024 * 1024 * 35,
-				})
+				let { stdout } = await exec(
+					// cmd may include spaces such as C:\Program Files, while args is passed insecurely
+					`"${cmd.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"` +
+					` ${args}`, {
+						cwd,
+						// 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
+						// is 538 MB or 7.4 MB for the first 15k commits
+						maxBuffer: 1024 * 1024 * 35,
+					})
 				last_git_execution = Date.now()
 				return stdout
 			} catch (error) {
