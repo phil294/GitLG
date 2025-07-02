@@ -9,7 +9,7 @@ export let search_str = ref('')
 export let type = state('search-type', 'jump').ref
 export let is_regex = state('search-options-regex', false).ref
 export let where = state('search-options-where', 'immediate').ref
-watch([search_str, where], (_new, [_old_search_str, old_where]) => {
+watch([search_str, where], (_new, [old_search_str, old_where]) => {
 	if (search_str.value)
 		push_history({ type: 'search', value: search_str.value })
 	if (search_str.value && where.value !== 'immediate')
@@ -29,7 +29,7 @@ watch([search_str, where], (_new, [_old_search_str, old_where]) => {
 				fetch_stash_refs: false,
 			})
 		}, 1000)
-	else if ((where.value !== 'immediate' && ! search_str.value) || (where.value === 'immediate' && old_where !== 'immediate'))
+	else if ((where.value !== 'immediate' && ! search_str.value && old_search_str) || (where.value === 'immediate' && old_where !== 'immediate'))
 		trigger_main_refresh() // reset
 })
 
