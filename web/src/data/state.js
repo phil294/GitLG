@@ -78,7 +78,6 @@ let state = (key, default_value, on_load = () => {}, { write_only } = {}) => {
 
 export default state
 
-// TODO: make all state type-safe ext+web
 export let refresh_repo_states = () => {
 	// TODO: import keys of static_states and iterate over type=='repo' here
 	for (let key of /** @type {const} */ (['repo:action-history', 'repo:selected-commits-hashes']))

@@ -51,7 +51,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				return
 			// We have to observe all repos even if they aren't the selected one because
 			// there is no apparent way to unsubscribe from repo state changes. So filter:
-			if (repo.rootUri.path !== selected_repo_path)
+			if (repo.rootUri.fsPath !== selected_repo_path)
 				return
 			logger.info('repo watcher: external index/head change') // from external, e.g. cli or committed via vscode ui
 			return on_repo_external_state_change()
@@ -84,9 +84,9 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 		/** Guaranteed to be unique, yet as short of a path as possible */
 		get_repo_infos() {
 			let arr = api.repositories.map(r => {
-				let segments = r.rootUri.path.split('/')
+				let segments = r.rootUri.fsPath.split(/[/\\]/)
 				let name = segments.pop() || '???'
-				return { path: r.rootUri.path, segments, name }
+				return { path: r.rootUri.fsPath, segments, name }
 			})
 			for (let i = 0; i < arr.length; i++) {
 				let el = not_null(arr[i])
@@ -114,7 +114,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				cwd = repo_path || selected_repo_path
 				if (! cwd)
 					throw new Error('No repo selected!')
-				let has_matching_repo = api.repositories.some(r => r.rootUri.path === cwd)
+				let has_matching_repo = api.repositories.some(r => r.rootUri.fsPath === cwd)
 				if (! has_matching_repo)
 					throw new Error(`Tried to run 'git ${args.slice(0, 25)}' but repo not loaded (yet?): ${cwd}`)
 			}

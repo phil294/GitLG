@@ -88,7 +88,7 @@ pause
 
 sed -i $'/<!-- CHANGELOG_PLACEHOLDER -->/r'<(echo $'\n### '${version} $(date +"%Y-%m-%d")$'\n\n'"$changes") CHANGELOG.md
 
-run git add README.md CHANGELOG.md package.json
+run git add README.md CHANGELOG.md package.json package-lock.json
 run git commit -m "$version"
 run git tag "$version"
 echo 'patched package.json version patch, updated changelog, committed, tagged'
