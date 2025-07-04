@@ -2,7 +2,7 @@
 	"name": "git-log--graph",
 	"displayName": "GitLG",
 	"description": "git log --graph, a free, customizable Git UI",
-	"version": "0.1.29",
+	"version": "0.1.30",
 	"icon": "img/logo.png",
 	"publisher": "phil294",
 	"private": false,
