@@ -258,7 +258,7 @@ defineExpose({
 	white-space: pre;
 }
 .error-response {
-	color: #e53c3c;
+	color: var(--vscode-editorError-foreground);
 }
 textarea, input {
 	border: 1px solid var(--vscode-settings-textInputBorder, var(--vscode-settings-textInputBackground));

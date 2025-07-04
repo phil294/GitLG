@@ -46,7 +46,7 @@ export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branch
 }
 
 export let repo_infos = state('repo-infos', []).ref
-let selected_repo_path_is_valid = computed(() =>
+export let selected_repo_path_is_valid = computed(() =>
 	repo_infos.value.some(i => i.path === selected_repo_path.value))
 /** @type {Vue.WritableComputedRef<string>} */
 export let selected_repo_path = state('selected-repo-path', '', () => {

@@ -24,7 +24,8 @@ let storage_providers = {
 				let repo = ctx.context.workspaceState.get('selected-repo-path')
 				let repo_name = ctx.git.get_repo_infos().find(i => i.path === repo)?.name
 				if (! repo_name)
-					console.warn(`Failed to get/set repo data for key ${local_key} because the current repo is not contained in the list of loaded repos for some reason`)
+					// Can happen when a repo has been removed from the workspace since the user last selected a repo in the UI
+					console.warn(`Failed to get/set repo data for key ${local_key} because the current repo '${repo}' is not contained in the list of loaded repos for some reason`)
 				return `repo-${local_key}-${repo_name}`
 			}
 			return {
