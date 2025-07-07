@@ -4,6 +4,10 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.31 2025-07-07
+
+- [`89f8cd7`](https://github.com/phil294/GitLG/commit/89f8cd7) Fix opening the graph view from SCM repo icon (#152)
+
 ### v0.1.30 2025-07-04
 
 - [`97b0ec7`](https://github.com/phil294/GitLG/commit/97b0ec7) Allow selecting repo when current saved path is invalid, even when there is only one to choose from (#147)
