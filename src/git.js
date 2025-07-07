@@ -149,7 +149,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 			let uri_path = await realpath(uri.fsPath).catch(e => { throw new Error(e) /* https://github.com/nodejs/node/issues/30944 */ })
 			return ((await Promise.all(api.repositories.map(async (repo) => {
 				let repo_path = await realpath(repo.rootUri.fsPath).catch(e => { throw new Error(e) /* https://github.com/nodejs/node/issues/30944 */ })
-				return { repo_path, path: repo.rootUri.path }
+				return { repo_path, fs_path: repo.rootUri.path }
 			})))).filter(({ repo_path }) => {
 				// if repo includes uri: stackoverflow.com/q/37521893
 				let rel = relative(repo_path, uri_path)
@@ -158,7 +158,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				// There can be multiple matches with git submodules, in which case the longest
 				// path will be the right one
 				b.repo_path.length - a.repo_path.length,
-			).at(0)?.path ?? null
+			).at(0)?.fs_path ?? null
 		},
 	}
 }
