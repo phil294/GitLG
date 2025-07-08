@@ -4,6 +4,10 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.33 2025-07-08
+
+- [`2139102`](https://github.com/phil294/GitLG/commit/2139102) Fix opening the graph view from SCM repo icon (#152)
+
 ### v0.1.32 2025-07-07
 
 - [`89f8cd7`](https://github.com/phil294/GitLG/commit/89f8cd7) Fix opening the graph view from SCM repo icon (#152)
