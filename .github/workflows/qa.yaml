@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - master
+      - dev
 
 jobs:
   lint_and_build:
