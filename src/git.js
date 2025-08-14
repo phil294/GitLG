@@ -60,10 +60,23 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 
 	/** @type {import('./vscode.git').Repository[]} */
 	let repos_cache = []
+	/** @type {Record<string, any> | null} */
+	let builtin_git_env = null
 	function repos_changed() {
 		// onDidOpenRepository fires multiple times. At first, there isn't even a repos change..
 		if (api.repositories.length === repos_cache.length)
 			return
+		// Get the built-in git env for support interavtive password prompts
+		if (! builtin_git_env)
+			try {
+				if (api.git && 'env' in api.git && api.git.env) {
+					builtin_git_env = api.git.env
+					logger.info('Captured built-in git env')
+				}
+			} catch (e) {
+				logger.info(`Failed capturing built-in git env: ${e.message}`)
+			}
+
 		debounce(() => {
 			logger.info('workspace: repo(s) added/removed')
 			api.repositories
@@ -127,6 +140,8 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 						// 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
 						// is 538 MB or 7.4 MB for the first 15k commits
 						maxBuffer: 1024 * 1024 * 35,
+						// Merge captured built-in env if available
+						env: builtin_git_env ? { ...process.env, ...builtin_git_env } : process.env,
 					})
 				last_git_execution = Date.now()
 				return stdout
