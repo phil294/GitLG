@@ -5,3 +5,4 @@ web-dist
 *.ttf
 todo*
 vsix-out
+*.vsix
