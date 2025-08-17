@@ -1,71 +1,82 @@
 <template>
 	<div id="main-view" class="fill col">
-		<div :class="details_panel_position === 'bottom' ? 'col' : 'row'" class="flex-1">
-			<div id="main-panel" class="col">
-				<nav :inert="web_phase==='initializing_repo'" class="row align-center justify-space-between gap-10">
-					<!-- TODO: . -->
-					<details id="log-config" class="flex-1" :open="log_config_open" @toggle="log_config_open = /** @type {any} */($event.target).open">
-						<summary class="align-center">
-							Configure...
-						</summary>
-						<git-input ref="git_input_ref" :action="run_log" :git_action="log_action" hide_result />
-					</details>
-					<repo-selection />
-					<aside class="center gap-20">
-						<all-branches @branch_selected="jump_to_branch_tip_or_load($event)" />
-						<history @branch_selected="jump_to_branch_tip_or_load($event)" @commit_clicked="$event=>jump_to_commit_hash_or_load($event)" />
-						<search-input id="search" @jump_to_commit="jump_to_commit_and_select" />
-						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
-							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
-							<button id="refresh" class="btn center" :class="{'highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
-								<div class="icon-wrapper center">
-									<i class="codicon codicon-refresh" />
-								</div>
+		<ResizableSplit
+			class="flex-1"
+			:orientation="details_panel_position === 'bottom' ? 'horizontal' : 'vertical'"
+			:show_second="selected_commits.length > 0"
+			:initial_second="details_panel_position === 'bottom' ? 300 : 400"
+			:min_first="300"
+			:min_second="200"
+		>
+			<template #first>
+				<div id="main-panel" class="col">
+					<nav :inert="web_phase==='initializing_repo'" class="row align-center justify-space-between gap-10">
+						<!-- TODO: . -->
+						<details id="log-config" class="flex-1" :open="log_config_open" @toggle="log_config_open = /** @type {any} */($event.target).open">
+							<summary class="align-center">
+								Configure...
+							</summary>
+							<git-input ref="git_input_ref" :action="run_log" :git_action="log_action" hide_result />
+						</details>
+						<repo-selection />
+						<aside class="center gap-20">
+							<all-branches @branch_selected="jump_to_branch_tip_or_load" />
+							<history @branch_selected="jump_to_branch_tip_or_load" @commit_clicked="jump_to_commit_hash_or_load" />
+							<search-input id="search" @jump_to_commit="jump_to_commit_and_select" />
+							<section id="actions" aria-roledescription="Global actions" class="center gap-5">
+								<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
+								<button id="refresh" class="btn center" :class="{'highlighted':highlight_refresh_button}" title="Refresh" :disabled="web_phase==='refreshing'||web_phase==='initializing'||web_phase==='initializing_repo'" @click="refresh()">
+									<div class="icon-wrapper center">
+										<i class="codicon codicon-refresh" />
+									</div>
+								</button>
+							</section>
+						</aside>
+					</nav>
+					<div id="quick-branch-tips">
+						<div v-if="show_quick_branch_tips && !hidden_branch_tips_data.length" id="git-status">
+							<p v-if="web_phase === 'initializing_repo'" class="loading">
+								Loading...
+							</p>
+							<p v-else>
+								Status: {{ git_status }}
+							</p>
+						</div>
+						<template v-if="show_quick_branch_tips">
+							<button v-for="tip_data of hidden_branch_tips_data" :key="tip_data.branch.id" title="Jump to branch tip" v-bind="tip_data.bind" @click="jump_to_branch_tip_or_load(tip_data.branch)">
+								<ref-tip :git_ref="tip_data.branch" />
 							</button>
-						</section>
-					</aside>
-				</nav>
-				<div id="quick-branch-tips">
-					<div v-if="show_quick_branch_tips && !hidden_branch_tips_data.length" id="git-status">
-						<p v-if="web_phase === 'initializing_repo'" class="loading">
-							Loading...
-						</p>
-						<p v-else>
-							Status: {{ git_status }}
-						</p>
+						</template>
+						<button id="jump-to-top" title="Scroll to top" @click="jump_to_top()">
+							<i class="codicon codicon-arrow-circle-up" />
+						</button>
 					</div>
-					<template v-if="show_quick_branch_tips">
-						<button v-for="tip_data of hidden_branch_tips_data" :key="tip_data.branch.id" title="Jump to branch tip" v-bind="tip_data.bind" @click="jump_to_branch_tip_or_load(tip_data.branch)">
-							<ref-tip :git_ref="tip_data.branch" />
+					<div v-if="show_quick_branch_tips" id="branches-connection">
+						<commit-row v-if="hidden_branch_tips_fake_commit" :commit="hidden_branch_tips_fake_commit" :height="110" class="vis" />
+					</div>
+					<p v-if="filtered_commits && !filtered_commits.length && web_phase !== 'initializing_repo'" id="no-commits-found">
+						No commits found
+					</p>
+					<scroller id="log" ref="scroller_ref" />
+				</div>
+			</template>
+			<template #second>
+				<div id="details-panel" class="col flex-1">
+					<template v-if="single_selected_commit">
+						<commit-details id="selected-commit" :commit="single_selected_commit" class="flex-1 fill-w padding" @hash_clicked="jump_to_commit_hash_or_load($event)" />
+						<button id="close-selected-commit" class="center" title="Close" @click="selected_commits=[]">
+							<i class="codicon codicon-close" />
 						</button>
 					</template>
-					<button id="jump-to-top" title="Scroll to top" @click="jump_to_top()">
-						<i class="codicon codicon-arrow-circle-up" />
-					</button>
+					<template v-else-if="selected_commits.length">
+						<commits-details id="selected-commits" :commits="selected_commits" class="flex-1 fill-w padding" />
+						<button id="close-selected-commits" class="center" title="Close" @click="selected_commits=[]">
+							<i class="codicon codicon-close" />
+						</button>
+					</template>
 				</div>
-				<div v-if="show_quick_branch_tips" id="branches-connection">
-					<commit-row v-if="hidden_branch_tips_fake_commit" :commit="hidden_branch_tips_fake_commit" :height="110" class="vis" />
-				</div>
-				<p v-if="filtered_commits && !filtered_commits.length && web_phase !== 'initializing_repo'" id="no-commits-found">
-					No commits found
-				</p>
-				<scroller id="log" ref="scroller_ref" />
-			</div>
-			<div v-if="selected_commits.length" id="details-panel" class="col flex-1">
-				<template v-if="single_selected_commit">
-					<commit-details id="selected-commit" :commit="single_selected_commit" class="flex-1 fill-w padding" @hash_clicked="jump_to_commit_hash_or_load($event)" />
-					<button id="close-selected-commit" class="center" title="Close" @click="selected_commits=[]">
-						<i class="codicon codicon-close" />
-					</button>
-				</template>
-				<template v-else-if="selected_commits.length">
-					<commits-details id="selected-commits" :commits="selected_commits" class="flex-1 fill-w padding" />
-					<button id="close-selected-commits" class="center" title="Close" @click="selected_commits=[]">
-						<i class="codicon codicon-close" />
-					</button>
-				</template>
-			</div>
-		</div>
+			</template>
+		</ResizableSplit>
 		<popup v-if="combine_branches_from_branch_name" @close="combine_branches_from_branch_name=''">
 			<div class="drag-drop-branch-actions col center gap-5">
 				<git-action-button v-for="action, i of combine_branches_actions" :key="i" :git_action="action" class="drag-drop-branch-action" />
@@ -78,6 +89,7 @@
 </template>
 <script setup>
 import { computed, useTemplateRef, ref } from 'vue'
+import ResizableSplit from '../../components/ResizableSplit.vue'
 import config from '../../data/store/config'
 import { _run_main_refresh, combine_branches_from_branch_name, main_view_highlight_refresh_button as highlight_refresh_button, main_view_git_input_ref, trigger_main_refresh as refresh, selected_git_action, web_phase } from '../../data/store'
 import { combine_branches_actions, global_actions } from '../../data/store/actions'
@@ -222,12 +234,13 @@ details#log-config[open] {
 }
 #details-panel {
 	min-width: 400px;
-	min-height: min(300px, 40vh);
+	min-height: 0;
 	position: relative;
 }
 #details-panel #selected-commit,
 #details-panel #selected-commits {
 	overflow: auto;
+	min-height: 0;
 	z-index: 1;
 	background: var(--vscode-editorWidget-background);
 	border-left: 1px solid var(--vscode-sideBarSectionHeader-border);
