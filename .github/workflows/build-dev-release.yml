@@ -1,0 +1,119 @@
+name: Build Dev Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create GitHub release'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev'
+
+    steps:
+      - name: Checkout dev branch
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate dev version
+        id: version
+        run: |
+          # Get current version from package.json
+          CURRENT_VERSION=$(node -p "require('./package.json').version")
+          echo "Current version: $CURRENT_VERSION"
+
+          # Split version into parts (e.g., "0.1.33" -> ["0", "1", "33"])
+          IFS='.' read -ra VERSION_PARTS <<< "$CURRENT_VERSION"
+          MAJOR=${VERSION_PARTS[0]}
+          MINOR=${VERSION_PARTS[1]}
+          PATCH=${VERSION_PARTS[2]}
+
+          # Increment patch version
+          NEW_PATCH=$((PATCH + 1))
+
+          # Generate date postfix (YYYYMMDD format)
+          DATE_POSTFIX=$(date +%Y%m%d)
+
+          # Create new version: e.g., "0.1.34-dev20250818" (semver compliant)
+          NEW_VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}-dev${DATE_POSTFIX}"
+
+          echo "New version: $NEW_VERSION"
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "date_postfix=$DATE_POSTFIX" >> $GITHUB_OUTPUT
+
+      - name: Update package.json version
+        run: |
+          # Update the version in package.json temporarily for the build
+          npm version --no-git-tag-version ${{ steps.version.outputs.new_version }}
+
+      - name: Build extension
+        run: |
+          npm run build
+
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+
+      - name: Package extension
+        run: |
+          vsce package --out gitlg-${{ steps.version.outputs.new_version }}.vsix
+
+      - name: Create GitHub Release
+        if: ${{ inputs.create_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "dev-${{ steps.version.outputs.new_version }}"
+          name: "Dev Release ${{ steps.version.outputs.new_version }}"
+          body: |
+            ## Development Release ${{ steps.version.outputs.new_version }}
+
+            This is an automated development build from the `dev` branch.
+
+            **Built from commit:** ${{ github.sha }}
+            **Build date:** ${{ steps.version.outputs.date_postfix }}
+
+            ### Installation
+            1. Download the `.vsix` file below
+            2. Open VSCode
+            3. Go to Extensions view (Ctrl+Shift+X)
+            4. Click the "..." menu and select "Install from VSIX..."
+            5. Select the downloaded file
+
+            ### ⚠️ Development Build Warning
+            This is a development build and may contain bugs or incomplete features.
+            Use at your own risk in production environments.
+          files: |
+            gitlg-${{ steps.version.outputs.new_version }}.vsix
+          draft: false
+          prerelease: true
+          generate_release_notes: false
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitlg-extension-${{ steps.version.outputs.new_version }}
+          path: gitlg-${{ steps.version.outputs.new_version }}.vsix
+          retention-days: 30
+
+      - name: Print build summary
+        run: |
+          echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version:** ${{ steps.version.outputs.new_version }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch:** dev" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Date:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Artifact:** gitlg-${{ steps.version.outputs.new_version }}.vsix" >> $GITHUB_STEP_SUMMARY
