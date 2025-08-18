@@ -184,7 +184,26 @@ let hash2 = (/** @type {string | undefined} */ filepath) => {
 
 watchEffect(async () => {
 	file_diffs.value = null
-	// so we can see untracked as well
+
+	// Handle virtual commits
+	if (props.commit1.virtual_commit_type) {
+		// For virtual commits, we create file diffs from the stored file list
+		file_diffs.value = (props.commit1.virtual_commit_files || []).map(file_path => ({
+			path: file_path,
+			insertions: 0, // We don't have line count data for virtual commits
+			deletions: 0,
+		}))
+		return
+	}
+
+	// Handle comparison between virtual commits and regular commits
+	if (props.commit2?.virtual_commit_type) {
+		// This shouldn't happen in normal usage but handle gracefully
+		file_diffs.value = []
+		return
+	}
+
+	// Regular git diff logic
 	let get_files_command = props.commit2
 		? `-c core.quotepath=false diff --numstat --summary --format="" ${hash1.value} ${hash2()}`
 		: props.commit1.stash
@@ -194,7 +213,40 @@ watchEffect(async () => {
 	file_diffs.value = git_numstat_summary_to_changes_array(await git(get_files_command))
 })
 
-function show_diff(/** @type {string} */ filepath) {
+async function show_diff(/** @type {string} */ filepath) {
+	// Handle virtual commits with custom diff logic
+	if (props.commit1.virtual_commit_type) {
+		let title = props.commit1.virtual_commit_type === 'staged'
+			? `${filepath} (staged changes)`
+			: `${filepath} (unstaged changes)`
+
+		// Create temp URIs to display the diff
+		// For virtual commits, we'll use special URI schemes
+		return exchange_message('open-diff', {
+			title,
+			uris: [
+				props.commit1.virtual_commit_type === 'staged' ? `HEAD:${filepath}` : `STAGED:${filepath}`,
+				props.commit1.virtual_commit_type === 'staged' ? `STAGED:${filepath}` : `WORKING:${filepath}`,
+			],
+		})
+	}
+
+	// Handle comparison with virtual commits
+	if (props.commit2?.virtual_commit_type) {
+		let title = `${filepath} ${props.commit1.hash} - ${props.commit2.virtual_commit_type}`
+
+		// Note: diff_content not needed as we use URI schemes for VSCode diff
+
+		return exchange_message('open-diff', {
+			title,
+			uris: [
+				`${props.commit1.hash}:${filepath}`,
+				props.commit2.virtual_commit_type === 'staged' ? `STAGED:${filepath}` : `WORKING:${filepath}`,
+			],
+		})
+	}
+
+	// Regular diff logic
 	return exchange_message('open-diff', {
 		title: `${filepath} ${hash1.value} - ${hash2(filepath)}`,
 		uris: [

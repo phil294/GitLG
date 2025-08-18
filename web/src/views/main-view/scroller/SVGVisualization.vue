@@ -1,8 +1,18 @@
 <template>
 	<div class="vis svg">
 		<svg :height="height" :style="style">
-			<path v-for="line, i of lines" :key="i" class="vis-line" v-bind="line" />
-			<circle v-if="circle" class="vis-line" v-bind="circle" />
+			<template v-if="!props.commit.virtual_commit_type">
+				<path v-for="line, i of lines" :key="i" class="vis-line" v-bind="line" />
+			</template>
+			<circle v-if="circle && !props.commit.virtual_commit_type" class="vis-line" v-bind="circle" />
+			<circle
+				v-if="props.commit.virtual_commit_type"
+				class="vis-line"
+				:cx="padding_left + 4"
+				:cy="height * 0.5"
+				:r="4"
+				:style="{ stroke: props.commit.vis_lines[0]?.branch?.color }"
+			/>
 		</svg>
 	</div>
 </template>
@@ -40,6 +50,24 @@ let branch_line = computed(() => {
 		line.vis_line.branch === props.commit.branch)
 })
 let circle = computed(() => {
+	// For virtual commits, create circle from vis_lines data
+	if (props.commit.virtual_commit_type && props.commit.vis_lines.length > 0) {
+		let vis_line = props.commit.vis_lines[0]
+		if (vis_line)
+			return {
+				style: {
+					stroke: vis_line.branch?.color,
+				},
+				class: {
+					is_head: false, // virtual commits are never HEAD
+				},
+				cx: padding_left + vis_line.xn * vis_v_width.value,
+				cy: props.height * 0.5,
+				r: 4,
+			}
+	}
+
+	// Regular commit logic
 	if (! branch_line.value || ! props.commit.branch)
 		return null
 	return {

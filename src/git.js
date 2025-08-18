@@ -175,5 +175,50 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				b.repo_path.length - a.repo_path.length,
 			).at(0)?.fs_path ?? null
 		},
+		async get_uncommitted_changes(/** @type {string | undefined} */ repo_path) {
+			let status_output = await this.run('-c core.quotepath=false status --porcelain=v1', repo_path)
+			let staged_files = []
+			let unstaged_files = []
+
+			for (let line of status_output.split('\n')) {
+				if (! line.trim())
+					continue
+				let status_code = line.substring(0, 2)
+				let file_path = line.substring(3)
+
+				// First character is staged status, second is unstaged status
+				if (status_code[0] !== ' ' && status_code[0] !== '?')
+					staged_files.push(file_path)
+
+				if (status_code[1] !== ' ')
+					unstaged_files.push(file_path)
+			}
+
+			return { staged_files, unstaged_files }
+		},
+		async get_working_directory_diff(/** @type {string | undefined} */ file_path, /** @type {string | undefined} */ repo_path) {
+			let args = 'diff'
+			if (file_path)
+				args += ` -- "${file_path}"`
+			return await this.run(args, repo_path)
+		},
+		async get_staged_diff(/** @type {string | undefined} */ file_path, /** @type {string | undefined} */ repo_path) {
+			let args = 'diff --cached'
+			if (file_path)
+				args += ` -- "${file_path}"`
+			return await this.run(args, repo_path)
+		},
+		async get_diff_between_commit_and_working(/** @type {string} */ commit_hash, /** @type {string | undefined} */ file_path, /** @type {string | undefined} */ repo_path) {
+			let args = `diff ${commit_hash}`
+			if (file_path)
+				args += ` -- "${file_path}"`
+			return await this.run(args, repo_path)
+		},
+		async get_diff_between_commit_and_staged(/** @type {string} */ commit_hash, /** @type {string | undefined} */ file_path, /** @type {string | undefined} */ repo_path) {
+			let args = `diff --cached ${commit_hash}`
+			if (file_path)
+				args += ` -- "${file_path}"`
+			return await this.run(args, repo_path)
+		},
 	}
 }

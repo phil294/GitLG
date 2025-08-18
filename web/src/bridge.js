@@ -63,3 +63,14 @@ export let show_error_message = (/** @type {string} */ msg) =>
 
 export let add_push_listener = (/** @type {string} */ id, /** @type {(r: BridgeMessage) => void} */ handler) =>
 	push_handlers[id] = handler
+
+export let get_uncommitted_changes = () =>
+	exchange_message('get-uncommitted-changes', {})
+export let get_working_directory_diff = (/** @type {string | undefined} */ file_path) =>
+	exchange_message('get-working-directory-diff', { file_path })
+export let get_staged_diff = (/** @type {string | undefined} */ file_path) =>
+	exchange_message('get-staged-diff', { file_path })
+export let get_diff_between_commit_and_working = (/** @type {string} */ commit_hash, /** @type {string | undefined} */ file_path) =>
+	exchange_message('get-diff-between-commit-and-working', { commit_hash, file_path })
+export let get_diff_between_commit_and_staged = (/** @type {string} */ commit_hash, /** @type {string | undefined} */ file_path) =>
+	exchange_message('get-diff-between-commit-and-staged', { commit_hash, file_path })

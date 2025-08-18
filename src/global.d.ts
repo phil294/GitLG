@@ -86,6 +86,9 @@ interface Commit {
 		insertions?: number
 		deletions?: number
 	}
+	/** For virtual commits representing uncommitted changes */
+	virtual_commit_type?: 'staged' | 'unstaged'
+	virtual_commit_files?: string[]
 }
 
 interface GitOption {

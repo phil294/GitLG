@@ -1,5 +1,5 @@
 import { computed, ref, watch } from 'vue'
-import { git } from '../../bridge.js'
+import { git, get_uncommitted_changes } from '../../bridge.js'
 import { parse } from '../../utils/log-parser.js'
 import { _protected as search_protected } from './search'
 import state from '../state.js'
@@ -25,7 +25,48 @@ let unset = () => {
 	head_branch.value = ''
 	git_status.value = ''
 	default_origin.value = ''
+	uncommitted_changes.value = null
 	// TODO: is history unset after this? / merge with refresh_repo_states?
+}
+
+/** @type {Vue.Ref<{staged_files: string[], unstaged_files: string[]} | null>} */
+export let uncommitted_changes = ref(null)
+
+/** @param files {string[]} @param type {'staged' | 'unstaged'} @returns {Commit} */
+function create_virtual_commit(files, type) {
+	let file_count = files.length
+	let subject = type === 'staged'
+		? `Staged changes (${file_count})`
+		: `Unstaged changes (${file_count})`
+
+	return {
+		hash: type === 'staged' ? 'STAGED' : 'UNSTAGED',
+		hash_long: type === 'staged' ? 'STAGED_CHANGES' : 'UNSTAGED_CHANGES',
+		subject,
+		author_name: '',
+		author_email: '',
+		datetime: (new Date().toISOString()).slice(0, 19).replace('T', ' '),
+		refs: [],
+		merge: false,
+		index_in_graph_output: type === 'unstaged' ? -2 : -1,
+		branch: undefined,
+		vis_lines: [{
+			y0: 0.5,
+			yn: 0.5,
+			x0: 0,
+			xn: 2,
+			branch: {
+				color: type === 'staged' ? '#00aa00' : '#aa6600',
+				type: 'branch',
+				name: type,
+				display_name: type,
+				id: type,
+			},
+		}],
+		stats: {},
+		virtual_commit_type: type,
+		virtual_commit_files: files,
+	}
 }
 
 export let base_log_args = 'log --graph --oneline --date=iso-local --pretty={EXT_FORMAT} --color=never'
@@ -86,13 +127,34 @@ let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_br
 				.concat({ subject: '..........Loading more..........', author_email: '', hash: '-', vis_lines: [{ y0: 0.5, yn: 0.5, x0: 0, xn: 2000, branch: { color: 'yellow', type: 'branch', name: '', display_name: '', id: '' } }], author_name: '', hash_long: '', refs: [], index_in_graph_output: -1 })
 				.map(c => ({ ...c, stats: /* to prevent loading them */ {} })))
 	// errors will be handled by GitInput
-	let [parsed_log_data, status_data, head_data] = await Promise.all([
+	let [parsed_log_data, status_data, head_data, uncommitted_data] = await Promise.all([
 		git_log(log_args, { fetch_stash_refs, fetch_branches }),
 		git('-c core.quotepath=false status').catch(e => e.message_error_response || '????'),
 		git('symbolic-ref HEAD', { ignore_errors: true }).catch(() => null),
+		get_uncommitted_changes().catch(() => ({ staged_files: [], unstaged_files: [] })),
 	])
 	await preliminary_loading_promise // In case the main log finished faster (very small repo)
-	loaded_commits.value = parsed_log_data.commits
+
+	// Store uncommitted changes data
+	uncommitted_changes.value = uncommitted_data
+
+	// Create virtual commits for uncommitted changes
+	let virtual_commits = []
+	console.log('Uncommitted data:', uncommitted_data)
+	if (uncommitted_data.unstaged_files.length > 0) {
+		console.log('Adding unstaged virtual commit for files:', uncommitted_data.unstaged_files)
+		virtual_commits.push(create_virtual_commit(uncommitted_data.unstaged_files, 'unstaged'))
+	}
+	if (uncommitted_data.staged_files.length > 0) {
+		console.log('Adding staged virtual commit for files:', uncommitted_data.staged_files)
+		virtual_commits.push(create_virtual_commit(uncommitted_data.staged_files, 'staged'))
+	}
+
+	// Prepend virtual commits to the regular commits
+	loaded_commits.value = [...virtual_commits, ...parsed_log_data.commits]
+	console.log('Final loaded_commits count:', loaded_commits.value.length)
+	console.log('Virtual commits count:', virtual_commits.length)
+	console.log('First few commits:', loaded_commits.value.slice(0, 3).map(c => ({ hash: c.hash, subject: c.subject, virtual_commit_type: c.virtual_commit_type, index_in_graph_output: c.index_in_graph_output })))
 	branches.value = parsed_log_data.branches
 	head_branch.value = head_data || 'refs/heads/HEAD'
 	git_status.value = status_data

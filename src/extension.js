@@ -167,6 +167,16 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 						})
 						case 'clipboard-write-text': return h(() =>
 							vscode.env.clipboard.writeText(data))
+						case 'get-uncommitted-changes': return h(() =>
+							git.get_uncommitted_changes())
+						case 'get-working-directory-diff': return h(() =>
+							git.get_working_directory_diff(data.file_path))
+						case 'get-staged-diff': return h(() =>
+							git.get_staged_diff(data.file_path))
+						case 'get-diff-between-commit-and-working': return h(() =>
+							git.get_diff_between_commit_and_working(data.commit_hash, data.file_path))
+						case 'get-diff-between-commit-and-staged': return h(() =>
+							git.get_diff_between_commit_and_staged(data.commit_hash, data.file_path))
 					}
 			}
 		}))
@@ -226,9 +236,29 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 
 	// Needed for git diff views
 	context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider(`${EXT_ID}-git-show`, {
-		provideTextDocumentContent: intercept_errors((uri) =>
-			git.run(`show "${uri.path}"`).catch(() => ''),
-		),
+		provideTextDocumentContent: intercept_errors((uri) => {
+			// Handle virtual commit URIs for staged content
+			if (uri.path.startsWith('STAGED:')) {
+				let file_path = uri.path.substring(7) // Remove 'STAGED:' prefix
+				return git.run(`show :${file_path}`).catch(() => '') // :file shows staged version
+			}
+			// Handle virtual commit URIs for working directory content
+			if (uri.path.startsWith('WORKING:')) {
+				let file_path = uri.path.substring(8) // Remove 'WORKING:' prefix
+				try {
+					// Read the working directory file directly
+					let fs = require('fs')
+					let node_path = require('path')
+					let workspace = state('selected-repo-path').get() || ''
+					let full_path = node_path.join(workspace, file_path)
+					return fs.readFileSync(full_path, 'utf8')
+				} catch (_e) {
+					return ''
+				}
+			}
+			// Default git show behavior
+			return git.run(`show "${uri.path}"`).catch(() => '')
+		}),
 	}))
 
 	// General start, will choose from creating/show editor panel or showing side nav view depending on config

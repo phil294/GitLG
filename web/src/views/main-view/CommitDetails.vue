@@ -28,7 +28,7 @@
 					/>
 				</div>
 
-				<div class="commit-details-info">
+				<div v-if="!commit.virtual_commit_type" class="commit-details-info">
 					<div class="commit-details-hash">
 						Hash: <a class="commit-hash-link" title="Jump to commit" @click="$emit('hash_clicked',commit.hash)">{{ commit.hash_long }}</a>
 					</div>
@@ -50,16 +50,17 @@
 							Date: {{ committer_date }}
 						</div>
 					</template>
-					<div class="commit-details-summary">
-						<p class="summary-line">
-							{{ commit.subject }}
-						</p>
-					</div>
-					<div class="commit-details-body">
-						<p class="body">
-							{{ body }}
-						</p>
-					</div>
+				</div>
+				<div v-if="commit.virtual_commit_type" class="commit-details-info" />
+				<div class="commit-details-summary">
+					<p class="summary-line">
+						{{ commit.subject }}
+					</p>
+				</div>
+				<div class="commit-details-body">
+					<p class="body">
+						{{ body }}
+					</p>
 				</div>
 				<template v-if="details_panel_position !== 'bottom'">
 					<commit-diff :commit1="commit" />
@@ -165,6 +166,23 @@ let same_author_committer = computed(() =>
 	author_date.value === committer_date.value)
 
 watchEffect(async () => {
+	// Handle virtual commits differently
+	if (props.commit.virtual_commit_type) {
+		body.value = ''
+		tag_details.value = []
+		parent_hashes.value = []
+
+		// Set virtual commit metadata
+		author_name.value = ''
+		author_email.value = ''
+		author_date.value = props.commit.datetime || ''
+		committer_name.value = ''
+		committer_email.value = ''
+		committer_date.value = props.commit.datetime || ''
+		return
+	}
+
+	// Regular commit processing
 	body.value = await git(`show -s --format="%b" ${props.commit.hash}`)
 
 	tag_details.value = []
