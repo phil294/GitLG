@@ -74,3 +74,6 @@ export let get_diff_between_commit_and_working = (/** @type {string} */ commit_h
 	exchange_message('get-diff-between-commit-and-working', { commit_hash, file_path })
 export let get_diff_between_commit_and_staged = (/** @type {string} */ commit_hash, /** @type {string | undefined} */ file_path) =>
 	exchange_message('get-diff-between-commit-and-staged', { commit_hash, file_path })
+
+export let md5_hash = (/** @type {string} */ email) =>
+	exchange_message('md5-hash', email)
