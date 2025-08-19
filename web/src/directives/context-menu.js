@@ -13,6 +13,11 @@ let context_menu_data_by_el = new Map()
 function remove_all_context_menus() {
 	context_menu_data_by_el.forEach((menu) =>
 		menu.destroy())
+	// Clear any orphaned wrapper elements that might exist
+	document.querySelectorAll('.context-menu-wrapper').forEach(el => {
+		if (el.parentNode)
+			el.parentNode.removeChild(el)
+	})
 }
 document.addEventListener('contextmenu', remove_all_context_menus, false)
 document.addEventListener('click', remove_all_context_menus, false)
@@ -98,7 +103,12 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		destroy() {
 			if (! wrapper_el)
 				return
-			document.body.removeChild(wrapper_el)
+			try {
+				if (wrapper_el.parentNode)
+					wrapper_el.parentNode.removeChild(wrapper_el)
+			} catch (_e) {
+				// Element might have been removed already during DOM updates
+			}
 			wrapper_el = null
 		},
 		entries_provider,
