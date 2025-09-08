@@ -6,3 +6,5 @@ web-dist
 todo*
 vsix-out
 *.vsix
+web/src/components.d.ts
+main.js
