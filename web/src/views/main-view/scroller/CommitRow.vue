@@ -14,18 +14,20 @@
 			<div :title="commit.author_name+' <'+commit.author_email+'>'" class="author align-center">
 				{{ commit.author_name }}
 			</div>
-			<div class="stats flex-noshrink row align-center justify-flex-end gap-5">
-				<template v-if="commit.stats?.files_changed">
-					<div class="changes" title="Changed lines in amount of files">
-						<span v-if="commit.stats.insertions != null && commit.stats.deletions != null">
-							<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
-						</span>
-						<span class="grey"> in </span>
-						<span class="grey">{{ commit.stats.files_changed }}</span>
-					</div>
-					<progress :value="((commit.stats.insertions || 0) / ((commit.stats.insertions || 0) + (commit.stats.deletions || 0))) || 0" class="diff" title="Ratio insertions / deletions" />
-				</template>
-			</div>
+			<template v-if="show_commit_stats">
+				<div class="stats flex-noshrink row align-center justify-flex-end gap-5">
+					<template v-if="commit.stats?.files_changed">
+						<div class="changes" title="Changed lines in amount of files">
+							<span v-if="commit.stats.insertions != null && commit.stats.deletions != null">
+								<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
+							</span>
+							<span class="grey"> in </span>
+							<span class="grey">{{ commit.stats.files_changed }}</span>
+						</div>
+						<progress :value="((commit.stats.insertions || 0) / ((commit.stats.insertions || 0) + (commit.stats.deletions || 0))) || 0" class="diff" title="Ratio insertions / deletions" />
+					</template>
+				</div>
+			</template>
 			<div class="datetime flex-noshrink align-center">
 				{{ commit.datetime }}
 			</div>
@@ -50,6 +52,9 @@ let props = defineProps({
 	},
 	height: { type: Number, default: null },
 })
+
+let show_commit_stats = computed(() =>
+	config.get_boolean_or_undefined('disable-commit-stats') !== true)
 
 let vis_min_width = 15
 let vis_max_width_vw = 90
