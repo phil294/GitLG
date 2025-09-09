@@ -7,7 +7,7 @@
 					●&nbsp;
 				</div>
 				<commit-ref-tips class="flex-noshrink" :commit="commit" :allow_wrap="false" :show_buttons="false" />
-				<div class="subject">
+				<div class="subject" @dblclick.stop="on_subject_dblclick">
 					&nbsp;{{ commit.subject }}
 				</div>
 			</div>
@@ -49,9 +49,10 @@
 </template>
 <script setup>
 import { computed, ref, onMounted, watch } from 'vue'
-import { vis_width } from '../../../data/store'
+import { vis_width, selected_git_action } from '../../../data/store'
 import config from '../../../data/store/config'
 import { get_avatar } from '../../../utils/gravatar'
+import { commit_actions } from '../../../data/store/actions'
 
 let props = defineProps({
 	commit: {
@@ -122,6 +123,13 @@ watch(() => props.commit.author_email, () => {
 watch(show_avatars, () => {
 	load_avatar()
 })
+
+function on_subject_dblclick() {
+	if (! props.commit?.hash)
+		return
+	// First commit action is checkout
+	selected_git_action.value = commit_actions(props.commit.hash).value[0] || null
+}
 </script>
 <style scoped>
 .commit-row {
