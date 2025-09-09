@@ -47,9 +47,6 @@
 								<ref-tip :git_ref="tip_data.branch" />
 							</button>
 						</template>
-						<button id="jump-to-top" title="Scroll to top" @click="jump_to_top()">
-							<i class="codicon codicon-arrow-circle-up" />
-						</button>
 					</div>
 					<div v-if="show_quick_branch_tips" id="branches-connection">
 						<commit-row v-if="hidden_branch_tips_fake_commit" :commit="hidden_branch_tips_fake_commit" :height="110" class="vis" />
@@ -100,7 +97,7 @@ import { use_scroller_jumpers } from './scroller-jumpers'
 let details_panel_position = computed(() =>
 	config.get_string('details-panel-position'))
 
-let { jump_to_commit_and_select, jump_to_first_selected_commit, jump_to_top, jump_to_branch_tip_or_load, jump_to_commit_hash_or_load } = use_scroller_jumpers()
+let { jump_to_commit_and_select, jump_to_first_selected_commit, jump_to_branch_tip_or_load, jump_to_commit_hash_or_load } = use_scroller_jumpers()
 
 let { fake_commit: hidden_branch_tips_fake_commit, branch_tip_data: hidden_branch_tips_data } = use_hidden_branch_tips()
 
