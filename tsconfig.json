@@ -5,6 +5,7 @@
     "**/dist",
     "**/dists",
     "**/web-dist",
+    "main.js",
     "todo*",
     "**/.vscode",
     "docs",
