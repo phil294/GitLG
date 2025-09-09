@@ -111,7 +111,7 @@ let context_menu_provider = computed(() => () => {
 function dblclick() {
 	if (! branch.value)
 		return
-	// First action is currently always commit
+	// First action is checkout
 	selected_git_action.value = branch_actions(branch.value).value[0] || null
 }
 function trigger_ref_context_menu(/** @type {MouseEvent} */ event) {
