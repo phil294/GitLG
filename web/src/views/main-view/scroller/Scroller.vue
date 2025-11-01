@@ -98,7 +98,7 @@ let commit_context_menu_provider = computed(() => (/** @type {MouseEvent} */ eve
 			selected_git_action.value = action
 		},
 	})).concat({
-		label: 'Copy hash',
+		label: () => Promise.resolve('Copy hash'),
 		icon: 'clippy',
 		action() {
 			exchange_message('clipboard-write-text', hash)

@@ -48,7 +48,7 @@ export let log_action = {
 	storage_key: 'main-log',
 	immediate: false,
 	params: () => Promise.resolve([]),
-	title: '',
+	title: () => Promise.resolve(''),
 }
 
 /** `fetch_branches` should be true usually because otherwise branch data is missing such as tracking_remote_names */

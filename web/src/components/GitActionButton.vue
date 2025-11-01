@@ -4,23 +4,25 @@
 		<div v-if="git_action.icon" class="icon center">
 			<i :class="'codicon-'+git_action.icon" class="codicon" />
 		</div>
-		<div v-if="git_action.title" class="title">
-			{{ git_action.title }}
+		<div v-if="title" class="title">
+			{{ title }}
 		</div>
 	</button>
 </template>
 <script setup>
 import { selected_git_action } from '../data/store'
+import vue_resolved from '../utils/vue-resolved'
 defineOptions({
 	inheritAttrs: false,
 })
-defineProps({
+let props = defineProps({
 	git_action: {
 		/** @type {Vue.PropType<GitAction>} */
 		type: Object,
 		required: true,
 	},
 })
+let title = vue_resolved(props.git_action.title())
 </script>
 <style>
 

@@ -56,7 +56,7 @@ let history_mapped = computed(() =>
 			? filtered_commits.value?.find((commit) =>
 				commit.hash === entry.value) : undefined,
 		git_action: entry.type === 'git' ? {
-			title: 'git ' + entry.value,
+			title: () => Promise.resolve('git ' + entry.value),
 			args: entry.value,
 			description: 'History entry',
 			icon: 'history',

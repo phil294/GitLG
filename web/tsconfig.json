@@ -5,6 +5,7 @@
     "src",
     "../src/global.d.ts"
   ],
+  // "types": ["vite/client"],
   "vueCompilerOptions": {
     "strictTemplates": true,
     // TODO: hard on performance

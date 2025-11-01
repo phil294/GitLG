@@ -24,7 +24,7 @@ function apply_action_replacements(actions, replacements = []) {
 		, Promise.resolve(txt))
 	return actions.map(action => ({
 		...action,
-		title: apply_string_replacements(action.title),
+		title: () => apply_promise_replacements(apply_string_replacements(action.title || '')),
 		description: apply_string_replacements(action.description || ''),
 		// This should better also include the action placement (global, branch, stash, ...),
 		// also 'global' vs. replacements doesn't make any sense in namespace.

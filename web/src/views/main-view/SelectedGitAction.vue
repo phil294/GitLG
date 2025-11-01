@@ -1,8 +1,8 @@
 <template>
 	<div class="selected-git-action">
 		<h2>
-			<template v-if="selected_git_action?.title">
-				{{ selected_git_action.title }} -&nbsp;
+			<template v-if="title">
+				{{ title }} -&nbsp;
 			</template>
 			{{ selected_git_action?.description }}
 		</h2>
@@ -23,6 +23,7 @@
 <script setup>
 import { ref } from 'vue'
 import { selected_git_action, trigger_main_refresh } from '../../data/store'
+import vue_resolved from '../../utils/vue-resolved'
 
 let keep_open = ref(false)
 
@@ -30,6 +31,7 @@ function success() {
 	if (! keep_open.value)
 		selected_git_action.value = null
 }
+let title = vue_resolved(selected_git_action.value?.title())
 </script>
 <style>
 .selected-git-action {

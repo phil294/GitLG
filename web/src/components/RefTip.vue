@@ -77,7 +77,7 @@ let context_menu_provider = computed(() => () => {
 	if (branch.value)
 		return to_context_menu_entries(branch_actions(branch.value).value)
 			.concat({
-				label: 'Show',
+				label: () => Promise.resolve('Show'),
 				icon: 'eye',
 				action() {
 					if (branch.value)

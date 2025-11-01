@@ -1,4 +1,4 @@
-/** @typedef {{label:string,icon?:string,action:()=>any}} ContextMenuEntry */
+/** @typedef {{label:()=>Promise<string>,icon?:string,action:()=>any}} ContextMenuEntry */
 /**
 @typedef {{
 	oncontextmenu: (this: HTMLElement, ev: MouseEvent) => any
@@ -57,7 +57,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 	let wrapper_el = null
 
 	// The element(s) created by this is quite similar to the template of <git-action-button>
-	function build_context_menu(/** @type {MouseEvent} */ event) {
+	async function build_context_menu(/** @type {MouseEvent} */ event) {
 		let entries = entries_provider(event)
 		if (! entries || wrapper_el)
 			return
@@ -66,7 +66,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		wrapper_el.classList.add('context-menu-wrapper')
 		wrapper_el.style.setProperty('left', event.clientX + 'px')
 		wrapper_el.style.setProperty('top', event.clientY + 'px')
-		entries.forEach((entry) => {
+		for (let entry of entries) {
 			let entry_el = document.createElement('li')
 			entry_el.setAttribute('role', 'button')
 			entry_el.setAttribute('tabindex', '-1')
@@ -75,7 +75,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 			if (entry.icon)
 				icon_el.classList.add('codicon', `codicon-${entry.icon}`)
 			let label_el = document.createElement('span')
-			label_el.textContent = entry.label
+			label_el.textContent = await entry.label()
 			entry_el.appendChild(icon_el)
 			entry_el.appendChild(label_el)
 			entry_el.onfocus = () => {
@@ -83,7 +83,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 				remove_all_context_menus()
 			}
 			wrapper_el?.appendChild(entry_el)
-		})
+		}
 		document.body.appendChild(wrapper_el)
 	}
 
