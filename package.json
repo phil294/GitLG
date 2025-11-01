@@ -238,7 +238,7 @@
 						"stage": "#d7d700",
 						"staging": "#d7d700",
 						"production": "#d7d700",
-						"HEAD": "#ffffff"
+						"HEAD": null
 					}
 				},
 				"git-log--graph.hide-quick-branch-tips": {

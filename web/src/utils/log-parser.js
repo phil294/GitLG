@@ -437,7 +437,6 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius,
 				id: name,
 				display_name: name,
 				type: 'stash',
-				color: '#fff',
 			}
 			commit.refs.push(stash_ref)
 			commit.stash = stash_ref

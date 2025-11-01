@@ -99,6 +99,11 @@ function dblclick() {
 <style scoped>
 .ref-tip {
 	background: #1f1f1f;
+	color: #fff;
+	.vscode-light &, .vscode-high-contrast-light & {
+		background: #eee;
+		color: #000;
+	}
 	font-weight: bold;
 	font-style: italic;
 	display: inline-block;
@@ -110,7 +115,6 @@ function dblclick() {
 	max-width: 350px;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	color: white;
 }
 .ref-tip:hover {
 	max-width: unset;
@@ -121,12 +125,18 @@ function dblclick() {
 .ref-tip.head:after {
 	content: ' (HEAD)';
 	color: #fff;
+	.vscode-light &, .vscode-high-contrast-light & {
+		color: #000;
+	}
 }
 .ref-tip.branch {
 	cursor: move;
 }
 .ref-tip.branch.inferred {
 	background: rgba(0,0,0,0.569);
+	.vscode-light &, .vscode-high-contrast-light & {
+		background: rgba(255,255,255,1);
+	}
 	opacity: 0.7;
 	font-weight: normal;
 }
@@ -137,9 +147,15 @@ function dblclick() {
 }
 .ref-tip.branch.dragenter {
 	background: #fff !important;
+	.vscode-light &, .vscode-high-contrast-light & {
+		background: #000 !important;
+	}
 	color: #f00 !important;
 }
 .remote-name-group-entry {
 	color: #fff;
+	.vscode-light &, .vscode-high-contrast-light & {
+		color: #000;
+	}
 }
 </style>
