@@ -11,7 +11,7 @@ let exec = util.promisify(require('child_process').exec)
  * @param args {{on_repo_external_state_change:()=>any, on_repo_infos_change:()=>any}}
  */
 module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_change, on_repo_infos_change }) {
-	/** @type {import('./vscode.git').API} */
+	/** @type {import('./vscode.git').API & import('./vscode-extra.git').API} */
 	let api = vscode.extensions.getExtension('vscode.git')?.exports.getAPI(1) || (() => { throw 'VSCode official Git Extension not found, did you disable it?' })()
 	let last_git_execution = 0
 
@@ -60,23 +60,10 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 
 	/** @type {import('./vscode.git').Repository[]} */
 	let repos_cache = []
-	/** @type {Record<string, any> | null} */
-	let builtin_git_env = null
 	function repos_changed() {
 		// onDidOpenRepository fires multiple times. At first, there isn't even a repos change..
 		if (api.repositories.length === repos_cache.length)
 			return
-		// Get the built-in git env for support interavtive password prompts
-		if (! builtin_git_env)
-			try {
-				if (api.git && 'env' in api.git && api.git.env) {
-					builtin_git_env = api.git.env
-					logger.info('Captured built-in git env')
-				}
-			} catch (e) {
-				logger.info(`Failed capturing built-in git env: ${e.message}`)
-			}
-
 		debounce(() => {
 			logger.info('workspace: repo(s) added/removed')
 			api.repositories
@@ -140,8 +127,11 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 						// 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format
 						// is 538 MB or 7.4 MB for the first 15k commits
 						maxBuffer: 1024 * 1024 * 35,
-						// Merge captured built-in env if available
-						env: builtin_git_env ? { ...process.env, ...builtin_git_env } : process.env,
+						env: {
+							...process.env,
+							// Get the built-in git env to support interavtive password prompts using ASKPASS
+							...api.git.env,
+						},
 					})
 				last_git_execution = Date.now()
 				return stdout
