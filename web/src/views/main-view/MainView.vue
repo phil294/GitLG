@@ -25,7 +25,7 @@
 				</nav>
 				<div id="quick-branch-tips">
 					<all-branches @branch_selected="jump_to_branch_tip_or_load($event)" />
-					<history @branch_selected="jump_to_branch_tip_or_load($event)" @commit_clicked="$event=>jump_to_commit_hash_or_load($event)" />
+					<history @commit_clicked="jump_to_commit_hash_or_load($event)" />
 					<div v-if="show_quick_branch_tips && !hidden_branch_tips_data.length" id="git-status">
 						<p v-if="web_phase === 'initializing_repo'" class="loading">
 							Loading...
