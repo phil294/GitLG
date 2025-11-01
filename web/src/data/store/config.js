@@ -45,12 +45,12 @@ export default {
 				return null
 			return {
 				title: String(v.title),
-				description: String(v.description),
-				info: String(v.info),
+				description: String(v.description ?? ''),
+				info: String(v.info ?? ''),
 				immediate: Boolean(v.immediate),
 				ignore_errors: Boolean(v.ignore_errors),
-				args: String(v.args),
-				icon: String(v.icon),
+				args: String(v.args ?? ''),
+				icon: String(v.icon ?? ''),
 				params: ! Array.isArray(v.params) ? [] : v.params.map(p =>
 					typeof p === 'string' ? p
 						: ! is_object(p) ? null
