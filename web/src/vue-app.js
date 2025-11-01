@@ -38,6 +38,8 @@ app.config.warnHandler = handle_error
 
 // When adding global components here, also change in vite-config > components.d.ts
 app.component('RecycleScroller', RecycleScroller)
+
+// These are auto-added to type decl
 let sfcs = import.meta.glob('./**/*.vue', { eager: true })
 for (let path in sfcs)
 	app.component(path.split('/').pop()?.split('.')[0] || '???', /** @type {any} */ (sfcs)[path].default)

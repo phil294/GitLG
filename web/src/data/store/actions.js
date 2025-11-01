@@ -13,7 +13,7 @@ import config from '../store/config'
 function apply_action_replacements(actions, replacements = []) {
 	let namespace = replacements.map(([k]) => k).join('-') || 'global'
 	let replacements_by_type = replacements.reduce((all, replacement) =>
-		/** tsc doesn't understand of this */ ((/** @type {any} */ (all)[typeof replacement[1]] ??= []).push(replacement), all), /** @type {{string:[string,string][], function:[string,()=>Promise<string>][]}} */ ({ string: [], function: [] }))
+		/** tsc doesn't understand any of this */ ((/** @type {any} */ (all)[typeof replacement[1]] ??= []).push(replacement), all), /** @type {{string:[string,string][], function:[string,()=>Promise<string>][]}} */ ({ string: [], function: [] }))
 	let apply_string_replacements = (/** @type {string} */ txt) =>
 		replacements_by_type.string.reduce((str, replacement) =>
 			str.replaceAll(replacement[0], replacement[1]), txt)

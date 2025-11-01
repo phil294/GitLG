@@ -11,6 +11,7 @@ img/demo*.png
 jsconfig.json
 yarn.lock
 CONTRIBUTING.md
+testing.md
 vsix-out
 **/*.d.ts
 app
