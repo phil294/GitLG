@@ -81,7 +81,6 @@ export let show_branch = (/** @type {Branch} */ branch_tip) =>
 	trigger_main_refresh({
 		custom_log_args: ({ base_log_args }) =>
 			`${base_log_args} -n 15000 ${branch_tip.id}`,
-		fetch_branches: false,
 		fetch_stash_refs: false,
 	})
 
@@ -91,7 +90,6 @@ export let show_commit_hash = async (/** @type {string} */ hash) => {
 		custom_log_args: ({ base_log_args }) =>
 			`${base_log_args} -n 500 ${hash}`,
 		fetch_stash_refs: false,
-		fetch_branches: false,
 	})
 	show_information_message(`The commit '${hash}' wasn't loaded, so GitLG jumped back in time temporarily. To see the previous configuration, click reload at the top right.`)
 	main_view_highlight_refresh_button.value = true

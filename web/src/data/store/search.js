@@ -25,7 +25,6 @@ watch([search_str, where], (_new, [old_search_str, old_where]) => {
 							? `-n 5000 -- "*${escaped}*"`
 							// body:
 							: `-n 5000 --grep="${escaped}"`),
-				fetch_branches: false,
 				fetch_stash_refs: false,
 			})
 		}, 1000)

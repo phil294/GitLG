@@ -226,7 +226,6 @@ function show_file(/** @type {string} */ filepath) {
 	return trigger_main_refresh({
 		custom_log_args: ({ base_log_args }) =>
 			`${base_log_args} --follow -- "${filepath}"`,
-		fetch_branches: false,
 		fetch_stash_refs: false,
 	})
 }

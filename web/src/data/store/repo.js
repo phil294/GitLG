@@ -51,6 +51,7 @@ export let log_action = {
 	title: '',
 }
 
+/** `fetch_branches` should be true usually because otherwise branch data is missing such as tracking_remote_names */
 async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true, fetch_branches = true } = {}) {
 	// TODO: \0
 	let sep = '^%^%^%^%^'
