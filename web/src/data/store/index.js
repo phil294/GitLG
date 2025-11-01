@@ -9,21 +9,30 @@ export let web_phase = state('web-phase', 'initializing', undefined, { write_onl
 /** @type {Vue.Ref<Readonly<Vue.ShallowRef<typeof import('../../components/GitInput.vue')|null>>|null>} */
 export let main_view_git_input_ref = ref(null)
 export let main_view_highlight_refresh_button = ref(false)
+/** @type {(() => unknown)[]} */
+let trigger_main_refresh_listeners = []
 /** @param options {{custom_log_args?: ((log_args: { user_log_args: string, default_log_args: string, base_log_args: string}) => string) | undefined, fetch_stash_refs?: boolean, fetch_branches?: boolean}} @returns {Promise<void>}} */
 export let trigger_main_refresh = (options = {}) => {
-	console.warn('refreshing main view')
+	console.info('GitLG: trigger main refresh')
 	main_view_highlight_refresh_button.value = !! options.custom_log_args
 	// @ts-ignore TODO: types seem correct like hinted by docs https://vuejs.org/guide/typescript/composition-api.html#typing-component-template-refs
 	// but volar doesn't like it
-	return main_view_git_input_ref.value?.value?.execute({
+	return main_view_git_input_ref.value?.value?.execute({ // <- this is the function in GitInput.vue
 		...options,
 		before_execute: (/** @type {string} */ cmd) => options.custom_log_args?.({
 			user_log_args: cmd,
 			default_log_args: repo_store.log_action.args,
 			base_log_args: repo_store.base_log_args + ' --author-date-order',
 		}) || cmd,
-	})
+	}).then(() =>
+		trigger_main_refresh_listeners.forEach(cb => cb()))
 }
+/**
+ * This is a good place to react to changes that may or may not have changed some git-related data,
+ * like on branch creation, repo change, custom action run, ...
+ */
+export let on_trigger_main_refresh = (/** @type {() => unknown} */ cb) =>
+	trigger_main_refresh_listeners.push(cb)
 
 /** @param log_args {string} @param options {{ fetch_stash_refs?: boolean, fetch_branches?: boolean }} */
 export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branches } = {}) => {

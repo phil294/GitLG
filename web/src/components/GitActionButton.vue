@@ -10,8 +10,8 @@
 	</button>
 </template>
 <script setup>
-import { selected_git_action } from '../data/store'
-import vue_resolved from '../utils/vue-resolved'
+import { ref } from 'vue'
+import { on_trigger_main_refresh, selected_git_action } from '../data/store'
 defineOptions({
 	inheritAttrs: false,
 })
@@ -22,7 +22,12 @@ let props = defineProps({
 		required: true,
 	},
 })
-let title = vue_resolved(props.git_action.title())
+let title = ref('Loading...')
+let refresh_title = () =>
+	props.git_action.title().then(t =>
+		title.value = t)
+refresh_title()
+on_trigger_main_refresh(refresh_title)
 </script>
 <style>
 

@@ -102,10 +102,15 @@ The only required parameters per action are `title` and `args`.
 		// never hold double quotes themselves.
 		"args": "switch \"$1\"",
 		// Default values for the `args` placeholders.
-		// You can write anything here, including the special keywords like
-		// `{BRANCH_NAME}`, see below.
 		// All params are automatically marked required.
-		"params": [{ "value": "{LOCAL_BRANCH_NAME}", "multiline": false, "placeholder": "Branch name", "readonly": false }],
+		"params": [{
+			// You can write anything here, including the special keywords like
+			// `{BRANCH_NAME}`, see below.
+			"value": "{LOCAL_BRANCH_NAME}",
+			"multiline": false,
+			"placeholder": "Branch name",
+			"readonly": false
+		}],
 		// `options` are just an easy and quick way to toggle
 		// common trailing options.
 		// You can also specify them manually in `args` of course,
