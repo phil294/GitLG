@@ -79,7 +79,7 @@ textarea {
 	outline-color: var(--vscode-input-border);
 	background-color: var(--vscode-input-background);
 	border-radius: 2px;
-	border: 1px solid var(--vscode-settings-textInputBorder, var(--vscode-input-background));
+	border: 1px solid var(--vscode-input-border, var(--vscode-settings-textInputBorder));
     line-height: 18px;
     padding: 3px 4px;
 }
