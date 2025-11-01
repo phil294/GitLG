@@ -1,4 +1,7 @@
-/** @param el {HTMLElement} @param arg {{value: any}} */
+/**
+ * @param el {HTMLElement}
+ * @param arg {{value: any}}
+ */
 function updated(el, { value }) {
 	if (value)
 		el.setAttribute('draggable', 'true')

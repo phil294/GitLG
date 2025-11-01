@@ -1,10 +1,10 @@
-/** @typedef {{label:()=>Promise<string>,icon?:string,action:()=>any}} ContextMenuEntry */
+/** @typedef {{ label: () => Promise<string>, icon?: string, action: () => void}} ContextMenuEntry */
 /**
-@typedef {{
-	oncontextmenu: (this: HTMLElement, ev: MouseEvent) => any
-	destroy: () => any
-	entries_provider: (ev: MouseEvent) => ContextMenuEntry[]
-}} ContextMenuData
+ * @typedef {{
+ *	oncontextmenu: (this: HTMLElement, ev: MouseEvent) => void
+ *	destroy: () => void
+ *	entries_provider: (ev: MouseEvent) => ContextMenuEntry[]
+ * }} ContextMenuData
  */
 
 /** @type {Map<HTMLElement,ContextMenuData>} */

@@ -46,10 +46,13 @@ let storage_providers = {
 
 /** @typedef {Record<string, Json>} ActualConfig Necessary as config schema isn't enforced by VSCode */
 
+// eslint-disable-next-line jsdoc/reject-any-type
+/** @typedef {StorageProvider<any>} AnyStorageProvider */
+
 /**
  * There can also be dynamic states, aka GitInput states.
  * This object only bootstraps the static ones. `state()` eventually accepts both.
- * @satisfies {Record<string, {type: string, storage: StorageProvider<any>}>}
+ * @satisfies {Record<string, {type: 'special'|'repo'|'memory'|'global', storage: AnyStorageProvider}>}
  */
 let static_states = {
 	config: {

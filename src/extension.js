@@ -23,7 +23,8 @@ module.exports.log = logger
  * Necessary because there's no global error handler for VSCode extensions https://github.com/microsoft/vscode/issues/45264
  * and the suggested alternative of installing a TelemetryLogger fails when the user has set {"telemetry.telemetryLevel": "off"}.
  * Also we're not doing any telemetry but only want to catch the errors for better formatting and display.
- * @template {(...args: any[]) => any} Fun
+ eslint-disable-next-line jsdoc/reject-any-type
+ * @template {AnyFunction} Fun
  * @param fun {Fun}
  * @returns {Fun}
  */
@@ -107,7 +108,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		view.onDidReceiveMessage(intercept_errors((/** @type {BridgeMessage} */ message) => {
 			logger.debug('receive from webview: ' + JSON.stringify(message))
 			let data = message.data
-			async function h(/** @type {() => any} */ func) {
+			async function h(/** @type {AnyFunction} */ func) {
 				/** @type {BridgeMessage} */
 				let resp = {
 					type: 'response-to-web',

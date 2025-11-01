@@ -4,6 +4,9 @@ interface String {
 
 type Json = null | string | number | boolean | Json[] | { [key: string]: Json };
 
+// https://github.com/gajus/eslint-plugin-jsdoc/issues/1571
+type AnyFunction = (...args: any[]) => any
+
 interface BridgeMessage {
 	type: 'response-to-web' | 'request-from-web' | 'push-to-web',
 	command?: string,

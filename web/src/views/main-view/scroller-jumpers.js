@@ -8,6 +8,7 @@ import { is_regex as search_is_regex, search_str, type as search_type } from '..
 export let use_scroller_jumpers = () => {
 	// TODO:
 	// /** @type {Vue.ShallowRef<typeof import('./Scroller.vue')|null>} */
+	// eslint-disable-next-line jsdoc/reject-any-type
 	/** @type {any} */
 	let scroller_ref = useTemplateRef('scroller_ref')
 	function jump_to_index_centered(/** @type {number} */ index) {

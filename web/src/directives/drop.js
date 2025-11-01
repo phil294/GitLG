@@ -1,14 +1,14 @@
 // For testing:
 // https://jsfiddle.net/5Lmpxb1r/
 
-/** @typedef {{ data?: any, files?: FileList, event: DragEvent }} DropCallbackPayload */
+/** @typedef {{ data?: unknown, files?: FileList, event: DragEvent }} DropCallbackPayload */
 
 /**
  * @typedef {{
- * 	ondragover: (this: HTMLElement, ev: DragEvent) => any
- * 	ondragenter: (this: HTMLElement, ev: DragEvent) => any
- * 	ondragleave: (this: HTMLElement, ev: DragEvent) => any
- * 	ondrop: (this: HTMLElement, ev: DragEvent) => any
+ * 	ondragover: (this: HTMLElement, ev: DragEvent) => void
+ * 	ondragenter: (this: HTMLElement, ev: DragEvent) => void
+ * 	ondragleave: (this: HTMLElement, ev: DragEvent) => void
+ * 	ondrop: (this: HTMLElement, ev: DragEvent) => void
  * 	ondrop_cb: (payload: DropCallbackPayload) => void
  * }} DragData
  */

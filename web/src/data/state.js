@@ -2,7 +2,10 @@ import { computed, nextTick, shallowRef } from 'vue'
 import { add_push_listener, exchange_message } from '../bridge'
 
 /** @typedef {import('.../../src/state').StateKey} StateKey */
-/** @template {StateKey} K @typedef {import('.../../src/state').StateType<K>} StateType */
+/**
+ * @template {StateKey} K
+ * @typedef {import('.../../src/state').StateType<K>} StateType
+ */
 /**
  * @template {StateKey} K
  * @typedef {{
@@ -14,7 +17,12 @@ import { add_push_listener, exchange_message } from '../bridge'
 
 /** @type {{[key in StateKey]?: State<key>}} */
 let _states = {}
-add_push_listener('state-update', (/** @template {StateKey} K @type {{data?: {key: K, value: NonNullable<StateType<K>>}}} */ msg) => {
+add_push_listener('state-update', (
+	/**
+	 * @template {StateKey} K
+	 * @type {{data?: {key: K, value: NonNullable<StateType<K>>}}}
+	 */
+	msg) => {
 	let { data: { key, value } = {} } = msg
 	if (key && value && _states[key]) {
 		_states[key]._internal.value = value // Skip the unnecessary roundtrip to backend
@@ -28,7 +36,7 @@ add_push_listener('state-update', (/** @template {StateKey} K @type {{data?: {ke
  * @template {StateKey} K
  * @param {K} key
  * @param {NonNullable<StateType<K>>} default_value
- * @param {() => any} on_load=
+ * @param {() => void} on_load=
  * @param {{ write_only?: boolean }} opt
  */
 let state = (key, default_value, on_load = () => {}, { write_only } = {}) => {

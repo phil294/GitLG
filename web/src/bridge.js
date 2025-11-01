@@ -31,6 +31,8 @@ window.addEventListener('message', (msg_event) => {
 	}
 })
 
+// TODO: make type-safe
+// eslint-disable-next-line jsdoc/reject-any-type
 export let exchange_message = async (/** @type {string} */ command, /** @type {any} */ data) => {
 	message_id_counter++
 	/** @type {BridgeMessage} */

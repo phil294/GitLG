@@ -11,7 +11,10 @@ export let main_view_git_input_ref = ref(null)
 export let main_view_highlight_refresh_button = ref(false)
 /** @type {(() => unknown)[]} */
 let trigger_main_refresh_listeners = []
-/** @param options {{custom_log_args?: ((log_args: { user_log_args: string, default_log_args: string, base_log_args: string}) => string) | undefined, fetch_stash_refs?: boolean, fetch_branches?: boolean}} @returns {Promise<void>}} */
+/**
+ * @param options {{custom_log_args?: ((log_args: { user_log_args: string, default_log_args: string, base_log_args: string}) => string) | undefined, fetch_stash_refs?: boolean, fetch_branches?: boolean}}
+ * @returns {Promise<void>}}
+ */
 export let trigger_main_refresh = (options = {}) => {
 	console.info('GitLG: trigger main refresh')
 	main_view_highlight_refresh_button.value = !! options.custom_log_args
@@ -34,7 +37,10 @@ export let trigger_main_refresh = (options = {}) => {
 export let on_trigger_main_refresh = (/** @type {() => unknown} */ cb) =>
 	trigger_main_refresh_listeners.push(cb)
 
-/** @param log_args {string} @param options {{ fetch_stash_refs?: boolean, fetch_branches?: boolean }} */
+/**
+ * @param log_args {string}
+ * @param options {{ fetch_stash_refs?: boolean, fetch_branches?: boolean }}
+ */
 export let _run_main_refresh = async (log_args, { fetch_stash_refs, fetch_branches } = {}) => {
 	let preliminary_loading = false
 	if (web_phase.value === 'initializing')

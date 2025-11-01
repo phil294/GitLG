@@ -77,7 +77,10 @@ async function git_log(/** @type {string} */ log_args, { fetch_stash_refs = true
 			config.get_string_map('branch-color-custom-mapping'))
 	return parsed
 }
-/** @param log_args {string} @param options {{ preliminary_loading?: boolean, fetch_stash_refs?: boolean, fetch_branches?: boolean }} */
+/**
+ * @param log_args {string}
+ * @param options {{ preliminary_loading?: boolean, fetch_stash_refs?: boolean, fetch_branches?: boolean }}
+ */
 let refresh = async (log_args, { preliminary_loading, fetch_stash_refs, fetch_branches }) => {
 	let preliminary_loading_promise = null
 	if (preliminary_loading)
@@ -108,7 +111,11 @@ export let _protected = { unset, refresh }
 /** Subset of `loaded_commits` */
 export let filtered_commits = search_protected.filtered_commits
 
-/** Aka in current viewport. Subset of `commits`. Managed by Scroller.vue only. @type {Vue.Ref<Commit[]>} */
+/**
+ * Aka in current viewport. Subset of `commits`.
+ * Managed by Scroller.vue only.
+ * @type {Vue.Ref<Commit[]>}
+ */
 export let visible_commits = ref([])
 
 watch(visible_commits, async () => {

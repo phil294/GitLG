@@ -98,7 +98,8 @@ main_view_git_input_ref.value = git_input_ref
 let log_config_open = ref(false)
 /**
  * Performance bottlenecks, in this order: Renderer (solved with virtual scroller, now always only a few ms), git cli (depends on both repo size and -n option and takes between 0 and 30 seconds, only because of its --graph computation), processing/parsing/transforming is about 1%-20% of git.
- * @param log_args {string} @param options {{fetch_stash_refs?: boolean, fetch_branches?: boolean}}
+ * @param log_args {string}
+ * @param options {{fetch_stash_refs?: boolean, fetch_branches?: boolean}}
  */
 async function run_log(/** @type {string} */ log_args, options) {
 	let is_initializing_repo = web_phase.value === 'initializing_repo'

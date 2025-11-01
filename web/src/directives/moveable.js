@@ -1,5 +1,5 @@
 /**
- * @type {Vue.DirectiveHook<HTMLElement, null, { move_target?: HTMLElement | 'parent' | null, onmovestart?: () => any, onmoveend?: (move_result: { offset: { x: number, y: number } }) => any, snap_back?: boolean }>}
+ * @type {Vue.DirectiveHook<HTMLElement, null, { move_target?: HTMLElement | 'parent' | null, onmovestart?: () => void, onmoveend?: (move_result: { offset: { x: number, y: number } }) => void, snap_back?: boolean }>}
  * Make element movable. Does not have to be the directive el itself.
  * Side effect: This makes the element become position absolute permanently.
  */

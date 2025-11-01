@@ -8,6 +8,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import '@vscode/codicons/dist/codicon.css'
 
 let console_error = console.error
+// eslint-disable-next-line jsdoc/reject-any-type
 function handle_error(/** @type {any[]} */ ...args) {
 	let prompt_error = args.map((x) =>
 		typeof x === 'string' ? x : x ? (
@@ -42,6 +43,7 @@ app.component('RecycleScroller', RecycleScroller)
 // These are auto-added to type decl
 let sfcs = import.meta.glob('./**/*.vue', { eager: true })
 for (let path in sfcs)
+	// eslint-disable-next-line jsdoc/reject-any-type
 	app.component(path.split('/').pop()?.split('.')[0] || '???', /** @type {any} */ (sfcs)[path].default)
 
 app.mount('#app')

@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-export default (/** @type {Promise<any> | undefined} */ promise) => {
+export default (/** @type {Promise<string> | undefined} */ promise) => {
 	if (! promise)
 		return ''
 	let resolved = ref('Loading...')
