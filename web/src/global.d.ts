@@ -1,0 +1,1 @@
+import Vue = GlobalImports.Vue

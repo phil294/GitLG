@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": [
+    "*.js",
+    "src",
+    "../src/global.d.ts"
+  ],
+  "vueCompilerOptions": {
+    "strictTemplates": true,
+    // TODO: hard on performance
+    "fallthroughAttributes": true,
+  },
+}

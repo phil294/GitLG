@@ -1,5 +1,3 @@
-import Vue = GlobalImports.Vue
-
 interface String {
 	hashCode(): number
 }

@@ -846,7 +846,7 @@
 	},
 	"scripts": {
 		"postinstall": "cd web && npm install",
-		"type-check": "vue-tsc --noEmit",
+		"type-check": "tsc --noEmit && cd web && npx vue-tsc --noEmit && cd ..",
 		"lint": "eslint . --report-unused-disable-directives --max-warnings 0",
 		"build": "cd web && npm run build && cd .. && rm web-dist/index.html && npx esbuild src/extension.js --bundle --platform=node --outfile=main.js --external:vscode"
 	},
@@ -866,9 +866,7 @@
 		"neostandard": "^0.12.1",
 		"npm-check-updates": "^18.0.1",
 		"ovsx": "^0.10.4",
-		"vite": "^7.0.0",
-		"vsce": "^2.15.0",
-		"vue-tsc": "^3.0.1"
+		"vsce": "^2.15.0"
 	},
 	"dependencies": {
 		"@yaireo/relative-time": "1.0.5",
