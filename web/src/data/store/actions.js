@@ -5,6 +5,15 @@ import { git } from '../../bridge'
 import { default_origin } from '../store/repo'
 import config from '../store/config'
 
+/** @type {{prefix:string,resolve:(str:string)=>Promise<string>}[]} */
+let global_dynamic_var_resolver = [{
+	prefix: 'GIT_CONFIG',
+	resolve: key => git(`config get ${key}`).catch(_ => '??'),
+}, {
+	prefix: 'GIT_EXEC',
+	resolve: args => git(args),
+}]
+
 /**
  * @param actions {ConfigGitAction[]}
  * @param replacements {[string,string|(()=>Promise<string>)][]}
@@ -22,6 +31,17 @@ function apply_action_replacements(actions, replacements = []) {
 			! txt.includes(replacement[0]) ? str_promise
 				: (await str_promise).replaceAll(replacement[0], await replacement[1]())
 		, Promise.resolve(txt))
+			.then(async (txt_) => {
+				for (let { prefix, resolve } of global_dynamic_var_resolver)
+					while (true) {
+						let match = txt_.match(new RegExp(`\\{${prefix}:([^}]+)\\}`))
+						if (! match || match.index == null || ! match[1])
+							break
+						let replaced = await resolve(match[1])
+						txt_ = txt_.slice(0, match.index) + replaced + txt_.slice(match.index + match[0].length)
+					}
+				return txt_
+			})
 	return actions.map(action => ({
 		...action,
 		title: () => apply_promise_replacements(apply_string_replacements(action.title || '')),

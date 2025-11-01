@@ -79,25 +79,55 @@ The only required parameters per action are `title` and `args`.
 "git-log--graph.actions.branch": [
 	// You'll be extending the default actions here with your custom additions:
 	{
-		"title": "Switch", // Whatever you want to appear on the button itself. Title+icon is used as the key for storage upon editing (see `Save` above).
-		"icon": "arrow-swap", // An icon to display next to the title. Choose one from https://microsoft.github.io/vscode-codicons/dist/codicon.html
-		"description": "git switch - Switch branches", // An extended title that will be shown as tooltip on button mouse hover and as a subtitle in the action popup. For the defaults, this is the first NAME line of `git help [the-command]`.
-		// More detailed help to understand what this command is about: Will help more inexperienced users. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the DESCRIPTION section of `git help [the-command]`:
+		// Whatever you want to appear on the button itself.
+		// You can use some special keywords like `{BRANCH_NAME}`, see below.
+		// Title + icon is used as the key for storage upon editing (see `Save` above).
+		"title": "Switch",
+		// An icon to display next to the title.
+		// Choose one from https://microsoft.github.io/vscode-codicons/dist/codicon.html
+		"icon": "arrow-swap",
+		// An extended title that will be shown as tooltip on button mouse hover
+		// and as a subtitle in the action popup. For the defaults, this is
+		// the first NAME line of `git help [the-command]`.
+		"description": "git switch - Switch branches",
+		// More detailed help to understand what this command is about:
+		// Will help more inexperienced users. Will be collapsed by default,
+		// so this may be verbose. For the defaults, this is
+		// largely the DESCRIPTION section of `git help [the-command]`.
 		"info": "Switch to a specified branch. The working tree and the index are updated to match the branch. All new commits will be added to the tip of this branch.\n\nOptionally a new branch could be created with either -c, -C, automatically from a remote branch of bla bla etc",
-		"args": "switch \"$1\"", // The actual command, appended to `git `. This will be executed WITHOUT VALIDATION SO BE CAREFUL. $1, $2 and so on are placeholders for the respective `params`. Double quotes " " are safe around param placeholders as params can never hold double quotes themselves.
-		"params": [{ "value": "{LOCAL_BRANCH_NAME}", "multiline": false, "placeholder": "Branch name", "readonly": false }], // Default values for the `args` placeholders. You can write anything here, including special keywords that include: {BRANCH_DISPLAY_NAME}, {BRANCH_NAME}, {LOCAL_BRANCH_NAME}, {BRANCH_ID}, {REMOTE_NAME}, {COMMIT_HASH}, {COMMIT_BODY}, {COMMIT_HASHES}, {STASH_NAME}, {TAG_NAME}, {SOURCE_BRANCH_NAME}, {TARGET_BRANCH_NAME} and {DEFAULT_REMOTE_NAME} (where it makes sense, respectively). All params are automatically marked required.
-		// `options` are just an easy and quick way to toggle common trailing options. You can also specify them manually in `args` of course, given that `args` is also editable yet again at runtime.
+		// The actual command, appended to `git `. This will be executed
+		// WITHOUT VALIDATION SO BE CAREFUL.
+		// $1, $2 and so on are placeholders for the respective `params`.
+		// Double quotes " " are safe around param placeholders as params can
+		// never hold double quotes themselves.
+		"args": "switch \"$1\"",
+		// Default values for the `args` placeholders.
+		// You can write anything here, including the special keywords like
+		// `{BRANCH_NAME}`, see below.
+		// All params are automatically marked required.
+		"params": [{ "value": "{LOCAL_BRANCH_NAME}", "multiline": false, "placeholder": "Branch name", "readonly": false }],
+		// `options` are just an easy and quick way to toggle
+		// common trailing options.
+		// You can also specify them manually in `args` of course,
+		// given that `args` is also editable yet again at runtime.
 		"options": [
 			{
-				"value": "--detach", // what is to be appended to the input field if toggled
+				// what is to be appended to the input field if toggled
+				"value": "--detach",
 				"default_active": false,
-				// More detailed help to understand what this option is about. Will be collapsed by default, so this may be verbose. For the defaults, this is largely the --option description text of `git help [the-command]`:
+				// More detailed help to understand what this option is about.
+				// Will be collapsed by default, so this may be verbose.
+				// For the defaults, this is largely the --option description
+				// text of `git help [the-command]`:
 				"info": "For inspection and discardable experiments"
 			},
 			{ "value": "--force", "default_active": false },
 		],
-		"immediate": false, // if true, the command executes without another user interaction step and closes again, except on error.
-		"ignore_errors": false // can rarely be useful in combination with `immediate`
+		// if true, the command executes without another user interaction step
+		// and closes again, except on error.
+		"immediate": false,
+		// can rarely be useful in combination with `immediate`
+		"ignore_errors": false
 	}
 ]
 ```
@@ -108,6 +138,16 @@ This is what you'll get:
 ![switch popup](./img/demo4.png)
 
 Please consider opening an issue or PR if you think a certain action or option warrants a place in the defaults.
+
+#### Special keywords in action buttons
+
+The following special keywords can be used inside `title`, `params[].value` and `description`, where it makes sense, respectively:
+
+- `{BRANCH_DISPLAY_NAME}`, `{BRANCH_NAME}`, `{LOCAL_BRANCH_NAME}`, `{BRANCH_ID}`,
+- `{REMOTE_NAME}`, `{COMMIT_HASH}`, `{COMMIT_BODY}`, `{COMMIT_HASHES}`,
+- `{STASH_NAME}`, `{TAG_NAME}`, `{SOURCE_BRANCH_NAME}`, `{TARGET_BRANCH_NAME}`,
+- `{DEFAULT_REMOTE_NAME}`, `{GIT_CONFIG:...some prop...}` e.g. `{GIT_CONFIG:user.name}`,
+- `{GIT_EXEC:[...some cmd...]}` e.g. `{GIT_EXEC:remote show}`
 
 ### Other config options
 
@@ -126,7 +166,7 @@ Please consider opening an issue or PR if you think a certain action or option w
 			"As a regular editor tab, so it will be treated like one of your open files",
 			"As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
 		]
-	},
+	},w
 	"git-log--graph.group-branch-remotes": {
 		"description": "If active, branches and their origins will be merged into a single branch-tip bubble, but only if there is no ambiguity.",
 		"type": "boolean",
