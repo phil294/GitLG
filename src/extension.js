@@ -1,7 +1,5 @@
 let vscode = require('vscode')
 let path = require('path')
-let postcss = require('postcss')
-let postcss_sanitize = require('postcss-sanitize')
 let RelativeTime = require('@yaireo/relative-time')
 let relative_time = new RelativeTime()
 require('./globals')
@@ -196,9 +194,6 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 			? view.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'web-dist')) + '/'
 			: dev_server_url
 		let custom_css = get_config().get('custom-css')
-		if (custom_css)
-			// @ts-ignore
-			custom_css = await postcss([postcss_sanitize({})]).process(custom_css, { from: undefined }).then((c) => c.css).catch(() => 0)
 		let loading_prompt = is_production
 			? 'Loading (this should not take long)'
 			: 'Trying to connect to dev server... See CONTRIBUTING.md > "Building" for instructions'
