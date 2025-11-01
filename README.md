@@ -171,7 +171,7 @@ The following special keywords can be used inside `title`, `params[].value` and 
 			"As a regular editor tab, so it will be treated like one of your open files",
 			"As a view in the Source Control side nav section. You will also be able to drag it to any other place in the interface."
 		]
-	},w
+	},
 	"git-log--graph.group-branch-remotes": {
 		"description": "If active, branches and their origins will be merged into a single branch-tip bubble, but only if there is no ambiguity.",
 		"type": "boolean",
