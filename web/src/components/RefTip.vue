@@ -121,12 +121,14 @@ function dblclick() {
 }
 .ref-tip.head {
 	/* box-shadow: 0px 0px 6px 4px rgba(255,255,255,0.188), 0px 0px 4px 0px rgba(255,255,255,0.188) inset; */
-}
-.ref-tip.head:after {
-	content: ' (HEAD)';
-	color: #fff;
+	&:after {
+		content: ' (HEAD)';
+		color: #fff;
+	}
 	.vscode-light &, .vscode-high-contrast-light & {
-		color: #000;
+		&:after {
+			color: #000;
+		}
 	}
 }
 .ref-tip.branch {
