@@ -64,6 +64,7 @@ run npx vite-bundle-visualizer
 popd
 pause
 
+# TODO: rm esbuild again with postcss gone
 run npm run build
 echo built. manual tests:
 pause

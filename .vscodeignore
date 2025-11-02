@@ -16,3 +16,5 @@ vsix-out
 **/*.d.ts
 app
 eslint.config.mjs
+tsconfig.json
+tsconfig.base.json
