@@ -1,10 +1,16 @@
 # GitLG: VSCode extension
 
-GitLG, previously known as "git-log--graph", is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Four_essential_freedoms_of_Free_Software), customizable Git UI.
+GitLG, previously known as **"git-log--graph"**, is a [free](https://en.wikipedia.org/wiki/Free_and_open-source_software#Four_essential_freedoms_of_Free_Software), customizable Git UI.
 
 ![demo](./img/demo6.png)
 
-Also available as a "view" with option `"git-log--graph.position": "view"`
+* Details panel can be moved to the bottom with option `"git-log--graph.details-panel-position": "bottom"`
+* You can also hide blue action buttons with option `"git-log--graph.hide-sidebar-buttons": "true"`
+  * These are still available through right-click context menu on commits/branches
+
+![demo](./img/demo8.png)
+
+*  The whole graph view can moved inside a dedicated vscode "view" with option `"git-log--graph.position": "view"`
 
 ![demo](./img/demo7.png)
 
@@ -300,7 +306,7 @@ Michael Hutchison's extension is awesome. It has many features and is a generall
 
  1. [It does not allow redistribution or publishing derivative works.](https://github.com/mhutchie/vscode-git-graph/blob/develop/LICENSE). This means that for every feature request, we need to wait for mhutchie to merge it himself and no forks can be published on the marketplace.
  1. It's a rather complex piece of software for its purpose (~20,000 lines of TS code (LOC) plus another 20,000 for tests) and modifications of any kind almost always require substantial effort.
- 1. There are [49 open issues](https://github.com/mhutchie/vscode-git-graph/labels/feature%20request) tagged as feature request
+ 1. There are [MANY open issues](https://github.com/mhutchie/vscode-git-graph/labels/feature%20request) tagged as feature request
  1. Important features such as sticky header or customizable `git log` arguments are missing
  1. There has been [no activity](https://github.com/mhutchie/vscode-git-graph/commits/develop) for over three years now. Under normal circumstances, this is fine. However, in a project that *by License* depends on a sole maintainer and essentially disallows forks, this is problematic, given its popularity.
 
