@@ -4,6 +4,16 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.34 2025-11-02
+
+- [`117da91`](https://github.com/phil294/GitLG/commit/117da91) Support input interactive passwords for git/ssh, and interactive editor inputs (#53, #168). Thanks to @strayge!
+- [`bccab51`](https://github.com/phil294/GitLG/commit/bccab51) [`085ece5`](https://github.com/phil294/GitLG/commit/085ece5) [`471769b`](https://github.com/phil294/GitLG/commit/471769b) Add param/title special values `{GIT_EXEC:your-command}` and `{GIT_CONFIG:your-key}` so you can show e.g. current user on global action buttons (#169)
+- [`917e960`](https://github.com/phil294/GitLG/commit/917e960) Add `--date=relative` as a convenience option to the main git log options (#156)
+- [`3609667`](https://github.com/phil294/GitLG/commit/3609667) Fix `{REMOTE_NAME}` in show_branch, show_commit and search refreshs (#170)
+- [`615ddfe`](https://github.com/phil294/GitLG/commit/615ddfe) Make ref tip background color light instead of black in light theme (#171)
+- [`a0d768f`](https://github.com/phil294/GitLG/commit/a0d768f) Fix git input textinput border color
+- [`ae3986c`](https://github.com/phil294/GitLG/commit/ae3986c) Hide GitAction description/info fields if empty
+
 ### v0.1.33 2025-07-08
 
 - [`2139102`](https://github.com/phil294/GitLG/commit/2139102) Fix opening the graph view from SCM repo icon (#152)
