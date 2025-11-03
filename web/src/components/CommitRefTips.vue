@@ -1,6 +1,8 @@
 <template>
-	<div class="commit-ref-tips row align-center">
-		<ref-tip v-for="ref of grouped_git_refs" :key="ref.id" :commit="commit" :git_ref="ref" />
+	<div :class="['commit-ref-tips', 'row', 'align-center', { 'flex-wrap': allow_wrap }]">
+		<div v-for="ref of grouped_git_refs" :key="ref.id" class="ref-item" @click.stop>
+			<ref-tip :commit="commit" :git_ref="ref" :show_buttons="show_buttons" />
+		</div>
 	</div>
 </template>
 <script setup>
@@ -12,6 +14,24 @@ let props = defineProps({
 		required: true,
 		/** @type {Vue.PropType<Commit>} */
 		type: Object,
+	},
+	refs: {
+		required: false,
+		/** @type {Vue.PropType<GitRef[]>} */
+		type: Array,
+		default: null,
+	},
+	allow_wrap: {
+		type: Boolean,
+		default: false,
+	},
+	show_buttons: {
+		type: Boolean,
+		default: false,
+	},
+	ref_title: {
+		type: Function,
+		default: null,
 	},
 })
 
@@ -27,12 +47,17 @@ function group_same_name_branches_into_one(/** @type {Branch[]} */ branches) {
 }
 
 let grouped_git_refs = computed(() => {
+	const input_refs = props.refs || props.commit.refs
 	if (config.get_boolean_or_undefined('group-branch-remotes') === false)
-		return props.commit.refs
-	return Object.values(props.commit.refs.reduce((/** @type {Record<string, GitRef[]>} */ all, ref) => {
+		return input_refs
+
+	// Group refs by name
+	const grouped_by_name = input_refs.reduce((/** @type {Record<string, GitRef[]>} */ all, ref) => {
 		all[ref.name] = [...all[ref.name] || [], ref]
 		return all
-	}, {}))
+	}, {})
+
+	return Object.values(grouped_by_name)
 		.map(name_group => {
 			let as_branches = name_group.filter(is_branch)
 			let is_all_branches = as_branches.length === name_group.length
@@ -47,5 +72,13 @@ let grouped_git_refs = computed(() => {
 .commit-ref-tips {
 	line-height: 1em;
 	z-index: 1;
+}
+.commit-ref-tips.flex-wrap {
+	flex-wrap: wrap;
+}
+.ref-item {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
 }
 </style>
