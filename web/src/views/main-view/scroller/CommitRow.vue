@@ -6,7 +6,7 @@
 				<div :style="commit.branch? {color:commit.branch.color} : undefined" class="vis-ascii-circle vis-resize-handle" @mousedown="vis_resize_handle_mousedown">
 					●&nbsp;
 				</div>
-				<commit-ref-tips class="flex-noshrink" :commit="commit" />
+				<commit-ref-tips class="flex-noshrink" :commit="commit" :allow_wrap="false" :show_buttons="false" />
 				<div class="subject">
 					&nbsp;{{ commit.subject }}
 				</div>
