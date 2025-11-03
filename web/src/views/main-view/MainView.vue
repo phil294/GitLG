@@ -12,6 +12,8 @@
 					</details>
 					<repo-selection />
 					<aside class="center gap-20">
+						<all-branches @branch_selected="jump_to_branch_tip_or_load($event)" />
+						<history @commit_clicked="jump_to_commit_hash_or_load($event)" />
 						<search-input id="search" @jump_to_commit="jump_to_commit_and_select" />
 						<section id="actions" aria-roledescription="Global actions" class="center gap-5">
 							<git-action-button v-for="action, i of global_actions" :key="i" :git_action="action" class="global-action" />
@@ -24,8 +26,6 @@
 					</aside>
 				</nav>
 				<div id="quick-branch-tips">
-					<all-branches @branch_selected="jump_to_branch_tip_or_load($event)" />
-					<history @commit_clicked="jump_to_commit_hash_or_load($event)" />
 					<div v-if="show_quick_branch_tips && !hidden_branch_tips_data.length" id="git-status">
 						<p v-if="web_phase === 'initializing_repo'" class="loading">
 							Loading...
@@ -197,28 +197,23 @@ details#log-config[open] {
 #main-panel #quick-branch-tips > button:hover {
 	z-index: 1;
 }
-#main-panel #quick-branch-tips > #all-branches,
-#main-panel #quick-branch-tips > #history {
+:deep(#show-all-branches[open] > .dv),
+:deep(#history[open] > .dv) {
 	position: absolute;
+	top: calc(100% + 5px);
 	background: var(--vscode-editorWidget-background);
 	border: 1px solid var(--vscode-editorWidget-border);
-	padding: 5px;
-	padding-right: 10px;
 	border-radius: 5px;
-}
-#main-panel #quick-branch-tips > #all-branches {
-	top: 15px;
-	right: 10px;
-	z-index: 3;
 	max-width: clamp(300px, 70vw, 80vw);
+	overflow: auto;
+	z-index: 5;
 }
-#main-panel #quick-branch-tips > #history {
-	top: 52px;
-	right: 40px;
-	z-index: 2;
+:deep(#show-all-branches[open] > .dv) {
+	right: 10px;
 }
-#main-panel #quick-branch-tips > #history[open] {
-	left: 39px;
+:deep(#history[open] > .dv) {
+	left: 10%;
+	max-width: 80%;
 }
 #main-panel #quick-branch-tips > #jump-to-top {
 	right: -2px;
