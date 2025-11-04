@@ -296,6 +296,11 @@
 					"type": "boolean",
 					"default": false
 				},
+				"git-log--graph.show-avatars": {
+					"description": "Show avatars for each commit in commit log (using Gravatar).",
+					"type": "boolean",
+					"default": true
+				},
 				"git-log--graph.disable-preliminary-loading": {
 					"description": "Normally, once at extension start, the first few commits are queried and shown thanks to a small request optimized for speed while the rest keeps loading in the background. This is especially helpful with large repos and if the -n option is set to a high value such as 15000, the default number of commits loaded. But since this request does not respect your configured log arguments, you may see slightly different results for a few moments. If it bothers you, you can disable this first small request by setting this option to true.",
 					"type": "boolean",
