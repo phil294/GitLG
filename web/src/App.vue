@@ -336,7 +336,7 @@ ul.context-menu-wrapper > li:hover, ul.context-menu-wrapper > li.selected {
 <style scoped>
 #vue-app {
 	height: 100vh;
-	width: 100vw;
+	width: 100%;
 }
 .error {
 	background: #ffffe0;
