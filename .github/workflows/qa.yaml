@@ -9,6 +9,7 @@ on:
     branches:
       - main
       - master
+      - dev
 
 jobs:
   lint_and_build:
@@ -27,6 +28,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "npm"
       - run: npm ci
+      - run: npm run build
       - run: npm run type-check
       - run: npm run lint
-      - run: npm run build

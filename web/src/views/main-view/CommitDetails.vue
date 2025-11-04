@@ -2,93 +2,60 @@
 	<div class="commit-details">
 		<div class="row fill-h">
 			<div class="left flex-1">
-				<h2 :title="commit.subject" class="summary">
-					{{ commit.subject }}
-				</h2>
-				<p class="body">
-					{{ body }}
-				</p>
-				<div v-if="commit.stash && config_show_buttons" class="stash">
-					<h3>
-						Stash:
-					</h3>
-					<div class="row gap-5 wrap">
-						<git-action-button v-for="action, i of stash_actions" :key="i" :git_action="action" />
-					</div>
-				</div>
-				<div v-if="branch_tips.length" class="branch-tips">
-					<ul v-if="config_show_buttons">
-						<li v-for="branch_tip of branch_tips" :key="branch_tip.id">
-							<ref-tip :commit="commit" :git_ref="branch_tip" />
-							<div class="row gap-5 wrap">
-								<git-action-button v-for="action, i of branch_actions(branch_tip)" :key="i" :git_action="action" />
-								<button class="show-branch btn gap-5" title="Show the log for this branch only. Revert with a simple click on the main refresh button." @click="show_branch(branch_tip)">
-									<i class="codicon codicon-eye" />Show
-								</button>
-							</div>
-						</li>
-					</ul>
-					<commit-ref-tips v-else class="wrap gap-5" :commit="commit" />
-				</div>
-				<div v-if="tags.length" class="tags">
-					<ul v-for="tag, tag_i of tags" :key="tag.id">
-						<li>
-							<ref-tip :commit="commit" :git_ref="tag" />
-							<pre>{{ tag_details[tag_i] }}</pre>
-							<div v-if="config_show_buttons" class="row gap-5 wrap">
-								<git-action-button v-for="action, i of tag_actions(tag.name)" :key="i" :git_action="action" />
-							</div>
-						</li>
-					</ul>
-				</div>
-				<div v-if="config_show_buttons" class="commit">
-					<h3>
-						Commit {{ commit.hash }}
-						<button title="Jump to commit" @click="$emit('hash_clicked',commit.hash)">
-							<i class="codicon codicon-link" />
-						</button>
-					</h3>
-					<div class="row gap-5 wrap">
-						<git-action-button v-for="action, i of commit_actions" :key="i" :git_action="action" />
-					</div>
+				<h3>
+					Commit
+					<span v-if="config_show_buttons" class="actions-menu" @click.stop>
+						<button v-context-menu="commit_context_menu_provider" class="ellipsis-btn" @click="trigger_commit_context_menu($event)">⋯</button>
+					</span>
+				</h3>
+
+				<div v-if="refs_combined.length" class="refs">
+					<commit-ref-tips
+						class="refs-inline gap-5"
+						:commit="commit"
+						:refs="refs_combined"
+						:allow_wrap="true"
+						:show_buttons="config_show_buttons"
+						:ref_title="tag_title"
+					/>
 				</div>
 
+				<div class="commit-details-info">
+					<div class="commit-details-hash">
+						Hash: <a class="commit-hash-link" title="Jump to commit" @click="$emit('hash_clicked',commit.hash)">{{ commit.hash_long }}</a>
+					</div>
+					<div class="commit-details-parents">
+						Parents:
+						<span v-for="parent_hash of parent_hashes" :key="parent_hash" class="parent-inline">
+							<a class="commit-hash-link" title="Jump to commit" @click="$emit('hash_clicked',parent_hash)">{{ parent_hash }}</a>
+						</span>
+					</div>
+					<div class="commit-details-author">
+						Author: {{ author_name }} <span v-if="author_email">&lt;{{ author_email }}&gt;</span>
+						<br>
+						Date: {{ author_date }}
+					</div>
+					<template v-if="!same_author_committer">
+						<div class="commit-details-committer">
+							Committer: {{ committer_name }} <span v-if="committer_email">&lt;{{ committer_email }}&gt;</span>
+							<br>
+							Date: {{ committer_date }}
+						</div>
+					</template>
+					<div class="commit-details-summary">
+						<p class="summary-line">
+							{{ commit.subject }}
+						</p>
+					</div>
+					<div class="commit-details-body">
+						<p class="body">
+							{{ body }}
+						</p>
+					</div>
+				</div>
 				<template v-if="details_panel_position !== 'bottom'">
 					<commit-diff :commit1="commit" />
 				</template>
-
-				<h3>
-					Parent commits
-				</h3>
-				<ul>
-					<li v-for="parent_hash of parent_hashes" :key="parent_hash">
-						{{ parent_hash }}
-						<button title="Jump to commit" @click="$emit('hash_clicked',parent_hash)">
-							<i class="codicon codicon-link" />
-						</button>
-					</li>
-				</ul>
-				<br>
-				<details>
-					<summary class="align-center">
-						Compare...
-					</summary>In order to compare this commit with another one, do <kbd>Ctrl/Cmd</kbd>+Click on any other commit in the main view
-				</details>
-				<h3>
-					Details
-				</h3>
-				<p>
-					Full hash: {{ commit.hash_long }}
-					<button title="Jump to commit" @click="$emit('hash_clicked',commit.hash)">
-						<i class="codicon codicon-link" />
-					</button>
-					<br>
-					<template v-if="filtered_commits.length !== loaded_commits?.length">
-						Index in filtered commits: {{ index_in_filtered_commits }}<br>
-					</template>
-					Index in all loaded commits: {{ index_in_loaded_commits }}<br>
-					Index in raw graph output: {{ commit.index_in_graph_output }}
-				</p>
 			</div>
 			<!-- TODO: fix this duplication with css -->
 			<div :class="details_panel_position === 'bottom' ? 'flex-1' : ''" class="right">
@@ -103,10 +70,10 @@
 <script setup>
 import { ref, computed, watchEffect } from 'vue'
 import { git } from '../../bridge.js'
-import { show_branch } from '../../data/store/index.js'
-import { commit_actions as commit_actions_, stash_actions as stash_actions_, branch_actions as branch_actions_, tag_actions as tag_actions_ } from '../../data/store/actions.js'
-import { filtered_commits, loaded_commits } from '../../data/store/repo.js'
+import { commit_actions as commit_actions_ } from '../../data/store/actions.js'
 import config from '../../data/store/config.js'
+import { selected_git_action } from '../../data/store/index.js'
+import vContextMenu from '../../directives/context-menu'
 
 let props = defineProps({
 	commit: {
@@ -120,17 +87,60 @@ defineEmits(['hash_clicked'])
 let details_panel_position = computed(() =>
 	config.get_string('details-panel-position'))
 
-let branch_tips = computed(() =>
-	props.commit.refs.filter(is_branch))
-
 let tags = computed(() => props.commit.refs.filter((ref_) =>
 	ref_.type === 'tag'))
 /** @type {Vue.Ref<string[]>} */
 let tag_details = ref([])
+// Map ref.id -> tooltip text for tags so CommitRefTips can render title
+let tag_tooltip_by_id = computed(() => new Map(tags.value.map((t, i) => [t.id, tag_details.value[i]])))
+
+// Combined refs (branches + tags) in original order from parser
+let refs_combined = computed(() => props.commit.refs)
+
+/** @param {GitRef} r */
+function tag_title(r) {
+	return tag_tooltip_by_id.value.get(r.id) || 'unknown'
+}
 
 let body = ref('')
 /** @type {Vue.Ref<string[]>} */
 let parent_hashes = ref([])
+
+let author_name = ref('')
+let author_email = ref('')
+let author_date = ref('')
+let committer_name = ref('')
+let committer_email = ref('')
+let committer_date = ref('')
+
+function to_context_menu_entries(/** @type {GitAction[]} */ actions) {
+	return actions.map((action) => ({
+		label: action.title,
+		icon: action.icon,
+		action() {
+			selected_git_action.value = action
+		},
+	}))
+}
+
+let commit_context_menu_provider = computed(() => () => to_context_menu_entries(commit_actions_(props.commit.hash).value))
+
+function trigger_commit_context_menu(/** @type {MouseEvent} */ event) {
+	// Simulate right-click to trigger the existing context menu
+	let contextEvent = new MouseEvent('contextmenu', {
+		bubbles: true,
+		cancelable: true,
+		clientX: event.clientX,
+		clientY: event.clientY,
+	})
+	event.target?.dispatchEvent(contextEvent)
+}
+
+let same_author_committer = computed(() =>
+	author_name.value === committer_name.value &&
+	author_email.value === committer_email.value &&
+	author_date.value === committer_date.value)
+
 watchEffect(async () => {
 	body.value = await git(`show -s --format="%b" ${props.commit.hash}`)
 
@@ -141,41 +151,99 @@ watchEffect(async () => {
 	}
 
 	parent_hashes.value = ((await git(`log --pretty=%p -n 1 ${props.commit.hash}`))).split(' ')
-})
 
-let commit_actions = computed(() =>
-	commit_actions_(props.commit.hash).value)
-let stash_actions = computed(() =>
-	stash_actions_(props.commit.stash?.name || '').value)
-let branch_actions = computed(() => (/** @type {Branch} */ branch) =>
-	branch_actions_(branch).value)
-let tag_actions = computed(() => (/** @type {string} */ tag_name) =>
-	tag_actions_(tag_name).value)
+	// Fetch author/committer details in one go separated by unit separator
+	try {
+		let meta = await git(`show -s --format="%an%x1f%ae%x1f%aI%x1f%cn%x1f%ce%x1f%cI" ${props.commit.hash}`)
+		let [an, ae, aI, cn, ce, cI] = meta.split('\u001f')
+		author_name.value = an || ''
+		author_email.value = ae || ''
+		author_date.value = aI || ''
+		committer_name.value = cn || ''
+		committer_email.value = ce || ''
+		committer_date.value = cI || ''
+	} catch (e) {
+		console.error(`Failed to fetch commit metadata: ${e}`)
+	}
+})
 
 let config_show_buttons = computed(() =>
 	! config.get_boolean_or_undefined('hide-sidebar-buttons'))
-
-let index_in_filtered_commits = computed(() =>
-	props.commit ? filtered_commits.value.indexOf(props.commit) : -1)
-let index_in_loaded_commits = computed(() =>
-	props.commit ? loaded_commits.value?.indexOf(props.commit) || -1 : -1)
-
 </script>
 <style scoped>
-h2.summary {
+h3 {
+	margin-bottom: 5px;
+}
+.summary-line {
 	white-space: pre-line;
 	word-break: break-word;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	margin-top: 0;
+	font-weight: bold;
+	margin: 10px 0 0;
 }
 .body {
 	white-space: pre-wrap;
 	word-break: break-word;
 }
-.branch-tips .ref-tip,
-.tags .ref-tip {
-	margin: 20px 10px 10px;
+.parent-inline { margin-right: 8px; }
+.commit-hash-link {
+	color: var(--vscode-textLink-foreground);
+	cursor: pointer;
+	text-decoration: none;
+	font-family: monospace;
+}
+.commit-hash-link:hover {
+	text-decoration: underline;
+}
+.refs-inline {
+	display: flex;
+	flex-wrap: nowrap;
+	overflow-x: auto;
+	gap: 12px;
+	padding: 4px 0;
+}
+.ref-item {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+}
+.ref-head {
+	display:flex;
+	align-items:center;
+	gap:6px;
+}
+.ref-item .actions {
+	flex-wrap: nowrap;
+}
+.actions-menu {
+	position: relative;
+	display: inline-flex;
+	align-items: stretch;
+}
+.ellipsis-btn {
+	cursor: pointer;
+	border: 1px solid var(--vscode-editorWidget-border);
+	background: var(--vscode-editor-background);
+	color: inherit;
+	padding: 1px 6px;
+	border-radius: 7px;
+	display: inline-flex;
+	align-items:center;
+	line-height:1;
+	height:100%;
+	vertical-align: middle;
+	font-size: inherit;
+}
+.ref-head,
+.stash-head {
+	display:flex;
+	align-items:center;
+	gap:6px;
+}
+.ref-head
+.actions-menu,
+.stash-head
+.actions-menu {
+	height:100%;
 }
 .left,
 .right {

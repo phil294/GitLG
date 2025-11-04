@@ -6,26 +6,36 @@
 				<div :style="commit.branch? {color:commit.branch.color} : undefined" class="vis-ascii-circle vis-resize-handle" @mousedown="vis_resize_handle_mousedown">
 					●&nbsp;
 				</div>
-				<commit-ref-tips class="flex-noshrink" :commit="commit" />
-				<div class="subject">
+				<commit-ref-tips class="flex-noshrink" :commit="commit" :allow_wrap="false" :show_buttons="false" />
+				<div class="subject" @dblclick.stop="on_subject_dblclick">
 					&nbsp;{{ commit.subject }}
 				</div>
 			</div>
 			<div :title="commit.author_name+' <'+commit.author_email+'>'" class="author align-center">
-				{{ commit.author_name }}
-			</div>
-			<div class="stats flex-noshrink row align-center justify-flex-end gap-5">
-				<template v-if="commit.stats?.files_changed">
-					<div class="changes" title="Changed lines in amount of files">
-						<span v-if="commit.stats.insertions != null && commit.stats.deletions != null">
-							<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
-						</span>
-						<span class="grey"> in </span>
-						<span class="grey">{{ commit.stats.files_changed }}</span>
+				<div v-if="show_avatars && commit.author_email" class="avatar-placeholder">
+					<img v-if="author_avatar" :src="author_avatar" class="avatar" alt="">
+					<div v-else class="avatar-initial">
+						{{ commit.author_name?.[0]?.toUpperCase() || '?' }}
 					</div>
-					<progress :value="((commit.stats.insertions || 0) / ((commit.stats.insertions || 0) + (commit.stats.deletions || 0))) || 0" class="diff" title="Ratio insertions / deletions" />
-				</template>
+				</div>
+				<div class="author-name">
+					{{ commit.author_name }}
+				</div>
 			</div>
+			<template v-if="show_commit_stats">
+				<div class="stats flex-noshrink row align-center justify-flex-end gap-5">
+					<template v-if="commit.stats?.files_changed">
+						<div class="changes" title="Changed lines in amount of files">
+							<span v-if="commit.stats.insertions != null && commit.stats.deletions != null">
+								<strong>{{ commit.stats.insertions + commit.stats.deletions }}</strong>
+							</span>
+							<span class="grey"> in </span>
+							<span class="grey">{{ commit.stats.files_changed }}</span>
+						</div>
+						<progress :value="((commit.stats.insertions || 0) / ((commit.stats.insertions || 0) + (commit.stats.deletions || 0))) || 0" class="diff" title="Ratio insertions / deletions" />
+					</template>
+				</div>
+			</template>
 			<div class="datetime flex-noshrink align-center">
 				{{ commit.datetime }}
 			</div>
@@ -38,9 +48,11 @@
 	</div>
 </template>
 <script setup>
-import { computed } from 'vue'
-import { vis_width } from '../../../data/store'
+import { computed, ref, onMounted, watch } from 'vue'
+import { vis_width, selected_git_action } from '../../../data/store'
 import config from '../../../data/store/config'
+import { get_avatar } from '../../../utils/gravatar'
+import { commit_actions } from '../../../data/store/actions'
 
 let props = defineProps({
 	commit: {
@@ -50,6 +62,9 @@ let props = defineProps({
 	},
 	height: { type: Number, default: null },
 })
+
+let show_commit_stats = computed(() =>
+	config.get_boolean_or_undefined('disable-commit-stats') !== true)
 
 let vis_min_width = 15
 let vis_max_width_vw = 90
@@ -75,6 +90,46 @@ function vis_resize_handle_mousedown(/** @type {MouseEvent} */ mousedown_event) 
 }
 let calculated_height = computed(() =>
 	props.height || config.get_number('row-height'))
+
+let show_avatars = computed(() =>
+	config.get_boolean_or_undefined('show-avatars') !== false)
+
+let author_avatar = ref(/** @type {string|null} */ (null))
+
+async function load_avatar() {
+	// Reset first to show initial state during loading
+	author_avatar.value = null
+
+	if (! show_avatars.value || ! props.commit.author_email)
+		return
+
+	try {
+		let avatar_data = await get_avatar(props.commit.author_email)
+		author_avatar.value = avatar_data
+	} catch (e) {
+		console.warn('Failed to load avatar:', e)
+		author_avatar.value = null
+	}
+}
+
+onMounted(() => {
+	load_avatar()
+})
+
+watch(() => props.commit.author_email, () => {
+	load_avatar()
+})
+
+watch(show_avatars, () => {
+	load_avatar()
+})
+
+function on_subject_dblclick() {
+	if (! props.commit?.hash)
+		return
+	// First commit action is checkout
+	selected_git_action.value = commit_actions(props.commit.hash).value[0] || null
+}
 </script>
 <style scoped>
 .commit-row {
@@ -90,8 +145,8 @@ let calculated_height = computed(() =>
 	font-family: monospace;
 }
 .info > .subject-wrapper {
+	flex: 3 1 0;
 	min-width: 150px;
-	display: inline-flex;
 }
 .info > .subject-wrapper:hover {
 	overflow: visible;
@@ -117,9 +172,47 @@ let calculated_height = computed(() =>
 }
 .info > .datetime {
 	font-size: 12px;
+	text-align: left;
+	justify-content: flex-start;
+	display: flex;
+	width: 150px;
+	min-width: 150px;
 }
 .info > .author {
-	max-width: 150px;
+	flex: 1 1 0;
+	text-align: left;
+	justify-content: flex-start;
+	align-items: center;
+}
+.avatar-placeholder {
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	flex-shrink: 0;
+	position: relative;
+	overflow: hidden;
+	margin-right: 4px;
+}
+.avatar {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+.avatar-initial {
+	width: 100%;
+	height: 100%;
+	background: var(--vscode-list-activeSelectionBackground);
+	color: var(--vscode-list-activeSelectionForeground);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 9px;
+	font-weight: bold;
+	border-radius: 50%;
+}
+.author-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .info .stats {
 	width: 91px;

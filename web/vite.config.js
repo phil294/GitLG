@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import { globSync, writeFileSync } from 'fs'
 
 let vue_files = globSync('./src/**/*.vue').map(f => ({
-	name: f.split('/').pop()?.split('.')[0],
+	name: f.replace(/\\/g, '/').split('/').pop()?.split('.')[0],
 	path: '.' + f.slice(3),
 }))
 writeFileSync('./src/components.d.ts', `

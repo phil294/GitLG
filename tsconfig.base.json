@@ -7,6 +7,7 @@
     "todo*",
     "**/.vscode",
     "docs",
+    "main.js",
   ],
   "compilerOptions": {
     "outDir": "/dev/null",
