@@ -10,7 +10,7 @@ export default [
 	{ languageOptions: { globals: { ...globals.browser, ...globals.node } } },
 	...pluginVue.configs['flat/recommended'],
 	jsdoc.configs['flat/recommended-typescript-flavor'],
-	{ ignores: ['web-dist', 'node_modules', '.vscode/.history'] },
+	{ ignores: ['web-dist', 'node_modules', '.vscode/.history', 'main.js'] },
 	{
 		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
 		plugins: { jsdoc },
