@@ -61,6 +61,16 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	let get_config = () =>
 		vscode.workspace.getConfiguration(EXT_ID)
 
+	const get_status_bar_item_priority = () => {
+		const priority = get_config().get('status-bar-priority')
+		return Number.isNaN(Number(priority)) ? 0 : Number(priority)
+	}
+
+	const get_status_bar_item_blame_priority = () => {
+		const priority = get_config().get('status-bar-blame-priority')
+		return Number.isNaN(Number(priority)) ? 500 : Number(priority)
+	}
+
 	let git = get_git(EXT_ID, logger, {
 		on_repo_external_state_change() {
 			return push_message_id('repo-external-state-change')
@@ -298,7 +308,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 		}),
 	}, { webviewOptions: { retainContextWhenHidden: true } }))
 
-	let status_bar_item_start = vscode.window.createStatusBarItem(START_CMD, vscode.StatusBarAlignment.Left)
+	let status_bar_item_start = vscode.window.createStatusBarItem(START_CMD, vscode.StatusBarAlignment.Left, get_status_bar_item_priority())
 	status_bar_item_start.command = `${EXT_ID}.${START_CMD}`
 	status_bar_item_start.name = `${EXT_NAME}: ${START_CMD}`
 	context.subscriptions.push(status_bar_item_start)
@@ -306,7 +316,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 	status_bar_item_start.tooltip = 'Open up the main view of the GitLG extension'
 	status_bar_item_start.show()
 
-	let status_bar_item_blame = vscode.window.createStatusBarItem(BLAME_CMD, vscode.StatusBarAlignment.Right, 500)
+	let status_bar_item_blame = vscode.window.createStatusBarItem(BLAME_CMD, vscode.StatusBarAlignment.Right, get_status_bar_item_blame_priority())
 	status_bar_item_blame.command = `${EXT_ID}.${BLAME_CMD}`
 	status_bar_item_blame.name = `${EXT_NAME}: ${BLAME_CMD}`
 	context.subscriptions.push(status_bar_item_blame)

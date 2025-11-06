@@ -840,6 +840,16 @@
 							}
 						}
 					}
+				},
+				"git-log--graph.status-bar-priority": {
+					"type": "number",
+					"default": 0,
+					"description": "Defines priority of the label. Higher values mean the label should be shown more to the left, requires restart of vscode"
+				},
+				"git-log--graph.status-bar-blame-priority": {
+					"type": "number",
+					"default": 500,
+					"description": "Defines priority of the blame label. Higher values mean the label should be shown more to the left, requires restart of vscode"
 				}
 			}
 		}
