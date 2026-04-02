@@ -5,7 +5,7 @@
 				<h3>
 					Commit
 					<span v-if="config_show_buttons" class="actions-menu" @click.stop>
-						<button v-context-menu="commit_context_menu_provider" class="ellipsis-btn">⋯</button>
+						<button v-context-menu="commit_context_menu_provider" class="btn btn-2 ellipsis-btn">⋯</button>
 					</span>
 				</h3>
 
@@ -208,20 +208,6 @@ h3 {
 	position: relative;
 	display: inline-flex;
 	align-items: stretch;
-}
-.ellipsis-btn {
-	cursor: pointer;
-	border: 1px solid var(--vscode-editorWidget-border);
-	background: var(--vscode-editor-background);
-	color: inherit;
-	padding: 1px 6px;
-	border-radius: 7px;
-	display: inline-flex;
-	align-items:center;
-	line-height:1;
-	height:100%;
-	vertical-align: middle;
-	font-size: inherit;
 }
 .ref-head,
 .stash-head {

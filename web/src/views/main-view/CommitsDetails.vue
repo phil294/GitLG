@@ -5,7 +5,7 @@
 				<h3>
 					{{ commits.length }} commits selected
 					<span class="actions-menu" @click.stop>
-						<button v-context-menu="commits_context_menu_provider" class="ellipsis-btn">⋯</button>
+						<button v-context-menu="commits_context_menu_provider" class="btn btn-2 ellipsis-btn">⋯</button>
 					</span>
 				</h3>
 				<div class="commit-hashes">
@@ -70,21 +70,6 @@ let commits_context_menu_provider = computed(() => () => to_context_menu_entries
 	position: relative;
 	display: inline-flex;
 	align-items: stretch;
-}
-.ellipsis-btn {
-	cursor: pointer;
-	border: 1px solid var(--vscode-editorWidget-border);
-	background: var(--vscode-editor-background);
-	color: inherit;
-	padding: 1px 6px;
-	border-radius: 7px;
-	display: inline-flex;
-	align-items: center;
-	line-height: 1;
-	height: 100%;
-	vertical-align: middle;
-	font-size: inherit;
-	margin-left: 10px;
 }
 .commit-hashes {
 	margin: 10px 0;

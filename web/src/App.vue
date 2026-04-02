@@ -209,11 +209,25 @@ input[type="button"] {
 	white-space: pre-line;
 	line-height: 22px;
 	padding: 1px 13px;
+	vertical-align: middle;
 	text-decoration: none;
 	color: var(--vscode-button-foreground);
 	background: var(--vscode-button-background);
 	border: 1px solid var(--vscode-button-border, var(--vscode-button-background));
     border-radius: 2px;
+	&.btn-2 {
+		background: var(--vscode-editorWidget-background);
+		border: 1px solid var(--vscode-editorWidget-border);
+		border-radius: 7px;
+		color: unset;
+	}
+	&.ellipsis-btn {
+		padding: 1px 6px;
+		line-height: 1;
+		height: 100%;
+		font-size: inherit;
+		margin-left: 10px;
+	}
 }
 /* TODO: ::highlight not supported on FF. exp flag in bin build? */
 .highlighted, .highlighted i.codicon, ::highlight(search) {

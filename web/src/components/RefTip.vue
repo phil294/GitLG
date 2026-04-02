@@ -12,7 +12,7 @@
 		</div>
 		<span v-if="show_buttons" class="ref-separator" />
 		<span v-if="show_buttons" class="actions-menu">
-			<button class="ellipsis-btn" title="Actions">⋯</button>
+			<button class="ellipsis" title="Actions">⋯</button>
 		</span>
 	</div>
 </template>
@@ -187,7 +187,7 @@ function dblclick() {
 	display: inline-flex;
 	align-items: stretch;
 }
-.ellipsis-btn {
+.ellipsis {
 	cursor: pointer;
 	border: none;
 	background: transparent;
@@ -200,7 +200,7 @@ function dblclick() {
 	vertical-align: middle;
 	font-size: inherit;
 }
-.ellipsis-btn:hover {
+.ellipsis:hover {
 	background: var(--vscode-list-hoverBackground);
 }
 </style>
