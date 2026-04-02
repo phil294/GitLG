@@ -59,7 +59,7 @@
 					</button>
 				</template>
 				<template v-else-if="selected_commits.length">
-					<commits-details id="selected-commits" :commits="selected_commits" class="flex-1 fill-w padding" />
+					<commits-details id="selected-commits" :commits="selected_commits" class="flex-1 fill-w padding" @hash_clicked="jump_to_commit_hash_or_load($event)" />
 					<button id="close-selected-commits" class="center" title="Close" @click="selected_commits=[]">
 						<i class="codicon codicon-close" />
 					</button>

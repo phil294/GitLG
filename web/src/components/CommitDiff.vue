@@ -1,7 +1,7 @@
 <template>
 	<div class="commit-diff">
 		<h3>
-			Changes ({{ file_diffs?.length || 0 }})
+			{{ props.commit2 ? 'Changes between commits' : 'Changes' }} ({{ file_diffs?.length || 0 }})
 		</h3>
 		<aside class="actions center">
 			<button class="row" title="View Changes in Multi Diff" @click="show_multi_diff()">
