@@ -12,7 +12,7 @@
 		</div>
 		<span v-if="show_buttons" class="ref-separator" />
 		<span v-if="show_buttons" class="actions-menu">
-			<button class="ellipsis-btn" title="Actions" @click="trigger_ref_context_menu($event)">⋯</button>
+			<button class="ellipsis-btn" title="Actions">⋯</button>
 		</span>
 	</div>
 </template>
@@ -113,23 +113,6 @@ function dblclick() {
 		return
 	// First action is currently always commit
 	selected_git_action.value = branch_actions(branch.value).value[0] || null
-}
-function trigger_ref_context_menu(/** @type {MouseEvent} */ event) {
-	// Trigger context menu from the ref-tip-name element
-	const targetEl = /** @type {HTMLElement} */ (event.currentTarget || event.target)
-	const ref_tip_element = /** @type {HTMLElement} */ (targetEl?.closest('.ref-container')?.querySelector('.ref-tip-name'))
-	if (! ref_tip_element)
-		return
-
-	const contextEvent = new MouseEvent('contextmenu', {
-		bubbles: true,
-		cancelable: true,
-		view: window,
-		clientX: event.clientX,
-		clientY: event.clientY,
-	})
-	ref_tip_element.dispatchEvent(contextEvent)
-	event.stopPropagation()
 }
 </script>
 <style scoped>

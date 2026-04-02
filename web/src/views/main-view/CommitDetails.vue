@@ -5,7 +5,7 @@
 				<h3>
 					Commit
 					<span v-if="config_show_buttons" class="actions-menu" @click.stop>
-						<button v-context-menu="commit_context_menu_provider" class="ellipsis-btn" @click="trigger_commit_context_menu($event)">⋯</button>
+						<button v-context-menu="commit_context_menu_provider" class="ellipsis-btn">⋯</button>
 					</span>
 				</h3>
 
@@ -113,6 +113,7 @@ let committer_name = ref('')
 let committer_email = ref('')
 let committer_date = ref('')
 
+// TODO: import as reusable helper function
 function to_context_menu_entries(/** @type {GitAction[]} */ actions) {
 	return actions.map((action) => ({
 		label: action.title,
@@ -124,17 +125,6 @@ function to_context_menu_entries(/** @type {GitAction[]} */ actions) {
 }
 
 let commit_context_menu_provider = computed(() => () => to_context_menu_entries(commit_actions_(props.commit.hash).value))
-
-function trigger_commit_context_menu(/** @type {MouseEvent} */ event) {
-	// Simulate right-click to trigger the existing context menu
-	let contextEvent = new MouseEvent('contextmenu', {
-		bubbles: true,
-		cancelable: true,
-		clientX: event.clientX,
-		clientY: event.clientY,
-	})
-	event.target?.dispatchEvent(contextEvent)
-}
 
 let same_author_committer = computed(() =>
 	author_name.value === committer_name.value &&

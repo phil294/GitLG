@@ -5,7 +5,7 @@
 				<h3>
 					{{ commits.length }} commits selected
 					<span class="actions-menu" @click.stop>
-						<button v-context-menu="commits_context_menu_provider" class="ellipsis-btn" @click="trigger_commits_context_menu($event)">⋯</button>
+						<button v-context-menu="commits_context_menu_provider" class="ellipsis-btn">⋯</button>
 					</span>
 				</h3>
 				<div class="commit-hashes">
@@ -51,6 +51,7 @@ let details_panel_position = computed(() =>
 
 let commits_actions = computed(() => commits_actions_(props.commits.map((c) => c.hash)).value)
 
+// TODO: import as reusable helper function
 function to_context_menu_entries(/** @type {GitAction[]} */ actions) {
 	return actions.map((action) => ({
 		label: action.title,
@@ -63,16 +64,6 @@ function to_context_menu_entries(/** @type {GitAction[]} */ actions) {
 
 let commits_context_menu_provider = computed(() => () => to_context_menu_entries(commits_actions.value))
 
-function trigger_commits_context_menu(/** @type {MouseEvent} */ event) {
-	// Simulate right-click to trigger the existing context menu
-	let contextEvent = new MouseEvent('contextmenu', {
-		bubbles: true,
-		cancelable: true,
-		clientX: event.clientX,
-		clientY: event.clientY,
-	})
-	event.target?.dispatchEvent(contextEvent)
-}
 </script>
 <style scoped>
 .actions-menu {

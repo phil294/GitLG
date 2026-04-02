@@ -104,6 +104,7 @@ function set_context_menu(/** @type {HTMLElement} */ el, /** @type {(ev: MouseEv
 		entries_provider,
 	}
 	el.addEventListener('contextmenu', context_menu_data.oncontextmenu, false)
+	el.addEventListener('click', context_menu_data.oncontextmenu, false)
 	context_menu_data_by_el.set(el, context_menu_data)
 }
 
@@ -112,6 +113,7 @@ function disable_context_menu(/** @type {HTMLElement} */ el) {
 	if (! context_menu_data)
 		return
 	el.removeEventListener('contextmenu', context_menu_data.oncontextmenu)
+	el.removeEventListener('click', context_menu_data.oncontextmenu)
 	context_menu_data_by_el.delete(el)
 }
 
