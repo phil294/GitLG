@@ -119,7 +119,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 					resp.data = await func()
 				} catch (error) {
 					console.warn(error, caller_stack, func, data)
-					// We can't really just be passing e along here because it might be serialized as empty {}
+					// We can't really just be passing error along here because it might be serialized as empty {}
 					resp.error = error.message || error
 				}
 				return post_message(resp)
