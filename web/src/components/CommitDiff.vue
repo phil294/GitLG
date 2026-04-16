@@ -240,7 +240,7 @@ function show_file(/** @type {string} */ filepath) {
 
 let render_style = state('files-diffs-list-render-style', 'list').ref
 
-// TODO render function instead
+// TODO jsx / render function instead
 let [TemplateFileChangeDefine, TemplateFileChangeReuse] = createReusableTemplate()
 let [TemplateFileActionsDefine, TemplateFileActionsReuse] = createReusableTemplate()
 let [TemplateTreeNodeDefine, TemplateTreeNodeReuse] = createReusableTemplate()

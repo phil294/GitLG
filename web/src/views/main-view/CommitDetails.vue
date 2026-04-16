@@ -16,7 +16,6 @@
 						:refs="refs_combined"
 						:allow_wrap="true"
 						show_buttons
-						:ref_title="tag_title"
 					/>
 				</div>
 
@@ -58,6 +57,19 @@
 						</p>
 					</div>
 				</div>
+				<template v-if="tag_details.some(Boolean)">
+					<h3>
+						Tags
+					</h3>
+					<div v-for="tag, tag_i in tags" :key="tag.name">
+						<h4>
+							{{ tag.name }}
+						</h4>
+						<div class="pre-line">
+							{{ tag_details[tag_i] }}
+						</div>
+					</div>
+				</template>
 				<template v-if="details_panel_position !== 'bottom'">
 					<commit-diff :commit1="commit" />
 				</template>
@@ -96,16 +108,9 @@ let tags = computed(() => props.commit.refs.filter((ref_) =>
 	ref_.type === 'tag'))
 /** @type {Vue.Ref<string[]>} */
 let tag_details = ref([])
-// Map ref.id -> tooltip text for tags so CommitRefTips can render title
-let tag_tooltip_by_id = computed(() => new Map(tags.value.map((t, i) => [t.id, tag_details.value[i]])))
 
 // Combined refs (branches + tags) in original order from parser
 let refs_combined = computed(() => props.commit.refs)
-
-/** @param {GitRef} r */
-function tag_title(r) {
-	return tag_tooltip_by_id.value.get(r.id) || 'unknown'
-}
 
 let body = ref('')
 /** @type {Vue.Ref<string[]>} */

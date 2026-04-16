@@ -193,6 +193,9 @@ html {
 .grey {
 	color: var(--text-secondary) !important;
 }
+.pre-line {
+	white-space: pre-line;
+}
 button {
 	appearance: none;
 	background: initial;

@@ -29,10 +29,6 @@ let props = defineProps({
 		type: Boolean,
 		default: false,
 	},
-	ref_title: {
-		type: Function,
-		default: null,
-	},
 })
 
 function group_same_name_branches_into_one(/** @type {Branch[]} */ branches) {
