@@ -5,8 +5,6 @@ GitLG, previously known as **"git-log--graph"**, is a [free](https://en.wikipedi
 ![demo](./img/demo6.png)
 
 * Details panel can be moved to the bottom with option `"git-log--graph.details-panel-position": "bottom"`
-* You can also hide blue action buttons with option `"git-log--graph.hide-sidebar-buttons": "true"`
-  * These are still available through right-click context menu on commits/branches
 
 ![demo](./img/demo8.png)
 
@@ -214,12 +212,6 @@ The following special keywords can be used inside `title`, `params[].value` and 
 			"string"
 		],
 		"default": "auto"
-	},
-	"git-log--graph.hide-sidebar-buttons": {
-		// "title": "Hide
-		"description": "Set to false to show action buttons for commit, branches, stashes and tags in the detail panel for a selected commit, additionally to being accessible from context menu. This can help with accessibility or when context menu isn't available for other reasons.",
-		"type": "boolean",
-		"default": true
 	},
 	"git-log--graph.folder": {
 		"description": "Use this to overwrite the desired *absolute* path in which a .git folder is located. You usually don't need to do this as folder selection is available from the interface.",

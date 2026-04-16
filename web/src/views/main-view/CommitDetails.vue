@@ -4,7 +4,7 @@
 			<div class="left flex-1">
 				<h3>
 					Commit
-					<span v-if="config_show_buttons" class="actions-menu" @click.stop>
+					<span class="actions-menu" @click.stop>
 						<button v-context-menu="commit_context_menu_provider" class="btn btn-2 ellipsis-btn">⋯</button>
 					</span>
 				</h3>
@@ -15,7 +15,7 @@
 						:commit="commit"
 						:refs="refs_combined"
 						:allow_wrap="true"
-						:show_buttons="config_show_buttons"
+						show_buttons
 						:ref_title="tag_title"
 					/>
 				</div>
@@ -156,9 +156,6 @@ watchEffect(async () => {
 		console.error(`Failed to fetch commit metadata: ${e}`)
 	}
 })
-
-let config_show_buttons = computed(() =>
-	! config.get_boolean_or_undefined('hide-sidebar-buttons'))
 </script>
 <style scoped>
 h3 {
@@ -176,13 +173,7 @@ h3 {
 }
 .parent-inline { margin-right: 8px; }
 .commit-hash-link {
-	color: var(--vscode-textLink-foreground);
-	cursor: pointer;
-	text-decoration: none;
 	font-family: monospace;
-}
-.commit-hash-link:hover {
-	text-decoration: underline;
 }
 .refs-inline {
 	display: flex;
