@@ -36,6 +36,13 @@ ul,
 }
 a {
 	color: var(--vscode-textLink-foreground);
+	cursor: pointer;
+	&:not([href]) {
+		text-decoration: none;
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 a:hover,
 a:active {
@@ -56,7 +63,7 @@ details > summary {
 	display: flex;
 	align-items: center;
 }
-details > summary::before {
+details > summary:not(.no-arrow)::before {
 	font: 16px/1 codicon;
 	user-select: none;
 	padding-right: 6px;
@@ -67,7 +74,7 @@ details > summary::before {
 details[open] > summary {
 	height: unset;
 }
-details[open] > summary::before {
+details[open] > summary:not(.no-arrow)::before {
 	content: '\eab4';
 }
 input:not([type='checkbox']):not([type='radio']):not([type='submit']):not([type='range']),

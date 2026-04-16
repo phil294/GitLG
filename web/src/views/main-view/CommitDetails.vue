@@ -42,6 +42,11 @@
 							Date: {{ committer_date }}
 						</div>
 					</template>
+					<details>
+						<summary class="no-arrow align-center">
+							<a>Compare...</a>
+						</summary>In order to compare this commit with another one, do <kbd>Ctrl/Cmd</kbd>+Click on any other commit in the main view.
+					</details>
 					<div class="commit-details-summary">
 						<p class="summary-line">
 							{{ commit.subject }}
