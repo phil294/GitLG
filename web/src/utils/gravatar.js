@@ -1,4 +1,4 @@
-import { md5_hash } from '../bridge'
+import { sha256_hash } from '../bridge'
 
 /**
  * Avatar cache with localStorage persistence
@@ -118,18 +118,6 @@ async function image_to_base64(url) {
 		img.src = url
 	})
 }
-
-/**
- * Get Gravatar URL for email
- * @param {string} email
- * @param {number} size
- * @returns {Promise<string>}
- */
-async function get_gravatar_url(email, size = 32) {
-	let hash = await md5_hash(email)
-	return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=identicon&r=pg`
-}
-
 /**
  * Get avatar for email with caching
  * @param {string} email
@@ -139,14 +127,14 @@ export async function get_avatar(email) {
 	if (! email)
 		return null
 
-	let hash = await md5_hash(email)
+	let hash = await sha256_hash(email.trim().toLowerCase())
 
 	let cached = avatar_cache.get(hash)
 	if (cached)
 		return cached
 
 	try {
-		let gravatar_url = await get_gravatar_url(email)
+		let gravatar_url = `https://www.gravatar.com/avatar/${hash}?s=32&d=identicon&r=pg`
 		let base64_data = await image_to_base64(gravatar_url)
 
 		avatar_cache.set(hash, base64_data)

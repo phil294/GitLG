@@ -167,8 +167,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 						})
 						case 'clipboard-write-text': return h(() =>
 							vscode.env.clipboard.writeText(data))
-						case 'md5-hash': return h(() =>
-							crypto.createHash('md5').update(data.toLowerCase().trim()).digest('hex'))
+						case 'sha256-hash': return h(() =>
+							crypto.createHash('sha256').update(data).digest('hex'))
 					}
 			}
 		}))
