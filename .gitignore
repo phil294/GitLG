@@ -8,3 +8,4 @@ web-dist
 todo*
 vsix-out
 src/*.js
+web/src/*.js
