@@ -9,15 +9,15 @@ class AvatarCache {
 	}
 	#write_cache() {
 		// Only not non-nulls are stored so http errors are retried at next extension reload
-		localStorage.setItem(this.cache_key, JSON.stringify(Object.fromEntries(Object.entries(this.cache).filter(([_hash, value]) =>
+		localStorage.setItem(this.cache_key, JSON.stringify(Object.fromEntries(Object.entries(this.cache).filter(([_email, value]) =>
 			value))))
 	}
 	/** @returns base64 image data or null if prior request failed or undefined if not yet cached */
-	get(/** @type {string} */ email_hash) {
-		return this.cache[email_hash] ? this.cache[email_hash].data : this.cache[email_hash]
+	get(/** @type {string} */ email) {
+		return this.cache[email] ? this.cache[email].data : this.cache[email]
 	}
-	set(/** @type {string} */ email_hash, /** @type {string | null} */ base64_data) {
-		this.cache[email_hash] = base64_data === null
+	set(/** @type {string} */ email, /** @type {string | null} */ base64_data) {
+		this.cache[email] = base64_data === null
 			? null : {
 				data: base64_data,
 				timestamp: Date.now(),
@@ -77,29 +77,29 @@ async function image_to_base64(url) {
 
 /**
  * Get avatar for email with caching
- * @param {string} email
+ * @param {string} email_unsafe
  * @returns {Promise<string|null>} base64 data URL or null
  */
-export async function get_avatar(email) {
+export async function get_avatar(email_unsafe) {
+	let email = email_unsafe.trim().toLowerCase()
 	if (! email)
 		return null
 
-	let hash = await sha256_hash(email.trim().toLowerCase())
-
-	let cached = avatar_cache.get(hash)
+	let cached = avatar_cache.get(email)
 	if (cached !== undefined)
 		return cached
-
+	
+	let hash = await sha256_hash(email)
 	try {
 		let gravatar_url = `https://www.gravatar.com/avatar/${hash}?s=32&d=identicon&r=pg`
 		let base64_data = await image_to_base64(gravatar_url)
 
-		avatar_cache.set(hash, base64_data)
+		avatar_cache.set(email, base64_data)
 
 		return base64_data
 	} catch (e) {
 		console.warn('Failed to fetch avatar for:', email, e)
-		avatar_cache.set(hash, null)
+		avatar_cache.set(email, null)
 		return null
 	}
 }
