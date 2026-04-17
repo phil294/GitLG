@@ -1,18 +1,25 @@
 import globals from 'globals'
 import neostandard from 'neostandard'
-import pluginVue from 'eslint-plugin-vue'
+import plugin_vue from 'eslint-plugin-vue'
 import jsdoc from 'eslint-plugin-jsdoc'
+import js from '@eslint/js'
+import ts_eslint from 'typescript-eslint'
+import { defineConfig } from '@eslint/config-helpers'
 
 /** @type {import('eslint').Linter.Config[]} */
-export default [
+export default defineConfig([
+	js.configs.recommended,
+	...ts_eslint.configs.strictTypeChecked,
+	...ts_eslint.configs.stylisticTypeChecked,
+	{ languageOptions: { parserOptions: { projectService: true } } },
 	...neostandard({}),
 	{ files: ['**/*.js'], languageOptions: { sourceType: 'commonjs' } },
 	{ languageOptions: { globals: { ...globals.browser, ...globals.node } } },
-	...pluginVue.configs['flat/recommended'],
-	jsdoc.configs['flat/recommended-typescript-flavor'],
+	...plugin_vue.configs['flat/recommended'],
+	jsdoc.configs['flat/recommended-typescript-flavor-error'],
 	{ ignores: ['web-dist', 'node_modules', '.vscode/.history'] },
 	{
-		files: ['**/*.js', '**/*.vue', '**/*.mjs'],
+		files: ['**/*.js', '**/*.vue', '**/*.mjs', '**/*.ts'],
 		plugins: { jsdoc },
 		languageOptions: {
 			globals: {
@@ -31,7 +38,24 @@ export default [
 		},
 		rules: {
 			'prefer-const': 'off',
-			camelcase: 'off', // eslint-plugin-snakecasejs also doesn't work properly. TODO: ? / alternatives
+			camelcase: 'off',
+			'@typescript-eslint/naming-convention': ['warn', {
+				selector: 'default',
+				format: ['snake_case'],
+				leadingUnderscore: 'allow',
+				trailingUnderscore: 'allow',
+			}, {
+				selector: 'import',
+				format: ['snake_case', 'PascalCase'],
+			}, {
+				selector: 'typeLike',
+				format: ['PascalCase'],
+			}, {
+				// https://github.com/typescript-eslint/typescript-eslint/issues/6120#issuecomment-1595583999
+				selector: 'objectLiteralProperty',
+				format: null,
+			},
+			],
 			'@stylistic/indent': ['warn', 'tab'],
 			quotes: ['warn', 'single'],
 			'@stylistic/no-tabs': 'off',
@@ -91,8 +115,14 @@ export default [
 			'import/first': 'off', // breaks script setup + extra script for exports
 			'@stylistic/multiline-ternary': 'off',
 			'no-unused-vars': ['warn', { varsIgnorePattern: '^_.*', argsIgnorePattern: '^_.*', caughtErrorsIgnorePattern: '^_.*' }],
+			'@typescript-eslint/no-unused-vars': ['warn', { varsIgnorePattern: '^_.*', argsIgnorePattern: '^_.*', caughtErrorsIgnorePattern: '^_.*' }],
 			'no-sequences': 'off',
 			'@stylistic/object-property-newline': 'off',
+			'@stylistic/lines-between-class-members': 'off',
+			'@typescript-eslint/no-import-type-side-effects': 'warn',
+			'@typescript-eslint/no-unsafe-type-assertion': 'warn',
+			'@typescript-eslint/strict-boolean-expressions': ['warn', { allowNullableBoolean: true }],
+			'@typescript-eslint/switch-exhaustiveness-check': 'warn',
 		},
 	},
-]
+])

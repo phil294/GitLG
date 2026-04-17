@@ -11,7 +11,6 @@
   "compilerOptions": {
     "outDir": "/dev/null",
     "skipLibCheck": true,
-    "baseUrl": ".",
     "moduleResolution": "bundler",
     "module": "ESNext",
     "target": "ESNext",
@@ -29,7 +28,7 @@
     "alwaysStrict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": false,
+    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
@@ -37,6 +36,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useUnknownInCatchVariables": false,
+    "verbatimModuleSyntax": true,
 
     "strictBindCallApply": true,
     // "noPropertyAccessFromIndexSignature": true,
