@@ -190,7 +190,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				(is_production ? '' : `${dev_server_url} 'unsafe-eval'`) + '; ' +
 			`font-src ${view.cspSource} ` +
 				(is_production ? '' : dev_server_url) + '; ' +
-			'connect-src ' +
+			'connect-src https://www.gravatar.com ' +
 				(is_production ? '' : '*') + '; ' +
 			`img-src ${view.cspSource} data: https://www.gravatar.com ` +
 				(is_production ? '' : dev_server_url) + '; '
