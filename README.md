@@ -57,6 +57,7 @@ Notable features:
  - Blame: Shows last commit for current line in status bar to focus and open in main view
  - File history
  - Branch history
+ - Author avatars via gravatar.com
 
 ## Configuration
 

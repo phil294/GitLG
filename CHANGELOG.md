@@ -4,6 +4,20 @@ Entries usually sorted by importance.
 
 <!-- CHANGELOG_PLACEHOLDER -->
 
+### v0.1.35 2026-04-17
+
+Various visual improvements: Huge thanks to @strayge!
+
+- [`da8b768`](https://github.com/phil294/GitLG/commit/da8b768) Redesign commit details
+- [`375d4e8`](https://github.com/phil294/GitLG/commit/375d4e8) Show avatars in log (gravatar)
+- [`0454201`](https://github.com/phil294/GitLG/commit/0454201) Filter out HEAD refs for remotes
+- [`4868be1`](https://github.com/phil294/GitLG/commit/4868be1) Move "All branches" and "History" buttons to top
+- [`60a54ab`](https://github.com/phil294/GitLG/commit/60a54ab) Hide empty space for disabled commit stats
+
+- [`68ac684`](https://github.com/phil294/GitLG/commit/68ac684) Trigger context menus (on branches etc) on left click also
+
+- [`d12f936`](https://github.com/phil294/GitLG/commit/d12f936) [`bbfa0db`](https://github.com/phil294/GitLG/commit/bbfa0db) Readme improvements, thanks to @dimateos
+
 ### v0.1.34 2025-11-02
 
 - [`117da91`](https://github.com/phil294/GitLG/commit/117da91) Support input interactive passwords for git/ssh, and interactive editor inputs (#53, #168). Thanks to @strayge!
