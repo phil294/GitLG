@@ -1,11 +1,8 @@
+import is_object from '../../utils/is-object'
 import state from '../state'
 
 // TODO: test with all set to null
 let config = state('config', {}).ref
-
-/** @returns {val is Record<string, unknown>} */
-let is_object = (/** @type {Json | undefined} */ val) =>
-	val !== null && typeof val === 'object' && ! Array.isArray(val)
 
 let get_json = (/** @type {string} */ key) =>
 	key.split('.')

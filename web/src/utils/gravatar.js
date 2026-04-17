@@ -1,28 +1,30 @@
 import { sha256_hash } from '../bridge'
+import { as_object_or_null } from './is-object'
 
 /** localStorage persisted */
 class AvatarCache {
 	constructor() {
 		this.cache_key = 'gitlg_avatar_cache'
 		this.expiry_days = 7
-		this.cache = JSON.parse(localStorage.getItem(this.cache_key) || '{}')
+		/** @type {Record<string, null | {data: string | Promise<string | null>, timestamp: number}>} */
+		// @ts-expect-error fully validating localstorage data is too much hassle
+		this.cache = as_object_or_null(JSON.parse(localStorage.getItem(this.cache_key) ?? 'null')) ?? {}
 	}
 	#write_cache() {
 		// Only not non-nulls are stored so http errors are retried at next extension reload
 		localStorage.setItem(this.cache_key, JSON.stringify(Object.fromEntries(Object.entries(this.cache).filter(([_email, value]) =>
-			value))))
+			value && ! (value.data instanceof Promise)))))
 	}
 	/** @returns base64 image data or null if prior request failed or undefined if not yet cached */
 	get(/** @type {string} */ email) {
 		return this.cache[email] ? this.cache[email].data : this.cache[email]
 	}
-	set(/** @type {string} */ email, /** @type {string | null} */ base64_data) {
-		this.cache[email] = base64_data === null
-			? null : {
-				data: base64_data,
+	set(/** @type {string} */ email, /** @type {string | null | Promise<string | null>} */ value) {
+		this.cache[email] = value === null
+			? value : {
+				data: value,
 				timestamp: Date.now(),
 			}
-
 		this.#write_cache()
 	}
 	// TODO: test
@@ -38,49 +40,16 @@ class AvatarCache {
 
 let avatar_cache = new AvatarCache()
 
-/**
- * Convert image URL to base64 data URL
- * @param {string} url
- * @returns {Promise<string>}
- */
-async function image_to_base64(url) {
-	return new Promise((resolve, reject) => {
-		let img = new Image()
-		img.crossOrigin = 'anonymous'
-
-		img.onload = () => {
-			let canvas = document.createElement('canvas')
-			let ctx = canvas.getContext('2d')
-
-			if (! ctx) {
-				reject(new Error('Could not get canvas context'))
-				return
-			}
-
-			canvas.width = img.width
-			canvas.height = img.height
-
-			ctx.drawImage(img, 0, 0)
-
-			try {
-				let data_url = canvas.toDataURL('image/png')
-				resolve(data_url)
-			} catch (e) {
-				reject(e)
-			}
-		}
-
-		img.onerror = () => { reject(new Error('Failed to load image')) }
-		img.src = url
-	})
+// TODO: separate file
+async function download_as_base64(/** @type {string} */ url) {
+	const response = await fetch(url)
+	if (! response.ok)
+		throw new Error(`Failed to fetch url, status ${String(response.status)}`)
+	// Throws on Chrome<140 / VSCode<Nov2025
+	return new Uint8Array(await (await response.blob()).arrayBuffer()).toBase64()
 }
 
-/**
- * Get avatar for email with caching
- * @param {string} email_unsafe
- * @returns {Promise<string|null>} base64 data URL or null
- */
-export async function get_avatar(email_unsafe) {
+export async function get_avatar(/** @type {string} */ email_unsafe) {
 	let email = email_unsafe.trim().toLowerCase()
 	if (! email)
 		return null
@@ -88,21 +57,20 @@ export async function get_avatar(email_unsafe) {
 	let cached = avatar_cache.get(email)
 	if (cached !== undefined)
 		return cached
-	
+
+	let { promise, resolve } = Promise.withResolvers()
+	avatar_cache.set(email, promise)
 	let hash = await sha256_hash(email)
-	try {
-		let gravatar_url = `https://www.gravatar.com/avatar/${hash}?s=32&d=identicon&r=pg`
-		let base64_data = await image_to_base64(gravatar_url)
-
-		avatar_cache.set(email, base64_data)
-
-		return base64_data
-	} catch (e) {
-		console.warn('Failed to fetch avatar for:', email, e)
-		avatar_cache.set(email, null)
-		return null
-	}
+	let gravatar_url = `https://www.gravatar.com/avatar/${hash}?s=32&d=identicon&r=pg`
+	let data_or_null = await download_as_base64(gravatar_url)
+		.then(base64 => `data:image/png;base64,${base64}`)
+		.catch((/** @type {unknown} */ e) => {
+			console.warn(gravatar_url, e)
+			return null
+		})
+	avatar_cache.set(email, data_or_null)
+	resolve(data_or_null)
+	return data_or_null
 }
 
-// Cleanup expired cache entries on load
 avatar_cache.cleanup()

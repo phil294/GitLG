@@ -12,9 +12,9 @@
 				</div>
 			</div>
 			<div :title="commit.author_name+' <'+commit.author_email+'>'" class="author align-center">
-				<div v-if="show_avatars && commit.author_email" class="avatar-placeholder">
-					<img v-if="author_avatar" :src="author_avatar" class="avatar" alt="">
-					<div v-else class="avatar-initial">
+				<div v-if="show_avatars && commit.author_email" class="avatar" aria-hidden="true">
+					<img v-if="author_avatar" :src="author_avatar">
+					<div v-else class="avatar-fallback">
 						{{ commit.author_name?.[0]?.toUpperCase() || '?' }}
 					</div>
 				</div>
@@ -93,19 +93,12 @@ let author_avatar = ref(/** @type {string|null} */ (null))
 async function load_avatar() {
 	// Reset first to show initial state during loading
 	author_avatar.value = null
-
 	if (! show_avatars.value || ! props.commit.author_email)
 		return
-
-	try {
-		let avatar_data = await get_avatar(props.commit.author_email)
-		author_avatar.value = avatar_data
-	} catch (e) {
-		console.warn('Failed to load avatar:', e)
-		author_avatar.value = null
-	}
+	author_avatar.value = await get_avatar(props.commit.author_email)
 }
 
+// TODO:
 onMounted(() => {
 	load_avatar()
 })
@@ -171,31 +164,28 @@ watch(show_avatars, () => {
 	justify-content: flex-start;
 	align-items: center;
 }
-.avatar-placeholder {
+.avatar {
 	width: 16px;
 	height: 16px;
 	border-radius: 50%;
 	flex-shrink: 0;
-	position: relative;
 	overflow: hidden;
 	margin-right: 4px;
-}
-.avatar {
-	width: 100%;
-	height: 100%;
-	border-radius: 50%;
-}
-.avatar-initial {
-	width: 100%;
-	height: 100%;
-	background: var(--vscode-list-activeSelectionBackground);
-	color: var(--vscode-list-activeSelectionForeground);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 9px;
-	font-weight: bold;
-	border-radius: 50%;
+	> img {
+		width: 100%;
+		height: 100%;
+	}
+	.avatar-fallback {
+		width: 100%;
+		height: 100%;
+		background: var(--vscode-list-activeSelectionBackground);
+		color: var(--vscode-list-activeSelectionForeground);
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 9px;
+		font-weight: bold;
+	}
 }
 .author-name {
 	overflow: hidden;
