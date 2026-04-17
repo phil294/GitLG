@@ -1,82 +1,38 @@
 import { sha256_hash } from '../bridge'
 
-/**
- * Avatar cache with localStorage persistence
- */
+/** localStorage persisted */
 class AvatarCache {
 	constructor() {
 		this.cache_key = 'gitlg_avatar_cache'
 		this.expiry_days = 7
+		this.cache = JSON.parse(localStorage.getItem(this.cache_key) || '{}')
 	}
-
-	/**
-	 * Get cached avatar
-	 * @param {string} email_hash
-	 * @returns {string|null} base64 image data or null if not cached/expired
-	 */
-	get(email_hash) {
-		try {
-			let cache = JSON.parse(localStorage.getItem(this.cache_key) || '{}')
-			let entry = cache[email_hash]
-
-			if (! entry)
-				return null
-
-			let now = Date.now()
-			let expiry = entry.timestamp + (this.expiry_days * 24 * 60 * 60 * 1000)
-
-			if (now > expiry) {
-				delete cache[email_hash]
-				localStorage.setItem(this.cache_key, JSON.stringify(cache))
-				return null
-			}
-
-			return entry.data
-		} catch (e) {
-			console.warn('Failed to read avatar cache:', e)
-			return null
-		}
+	#write_cache() {
+		// Only not non-nulls are stored so http errors are retried at next extension reload
+		localStorage.setItem(this.cache_key, JSON.stringify(Object.fromEntries(Object.entries(this.cache).filter(([_hash, value]) =>
+			value))))
 	}
-
-	/**
-	 * Store avatar in cache
-	 * @param {string} email_hash
-	 * @param {string} base64_data
-	 */
-	set(email_hash, base64_data) {
-		try {
-			let cache = JSON.parse(localStorage.getItem(this.cache_key) || '{}')
-			cache[email_hash] = {
+	/** @returns base64 image data or null if prior request failed or undefined if not yet cached */
+	get(/** @type {string} */ email_hash) {
+		return this.cache[email_hash] ? this.cache[email_hash].data : this.cache[email_hash]
+	}
+	set(/** @type {string} */ email_hash, /** @type {string | null} */ base64_data) {
+		this.cache[email_hash] = base64_data === null
+			? null : {
 				data: base64_data,
 				timestamp: Date.now(),
 			}
-			localStorage.setItem(this.cache_key, JSON.stringify(cache))
-		} catch (e) {
-			console.warn('Failed to write avatar cache:', e)
-		}
+
+		this.#write_cache()
 	}
-
-	/**
-	 * Clear expired entries from cache
-	 */
+	// TODO: test
+	/** Clear expired entries from cache */
 	cleanup() {
-		try {
-			let cache = JSON.parse(localStorage.getItem(this.cache_key) || '{}')
-			let now = Date.now()
-			let expiry_time = this.expiry_days * 24 * 60 * 60 * 1000
-			let cleaned = false
-
-			for (let hash in cache)
-				if (now > cache[hash].timestamp + expiry_time) {
-					delete cache[hash]
-					cleaned = true
-				}
-
-			if (cleaned)
-				localStorage.setItem(this.cache_key, JSON.stringify(cache))
-		} catch (e) {
-			console.warn('Failed to cleanup avatar cache:', e)
-		}
+		let now = Date.now()
+		let expiry_time = this.expiry_days * 24 * 60 * 60 * 1000
+		this.cache = Object.fromEntries(Object.entries(this.cache).filter(([_hash, value]) =>
+			value?.timestamp != null && now < value.timestamp + expiry_time))
+		this.#write_cache()
 	}
 }
 
@@ -114,10 +70,11 @@ async function image_to_base64(url) {
 			}
 		}
 
-		img.onerror = () => reject(new Error('Failed to load image'))
+		img.onerror = () => { reject(new Error('Failed to load image')) }
 		img.src = url
 	})
 }
+
 /**
  * Get avatar for email with caching
  * @param {string} email
@@ -130,7 +87,7 @@ export async function get_avatar(email) {
 	let hash = await sha256_hash(email.trim().toLowerCase())
 
 	let cached = avatar_cache.get(hash)
-	if (cached)
+	if (cached !== undefined)
 		return cached
 
 	try {
@@ -142,6 +99,7 @@ export async function get_avatar(email) {
 		return base64_data
 	} catch (e) {
 		console.warn('Failed to fetch avatar for:', email, e)
+		avatar_cache.set(hash, null)
 		return null
 	}
 }
