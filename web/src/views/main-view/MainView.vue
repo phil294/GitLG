@@ -197,8 +197,8 @@ details#log-config[open] {
 #main-panel #quick-branch-tips > button:hover {
 	z-index: 1;
 }
-:deep(#show-all-branches[open] > .dv),
-:deep(#history[open] > .dv) {
+:deep(#show-all-branches[open] > .content),
+:deep(#history[open] > .content) {
 	position: absolute;
 	top: calc(100% + 5px);
 	background: var(--vscode-editorWidget-background);
@@ -208,10 +208,10 @@ details#log-config[open] {
 	overflow: auto;
 	z-index: 5;
 }
-:deep(#show-all-branches[open] > .dv) {
+:deep(#show-all-branches[open] > .content) {
 	right: 10px;
 }
-:deep(#history[open] > .dv) {
+:deep(#history[open] > .content) {
 	left: 10%;
 	max-width: 80%;
 }

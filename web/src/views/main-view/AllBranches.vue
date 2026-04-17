@@ -4,7 +4,7 @@
 			<summary>
 				All branches...
 			</summary>
-			<div class="dv">
+			<div class="content">
 				<input v-model="txt_filter" class="filter" placeholder="Filter branch name">
 				<div class="branches">
 					<button v-for="branch of filtered_branches" :key="branch.id" title="Jump to branch tip" @click="$emit('branch_selected',branch);">
@@ -51,10 +51,10 @@ details#show-all-branches > summary {
 	align-items: center;
 	justify-content: end;
 }
-.dv {
+.content {
 	padding: 5px 10px 20px 20px;
 }
-.dv > button > .ref-tip.branch {
+.content > button > .ref-tip.branch {
 	margin: 2px;
 	padding: 1px 6px;
 }

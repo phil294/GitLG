@@ -3,7 +3,7 @@
 		<summary>
 			History...
 		</summary>
-		<div class="dv">
+		<div class="content">
 			<div v-if="history_mapped.length">
 				<div class="flex justify-flex-end">
 					<button id="clear-history" class="btn" @click="clear_history">
@@ -91,18 +91,18 @@ details#history > summary {
 	align-items: center;
 	justify-content: end;
 }
-details#history .dv {
+details#history .content {
 	padding: 20px;
 }
-details#history .dv li {
+details#history .content li {
 	overflow: hidden;
 	padding: 5px 0;
 	border-bottom: 1px solid #808080;
 }
-details#history .dv li .entry {
+details#history .content li .entry {
 	overflow: hidden;
 }
-details#history .dv li .delete {
+details#history .content li .delete {
 	margin-left: 5px;
 }
 </style>
