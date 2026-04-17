@@ -1,5 +1,6 @@
 let vscode = require('vscode')
 let path = require('path')
+let crypto = require('crypto')
 let RelativeTime = require('@yaireo/relative-time')
 let relative_time = new RelativeTime()
 require('./globals')
@@ -166,6 +167,8 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 						})
 						case 'clipboard-write-text': return h(() =>
 							vscode.env.clipboard.writeText(data))
+						case 'md5-hash': return h(() =>
+							crypto.createHash('md5').update(data.toLowerCase().trim()).digest('hex'))
 					}
 			}
 		}))
@@ -189,7 +192,7 @@ module.exports.activate = intercept_errors(function(/** @type {vscode.ExtensionC
 				(is_production ? '' : dev_server_url) + '; ' +
 			'connect-src ' +
 				(is_production ? '' : '*') + '; ' +
-			`img-src ${view.cspSource} data: ` +
+			`img-src ${view.cspSource} data: https://www.gravatar.com ` +
 				(is_production ? '' : dev_server_url) + '; '
 		let base_url = is_production
 			? view.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'web-dist')) + '/'
