@@ -88,6 +88,8 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius,
 		let [tracking_remote_name, ref_name] = branch_line.split(separator)
 		if (ref_name?.startsWith('(HEAD detached at '))
 			continue
+		if (ref_name?.match(/^refs\/remotes\/[^/]+\/HEAD$/))
+			continue
 		new_branch(ref_name || '???', { tracking_remote_name })
 	}
 	// Not actually a branch but since it's included in the log refs and is neither stash nor tag
@@ -131,6 +133,7 @@ async function parse(log_data, branch_data, stash_data, separator, curve_radius,
 			// map to ["master", "origin/master", "tag: xyz"]
 			.map((r) => r.split(' -> ')[1] || r)
 			.filter((r) => r !== 'refs/stash')
+			.filter((r) => ! r.match(/^refs\/remotes\/[^/]+\/HEAD$/))
 			.filter(is_truthy)
 			.map((id) => {
 				if (id.startsWith('tag: refs/tags/')) {
