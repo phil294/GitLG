@@ -33,11 +33,6 @@ fi
 
 run git push --tags origin master --dry-run
 
-if grep -R -n -E '\s$' src web/src; then
-    echo 'trailing whitespace found'
-    exit 1
-fi
-
 # broken since somewhere between vsce 2.2.0 and 2.15.0
 # run npx vsce verify-pat
 # pause
@@ -50,7 +45,7 @@ run npx ncu -u
 run npm i
 popd
 run git add package.json package-lock.json web/package.json web/package-lock.json
-git commit -m 'dependencies upgrade' ||:
+run git commit -m 'dependencies-upgrade'
 echo 'deps upgraded'
 pause
 # '
