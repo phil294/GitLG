@@ -16,9 +16,9 @@ The driving intention here is to foster a long-lived open source project that en
 
 There are currently no automated tests.
 
-The web part is written in [Vue.js 3](https://vuejs.org/guide/introduction.html), also using JS/JSDoc (no direct TS). New or refactored components should use [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html) and [`<script setup>`](https://vuejs.org/api/sfc-script-setup). The only other external dependency is [`vue-virtual-scroller`](https://github.com/Akryum/vue-virtual-scroller/tree/next/packages/vue-virtual-scroller).
+The web part is written in [Vue.js 3](https://vuejs.org/guide/introduction.html), with strict typing using JS/JSDoc (no direct TS). New or refactored components should use [Composition API](https://vuejs.org/guide/extras/composition-api-faq.html) and [`<script setup>`](https://vuejs.org/api/sfc-script-setup). The only other external runtime dependency is [`vue-virtual-scroller`](https://github.com/Akryum/vue-virtual-scroller/tree/next/packages/vue-virtual-scroller).
 
-CSS: Current definition and state of CSS in components is messy and introducing something like [Tailwind CSS](https://tailwindcss.com/) would align with this project's philosophies pretty well. ([details](https://github.com/phil294/GitLG/issues/62#issuecomment-2028448964))
+CSS: Current definition and state of CSS in components is messy and needs a more unifying approach.
 
 There is both a bootstrapping backend `extension.js` and a [webview](https://code.visualstudio.com/api/extension-guides/webview) which communicates with the backend via `bridge.js`. Git commands are implemented as a `git` child process in the backend. This way, web components are fully privileged via import, e.g.
 ```js

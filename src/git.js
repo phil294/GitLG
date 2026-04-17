@@ -31,7 +31,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 			if (is_initial_change)
 				return
 			// Changes done via interface already do a refresh afterwards, so prevent a second one.
-			// Another solution does not really seem feasible, as it's hard to tell when a change
+			// An alternative to margin wait below does not really seem feasible, as it's hard to tell when a change
 			// was made by the user. Some commands never do (log, branch --list, ...), others only
 			// sometimes, depending on work tree and command success. So it would be necessary to
 			// have a separate change detection logic based on .git/HEAD and .git/index because
@@ -81,7 +81,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 
 	let selected_repo_path = ''
 	return {
-		/** Guaranteed to be unique, yet as short of a path as possible */
+		/** Guaranteed to be unique by `path`, yet as short of a `name` as possible */
 		get_repo_infos() {
 			let arr = api.repositories.map(r => {
 				let segments = r.rootUri.fsPath.split(/[/\\]/)
@@ -105,6 +105,9 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 				}
 			}
 			return arr.map(el => ({ path: el.path, name: el.name }))
+			// TODO:
+			// .sort_like_vscode_git_ui()
+			// .sort((a, b) => a.name.localeCompare(b.name))
 		},
 		async run(/** @type {string} */ args, /** @type {string | undefined} */ repo_path) {
 			let cwd = vscode.workspace.getConfiguration(EXT_ID).get('folder')
@@ -121,7 +124,7 @@ module.exports.get_git = function(EXT_ID, logger, { on_repo_external_state_chang
 			try {
 				let { stdout } = await exec(
 					// cmd may include spaces such as C:\Program Files, while args is passed insecurely
-					`"${cmd.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"` +
+					`"${cmd.replaceAll('\\', '\\\\').replaceAll('"', '\\"')}"` + // TODO: use/share utils/quote-escape
 					` ${args}`, {
 						cwd,
 						// 35 MB. For scale, Linux kernel git graph (1 mio commits) in extension format

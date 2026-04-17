@@ -65,3 +65,6 @@ export let show_error_message = (/** @type {string} */ msg) =>
 
 export let add_push_listener = (/** @type {string} */ id, /** @type {(r: BridgeMessage) => void} */ handler) =>
 	push_handlers[id] = handler
+
+export let sha256_hash = (/** @type {string} */ email) =>
+	exchange_message('sha256-hash', email)

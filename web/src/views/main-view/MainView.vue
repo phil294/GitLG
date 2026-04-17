@@ -24,8 +24,8 @@
 					</aside>
 				</nav>
 				<div id="quick-branch-tips">
-					<all-branches @branch_selected="jump_to_branch_tip_or_load($event)" />
-					<history @commit_clicked="jump_to_commit_hash_or_load($event)" />
+					<all-branches class="btn btn-2" @branch_selected="jump_to_branch_tip_or_load($event)" />
+					<history class="btn btn-2" @commit_clicked="jump_to_commit_hash_or_load($event)" />
 					<div v-if="show_quick_branch_tips && !hidden_branch_tips_data.length" id="git-status">
 						<p v-if="web_phase === 'initializing_repo'" class="loading">
 							Loading...
@@ -59,7 +59,7 @@
 					</button>
 				</template>
 				<template v-else-if="selected_commits.length">
-					<commits-details id="selected-commits" :commits="selected_commits" class="flex-1 fill-w padding" />
+					<commits-details id="selected-commits" :commits="selected_commits" class="flex-1 fill-w padding" @hash_clicked="jump_to_commit_hash_or_load($event)" />
 					<button id="close-selected-commits" class="center" title="Close" @click="selected_commits=[]">
 						<i class="codicon codicon-close" />
 					</button>
@@ -197,24 +197,17 @@ details#log-config[open] {
 #main-panel #quick-branch-tips > button:hover {
 	z-index: 1;
 }
-#main-panel #quick-branch-tips > #all-branches,
-#main-panel #quick-branch-tips > #history {
-	position: absolute;
-	background: var(--vscode-editorWidget-background);
-	border: 1px solid var(--vscode-editorWidget-border);
-	padding: 5px;
-	padding-right: 10px;
-	border-radius: 5px;
-}
 #main-panel #quick-branch-tips > #all-branches {
+	position: absolute;
+	left: calc(100% - 130px);
 	top: 15px;
-	right: 10px;
 	z-index: 3;
 	max-width: clamp(300px, 70vw, 80vw);
 }
 #main-panel #quick-branch-tips > #history {
-	top: 52px;
-	right: 40px;
+	position: absolute;
+	left: calc(100% - 130px);
+	top: 48px;
 	z-index: 2;
 }
 #main-panel #quick-branch-tips > #history[open] {

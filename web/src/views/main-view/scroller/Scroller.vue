@@ -19,7 +19,7 @@
 			:class="{['selected-commit']: selected_commits.includes(commit)}"
 			:commit="commit"
 			:data-commit-hash="commit.hash"
-			@click="commit_clicked(commit,$event)"
+			@click.stop="commit_clicked(commit,$event)"
 		/>
 	</recycle-scroller>
 </template>
