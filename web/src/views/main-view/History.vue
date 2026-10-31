@@ -49,12 +49,19 @@ import { search_str } from '../../data/store/search'
 
 defineEmits(['commit_clicked'])
 
+let commits_by_hash = computed(() => {
+	let by_hash = new Map()
+	for (let commit of filtered_commits.value || [])
+		if (! by_hash.has(commit.hash))
+			by_hash.set(commit.hash, commit)
+	return by_hash
+})
+
 let history_mapped = computed(() =>
 	(history.value || []).slice().reverse().map((entry) => ({
 		...entry,
 		commit: entry.type === 'commit_hash'
-			? filtered_commits.value?.find((commit) =>
-				commit.hash === entry.value) : undefined,
+			? commits_by_hash.value.get(entry.value) : undefined,
 		git_action: entry.type === 'git' ? {
 			title: () => Promise.resolve('git ' + entry.value),
 			args: entry.value,
