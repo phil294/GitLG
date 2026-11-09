@@ -94,8 +94,10 @@ export let combine_branches = (/** @type {string} */ from_branch_name, /** @type
 // TODO: rename / distinguish from scroll_to_/jump_to_branch_tip. show_isolate_branch?. same below which is actually even called from a jump_to_*.
 export let show_branch = (/** @type {Branch} */ branch_tip) =>
 	trigger_main_refresh({
-		custom_log_args: ({ base_log_args }) =>
-			`${base_log_args} -n 15000 ${branch_tip.id}`,
+		custom_log_args: ({ base_log_args, user_log_args }) => {
+			let max_count = /\s-n\s*(\d+)/.exec(user_log_args)?.[1] ?? '15000'
+			return `${base_log_args} -n ${max_count} ${branch_tip.id}`
+		},
 		fetch_stash_refs: false,
 	})
 
