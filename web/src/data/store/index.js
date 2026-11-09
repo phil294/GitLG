@@ -95,7 +95,8 @@ export let combine_branches = (/** @type {string} */ from_branch_name, /** @type
 export let show_branch = (/** @type {Branch} */ branch_tip) =>
 	trigger_main_refresh({
 		custom_log_args: ({ base_log_args, user_log_args }) => {
-			let max_count = /\s-n\s*(\d+)/.exec(user_log_args)?.[1] ?? '15000'
+			// git honors the last limit given, so take the last match too
+			let max_count = [...user_log_args.matchAll(/\s(?:-n\s*|--max-count=)(\d+)/g)].pop()?.[1] ?? '15000'
 			return `${base_log_args} -n ${max_count} ${branch_tip.id}`
 		},
 		fetch_stash_refs: false,
